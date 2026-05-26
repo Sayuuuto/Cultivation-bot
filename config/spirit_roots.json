@@ -1,0 +1,43 @@
+{
+  "Pure Jade Root": {
+    "breakthrough_stability": 0.05,
+    "cultivate_qi_mult": 1.03,
+    "description": "Balanced and steady; favored by patient cultivators."
+  },
+  "Violet Lightning Root": {
+    "adventure_success": 0.06,
+    "dungeon_damage": 0.08,
+    "stamina_efficiency": 0.92,
+    "description": "Crackling with speed; bursts forward but burns quickly."
+  },
+  "Flame Ember Root": {
+    "dungeon_damage": 0.10,
+    "pvp_power": 0.08,
+    "breakthrough_setback_mult": 1.08,
+    "description": "Aggressive fire qi that demands dominance."
+  },
+  "Frost Spirit Root": {
+    "adventure_defense": 0.10,
+    "drop_luck": -0.05,
+    "breakthrough_stability": 0.03,
+    "description": "Cold clarity shields you from harm."
+  },
+  "Earthweight Root": {
+    "adventure_defense": 0.12,
+    "dungeon_defense": 0.10,
+    "cultivate_qi_mult": 0.95,
+    "description": "Heavy and immovable; slow but enduring."
+  },
+  "Moonlit Sword Root": {
+    "dungeon_damage": 0.06,
+    "rare_event_mult": 1.10,
+    "adventure_success": 0.04,
+    "description": "Precision under moonlight; thrives in ruins."
+  },
+  "Mercy Lotus Root": {
+    "sect_contribution_mult": 1.15,
+    "adventure_defense": 0.06,
+    "pvp_stones_mult": 0.90,
+    "description": "Gentle dao that supports allies and sects."
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "flow_pill": {
+    "name": "Flow Meridian Pill",
+    "category": "pill",
+    "price": 30,
+    "description": "Shaves **10 min** off your next adventure cooldown.",
+    "item_id": "flow_pill",
+    "quantity": 1
+  },
+  "meridian_surge_pill": {
+    "name": "Meridian Surge Pill",
+    "category": "pill",
+    "price": 35,
+    "description": "Shaves **7 min** off your next **2** cultivate cooldowns.",
+    "item_id": "meridian_surge_pill",
+    "quantity": 1
+  },
+  "gatebreaker_dust": {
+    "name": "Gatebreaker Dust",
+    "category": "pill",
+    "price": 55,
+    "description": "Shaves **30 min** off your next dungeon cooldown.",
+    "item_id": "gatebreaker_dust",
+    "quantity": 1
+  },
+  "void_pulse_pill": {
+    "name": "Void Pulse Pill",
+    "category": "pill",
+    "price": 85,
+    "description": "One dose shaves time off **cultivate, adventure, dungeon, and duel** cooldowns.",
+    "item_id": "void_pulse_pill",
+    "quantity": 1
+  },
+  "qi_gathering_pill": {
+    "name": "Qi Gathering Pill",
+    "category": "pill",
+    "price": 22,
+    "description": "Boosts qi from your next **3** cultivations.",
+    "item_id": "qi_gathering_pill",
+    "quantity": 1
+  },
+  "clarity_pill": {
+    "name": "Clarity Pill",
+    "category": "pill",
+    "price": 48,
+    "description": "Steadies the mind for **+5%** breakthrough success on one attempt.",
+    "item_id": "clarity_pill",
+    "quantity": 1
+  },
+  "swiftwind_pill": {
+    "name": "Swiftwind Pill",
+    "category": "pill",
+    "price": 28,
+    "description": "Improves success on your next adventure run.",
+    "item_id": "swiftwind_pill",
+    "quantity": 1
+  },
+  "tempering_pill": {
+    "name": "Tempering Pill",
+    "category": "pill",
+    "price": 32,
+    "description": "Hardens the body for one adventure or dungeon.",
+    "item_id": "tempering_pill",
+    "quantity": 1
+  },
+  "affix_stone": {
+    "name": "Affix Stone",
+    "category": "supply",
+    "price": 120,
+    "description": "Imprint a random affix onto forged gear (`/equip`).",
+    "item_id": "affix_stone",
+    "quantity": 1
+  },
+  "blackwind_key": {
+    "name": "Blackwind Key",
+    "category": "supply",
+    "price": 95,
+    "description": "Opens Blackwind Cavern without crafting.",
+    "item_id": "blackwind_key",
+    "quantity": 1
+  },
+  "shop_spirit_blade": {
+    "type": "equipment",
+    "name": "Spirit Blade",
+    "category": "equipment",
+    "price": 110,
+    "description": "Shop-forged weapon — modest Power for adventures and duels.",
+    "slot": "weapon",
+    "item_id": "spirit_blade",
+    "stats": {"power": 6, "defense": 1, "fortune": 1, "insight": 0}
+  },
+  "shop_mistwoven_vest": {
+    "type": "equipment",
+    "name": "Mistwoven Vest",
+    "category": "equipment",
+    "price": 100,
+    "description": "Shop-forged armor — solid Defense for risky areas.",
+    "slot": "armor",
+    "item_id": "mistwoven_vest",
+    "stats": {"power": 0, "defense": 7, "fortune": 0, "insight": 1}
+  },
+  "shop_bandit_talisman": {
+    "type": "equipment",
+    "name": "Bandit's Talisman",
+    "category": "equipment",
+    "price": 90,
+    "description": "Shop charm — a little Fortune for better drops.",
+    "slot": "accessory",
+    "item_id": "bandit_talisman",
+    "stats": {"power": 1, "defense": 1, "fortune": 6, "insight": 2}
+  },
+  "shop_moonwell_pendant": {
+    "type": "equipment",
+    "name": "Moonwell Pendant",
+    "category": "equipment",
+    "price": 130,
+    "description": "Shop focus — balanced stats with extra Insight.",
+    "slot": "talisman",
+    "item_id": "moonwell_pendant",
+    "stats": {"power": 2, "defense": 2, "fortune": 3, "insight": 5}
+  }
+}

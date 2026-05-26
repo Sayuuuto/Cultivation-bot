@@ -1,0 +1,105 @@
+{
+  "blackwind_key": {
+    "name": "Blackwind Key",
+    "type": "key",
+    "output_item_id": "blackwind_key",
+    "output_quantity": 1,
+    "inputs": {
+      "spirit_iron_shard": 3,
+      "ancient_dust": 2,
+      "minor_beast_core": 1
+    },
+    "success_chance": 1.0,
+    "byproduct_item_id": null
+  },
+  "qi_gathering_pill": {
+    "name": "Qi Gathering Pill",
+    "type": "pill",
+    "output_item_id": "qi_gathering_pill",
+    "output_quantity": 1,
+    "inputs": {"green_dew_herb": 2, "bamboo_resin": 1},
+    "success_chance": 0.85,
+    "byproduct_item_id": "pill_ash"
+  },
+  "tempering_pill": {
+    "name": "Tempering Pill",
+    "type": "pill",
+    "output_item_id": "tempering_pill",
+    "output_quantity": 1,
+    "inputs": {"bamboo_resin": 2, "minor_beast_core": 1},
+    "success_chance": 0.80,
+    "byproduct_item_id": "pill_ash"
+  },
+  "clarity_pill": {
+    "name": "Clarity Pill",
+    "type": "pill",
+    "output_item_id": "clarity_pill",
+    "output_quantity": 1,
+    "inputs": {"green_dew_herb": 1, "moonlotus": 1},
+    "success_chance": 0.75,
+    "byproduct_item_id": "pill_ash"
+  },
+  "swiftwind_pill": {
+    "name": "Swiftwind Pill",
+    "type": "pill",
+    "output_item_id": "swiftwind_pill",
+    "output_quantity": 1,
+    "inputs": {"ember_moss": 2, "bandit_token": 1},
+    "success_chance": 0.80,
+    "byproduct_item_id": "pill_ash"
+  },
+  "blood_ember_pill": {
+    "name": "Blood Ember Pill",
+    "type": "pill",
+    "output_item_id": "blood_ember_pill",
+    "output_quantity": 1,
+    "inputs": {"ember_moss": 2, "refined_beast_core": 1},
+    "success_chance": 0.70,
+    "byproduct_item_id": "pill_ash"
+  },
+  "moonwell_tonic": {
+    "name": "Moonwell Tonic",
+    "type": "pill",
+    "output_item_id": "moonwell_tonic",
+    "output_quantity": 1,
+    "inputs": {"moonlotus": 2, "ancient_dust": 1},
+    "success_chance": 0.75,
+    "byproduct_item_id": "pill_ash"
+  },
+  "root_reforging_pill": {
+    "name": "Root Reforging Pill",
+    "type": "pill",
+    "output_item_id": "root_reforging_pill",
+    "output_quantity": 1,
+    "inputs": {"moonlotus": 1, "refined_beast_core": 1, "ancient_dust": 2},
+    "success_chance": 0.65,
+    "byproduct_item_id": "pill_ash"
+  },
+  "flow_pill": {
+    "name": "Flow Meridian Pill",
+    "type": "pill",
+    "output_item_id": "flow_pill",
+    "output_quantity": 1,
+    "inputs": {"green_dew_herb": 1, "ember_moss": 2, "bamboo_resin": 1},
+    "success_chance": 0.82,
+    "byproduct_item_id": "pill_ash"
+  },
+  "meridian_surge_pill": {
+    "name": "Meridian Surge Pill",
+    "type": "pill",
+    "output_item_id": "meridian_surge_pill",
+    "output_quantity": 1,
+    "inputs": {"moonlotus": 1, "bamboo_resin": 2, "green_dew_herb": 2},
+    "success_chance": 0.78,
+    "byproduct_item_id": "pill_ash"
+  },
+  "gatebreaker_dust": {
+    "name": "Gatebreaker Dust",
+    "type": "pill",
+    "output_item_id": "gatebreaker_dust",
+    "output_quantity": 1,
+    "inputs": {"ancient_dust": 2, "spirit_iron_shard": 2, "refined_beast_core": 1},
+    "success_chance": 0.72,
+    "byproduct_item_id": "pill_ash"
+  }
+}

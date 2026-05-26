@@ -1,0 +1,54 @@
+from __future__ import annotations
+
+import random
+
+import pytest
+
+from src.adventure import apply_adventure_choice, start_adventure_session
+from src.consumables import use_item
+from src.content import load_all_content
+from src.cooldown_haste import get_haste_reduction_seconds
+from src.forge import forge_equipment
+from src.inventory import add_item, load_item_catalog
+from src.stats import get_total_equipment_stats
+
+
+@pytest.fixture(autouse=True)
+def load_content():
+    load_all_content()
+    load_item_catalog()
+
+
+def test_forge_equipment_rolls_stats(session, player):
+    add_item(session, player.id, "spirit_iron_shard", 2)
+    add_item(session, player.id, "minor_beast_core", 1)
+    session.commit()
+
+    res = forge_equipment(session, player.id, "weapon", rng=random.Random(7))
+    session.commit()
+    assert res.success is True
+    stats = get_total_equipment_stats(session, player.id)
+    assert stats.power > 0
+
+
+def test_flow_pill_grants_adventure_haste(session, player):
+    add_item(session, player.id, "flow_pill", 1)
+    session.commit()
+    ok, _ = use_item(session, player, "flow_pill", rng=random.Random(1))
+    session.commit()
+    assert ok is True
+    assert get_haste_reduction_seconds(session, player.id, "adventure") == 600
+
+
+def test_interactive_adventure_choice_flow(session, player):
+    rng = random.Random(99)
+    pending, err = start_adventure_session(session, player, "bamboo_grove", "balanced", rng=rng)
+    session.commit()
+    assert err is None
+    assert pending is not None
+
+    choice_id = pending.choices[0].id
+    result, err = apply_adventure_choice(session, player, pending.active_id, choice_id, rng=rng)
+    session.commit()
+    assert err is None
+    assert result is not None

@@ -1,0 +1,62 @@
+{
+  "bamboo_grove": [
+    {
+      "id": "beast_on_path",
+      "prompt": "A low spirit beast blocks the bamboo path, growling softly.",
+      "choices": [
+        {"id": "fight", "label": "Fight head-on", "success_bonus": 0.0, "drop_mult": 1.2, "fail_chance": 0.14},
+        {"id": "detour", "label": "Take the muddy detour", "success_bonus": 0.1, "drop_mult": 0.85, "fail_chance": 0.06},
+        {"id": "bait", "label": "Bait it with herbs", "success_bonus": -0.05, "drop_mult": 1.35, "fail_chance": 0.2}
+      ]
+    },
+    {
+      "id": "mist_crossroads",
+      "prompt": "Mist hides a crossroads. One trail smells of resin, another of cold metal.",
+      "choices": [
+        {"id": "resin_trail", "label": "Follow the resin scent", "success_bonus": 0.05, "drop_mult": 1.1, "fail_chance": 0.08},
+        {"id": "metal_trail", "label": "Follow the metal chill", "success_bonus": -0.02, "drop_mult": 1.25, "fail_chance": 0.12},
+        {"id": "wait", "label": "Wait for the mist to clear", "success_bonus": 0.12, "drop_mult": 0.75, "fail_chance": 0.04}
+      ]
+    }
+  ],
+  "ashen_cliff": [
+    {
+      "id": "bandit_ambush",
+      "prompt": "Bandits emerge from cliffside smoke, demanding your spirit stones.",
+      "choices": [
+        {"id": "stand", "label": "Stand your ground", "success_bonus": 0.0, "drop_mult": 1.15, "fail_chance": 0.16},
+        {"id": "pay", "label": "Toss stones and run", "success_bonus": 0.08, "drop_mult": 0.7, "fail_chance": 0.05},
+        {"id": "charge", "label": "Charge through the smoke", "success_bonus": -0.08, "drop_mult": 1.4, "fail_chance": 0.22}
+      ]
+    },
+    {
+      "id": "collapsed_mine",
+      "prompt": "A collapsed mine shaft glitters with ore — but the ground trembles.",
+      "choices": [
+        {"id": "quick_grab", "label": "Grab what you can quickly", "success_bonus": -0.03, "drop_mult": 1.3, "fail_chance": 0.18},
+        {"id": "brace", "label": "Brace the entrance and dig carefully", "success_bonus": 0.06, "drop_mult": 0.95, "fail_chance": 0.09},
+        {"id": "leave", "label": "Leave before it collapses", "success_bonus": 0.15, "drop_mult": 0.6, "fail_chance": 0.02}
+      ]
+    }
+  ],
+  "moonwell_ruins": [
+    {
+      "id": "guardian_statue",
+      "prompt": "A cracked guardian statue turns its head toward you.",
+      "choices": [
+        {"id": "bow", "label": "Bow and offer qi", "success_bonus": 0.08, "drop_mult": 0.9, "fail_chance": 0.07},
+        {"id": "shatter", "label": "Shatter the core", "success_bonus": -0.1, "drop_mult": 1.45, "fail_chance": 0.25},
+        {"id": "circle", "label": "Circle wide through the ruins", "success_bonus": 0.03, "drop_mult": 1.05, "fail_chance": 0.11}
+      ]
+    },
+    {
+      "id": "moonwell_pool",
+      "prompt": "Moonlight reveals a hidden pool. Something stirs beneath the surface.",
+      "choices": [
+        {"id": "drink", "label": "Drink from the pool", "success_bonus": 0.0, "drop_mult": 1.2, "fail_chance": 0.15},
+        {"id": "skim", "label": "Skim lotus from the edge", "success_bonus": 0.05, "drop_mult": 1.0, "fail_chance": 0.1},
+        {"id": "probe", "label": "Probe the depths with qi", "success_bonus": -0.05, "drop_mult": 1.35, "fail_chance": 0.2}
+      ]
+    }
+  ]
+}

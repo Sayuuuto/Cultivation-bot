@@ -1,0 +1,137 @@
+{
+  "green_dew_herb": {
+    "name": "Green Dew Herb",
+    "category": "material",
+    "description": "A moist herb gathered from bamboo groves."
+  },
+  "bamboo_resin": {
+    "name": "Bamboo Resin",
+    "category": "material",
+    "description": "Sticky resin used as a pill stabilizer."
+  },
+  "minor_beast_core": {
+    "name": "Minor Beast Core",
+    "category": "material",
+    "description": "A faint core from low-level spirit beasts."
+  },
+  "ember_moss": {
+    "name": "Ember Moss",
+    "category": "material",
+    "description": "Moss that smolders with residual fire qi."
+  },
+  "spirit_iron_shard": {
+    "name": "Spirit Iron Shard",
+    "category": "material",
+    "description": "A shard of ore infused with spirit energy."
+  },
+  "bandit_token": {
+    "name": "Bandit Token",
+    "category": "material",
+    "description": "A crude token taken from cliff bandits."
+  },
+  "moonlotus": {
+    "name": "Moonlotus",
+    "category": "material",
+    "description": "A pale flower that blooms only under moonlight."
+  },
+  "ancient_dust": {
+    "name": "Ancient Dust",
+    "category": "material",
+    "description": "Dust from collapsed ruins, heavy with old qi."
+  },
+  "refined_beast_core": {
+    "name": "Refined Beast Core",
+    "category": "material",
+    "description": "A purified core from stronger beasts."
+  },
+  "blackwind_key": {
+    "name": "Blackwind Key",
+    "category": "key",
+    "description": "Opens the gate to Blackwind Cavern."
+  },
+  "affix_stone": {
+    "name": "Affix Stone",
+    "category": "special",
+    "description": "Can imprint an affix onto equipment."
+  },
+  "pill_ash": {
+    "name": "Pill Ash",
+    "category": "material",
+    "description": "Ash left from failed alchemy."
+  },
+  "qi_gathering_pill": {
+    "name": "Qi Gathering Pill",
+    "category": "pill",
+    "description": "Boosts qi gain from cultivation for a short time."
+  },
+  "tempering_pill": {
+    "name": "Tempering Pill",
+    "category": "pill",
+    "description": "Hardens the body for one adventure or dungeon run."
+  },
+  "clarity_pill": {
+    "name": "Clarity Pill",
+    "category": "pill",
+    "description": "Steadies the mind for breakthrough attempts."
+  },
+  "swiftwind_pill": {
+    "name": "Swiftwind Pill",
+    "category": "pill",
+    "description": "Lightens your steps during exploration."
+  },
+  "blood_ember_pill": {
+    "name": "Blood Ember Pill",
+    "category": "pill",
+    "description": "Burns with aggressive qi for dungeon combat."
+  },
+  "moonwell_tonic": {
+    "name": "Moonwell Tonic",
+    "category": "pill",
+    "description": "Attunes you to rare events in solo adventures."
+  },
+  "root_reforging_pill": {
+    "name": "Root Reforging Pill",
+    "category": "pill",
+    "description": "Rare alchemy that reshapes your spirit root."
+  },
+  "flow_pill": {
+    "name": "Flow Meridian Pill",
+    "category": "pill",
+    "description": "Opens the meridians for swifter travel — shaves time off your next adventure."
+  },
+  "meridian_surge_pill": {
+    "name": "Meridian Surge Pill",
+    "category": "pill",
+    "description": "Surges qi circulation so your next cultivations return sooner."
+  },
+  "gatebreaker_dust": {
+    "name": "Gatebreaker Dust",
+    "category": "pill",
+    "description": "Grinds dungeon seals — your next dungeon run ignores much of the gate cooldown."
+  },
+  "void_pulse_pill": {
+    "name": "Void Pulse Pill",
+    "category": "pill",
+    "description": "A single pulse through every meridian — all major cooldowns shorten for one use each."
+  },
+  "spirit_blade": {
+    "name": "Spirit Blade",
+    "category": "equipment",
+    "description": "A forged weapon humming with beast qi."
+  },
+  "mistwoven_vest": {
+    "name": "Mistwoven Vest",
+    "category": "equipment",
+    "description": "Resin-hardened armor woven from grove materials."
+  },
+  "bandit_talisman": {
+    "name": "Bandit's Talisman",
+    "category": "equipment",
+    "description": "A charm of stolen luck from cliff bandits."
+  },
+  "moonwell_pendant": {
+    "name": "Moonwell Pendant",
+    "category": "equipment",
+    "description": "Lotus and ancient dust sealed in a spirit focus."
+  }
+}
