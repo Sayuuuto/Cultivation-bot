@@ -36,6 +36,8 @@ def cfg() -> Config:
         tutorial_channel_id=None,
         library_channel_id=None,
         abode_category_id=None,
+        arena_category_id=None,
+        pvp_results_channel_id=None,
     )
 
 
@@ -97,29 +99,28 @@ def test_create_blocks_when_challenger_on_cooldown(session, player, opponent_pla
     assert "cooling down" in err.lower()
 
 
-def test_accept_runs_duel_and_marks_completed(session, player, opponent_player, cfg, now):
+def test_accept_starts_active_match(session, player, opponent_player, cfg, now):
     challenge, _ = create_duel_challenge(session, player.guild_id, player, opponent_player, cfg, now)
     session.commit()
     assert challenge is not None
 
-    before_opp_stones = opponent_player.spirit_stones
-    executed, err = accept_duel_challenge(
+    started, err = accept_duel_challenge(
         session,
         challenge.id,
         opponent_player.discord_id,
         player,
         opponent_player,
         cfg,
-        FixedRoll(0.99),
+        random.Random(1),
         now,
     )
     assert err is None
-    assert executed is not None
-    assert executed.result.success is False
-    assert opponent_player.spirit_stones > before_opp_stones
+    assert started is not None
+    assert started.match.status == "active"
+    assert started.state.current_actor_id in {player.discord_id, opponent_player.discord_id}
     session.commit()
     session.refresh(challenge)
-    assert challenge.status == "completed"
+    assert challenge.status == "active"
 
 
 def test_decline_marks_challenge_declined(session, player, opponent_player, cfg, now):

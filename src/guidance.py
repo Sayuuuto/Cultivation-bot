@@ -54,6 +54,18 @@ def get_start_next_steps() -> str:
     )
 
 
+def get_abode_welcome_intro(dao_name: str) -> str:
+    return (
+        f"**{dao_name}**, this is your abode — a private chamber where the world cannot intrude.\n\n"
+        "Cultivate qi here, claim your daily stipend, hunt spirit beasts, and walk the path of adventure. "
+        "Only you and the heavens witness what unfolds within these walls.\n\n"
+        "**Begin here**\n"
+        "1. **`/daily`** — claim spirit stones and qi\n"
+        "2. **`/profile`** — your dashboard, trial step, and timers\n"
+        "3. **`/cultivate`** when ready · **`/help`** for the full guide"
+    )
+
+
 def get_help_sections() -> list[tuple[str, str]]:
     return [
         (
@@ -108,7 +120,7 @@ def get_help_sections() -> list[tuple[str, str]]:
         ),
         (
             "Social",
-            "`/duel` — challenge a player; Accept/Decline in channel (stat-based, stones only, 2 hr cooldown)\n"
+            "`/duel` — challenge a player; Accept opens a private arena with hunt-style technique combat\n"
             "`/leaderboard` — top cultivators in this server\n"
             "`/clan-create` · `/clan-join` · `/clan-leave` · `/clan` · `/clan-invite` · `/clan-invites` — player clans\n"
             "`/sect-list` · `/sect` · `/sect-join` · `/sect-leave` · `/sect-task` · `/sect-shop` · `/sect-buy` — martial sects",

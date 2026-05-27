@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from src.discord_guild import abode_channel_slug, realm_role_name
+from src.guidance import get_abode_welcome_intro
 from src.realms import get_realm_names
 
 
@@ -38,3 +39,12 @@ def test_realm_role_name_matches_config():
         "Heavenly Transcendence",
         "Immortal Monarch",
     }
+
+
+def test_abode_welcome_intro_is_in_world():
+    text = get_abode_welcome_intro("Cloud Walker").lower()
+    assert "cloud walker" in text
+    for phrase in ("mvp", "scaffold", "legacy", "not chosen", "not at"):
+        assert phrase not in text
+    assert "/daily" in text
+    assert "/profile" in text

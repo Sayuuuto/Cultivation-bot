@@ -66,6 +66,7 @@ class CombatState:
     damage_boost_turns: int = 0
     opponent_traits: list[str] = field(default_factory=list)
     opponent_trait_cd: dict[str, int] = field(default_factory=dict)
+    player_label: str = "You"
 
     def to_dict(self) -> dict:
         return {
@@ -100,6 +101,7 @@ class CombatState:
             "damage_boost_turns": self.damage_boost_turns,
             "opponent_traits": self.opponent_traits,
             "opponent_trait_cd": self.opponent_trait_cd,
+            "player_label": self.player_label,
         }
 
     @classmethod
@@ -144,6 +146,7 @@ class CombatState:
             damage_boost_turns=int(data.get("damage_boost_turns", 0)),
             opponent_traits=list(data.get("opponent_traits", [])),
             opponent_trait_cd={str(k): int(v) for k, v in data.get("opponent_trait_cd", {}).items()},
+            player_label=str(data.get("player_label", "You")),
         )
 
 
@@ -217,12 +220,16 @@ def _decay_cooldowns(cooldowns: dict[str, int]) -> dict[str, int]:
     return {k: max(0, v - 1) for k, v in cooldowns.items() if v - 1 > 0}
 
 
+def _actor_label(state: CombatState) -> str:
+    return state.player_label or "You"
+
+
 def _check_end(state: CombatState) -> None:
     rules = load_combat_rules()
     if state.player.hp <= 0:
         state.finished = True
         state.victory = False
-        state.log.append("You fall — the fight is lost.")
+        state.log.append(f"**{_actor_label(state)}** falls — the fight is lost.")
         return
     if state.opponent.hp <= 0:
         state.finished = True
@@ -299,7 +306,7 @@ def execute_turn(
         return TurnResult(state=state, messages=["Combat already ended."], error="Combat already ended.")
 
     if is_stunned(state.player):
-        state.log.append("You are **stunned** and cannot act!")
+        state.log.append(f"**{_actor_label(state)}** is **stunned** and cannot act!")
     elif action == "strike":
         err = resolve_technique(state, stats, passive, "basic_strike", rng)
         if err:
@@ -317,8 +324,9 @@ def execute_turn(
         _check_end(state)
 
     if not state.finished:
+        actor = _actor_label(state)
         for line in tick_statuses(state.player):
-            state.log.append(f"(You) {line}")
+            state.log.append(f"({actor}) {line}")
         for line in tick_statuses(state.opponent):
             state.log.append(f"({state.opponent_name}) {line}")
         process_passive_turn_end(state, passive)
@@ -387,4 +395,111 @@ def auto_finish_combat(
     state.victory = result.victory
     state.log.extend(result.log_lines)
     state.log.append("_Auto-finished remaining turns._")
+    return TurnResult(state=state, messages=state.log[-10:])
+
+
+def check_pvp_end(state: CombatState) -> None:
+    """End a duel turn when either combatant hits 0 HP."""
+    if state.player.hp <= 0:
+        state.finished = True
+        state.victory = False
+        state.log.append(f"**{_actor_label(state)}** falls — defeated.")
+        return
+    if state.opponent.hp <= 0:
+        state.finished = True
+        state.victory = True
+        state.log.append(f"**{state.opponent_name}** is defeated!")
+
+
+def execute_pvp_turn(
+    state: CombatState,
+    stats: PlayerCombatStats,
+    mod: CharacterModifiers | None,
+    passive: TechniqueDef | None,
+    action: str,
+    *,
+    technique_id: str | None = None,
+    rng: random.Random | None = None,
+) -> TurnResult:
+    """Resolve one duelist's turn using the shared technique engine (no auto counter-attack)."""
+    rng = rng or random.Random()
+    if state.finished:
+        return TurnResult(state=state, messages=["Combat already ended."], error="Combat already ended.")
+
+    if is_stunned(state.player):
+        state.log.append(f"**{_actor_label(state)}** is **stunned** and cannot act!")
+    elif action == "strike":
+        err = resolve_technique(state, stats, passive, "basic_strike", rng)
+        if err:
+            return TurnResult(state=state, messages=[err], error=err)
+    elif action == "technique" and technique_id:
+        err = resolve_technique(state, stats, passive, technique_id, rng)
+        if err:
+            return TurnResult(state=state, messages=[err], error=err)
+    else:
+        return TurnResult(state=state, messages=["Invalid action."], error="Invalid action.")
+
+    check_pvp_end(state)
+    if not state.finished:
+        actor = _actor_label(state)
+        for line in tick_statuses(state.player):
+            state.log.append(f"({actor}) {line}")
+        for line in tick_statuses(state.opponent):
+            state.log.append(f"({state.opponent_name}) {line}")
+        process_passive_turn_end(state, passive)
+        process_passive_hp_threshold(state, passive)
+        tick_combat_extras(state)
+        check_pvp_end(state)
+
+    if not state.finished:
+        state.technique_cooldowns = _decay_cooldowns(state.technique_cooldowns)
+        state.turn += 1
+
+    recent = state.log[-6:]
+    return TurnResult(state=state, messages=recent)
+
+
+def attempt_pvp_yield(state: CombatState) -> TurnResult:
+    state.finished = True
+    state.fled = True
+    state.victory = False
+    state.log.append(f"**{_actor_label(state)}** yields the duel.")
+    return TurnResult(state=state, messages=state.log[-4:])
+
+
+def auto_finish_pvp_combat(
+    state: CombatState,
+    stats: PlayerCombatStats,
+    mod: CharacterModifiers | None,
+    rng: random.Random | None = None,
+) -> TurnResult:
+    rng = rng or random.Random()
+    beast = BeastTemplate(
+        beast_id=state.opponent_id,
+        name=state.opponent_name,
+        hp=state.opponent.hp,
+        attack=state.opponent_attack,
+        defense=state.opponent_defense,
+    )
+    remaining_stats = PlayerCombatStats(
+        hp=state.player.hp,
+        max_hp=state.player.max_hp,
+        internal_strength=stats.internal_strength,
+        external_strength=stats.external_strength,
+        agility=stats.agility,
+        spiritual_sense=stats.spiritual_sense,
+        defense=stats.defense,
+        comprehension=stats.comprehension,
+        luck=stats.luck,
+        crit_chance=stats.crit_chance,
+        dodge=stats.dodge,
+    )
+    result = resolve_auto_combat(remaining_stats, beast, mod, rng)
+    state.player.hp = result.player_hp_remaining
+    state.opponent.hp = result.beast_hp_remaining
+    state.finished = True
+    state.victory = result.victory
+    state.log.extend(result.log_lines)
+    state.log.append("_Auto-finished remaining turns._")
+    check_pvp_end(state)
     return TurnResult(state=state, messages=state.log[-10:])

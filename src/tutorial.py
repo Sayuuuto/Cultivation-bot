@@ -433,11 +433,12 @@ def build_tutorial_pages() -> list[discord.Embed]:
             discord.Color.blue(),
             [
                 (
-                    "Duels (stat-based, not button combat)",
+                    "Duels (technique combat)",
                     "**`/duel @player`** — public challenge with **Accept / Decline** buttons.\n"
-                    "Opponent has **2 minutes** to respond. Winner gains **spirit stones** only.\n"
-                    f"{chip('2 hr')} cooldown for both · realm & **PvP power** from gear/roots set odds\n"
-                    f"{subtext('Duels do not use your hunt/adventure technique loadout')}",
+                    "On accept, the bot opens a private arena — same **technique buttons** as `/hunt`: "
+                    "equipped actives, passives, status effects, **Yield**, and **Finish**.\n"
+                    "Opponent has **2 minutes** to respond. Winner gains **spirit stones**.\n"
+                    f"{chip('2 hr')} cooldown for both · `/techniques` and `/equip-technique` set your arena loadout",
                 ),
                 (
                     "Clans & sects",

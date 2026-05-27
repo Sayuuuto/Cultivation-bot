@@ -40,6 +40,7 @@ Post the server tutorial with **`/post-tutorial`** (or `py -m src.post_tutorial`
 - First run creates the SQLite tables automatically (MVP-level).
 - Slash command registration uses `GUILD_ID` if provided.
 - `/start` creates a private **abode** channel (`abode-your-dao-name`) and assigns a **realm role** (starting at Mortal). The bot needs **Manage Channels** and **Manage Roles**, with its role placed above realm roles. Optionally set `ABODE_CATEGORY_ID` in `.env` for where abodes are created.
+- `/duel` runs **turn-based arena PvP** in a temporary private channel. Set `PVP_RESULTS_CHANNEL_ID` for the permanent results feed and optionally `ARENA_CATEGORY_ID` for arena placement.
 
 ## Tests
 

@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 import discord
 
+from .guidance import get_abode_welcome_intro
 from .realms import get_realm_name, get_realm_names
 
 logger = logging.getLogger(__name__)
@@ -103,6 +104,27 @@ def _unique_abode_name(guild: discord.Guild, base_name: str) -> str:
         suffix += 1
 
 
+async def _post_abode_welcome(
+    channel: discord.TextChannel,
+    member: discord.Member,
+    dao_name: str,
+) -> None:
+    embed = discord.Embed(
+        title="Welcome to Your Abode",
+        description=get_abode_welcome_intro(dao_name),
+        color=discord.Color.blurple(),
+    )
+    try:
+        await channel.send(content=member.mention, embed=embed)
+    except discord.HTTPException:
+        logger.exception(
+            "Abode welcome message failed guild=%s channel=%s user=%s",
+            channel.guild.id,
+            channel.id,
+            member.id,
+        )
+
+
 async def create_abode_channel(
     guild: discord.Guild,
     member: discord.Member,
@@ -121,6 +143,7 @@ async def create_abode_channel(
             reason=f"Private abode for {dao_name}",
             topic=f"{dao_name}'s cultivation abode — cultivate and venture here.",
         )
+        await _post_abode_welcome(channel, member, dao_name)
         return channel, None
     except discord.Forbidden:
         return None, (

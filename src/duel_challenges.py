@@ -19,6 +19,7 @@ from .game import (
     utcnow,
 )
 from .models import PendingDuel, Player
+from .pvp_match import StartedPvpMatch, begin_pvp_match
 
 DUEL_CHALLENGE_TIMEOUT_SECONDS = 120
 
@@ -262,7 +263,7 @@ def accept_duel_challenge(
     cfg: Config,
     rng: random.Random,
     now: datetime | None = None,
-) -> tuple[ExecutedDuel | None, str | None]:
+) -> tuple[StartedPvpMatch | None, str | None]:
     now = to_utc(now or utcnow())
     challenge, err = get_valid_pending_challenge(session, challenge_id, now)
     if err:
@@ -278,11 +279,8 @@ def accept_duel_challenge(
     if cooldown_err:
         return None, cooldown_err
 
-    executed = execute_duel(session, challenger, opponent, cfg, rng, now)
-    challenge.status = "completed"
-    challenge.resolved_at = now
-    session.add(challenge)
-    return executed, None
+    started = begin_pvp_match(session, challenge, challenger, opponent, rng, now)
+    return started, None
 
 
 def decline_duel_challenge(

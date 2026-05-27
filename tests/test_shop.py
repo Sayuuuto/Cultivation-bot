@@ -18,6 +18,8 @@ def cfg() -> Config:
         tutorial_channel_id=None,
         library_channel_id=None,
         abode_category_id=None,
+        arena_category_id=None,
+        pvp_results_channel_id=None,
     )
 
 

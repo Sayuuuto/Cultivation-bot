@@ -212,12 +212,34 @@ class PendingDuel(Base):
     opponent_discord_id: Mapped[str] = mapped_column(String(32), index=True)
     challenger_dao_name: Mapped[str] = mapped_column(String(64), default="")
     opponent_dao_name: Mapped[str] = mapped_column(String(64), default="")
-    status: Mapped[str] = mapped_column(String(16), default="pending")  # pending/declined/expired/completed
+    status: Mapped[str] = mapped_column(String(16), default="pending")  # pending/active/completed/declined/expired
     message_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
     channel_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class ActivePvpMatch(Base):
+    __tablename__ = "active_pvp_matches"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    guild_id: Mapped[str] = mapped_column(String(32), index=True)
+    pending_duel_id: Mapped[int | None] = mapped_column(ForeignKey("pending_duels.id"), nullable=True)
+    challenger_player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    opponent_player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    challenger_discord_id: Mapped[str] = mapped_column(String(32), index=True)
+    opponent_discord_id: Mapped[str] = mapped_column(String(32), index=True)
+    challenger_dao_name: Mapped[str] = mapped_column(String(64), default="")
+    opponent_dao_name: Mapped[str] = mapped_column(String(64), default="")
+    arena_channel_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    combat_message_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    state_json: Mapped[str] = mapped_column(String(16384), default="{}")
+    status: Mapped[str] = mapped_column(String(16), default="active")  # active/completed/cancelled
+    winner_discord_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
 class ActiveCombat(Base):

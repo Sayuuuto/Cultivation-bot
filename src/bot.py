@@ -102,7 +102,6 @@ from .technique_info import (
 from .combat.technique_ui import TechniquesView
 from .duel_challenges import (
     DUEL_CHALLENGE_TIMEOUT_SECONDS,
-    ExecutedDuel,
     accept_duel_challenge,
     attach_challenge_message,
     create_duel_challenge,
@@ -110,6 +109,16 @@ from .duel_challenges import (
     expire_duel_challenge,
     expire_stale_challenges,
 )
+from .models import ActivePvpMatch
+from .pvp_arena import (
+    build_pvp_combat_embed,
+    build_pvp_results_embed,
+    create_arena_channel,
+    post_pvp_results,
+    schedule_arena_cleanup,
+)
+from .pvp_combat import PvpCombatState, combat_slice_for_actor, process_pvp_action
+from .pvp_match import finalize_pvp_match, load_pvp_match_state, save_pvp_match_state
 from .equipment import apply_affix_stone, format_loadout
 from .consumables import use_item
 from .effects import consume_effect_charge
@@ -700,8 +709,9 @@ def build_duel_challenge_embed(challenger: Player, opponent: Player) -> discord.
     embed = discord.Embed(
         title="Duel Challenge",
         description=(
-            f"**{challenger.dao_name}** challenges **{opponent.dao_name}** to a spar.\n"
-            f"Winner gains spirit stones. Loser keeps their Qi."
+            f"**{challenger.dao_name}** challenges **{opponent.dao_name}** to an arena duel.\n"
+            "On accept, the bot opens a private arena with the **same technique combat** as `/hunt` — "
+            "equipped techniques, status effects, flee, and finish. Winner gains spirit stones."
         ),
         color=discord.Color.gold(),
     )
@@ -719,42 +729,14 @@ def build_duel_challenge_embed(challenger: Player, opponent: Player) -> discord.
     return embed
 
 
-def build_duel_result_embed(executed: ExecutedDuel) -> discord.Embed:
-    challenger = executed.challenger
-    opponent = executed.opponent
-    res = executed.result
-    winner = challenger if res.success else opponent
-    loser = opponent if res.success else challenger
-    embed = discord.Embed(
-        title="Duel Complete",
-        description=res.message,
-        color=discord.Color.green() if res.success else discord.Color.orange(),
-    )
-    embed.add_field(name="Challenger", value=challenger.dao_name, inline=True)
-    embed.add_field(name="Defender", value=opponent.dao_name, inline=True)
-    embed.add_field(name="Winner", value=winner.dao_name, inline=True)
-    embed.add_field(
-        name="Spirit stones",
-        value=f"**{winner.dao_name}** gains **+{res.stones_delta_winner}** (now **{winner.spirit_stones}**).",
-        inline=False,
-    )
-    embed.add_field(
-        name="Realms",
-        value=(
-            f"{challenger.dao_name}: {realm_display(challenger.realm_index, challenger.substage)}\n"
-            f"{opponent.dao_name}: {realm_display(opponent.realm_index, opponent.substage)}"
-        ),
-        inline=False,
-    )
-    embed.set_footer(text=f"{loser.dao_name} may recover and challenge again after the duel cooldown.")
-    return embed
-
-
-def build_duel_declined_embed(challenge: PendingDuel) -> discord.Embed:
+def build_duel_started_embed(challenger: Player, opponent: Player, arena: discord.TextChannel) -> discord.Embed:
     return discord.Embed(
-        title="Duel Declined",
-        description=f"**{challenge.opponent_dao_name}** declined **{challenge.challenger_dao_name}**'s challenge.",
-        color=discord.Color.light_grey(),
+        title="Duel Accepted",
+        description=(
+            f"**{opponent.dao_name}** accepted **{challenger.dao_name}**'s challenge.\n"
+            f"The fight continues in {arena.mention}."
+        ),
+        color=discord.Color.green(),
     )
 
 
@@ -767,6 +749,283 @@ def build_duel_expired_embed(challenge: PendingDuel) -> discord.Embed:
         ),
         color=discord.Color.light_grey(),
     )
+
+
+def build_duel_declined_embed(challenge: PendingDuel) -> discord.Embed:
+    return discord.Embed(
+        title="Duel Declined",
+        description=f"**{challenge.opponent_dao_name}** declined **{challenge.challenger_dao_name}**'s challenge.",
+        color=discord.Color.light_grey(),
+    )
+
+
+async def _finalize_pvp_match_discord(
+    client: discord.Client,
+    guild: discord.Guild,
+    match: ActivePvpMatch,
+    cfg,
+    *,
+    combat_message: discord.Message | None = None,
+    combat_state: PvpCombatState | None = None,
+) -> None:
+    finalized = None
+    results_embed = None
+    arena_channel_id: str | None = None
+    announcement_message: str | None = None
+    session = get_session()
+    try:
+        db_match = session.get(ActivePvpMatch, match.id)
+        if db_match is None:
+            return
+        arena_channel_id = db_match.arena_channel_id
+        finalized = finalize_pvp_match(session, db_match, cfg)
+        now = utcnow()
+        schedule_player_reminders(session, finalized.challenger, cfg, "duel", now=now)
+        schedule_player_reminders(session, finalized.opponent, cfg, "duel", now=now)
+        results_embed = build_pvp_results_embed(finalized)
+        announcement_message = (
+            f"⚔️ **Arena result** — **{finalized.winner.dao_name}** defeated "
+            f"**{finalized.loser.dao_name}** (+{finalized.stones_gain} spirit stones)."
+        )
+        session.commit()
+    except Exception:
+        logger.exception("Failed to finalize PvP match match_id=%s", match.id)
+        return
+    finally:
+        session.close()
+
+    if finalized is None or results_embed is None:
+        return
+
+    if combat_message is not None:
+        try:
+            state = combat_state or finalized.state
+            final_embed = build_pvp_combat_embed(state)
+            await combat_message.edit(embed=final_embed, view=None)
+        except Exception:
+            logger.exception("Failed to edit PvP combat message match_id=%s", match.id)
+
+    await post_pvp_results(client, guild.id, cfg.pvp_results_channel_id, results_embed)
+    if announcement_message:
+        await post_announcement(
+            client,
+            cfg,
+            guild_id=str(guild.id),
+            message=announcement_message,
+        )
+
+    if arena_channel_id:
+        channel = guild.get_channel(int(arena_channel_id))
+        if channel is None:
+            try:
+                channel = await client.fetch_channel(int(arena_channel_id))
+            except (discord.NotFound, discord.Forbidden, discord.HTTPException):
+                logger.warning(
+                    "Arena channel unavailable for cleanup match_id=%s channel_id=%s",
+                    match.id,
+                    arena_channel_id,
+                )
+                channel = None
+        if isinstance(channel, discord.TextChannel):
+            asyncio.create_task(schedule_arena_cleanup(channel))
+
+
+class DuelCombatView(discord.ui.View):
+    def __init__(
+        self,
+        match_id: int,
+        guild_id: str,
+        participant_ids: set[str],
+        actor_discord_id: str,
+        *,
+        techniques: list | None = None,
+        technique_cooldowns: dict[str, int] | None = None,
+        player_sealed: bool = False,
+    ):
+        super().__init__(timeout=900)
+        self.match_id = match_id
+        self.guild_id = guild_id
+        self.participant_ids = participant_ids
+        self.actor_discord_id = actor_discord_id
+        self.message: discord.Message | None = None
+        cds = technique_cooldowns or {}
+
+        for tech in (techniques or [])[:4]:
+            emoji = technique_button_emoji(tech.category)
+            cd = cds.get(tech.technique_id, 0)
+            sealed_blocked = player_sealed and tech.technique_id != "basic_strike"
+            label = f"{emoji} {tech.name}"
+            if cd > 0:
+                label = f"⏳{cd} {label}"
+            elif sealed_blocked:
+                label = f"🔒 {label}"
+            label = label[:80]
+            if tech.technique_id == "basic_strike":
+                style = discord.ButtonStyle.primary
+            elif cd > 0 or sealed_blocked:
+                style = discord.ButtonStyle.secondary
+            else:
+                style = discord.ButtonStyle.danger
+            button = discord.ui.Button(
+                label=label,
+                style=style,
+                custom_id=f"duel:{match_id}:tech:{tech.technique_id}",
+                disabled=cd > 0 or sealed_blocked,
+            )
+            button.callback = self._make_technique_callback(tech.technique_id)
+            self.add_item(button)
+
+        flee_btn = discord.ui.Button(
+            label="🏃 Yield",
+            style=discord.ButtonStyle.secondary,
+            custom_id=f"duel:{match_id}:flee",
+        )
+        flee_btn.callback = self._make_action_callback("flee")
+        self.add_item(flee_btn)
+
+        finish_btn = discord.ui.Button(
+            label="✅ Finish",
+            style=discord.ButtonStyle.success,
+            custom_id=f"duel:{match_id}:finish",
+        )
+        finish_btn.callback = self._make_action_callback("finish")
+        self.add_item(finish_btn)
+
+    def _disable_buttons(self) -> None:
+        for item in self.children:
+            item.disabled = True
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        actor_id = get_discord_id(interaction.user)
+        if actor_id not in self.participant_ids:
+            await interaction.response.send_message("This arena is not yours.", ephemeral=True)
+            return False
+        if actor_id != self.actor_discord_id:
+            await interaction.response.send_message("Wait for your turn.", ephemeral=True)
+            return False
+
+        session = get_session()
+        try:
+            match = session.get(ActivePvpMatch, self.match_id)
+            if match is None or match.status != "active":
+                await interaction.response.send_message("This duel is no longer active.", ephemeral=True)
+                return False
+            state = load_pvp_match_state(match)
+            if state.finished:
+                await interaction.response.send_message("The duel is already over.", ephemeral=True)
+                return False
+            if actor_id != state.current_actor_id:
+                await interaction.response.send_message("Wait for your turn.", ephemeral=True)
+                return False
+            return True
+        finally:
+            session.close()
+
+    def _make_technique_callback(self, technique_id: str):
+        async def callback(interaction: discord.Interaction):
+            await self._resolve_action(interaction, "technique", technique_id=technique_id)
+
+        return callback
+
+    def _make_action_callback(self, action: str):
+        async def callback(interaction: discord.Interaction):
+            await self._resolve_action(interaction, action)
+
+        return callback
+
+    async def _resolve_action(
+        self,
+        interaction: discord.Interaction,
+        action: str,
+        *,
+        technique_id: str | None = None,
+    ) -> None:
+        await interaction.response.defer()
+        session = get_session()
+        try:
+            cfg = get_config()
+            match = session.get(ActivePvpMatch, self.match_id)
+            if match is None or match.status != "active":
+                await interaction.followup.send("This duel is no longer active.", ephemeral=True)
+                return
+
+            actor_id = get_discord_id(interaction.user)
+            state = load_pvp_match_state(match)
+            rng = rng_for(self.guild_id, f"pvp:{match.id}:{state.turn}:{actor_id}:{technique_id or action}")
+            result = process_pvp_action(
+                session,
+                state,
+                actor_id,
+                action,
+                rng,
+                technique_id=technique_id,
+            )
+            if not result.ok:
+                await interaction.followup.send(result.message, ephemeral=True)
+                return
+
+            save_pvp_match_state(session, match, result.state)
+            embed = build_pvp_combat_embed(result.state)
+
+            if result.state.finished:
+                self._disable_buttons()
+                session.commit()
+                target = interaction.message if interaction.message is not None else self.message
+                if target is not None:
+                    await target.edit(embed=embed, view=self)
+                assert interaction.guild is not None
+                try:
+                    await _finalize_pvp_match_discord(
+                        interaction.client,
+                        interaction.guild,
+                        match,
+                        cfg,
+                        combat_message=target,
+                        combat_state=result.state,
+                    )
+                except Exception:
+                    logger.exception("PvP finalize failed match_id=%s", self.match_id)
+                return
+
+            actor = result.state.actor()
+            actor_player = ensure_player(session, self.guild_id, actor.discord_id)
+            if actor_player is None:
+                await interaction.followup.send("Duelist record missing.", ephemeral=True)
+                return
+            ensure_starter_techniques(session, actor_player.id)
+            techniques = get_equipped_active_techniques(session, actor_player.id)
+            cs = combat_slice_for_actor(result.state)
+            view = DuelCombatView(
+                self.match_id,
+                self.guild_id,
+                self.participant_ids,
+                result.state.current_actor_id,
+                techniques=techniques,
+                technique_cooldowns=cs.technique_cooldowns,
+                player_sealed=cs.player.sealed,
+            )
+            view.message = interaction.message if interaction.message is not None else self.message
+            session.commit()
+            target = interaction.message if interaction.message is not None else self.message
+            if target is not None:
+                await target.edit(embed=embed, view=view)
+        except Exception:
+            logger.exception("PvP action failed match_id=%s action=%s", self.match_id, action)
+            await interaction.followup.send("That action could not be resolved.", ephemeral=True)
+        finally:
+            session.close()
+
+    async def on_timeout(self) -> None:
+        self._disable_buttons()
+        if self.message is not None:
+            try:
+                await self.message.edit(view=self)
+            except discord.HTTPException:
+                pass
+
+
+class PvpCombatView(DuelCombatView):
+    """Backward-compatible alias for tests and imports."""
 
 
 class DuelChallengeView(discord.ui.View):
@@ -818,7 +1077,7 @@ class DuelChallengeView(discord.ui.View):
                 return
 
             rng = rng_for(self.guild_id, f"{challenger.discord_id}:{opponent.discord_id}")
-            executed, err = accept_duel_challenge(
+            started, err = accept_duel_challenge(
                 session,
                 self.challenge_id,
                 actor_id,
@@ -830,31 +1089,82 @@ class DuelChallengeView(discord.ui.View):
             if err:
                 await interaction.followup.send(err, ephemeral=True)
                 return
+            assert started is not None
 
-            now = utcnow()
-            schedule_player_reminders(session, challenger, cfg, "duel", now=now)
-            schedule_player_reminders(session, opponent, cfg, "duel", now=now)
-            session.commit()
-            logger.info(
-                "Duel accepted challenge_id=%s guild=%s challenger=%s opponent=%s success=%s",
-                self.challenge_id,
-                self.guild_id,
-                challenger.discord_id,
-                opponent.discord_id,
-                executed.result.success,
+            if interaction.guild is None:
+                await interaction.followup.send("This duel must be accepted inside a server.", ephemeral=True)
+                return
+
+            challenger_member = interaction.guild.get_member(int(challenger.discord_id))
+            opponent_member = interaction.guild.get_member(int(opponent.discord_id))
+            if challenger_member is None:
+                challenger_member = await interaction.guild.fetch_member(int(challenger.discord_id))
+            if opponent_member is None:
+                opponent_member = await interaction.guild.fetch_member(int(opponent.discord_id))
+
+            arena, arena_err = await create_arena_channel(
+                interaction.guild,
+                challenger_member,
+                opponent_member,
+                challenger.dao_name,
+                opponent.dao_name,
+                category_id=cfg.arena_category_id,
             )
-            embed = build_duel_result_embed(executed)
-            await self._edit_message(embed, interaction)
-            winner = executed.challenger if executed.result.success else executed.opponent
-            loser = executed.opponent if executed.result.success else executed.challenger
-            await post_announcement(
-                interaction.client,
-                cfg,
-                guild_id=self.guild_id,
-                message=(
-                    f"⚔️ **Duel resolved** — **{winner.dao_name}** defeated **{loser.dao_name}** "
-                    f"(+{executed.result.stones_delta_winner} spirit stones)."
+            if arena is None:
+                started.match.status = "cancelled"
+                session.add(started.match)
+                session.commit()
+                await interaction.followup.send(arena_err or "The arena could not be opened.", ephemeral=True)
+                return
+
+            started.match.arena_channel_id = str(arena.id)
+            session.add(started.match)
+            session.commit()
+
+            actor_player = ensure_player(session, self.guild_id, started.state.current_actor_id)
+            techniques: list = []
+            technique_cooldowns: dict[str, int] = {}
+            player_sealed = False
+            if actor_player is not None:
+                ensure_starter_techniques(session, actor_player.id)
+                techniques = get_equipped_active_techniques(session, actor_player.id)
+                cs = combat_slice_for_actor(started.state)
+                technique_cooldowns = cs.technique_cooldowns
+                player_sealed = cs.player.sealed
+
+            combat_view = DuelCombatView(
+                started.match.id,
+                self.guild_id,
+                {challenger.discord_id, opponent.discord_id},
+                started.state.current_actor_id,
+                techniques=techniques,
+                technique_cooldowns=technique_cooldowns,
+                player_sealed=player_sealed,
+            )
+            combat_embed = build_pvp_combat_embed(started.state)
+            combat_msg = await arena.send(
+                content=(
+                    f"{challenger_member.mention} {opponent_member.mention} — "
+                    "the arena is sealed. The bot will call each turn."
                 ),
+                embed=combat_embed,
+                view=combat_view,
+            )
+            combat_view.message = combat_msg
+            started.match.combat_message_id = str(combat_msg.id)
+            session.add(started.match)
+            session.commit()
+
+            logger.info(
+                "Duel arena opened challenge_id=%s match_id=%s guild=%s arena=%s",
+                self.challenge_id,
+                started.match.id,
+                self.guild_id,
+                arena.id,
+            )
+            await self._edit_message(
+                build_duel_started_embed(challenger, opponent, arena),
+                interaction,
             )
         except Exception:
             logger.exception("Duel accept failed challenge_id=%s", self.challenge_id)
@@ -2591,7 +2901,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
         session.close()
 
 
-@bot.tree.command(name="duel", description="Challenge another daoist to a spar.")
+@bot.tree.command(name="duel", description="Challenge another daoist to a turn-based arena duel.")
 @app_commands.describe(opponent="Another player who has used /start (not a bot).")
 async def duel_cmd(interaction: discord.Interaction, opponent: discord.User):
     cfg = get_config()
