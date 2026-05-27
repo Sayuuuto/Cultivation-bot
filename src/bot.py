@@ -2229,13 +2229,16 @@ async def profile_cmd(interaction: discord.Interaction):
             except Exception:
                 logger.exception("Profile card render failed for %s", discord_id)
 
-        await interaction.response.send_message(
-            content="\n".join(content_parts) if content_parts else None,
-            embed=embed,
-            file=file,
-            view=view,
-            ephemeral=False,
-        )
+        reply: dict = {
+            "embed": embed,
+            "view": view,
+            "ephemeral": False,
+        }
+        if content_parts:
+            reply["content"] = "\n".join(content_parts)
+        if file is not None:
+            reply["file"] = file
+        await interaction.response.send_message(**reply)
     finally:
         session.close()
 

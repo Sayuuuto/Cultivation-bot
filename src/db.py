@@ -305,6 +305,19 @@ def maybe_seed_database_file(database_path: str) -> bool:
 
 def init_db() -> None:
     cfg = get_config()
+    db_path = Path(cfg.database_path).resolve()
+    print(f"Database path: {db_path.as_posix()}")
+    volume_mount = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "").strip()
+    if volume_mount and not str(db_path).startswith(Path(volume_mount).resolve().as_posix()):
+        logger.warning(
+            "DATABASE_PATH is %s but volume is mounted at %s — set DATABASE_PATH=%s/cultivation_bot.sqlite3 in Railway variables.",
+            db_path,
+            volume_mount,
+            volume_mount,
+        )
+        print(
+            f"WARNING: DATABASE_PATH should be {volume_mount}/cultivation_bot.sqlite3 for persistent player data."
+        )
     seeded = maybe_seed_database_file(cfg.database_path)
     if seeded:
         global _engine, _session_factory
