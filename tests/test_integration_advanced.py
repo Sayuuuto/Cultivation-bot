@@ -15,11 +15,12 @@ from src.adventure import (
     run_adventure,
     start_adventure_session,
 )
-from tests.rng_helpers import ScriptedRNG, safe_adventure_segment_floats
+from tests.rng_helpers import ScriptedRNG, adventure_start_floats, safe_adventure_segment_floats
 from src.character import get_character_modifiers
 from src.consumables import use_item
 from src.content import load_all_content
 from src.cooldown_haste import (
+    HASTE_UNIVERSAL_EFFECT,
     consume_haste_for_activity,
     cooldown_remaining_with_haste,
     get_haste_reduction_seconds,
@@ -43,24 +44,30 @@ def _safe_segment_floats() -> list[float]:
     return safe_adventure_segment_floats()
 
 
+def _safest_choice_id(choices) -> str:
+    return min(choices, key=lambda c: c.fail_chance).id
+
+
 def _complete_interactive_adventure(session, player, area_id: str = "bamboo_grove") -> AdventureResult:
     encounters = get_encounters_for_area(area_id)
+    beast = next(e for e in encounters if e.id == "beast_on_path")
+    mist = next(e for e in encounters if e.id == "mist_crossroads")
     rng = ScriptedRNG(
-        floats=_safe_segment_floats(),
-        encounter_queue=[encounters[0], encounters[1]],
+        floats=adventure_start_floats(segments=2),
+        encounter_queue=[beast, mist],
         randint_queue=[1, 1, 1, 1],
     )
     pending, err = start_adventure_session(session, player, area_id, "balanced", rng=rng)
     assert err is None and pending is not None
 
-    choice_one = pending.choices[1].id
+    choice_one = "detour" if any(c.id == "detour" for c in pending.choices) else _safest_choice_id(pending.choices)
     result, err = apply_adventure_choice(session, player, pending.active_id, choice_one, rng=rng)
     assert err is None and result is not None
 
     if isinstance(result, AdventureResult):
         return result
 
-    choice_two = result.choices[1].id
+    choice_two = "wait" if any(c.id == "wait" for c in result.choices) else _safest_choice_id(result.choices)
     final, err = apply_adventure_choice(session, player, result.active_id, choice_two, rng=rng)
     assert err is None and isinstance(final, AdventureResult)
     return final
@@ -93,7 +100,7 @@ def test_catastrophic_choice_ends_run_early_with_qi_loss(session, player):
     encounters = get_encounters_for_area("ashen_cliff")
     charge_encounter = next(e for e in encounters if e.id == "bandit_ambush")
     rng = ScriptedRNG(
-        floats=[0.05],
+        floats=[0.99, 0.99, 0.01],
         encounter_queue=[charge_encounter],
     )
 
@@ -239,13 +246,15 @@ def test_meridian_surge_haste_consumes_charges_independently(session, player):
     use_item(session, player, "meridian_surge_pill", rng=random.Random(1))
     session.commit()
 
-    assert get_haste_reduction_seconds(session, player.id, "cultivate") == 420
+    assert get_haste_reduction_seconds(session, player.id, "cultivate") == 900
 
     shaved = consume_haste_for_activity(session, player.id, "cultivate")
     session.commit()
-    assert shaved == 420
-    assert get_haste_reduction_seconds(session, player.id, "cultivate") == 420
+    assert shaved == 900
+    assert get_haste_reduction_seconds(session, player.id, "cultivate") == 900
 
+    consume_haste_for_activity(session, player.id, "cultivate")
+    session.commit()
     consume_haste_for_activity(session, player.id, "cultivate")
     session.commit()
     assert get_haste_reduction_seconds(session, player.id, "cultivate") == 0
@@ -260,11 +269,11 @@ def test_stacking_haste_effects_add_charges(session, player):
     effect = session.execute(
         select(PlayerEffect).where(
             PlayerEffect.player_id == player.id,
-            PlayerEffect.effect_id == "haste_adventure",
+            PlayerEffect.effect_id == HASTE_UNIVERSAL_EFFECT,
         )
     ).scalar_one()
-    assert effect.charges == 2
-    assert effect.value_int == 600
+    assert effect.charges == 4
+    assert effect.value_int == 900
 
 
 def test_cooldown_haste_can_zero_out_remaining_timer(session):
@@ -334,7 +343,7 @@ def test_gatebreaker_dust_grants_dungeon_haste(session, player):
     session.commit()
 
     assert ok is True
-    assert get_haste_reduction_seconds(session, player.id, "dungeon") == 1800
+    assert get_haste_reduction_seconds(session, player.id, "dungeon") == 2400
     assert "dungeon" in msg.lower() or "gate" in msg.lower()
 
 
@@ -370,8 +379,8 @@ def test_full_gear_affix_loadout_pipeline(session, player):
     assert geared.pvp_power >= baseline.pvp_power
 
 
-def test_partial_adventure_keeps_first_segment_loot_on_second_segment_catastrophe(session, player):
-    """Segment 1 succeeds and grants loot; segment 2 catastrophic fail still deposits segment 1 drops."""
+def test_partial_adventure_keeps_first_segment_loot_on_second_segment_setback(session, player):
+    """Segment 1 succeeds and grants loot; a rough segment 2 still leaves that loot on the run."""
     player.realm_index = 1
     player.qi = 50
     session.commit()
@@ -379,12 +388,7 @@ def test_partial_adventure_keeps_first_segment_loot_on_second_segment_catastroph
     encounters = get_encounters_for_area("bamboo_grove")
     beast_enc = next(e for e in encounters if e.id == "beast_on_path")
     rng = ScriptedRNG(
-        floats=[
-            0.99,
-            0.01,
-            0.99,  # segment 1: no catastrophe, success, no rare
-            0.01,  # segment 2: catastrophe on risky choice
-        ],
+        floats=[0.99] * 6 + [0.01],
         encounter_queue=[beast_enc, beast_enc],
         randint_queue=[1],
     )
@@ -398,9 +402,10 @@ def test_partial_adventure_keeps_first_segment_loot_on_second_segment_catastroph
     session.commit()
 
     assert isinstance(final, AdventureResult)
-    assert final.failed_run is True
+    assert final.outcome in {"partial", "fail"}
     assert final.segments_cleared >= 1
     assert len(final.drops) >= 1
+    assert any("forced back" in m or "backfires" in m for m in final.messages)
     assert get_item_quantity(session, player.id, list(final.drops.keys())[0]) >= 1
 
 
@@ -409,24 +414,22 @@ def test_rare_event_during_interactive_segment_can_grant_bonus_loot(session, pla
     rng = ScriptedRNG(
         floats=[
             0.99,
-            0.01,
-            0.001,  # force rare event roll on segment 1
             0.99,
-            0.01,
-            0.99,
+            *safe_adventure_segment_floats(trigger_rare=True),
+            *safe_adventure_segment_floats(),
         ],
         encounter_queue=[encounters[0], encounters[1]],
         randint_queue=[1, 1, 1, 1, 1],
     )
-    pending, _ = start_adventure_session(session, player, "bamboo_grove", "reckless", rng=rng)
-    safe_one = min(pending.choices, key=lambda c: c.fail_chance).id
+    pending, _ = start_adventure_session(session, player, "bamboo_grove", "balanced", rng=rng)
+    safe_one = _safest_choice_id(pending.choices)
     result, err = apply_adventure_choice(session, player, pending.active_id, safe_one, rng=rng)
     assert err is None and result is not None
 
     if isinstance(result, AdventureResult):
         final = result
     else:
-        safe_two = min(result.choices, key=lambda c: c.fail_chance).id
+        safe_two = _safest_choice_id(result.choices)
         final, err = apply_adventure_choice(session, player, result.active_id, safe_two, rng=rng)
         assert err is None
     session.commit()
@@ -460,17 +463,17 @@ def test_double_flow_pill_use_after_commit_stacks_haste_charges(session, player)
     effect = session.execute(
         select(PlayerEffect).where(
             PlayerEffect.player_id == player.id,
-            PlayerEffect.effect_id == "haste_adventure",
+            PlayerEffect.effect_id == HASTE_UNIVERSAL_EFFECT,
         )
     ).scalar_one()
-    assert effect.charges == 2
+    assert effect.charges == 4
 
     consume_haste_for_activity(session, player.id, "adventure")
     session.commit()
     effect = session.execute(
         select(PlayerEffect).where(
             PlayerEffect.player_id == player.id,
-            PlayerEffect.effect_id == "haste_adventure",
+            PlayerEffect.effect_id == HASTE_UNIVERSAL_EFFECT,
         )
     ).scalar_one()
-    assert effect.charges == 1
+    assert effect.charges == 3

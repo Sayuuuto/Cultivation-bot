@@ -63,7 +63,7 @@ SAGE_TRIAL_ENCOUNTER = AdventureEncounter(
             0.08,
             1.0,
             0.0,
-            karma_delta=0,
+            karma_delta=3,
             manual_pool="neutral_wanderer",
             manual_chance=0.85,
         ),
@@ -78,9 +78,30 @@ NOVICE_SEGMENT2_ENCOUNTER = AdventureEncounter(
     ),
     encounter_type="choice",
     choices=(
-        AdventureChoice("strike", "Strike with your equipped art", 0.12, 1.1, 0.0),
-        AdventureChoice("track", "Track it through the grove", 0.08, 1.0, 0.0),
-        AdventureChoice("meditate", "Sit in qi resonance", 0.10, 0.95, 0.0),
+        AdventureChoice(
+            "strike",
+            "Strike it down before it can flee",
+            0.12,
+            1.1,
+            0.0,
+            karma_delta=-6,
+        ),
+        AdventureChoice(
+            "track",
+            "Track it at a distance without harming it",
+            0.08,
+            1.0,
+            0.0,
+            karma_delta=5,
+        ),
+        AdventureChoice(
+            "meditate",
+            "Sit in qi resonance and let it pass",
+            0.10,
+            0.95,
+            0.0,
+            karma_delta=8,
+        ),
     ),
 )
 
@@ -116,7 +137,7 @@ def get_origin_starter_gift(origin: str) -> dict | None:
 def _trial_step(player: Player) -> int:
     value = getattr(player, "novice_trial_step", None)
     if value is None:
-        return TRIAL_COMPLETE_STEP
+        return 0
     return int(value)
 
 
@@ -128,8 +149,34 @@ def novice_breakthrough_pace(player: Player) -> bool:
     return not trial_complete(player) and player.realm_index == 0 and player.substage == 0
 
 
+def heal_stuck_novice_adventure(player: Player) -> bool:
+    """
+    Older runs incremented adventures_completed on failed first attempts,
+    which blocks the sage trial. Reset when the trial still expects that journey.
+    """
+    if trial_complete(player):
+        return False
+    step = _trial_step(player)
+    if step != 4:
+        return False
+    if int(getattr(player, "adventures_completed", 0) or 0) <= 0:
+        return False
+    player.adventures_completed = 0
+    return True
+
+
+def requires_sage_trial(player: Player) -> bool:
+    """True while the Outer Disciple Trial still needs the scripted sage journey."""
+    if trial_complete(player):
+        return False
+    step = _trial_step(player)
+    if step == 4:
+        return True
+    return step < 4 and int(getattr(player, "adventures_completed", 0) or 0) == 0
+
+
 def is_first_adventure(player: Player) -> bool:
-    return int(getattr(player, "adventures_completed", 0)) == 0 and not trial_complete(player)
+    return requires_sage_trial(player)
 
 
 def trial_step_label(player: Player) -> str | None:
@@ -258,23 +305,33 @@ def on_technique_learned(session: Session, player: Player, technique_id: str) ->
 
 def on_adventure_completed(session: Session, player: Player, *, segments_cleared: int) -> tuple[list[str], bool]:
     """Returns messages and whether to waive adventure cooldown."""
+    from .adventure import SEGMENTS_PER_RUN
+
     messages: list[str] = []
     waive_cd = False
-    was_first = int(getattr(player, "adventures_completed", 0)) == 0
-    player.adventures_completed = int(getattr(player, "adventures_completed", 0)) + 1
+    was_first = int(getattr(player, "adventures_completed", 0) or 0) == 0
+    finished_run = segments_cleared >= SEGMENTS_PER_RUN
 
-    if was_first and segments_cleared > 0:
+    if finished_run:
+        player.adventures_completed = int(getattr(player, "adventures_completed", 0) or 0) + 1
+
+    if was_first and finished_run:
         waive_cd = True
         messages.append(
             "☯️ **First journey complete** — the sect grants respite; "
             "your adventure cooldown is waived this once."
         )
-        if not trial_complete(player) and int(getattr(player, "novice_trial_step", 0)) == 4:
+        if not trial_complete(player) and _trial_step(player) == 4:
             player.novice_trial_step = 5
             messages.append(
                 "🎋 **Outer Disciple Trial — Step 5 complete.** "
                 "Fill your qi and attempt **`/breakthrough`**."
             )
+    elif was_first and segments_cleared > 0:
+        messages.append(
+            "_Your first journey is unfinished — the sage's trial still awaits. "
+            "Use **`/adventure continue`** or start fresh in the Bamboo Grove._"
+        )
     return messages, waive_cd
 
 

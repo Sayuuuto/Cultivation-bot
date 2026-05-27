@@ -23,7 +23,8 @@
       "bonus_qi": 35,
       "stones_min": 0,
       "stones_max": 0,
-      "drops": {}
+      "drops": {},
+      "meridian_points": 1
     },
     {
       "id": "meridian_awakening",
@@ -35,7 +36,8 @@
       "bonus_qi": 10,
       "stones_min": 2,
       "stones_max": 5,
-      "drops": {}
+      "drops": {},
+      "meridian_points": 1
     },
     {
       "id": "scripture_whisper",
@@ -79,13 +81,12 @@
       "weight": 10,
       "emoji": "🧘",
       "title": "Inner Peace",
-      "message": "Your mind stills like a moonlit lake; body and spirit recover together.",
+      "message": "Your mind stills like a moonlit lake; qi gathers without effort.",
       "qi_mult": 1.0,
-      "bonus_qi": 0,
+      "bonus_qi": 12,
       "stones_min": 0,
       "stones_max": 0,
-      "drops": {},
-      "stamina_restore": 12
+      "drops": {}
     }
   ]
 }

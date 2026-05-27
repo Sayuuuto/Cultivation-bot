@@ -33,6 +33,7 @@ def cfg() -> Config:
         tutorial_channel_id=None,
         library_channel_id=None,
         abode_category_id=None,
+        dungeon_category_id=None,
         arena_category_id=None,
         pvp_results_channel_id=None,
     )
@@ -139,7 +140,6 @@ def test_cultivate_qi_gain_varies_with_seed(session, player, cfg):
     gains = set()
     for seed in range(50):
         player.qi = 0
-        player.stamina = 100
         session.commit()
         result = cultivate(player, None, cfg, rng=random.Random(seed))
         gains.add(result.qi_gain)
@@ -150,7 +150,6 @@ def test_cultivate_can_grant_spirit_stones(session, player, cfg):
     saw_stones = False
     for seed in range(300):
         player.spirit_stones = 0
-        player.stamina = 100
         session.commit()
         result = cultivate(player, None, cfg, rng=random.Random(seed))
         if result.stones_gain > 0:

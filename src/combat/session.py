@@ -13,6 +13,8 @@ from .loadout import ensure_starter_techniques, get_equipped_passive
 
 COMBAT_EXPIRY_MINUTES = 30
 
+COMBAT_BUSY_MESSAGE = "You are already in combat. Finish or flee first."
+
 
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
@@ -66,6 +68,19 @@ def delete_active_combat(session: Session, player_id: int) -> None:
     active = get_active_combat(session, player_id)
     if active is not None:
         session.delete(active)
+
+
+def abandon_active_combat(session: Session, player_id: int) -> tuple[bool, str]:
+    """Drop a persisted combat row (e.g. lost fight message). Returns (cleared, player message)."""
+    active = get_active_combat(session, player_id)
+    if active is None:
+        return False, "No combat is bound to you — you are free to hunt or adventure."
+    context_label = {"hunt": "hunt", "adventure": "adventure"}.get(active.context, active.context)
+    delete_active_combat(session, player_id)
+    return True, (
+        f"Cleared your unfinished **{context_label}** fight. "
+        "Run **`/hunt`** or **`/adventure`** when ready."
+    )
 
 
 def process_combat_action(

@@ -10,9 +10,48 @@
         "attack": 7,
         "defense": 2,
         "drops": [
-          {"item_id": "minor_beast_core", "weight": 60, "min": 1, "max": 1},
-          {"item_id": "green_dew_herb", "weight": 30, "min": 1, "max": 2},
-          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+          {
+            "item_id": "minor_beast_core",
+            "rarity": "common",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "green_dew_herb",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "qi_gathering_pill",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "meridian_surge_pill",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "flow_pill",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "clarity_pill",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "legendary",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -22,11 +61,46 @@
         "hp": 55,
         "attack": 12,
         "defense": 4,
-        "traits": ["bleed_immune"],
+        "traits": [
+          "bleed_immune"
+        ],
         "drops": [
-          {"item_id": "minor_beast_core", "weight": 70, "min": 1, "max": 2},
-          {"item_id": "bamboo_resin", "weight": 25, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+          {
+            "item_id": "minor_beast_core",
+            "rarity": "common",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "bamboo_resin",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "qi_gathering_pill",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "meridian_surge_pill",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "clarity_pill",
+            "rarity": "legendary",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "legendary",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -37,11 +111,28 @@
         "hp": 80,
         "attack": 16,
         "defense": 6,
-        "traits": ["seal_on_hit"],
+        "traits": [
+          "seal_on_hit"
+        ],
         "drops": [
-          {"item_id": "minor_beast_core", "weight": 50, "min": 1, "max": 2},
-          {"item_id": "spirit_iron_shard", "weight": 35, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
+          {
+            "item_id": "minor_beast_core",
+            "rarity": "common",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "spirit_iron_shard",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       }
     ]
@@ -57,9 +148,24 @@
         "attack": 14,
         "defense": 5,
         "drops": [
-          {"item_id": "ember_moss", "weight": 40, "min": 1, "max": 2},
-          {"item_id": "minor_beast_core", "weight": 45, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+          {
+            "item_id": "ember_moss",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "minor_beast_core",
+            "rarity": "common",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -70,9 +176,24 @@
         "attack": 18,
         "defense": 7,
         "drops": [
-          {"item_id": "bandit_token", "weight": 35, "min": 1, "max": 1},
-          {"item_id": "refined_beast_core", "weight": 25, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+          {
+            "item_id": "bandit_token",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "refined_beast_core",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -84,9 +205,24 @@
         "attack": 22,
         "defense": 8,
         "drops": [
-          {"item_id": "refined_beast_core", "weight": 55, "min": 1, "max": 1},
-          {"item_id": "spirit_iron_shard", "weight": 30, "min": 1, "max": 2},
-          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
+          {
+            "item_id": "refined_beast_core",
+            "rarity": "common",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "spirit_iron_shard",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       }
     ]
@@ -102,9 +238,24 @@
         "attack": 20,
         "defense": 10,
         "drops": [
-          {"item_id": "ancient_dust", "weight": 45, "min": 1, "max": 2},
-          {"item_id": "refined_beast_core", "weight": 40, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+          {
+            "item_id": "ancient_dust",
+            "rarity": "common",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "refined_beast_core",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -115,9 +266,24 @@
         "attack": 24,
         "defense": 12,
         "drops": [
-          {"item_id": "moonlotus", "weight": 40, "min": 1, "max": 2},
-          {"item_id": "refined_beast_core", "weight": 45, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+          {
+            "item_id": "moonlotus",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "refined_beast_core",
+            "rarity": "common",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -129,9 +295,24 @@
         "attack": 30,
         "defense": 14,
         "drops": [
-          {"item_id": "refined_beast_core", "weight": 60, "min": 1, "max": 2},
-          {"item_id": "ancient_dust", "weight": 30, "min": 1, "max": 2},
-          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
+          {
+            "item_id": "refined_beast_core",
+            "rarity": "common",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "ancient_dust",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       }
     ]
@@ -147,9 +328,24 @@
         "attack": 6,
         "defense": 2,
         "drops": [
-          {"item_id": "village_herb", "weight": 55, "min": 1, "max": 2},
-          {"item_id": "minor_beast_core", "weight": 35, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 8, "min": 1, "max": 1}
+          {
+            "item_id": "village_herb",
+            "rarity": "common",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "minor_beast_core",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "legendary",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -160,9 +356,24 @@
         "attack": 10,
         "defense": 3,
         "drops": [
-          {"item_id": "village_herb", "weight": 40, "min": 1, "max": 2},
-          {"item_id": "green_dew_herb", "weight": 35, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+          {
+            "item_id": "village_herb",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "green_dew_herb",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -173,11 +384,28 @@
         "hp": 72,
         "attack": 14,
         "defense": 5,
-        "traits": ["bleed_immune"],
+        "traits": [
+          "bleed_immune"
+        ],
         "drops": [
-          {"item_id": "minor_beast_core", "weight": 55, "min": 1, "max": 2},
-          {"item_id": "village_herb", "weight": 30, "min": 1, "max": 2},
-          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
+          {
+            "item_id": "minor_beast_core",
+            "rarity": "common",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "village_herb",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       }
     ]
@@ -193,9 +421,24 @@
         "attack": 17,
         "defense": 7,
         "drops": [
-          {"item_id": "pine_resin", "weight": 45, "min": 1, "max": 2},
-          {"item_id": "refined_beast_core", "weight": 40, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+          {
+            "item_id": "pine_resin",
+            "rarity": "common",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "refined_beast_core",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -205,11 +448,28 @@
         "hp": 125,
         "attack": 21,
         "defense": 10,
-        "traits": ["bleed_immune"],
+        "traits": [
+          "bleed_immune"
+        ],
         "drops": [
-          {"item_id": "pine_resin", "weight": 40, "min": 1, "max": 2},
-          {"item_id": "spirit_iron_shard", "weight": 35, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+          {
+            "item_id": "pine_resin",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "spirit_iron_shard",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -220,11 +480,29 @@
         "hp": 165,
         "attack": 26,
         "defense": 11,
-        "traits": ["seal_on_hit", "high_stun_chance"],
+        "traits": [
+          "seal_on_hit",
+          "high_stun_chance"
+        ],
         "drops": [
-          {"item_id": "refined_beast_core", "weight": 55, "min": 1, "max": 1},
-          {"item_id": "pine_resin", "weight": 30, "min": 1, "max": 2},
-          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
+          {
+            "item_id": "refined_beast_core",
+            "rarity": "common",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "pine_resin",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       }
     ]
@@ -240,9 +518,24 @@
         "attack": 22,
         "defense": 9,
         "drops": [
-          {"item_id": "swamp_moss", "weight": 45, "min": 1, "max": 2},
-          {"item_id": "refined_beast_core", "weight": 40, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+          {
+            "item_id": "swamp_moss",
+            "rarity": "common",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "refined_beast_core",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -252,11 +545,28 @@
         "hp": 175,
         "attack": 27,
         "defense": 12,
-        "traits": ["high_stun_chance"],
+        "traits": [
+          "high_stun_chance"
+        ],
         "drops": [
-          {"item_id": "bog_iron", "weight": 40, "min": 1, "max": 2},
-          {"item_id": "swamp_moss", "weight": 35, "min": 1, "max": 2},
-          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+          {
+            "item_id": "bog_iron",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "swamp_moss",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       },
       {
@@ -267,12 +577,36 @@
         "hp": 260,
         "attack": 34,
         "defense": 16,
-        "traits": ["seal_on_hit", "high_stun_chance", "cleanse_every_3_turns"],
+        "traits": [
+          "seal_on_hit",
+          "high_stun_chance",
+          "cleanse_every_3_turns"
+        ],
         "drops": [
-          {"item_id": "hollow_pearl", "weight": 50, "min": 1, "max": 1},
-          {"item_id": "bog_iron", "weight": 35, "min": 1, "max": 2},
-          {"item_id": "refined_beast_core", "weight": 30, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
+          {
+            "item_id": "hollow_pearl",
+            "rarity": "common",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "bog_iron",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 2
+          },
+          {
+            "item_id": "refined_beast_core",
+            "rarity": "uncommon",
+            "min": 1,
+            "max": 1
+          },
+          {
+            "item_id": "technique_fragment",
+            "rarity": "rare",
+            "min": 1,
+            "max": 1
+          }
         ]
       }
     ]

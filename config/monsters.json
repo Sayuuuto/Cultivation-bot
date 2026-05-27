@@ -1,102 +1,602 @@
 {
-  "bamboo_specter": {
-    "name": "Bamboo Specter",
-    "hp": 42,
-    "attack": 9,
-    "defense": 3,
-    "speed": 10,
-    "areas": ["bamboo_grove"],
-    "traits": ["cleanse_every_3_turns"]
+  "spirit_hare": {
+    "name": "Spirit Hare",
+    "hp": 35,
+    "attack": 7,
+    "defense": 2,
+    "speed": 5,
+    "areas": [
+      "bamboo_grove"
+    ],
+    "traits": [],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "minor_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "green_dew_herb",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "qi_gathering_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "meridian_surge_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "flow_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "clarity_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "legendary",
+        "min": 1,
+        "max": 1
+      }
+    ]
   },
-  "grove_stalker": {
-    "name": "Grove Stalker",
-    "hp": 58,
-    "attack": 13,
-    "defense": 5,
-    "speed": 12,
-    "areas": ["bamboo_grove"],
-    "traits": ["bleed_immune"]
+  "bamboo_serpent": {
+    "name": "Bamboo Serpent",
+    "hp": 55,
+    "attack": 12,
+    "defense": 4,
+    "speed": 6,
+    "areas": [
+      "bamboo_grove"
+    ],
+    "traits": [
+      "bleed_immune"
+    ],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "minor_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "bamboo_resin",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "qi_gathering_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "meridian_surge_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "clarity_pill",
+        "rarity": "legendary",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "legendary",
+        "min": 1,
+        "max": 1
+      }
+    ]
   },
-  "cliff_raider": {
-    "name": "Cliff Raider",
-    "hp": 75,
+  "mist_fang_wolf": {
+    "name": "Mist Fang Wolf",
+    "hp": 80,
     "attack": 16,
     "defense": 6,
-    "speed": 11,
-    "areas": ["ashen_cliff"],
-    "traits": ["seal_on_hit"]
+    "speed": 8,
+    "areas": [
+      "bamboo_grove"
+    ],
+    "traits": [
+      "seal_on_hit"
+    ],
+    "combat_tier": "boss",
+    "drops": [
+      {
+        "item_id": "minor_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "spirit_iron_shard",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
   },
-  "ash_wraith": {
-    "name": "Ash Wraith",
-    "hp": 88,
-    "attack": 19,
+  "ash_scorpion": {
+    "name": "Ash Scorpion",
+    "hp": 70,
+    "attack": 14,
+    "defense": 5,
+    "speed": 7,
+    "areas": [
+      "ashen_cliff"
+    ],
+    "traits": [],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "ember_moss",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "minor_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  },
+  "cliff_bandit_beast": {
+    "name": "Bandit War Hound",
+    "hp": 95,
+    "attack": 18,
     "defense": 7,
-    "speed": 13,
-    "areas": ["ashen_cliff"],
-    "traits": ["high_stun_chance"]
+    "speed": 9,
+    "areas": [
+      "ashen_cliff"
+    ],
+    "traits": [],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "bandit_token",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
   },
-  "moonwell_phantom": {
-    "name": "Moonwell Phantom",
-    "hp": 105,
+  "fire_mantis": {
+    "name": "Fire Mantis",
+    "hp": 110,
     "attack": 22,
-    "defense": 9,
-    "speed": 14,
-    "areas": ["moonwell_ruins"],
-    "traits": ["cleanse_every_3_turns", "bleed_immune"]
+    "defense": 8,
+    "speed": 11,
+    "areas": [
+      "ashen_cliff"
+    ],
+    "traits": [],
+    "combat_tier": "boss",
+    "drops": [
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "spirit_iron_shard",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
   },
-  "ruin_sentinel": {
-    "name": "Ruin Sentinel",
-    "hp": 130,
+  "moonwell_shade": {
+    "name": "Moonwell Shade",
+    "hp": 120,
+    "attack": 20,
+    "defense": 10,
+    "speed": 10,
+    "areas": [
+      "moonwell_ruins"
+    ],
+    "traits": [],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "ancient_dust",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  },
+  "lotus_guardian": {
+    "name": "Lotus Guardian",
+    "hp": 150,
+    "attack": 24,
+    "defense": 12,
+    "speed": 12,
+    "areas": [
+      "moonwell_ruins"
+    ],
+    "traits": [],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "moonlotus",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  },
+  "ruin_devourer": {
+    "name": "Ruin Devourer",
+    "hp": 200,
+    "attack": 30,
+    "defense": 14,
+    "speed": 15,
+    "areas": [
+      "moonwell_ruins"
+    ],
+    "traits": [],
+    "combat_tier": "boss",
+    "drops": [
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "ancient_dust",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  },
+  "garden_pheasant": {
+    "name": "Garden Pheasant",
+    "hp": 30,
+    "attack": 6,
+    "defense": 2,
+    "speed": 5,
+    "areas": [
+      "mistwood_village"
+    ],
+    "traits": [],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "village_herb",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "minor_beast_core",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "legendary",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  },
+  "lane_fox": {
+    "name": "Lane Fox",
+    "hp": 48,
+    "attack": 10,
+    "defense": 3,
+    "speed": 5,
+    "areas": [
+      "mistwood_village"
+    ],
+    "traits": [],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "village_herb",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "green_dew_herb",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  },
+  "mist_hound": {
+    "name": "Mist Hound",
+    "hp": 72,
+    "attack": 14,
+    "defense": 5,
+    "speed": 7,
+    "areas": [
+      "mistwood_village"
+    ],
+    "traits": [
+      "bleed_immune"
+    ],
+    "combat_tier": "boss",
+    "drops": [
+      {
+        "item_id": "minor_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "village_herb",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  },
+  "pine_stalker": {
+    "name": "Pine Stalker",
+    "hp": 95,
+    "attack": 17,
+    "defense": 7,
+    "speed": 8,
+    "areas": [
+      "verdant_depths"
+    ],
+    "traits": [],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "pine_resin",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  },
+  "thornback_boar": {
+    "name": "Thornback Boar",
+    "hp": 125,
+    "attack": 21,
+    "defense": 10,
+    "speed": 10,
+    "areas": [
+      "verdant_depths"
+    ],
+    "traits": [
+      "bleed_immune"
+    ],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "pine_resin",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "spirit_iron_shard",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  },
+  "canopy_serpent": {
+    "name": "Canopy Serpent",
+    "hp": 165,
     "attack": 26,
     "defense": 11,
-    "speed": 10,
-    "areas": ["moonwell_ruins"],
-    "traits": ["seal_on_hit", "high_stun_chance"]
-  },
-  "village_thief": {
-    "name": "Village Thief",
-    "hp": 38,
-    "attack": 8,
-    "defense": 3,
-    "speed": 12,
-    "areas": ["mistwood_village"],
-    "traits": ["high_stun_chance"]
-  },
-  "root_sprite": {
-    "name": "Root Sprite",
-    "hp": 52,
-    "attack": 11,
-    "defense": 4,
-    "speed": 14,
-    "areas": ["mistwood_village"],
-    "traits": ["cleanse_every_3_turns"]
-  },
-  "forest_stalker": {
-    "name": "Forest Stalker",
-    "hp": 98,
-    "attack": 18,
-    "defense": 8,
     "speed": 13,
-    "areas": ["verdant_depths"],
-    "traits": ["bleed_immune"]
+    "areas": [
+      "verdant_depths"
+    ],
+    "traits": [
+      "seal_on_hit",
+      "high_stun_chance"
+    ],
+    "combat_tier": "boss",
+    "drops": [
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "pine_resin",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
   },
-  "thornback_brute": {
-    "name": "Thornback Brute",
-    "hp": 118,
+  "bog_leech": {
+    "name": "Bog Leech",
+    "hp": 140,
     "attack": 22,
-    "defense": 10,
-    "speed": 9,
-    "areas": ["verdant_depths"],
-    "traits": ["seal_on_hit"]
-  },
-  "bog_lurker": {
-    "name": "Bog Lurker",
-    "hp": 145,
-    "attack": 24,
-    "defense": 11,
+    "defense": 9,
     "speed": 11,
-    "areas": ["cursed_swamp"],
-    "traits": ["high_stun_chance"]
+    "areas": [
+      "cursed_swamp"
+    ],
+    "traits": [],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "swamp_moss",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  },
+  "mire_hound": {
+    "name": "Mire Hound",
+    "hp": 175,
+    "attack": 27,
+    "defense": 12,
+    "speed": 13,
+    "areas": [
+      "cursed_swamp"
+    ],
+    "traits": [
+      "high_stun_chance"
+    ],
+    "combat_tier": "normal",
+    "drops": [
+      {
+        "item_id": "bog_iron",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "swamp_moss",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
   },
   "swamp_hollow_king": {
     "name": "Swamp Hollow King",
@@ -104,8 +604,458 @@
     "attack": 36,
     "defense": 18,
     "speed": 12,
-    "areas": ["cursed_swamp"],
-    "traits": ["seal_on_hit", "high_stun_chance", "cleanse_every_3_turns"],
-    "is_boss": true
+    "areas": [
+      "cursed_swamp"
+    ],
+    "traits": [
+      "seal_on_hit",
+      "high_stun_chance",
+      "cleanse_every_3_turns"
+    ],
+    "combat_tier": "boss",
+    "drops": [
+      {
+        "item_id": "hollow_pearl",
+        "rarity": "common",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "bog_iron",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ]
+  },
+  "bamboo_specter": {
+    "name": "Bamboo Specter",
+    "hp": 42,
+    "attack": 9,
+    "defense": 3,
+    "speed": 10,
+    "areas": [
+      "bamboo_grove"
+    ],
+    "traits": [
+      "cleanse_every_3_turns"
+    ],
+    "drops": [
+      {
+        "item_id": "minor_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "green_dew_herb",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "qi_gathering_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "meridian_surge_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "flow_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "clarity_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "legendary",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "combat_tier": "normal"
+  },
+  "grove_stalker": {
+    "name": "Grove Stalker",
+    "hp": 58,
+    "attack": 13,
+    "defense": 5,
+    "speed": 12,
+    "areas": [
+      "bamboo_grove"
+    ],
+    "traits": [
+      "bleed_immune"
+    ],
+    "drops": [
+      {
+        "item_id": "minor_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "bamboo_resin",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "qi_gathering_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "meridian_surge_pill",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "clarity_pill",
+        "rarity": "legendary",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "legendary",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "combat_tier": "normal"
+  },
+  "cliff_raider": {
+    "name": "Cliff Raider",
+    "hp": 75,
+    "attack": 16,
+    "defense": 6,
+    "speed": 11,
+    "areas": [
+      "ashen_cliff"
+    ],
+    "traits": [
+      "seal_on_hit"
+    ],
+    "drops": [
+      {
+        "item_id": "ember_moss",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "minor_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "combat_tier": "normal"
+  },
+  "ash_wraith": {
+    "name": "Ash Wraith",
+    "hp": 88,
+    "attack": 19,
+    "defense": 7,
+    "speed": 13,
+    "areas": [
+      "ashen_cliff"
+    ],
+    "traits": [
+      "high_stun_chance"
+    ],
+    "drops": [
+      {
+        "item_id": "bandit_token",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "combat_tier": "normal"
+  },
+  "moonwell_phantom": {
+    "name": "Moonwell Phantom",
+    "hp": 105,
+    "attack": 22,
+    "defense": 9,
+    "speed": 14,
+    "areas": [
+      "moonwell_ruins"
+    ],
+    "traits": [
+      "cleanse_every_3_turns",
+      "bleed_immune"
+    ],
+    "drops": [
+      {
+        "item_id": "ancient_dust",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "combat_tier": "normal"
+  },
+  "ruin_sentinel": {
+    "name": "Ruin Sentinel",
+    "hp": 130,
+    "attack": 26,
+    "defense": 11,
+    "speed": 10,
+    "areas": [
+      "moonwell_ruins"
+    ],
+    "traits": [
+      "seal_on_hit",
+      "high_stun_chance"
+    ],
+    "drops": [
+      {
+        "item_id": "moonlotus",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "common",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "combat_tier": "normal"
+  },
+  "village_thief": {
+    "name": "Village Thief",
+    "hp": 38,
+    "attack": 8,
+    "defense": 3,
+    "speed": 12,
+    "areas": [
+      "mistwood_village"
+    ],
+    "traits": [
+      "high_stun_chance"
+    ],
+    "drops": [
+      {
+        "item_id": "village_herb",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "minor_beast_core",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "legendary",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "combat_tier": "normal"
+  },
+  "root_sprite": {
+    "name": "Root Sprite",
+    "hp": 52,
+    "attack": 11,
+    "defense": 4,
+    "speed": 14,
+    "areas": [
+      "mistwood_village"
+    ],
+    "traits": [
+      "cleanse_every_3_turns"
+    ],
+    "drops": [
+      {
+        "item_id": "village_herb",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "green_dew_herb",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "combat_tier": "normal"
+  },
+  "forest_stalker": {
+    "name": "Forest Stalker",
+    "hp": 98,
+    "attack": 18,
+    "defense": 8,
+    "speed": 13,
+    "areas": [
+      "verdant_depths"
+    ],
+    "traits": [
+      "bleed_immune"
+    ],
+    "drops": [
+      {
+        "item_id": "pine_resin",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "combat_tier": "normal"
+  },
+  "thornback_brute": {
+    "name": "Thornback Brute",
+    "hp": 118,
+    "attack": 22,
+    "defense": 10,
+    "speed": 9,
+    "areas": [
+      "verdant_depths"
+    ],
+    "traits": [
+      "seal_on_hit"
+    ],
+    "drops": [
+      {
+        "item_id": "pine_resin",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "spirit_iron_shard",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "combat_tier": "normal"
+  },
+  "bog_lurker": {
+    "name": "Bog Lurker",
+    "hp": 145,
+    "attack": 24,
+    "defense": 11,
+    "speed": 11,
+    "areas": [
+      "cursed_swamp"
+    ],
+    "traits": [
+      "high_stun_chance"
+    ],
+    "drops": [
+      {
+        "item_id": "swamp_moss",
+        "rarity": "common",
+        "min": 1,
+        "max": 2
+      },
+      {
+        "item_id": "refined_beast_core",
+        "rarity": "uncommon",
+        "min": 1,
+        "max": 1
+      },
+      {
+        "item_id": "technique_fragment",
+        "rarity": "rare",
+        "min": 1,
+        "max": 1
+      }
+    ],
+    "combat_tier": "normal"
   }
 }

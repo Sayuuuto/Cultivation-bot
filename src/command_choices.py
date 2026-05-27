@@ -97,6 +97,31 @@ def resolve_manual_item_id(raw: str) -> str | None:
     return None
 
 
+def _recipe_option_label(
+    session: Session,
+    player_id: int,
+    recipe,
+) -> str:
+    pct = int(recipe.success_chance * 100)
+    inputs = ", ".join(
+        f"{get_item_name(item_id)} ×{qty}" for item_id, qty in sorted(recipe.inputs.items())
+    )
+    ready = has_items(session, player_id, recipe.inputs)
+    prefix = "✓ " if ready else ""
+    return f"{prefix}{recipe.name} ({pct}%) — {inputs}"
+
+
+def list_recipe_options(session: Session, player_id: int, recipe_type: str) -> list[tuple[str, str]]:
+    """All recipes of a type for autocomplete (craft attempt may still fail on materials)."""
+    options: list[tuple[str, str]] = []
+    for recipe in get_recipes().values():
+        if recipe.recipe_type != recipe_type:
+            continue
+        options.append((recipe.recipe_id, _recipe_option_label(session, player_id, recipe)))
+    options.sort(key=lambda row: row[0])
+    return options
+
+
 def list_craftable_recipes(session: Session, player_id: int, recipe_type: str) -> list[tuple[str, str]]:
     options: list[tuple[str, str]] = []
     for recipe in get_recipes().values():
@@ -104,12 +129,7 @@ def list_craftable_recipes(session: Session, player_id: int, recipe_type: str) -
             continue
         if not has_items(session, player_id, recipe.inputs):
             continue
-        pct = int(recipe.success_chance * 100)
-        inputs = ", ".join(
-            f"{get_item_name(item_id)} ×{qty}" for item_id, qty in sorted(recipe.inputs.items())
-        )
-        label = f"{recipe.name} ({pct}%) — {inputs}"
-        options.append((recipe.recipe_id, label))
+        options.append((recipe.recipe_id, _recipe_option_label(session, player_id, recipe)))
 
     options.sort(key=lambda row: row[0])
     return options

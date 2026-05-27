@@ -10,9 +10,14 @@ def _realm_label(realm_index: int) -> str:
     return REALMS[idx]
 
 
+def realm_gap_for_realm(realm_index: int, area: AreaDef) -> int:
+    """How many recommended realm steps a cultivator is below this area."""
+    return max(0, area.min_realm - realm_index)
+
+
 def realm_gap(player: Player, area: AreaDef) -> int:
     """How many recommended realm steps the player is below this area."""
-    return max(0, area.min_realm - player.realm_index)
+    return realm_gap_for_realm(player.realm_index, area)
 
 
 def is_underleveled(player: Player, area: AreaDef) -> bool:
@@ -51,11 +56,15 @@ def danger_label(gap: int) -> str:
     return "suicidal"
 
 
-def format_area_choice_label(player: Player, area: AreaDef) -> str:
-    gap = realm_gap(player, area)
+def format_area_choice_label_for_realm(realm_index: int, area: AreaDef) -> str:
+    gap = realm_gap_for_realm(realm_index, area)
     if gap <= 0:
         return f"{area.name} ({area.recommended_text})"
     return f"{area.name} ({danger_label(gap)} — {area.recommended_text})"
+
+
+def format_area_choice_label(player: Player, area: AreaDef) -> str:
+    return format_area_choice_label_for_realm(player.realm_index, area)
 
 
 def underleveled_entry_message(area: AreaDef, gap: int) -> str:

@@ -42,8 +42,8 @@ class CultivateEventResult:
     qi_mult: float = 1.0
     bonus_qi: int = 0
     bonus_stones: int = 0
-    stamina_restore: int = 0
     drops: dict[str, int] = field(default_factory=dict)
+    meridian_points: int = 0
 
 
 def roll_cultivate_event(
@@ -97,8 +97,8 @@ def roll_cultivate_event(
         qi_mult=float(picked.get("qi_mult", 1.0)),
         bonus_qi=int(picked.get("bonus_qi", 0)),
         bonus_stones=bonus_stones,
-        stamina_restore=int(picked.get("stamina_restore", 0)),
         drops=drops,
+        meridian_points=int(picked.get("meridian_points", 0)),
     )
 
 

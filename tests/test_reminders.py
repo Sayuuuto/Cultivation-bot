@@ -27,6 +27,7 @@ def cfg() -> Config:
         tutorial_channel_id=None,
         library_channel_id=None,
         abode_category_id=None,
+        dungeon_category_id=None,
         arena_category_id=None,
         pvp_results_channel_id=None,
     )
@@ -101,7 +102,7 @@ def test_daily_ready_at_after_claim(session, player, cfg, now):
     session.commit()
 
     ready = compute_ready_at(session, player, cfg, "daily", now)
-    assert ready.date() == (now.date() + timedelta(days=1))
+    assert ready == now + timedelta(seconds=cfg.daily_cooldown_seconds)
 
 
 def test_daily_ready_now_if_not_claimed(session, player, cfg, now):

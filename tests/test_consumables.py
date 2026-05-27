@@ -6,6 +6,7 @@ import pytest
 
 from src.consumables import resolve_use_item_id, use_item
 from src.content import load_all_content
+from src.effects import format_active_effects_block
 from src.inventory import add_item, load_item_catalog
 
 
@@ -42,3 +43,26 @@ def test_use_item_accepts_display_name(session, player):
     session.commit()
     assert ok is True
     assert "Qi Gathering" in message
+    assert "+55%" in message
+    assert "3" in message
+
+
+def test_use_tempering_pill_describes_effect(session, player):
+    add_item(session, player.id, "tempering_pill", 1)
+    session.commit()
+    ok, message = use_item(session, player, "tempering_pill", rng=random.Random(1))
+    session.commit()
+    assert ok is True
+    assert "+12% defense" in message
+    assert "/adventure" in message
+
+
+def test_format_active_effects_block(session, player):
+    add_item(session, player.id, "swiftwind_pill", 1)
+    session.commit()
+    use_item(session, player, "swiftwind_pill", rng=random.Random(1))
+    session.commit()
+    block = format_active_effects_block(session, player.id)
+    assert block is not None
+    assert "Swiftwind" in block
+    assert "+10%" in block

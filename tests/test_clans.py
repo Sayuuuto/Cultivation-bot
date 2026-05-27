@@ -42,7 +42,6 @@ def test_clan_qi_contribution_on_cultivate(session, player):
     player.clan_id = clan.id
     player.qi = 0
     player.realm_index = 10
-    player.stamina = 100
     session.commit()
 
     cfg = get_config()

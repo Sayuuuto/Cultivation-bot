@@ -43,23 +43,30 @@ def build_cultivate_embed(
 
     embed = discord.Embed(title=title, description=description, color=color)
 
-    qi_line = f"**+{res.qi_gain}** Qi"
-    if res.event_id and res.event_qi_mult != 1.0:
-        qi_line += f" _(×{res.event_qi_mult:.1f} event)_"
+    active_qi = max(0, res.qi_gain - passive_qi)
     embed.add_field(
-        name="🌀 Qi gained",
-        value=f"{qi_line}\n{format_qi_bar(player.qi, cap)}\n**{player.qi}/{cap}** total",
+        name="🌙 Passive Qi",
+        value=(
+            f"**+{passive_qi} Qi** from time away"
+            if passive_qi > 0
+            else "_No passive qi banked this time._"
+        ),
         inline=True,
     )
+    active_line = f"**+{active_qi} Qi**"
+    if res.event_id and res.event_qi_mult != 1.0:
+        active_line += f" _(×{res.event_qi_mult:.1f} dao event)_"
+    embed.add_field(
+        name="🧘 /cultivate",
+        value=active_line,
+        inline=True,
+    )
+    embed.add_field(
+        name="🌀 Qi pool",
+        value=f"**+{res.qi_gain}** total this action\n{format_qi_bar(player.qi, cap)}\n**{player.qi}/{cap}**",
+        inline=False,
+    )
     embed.add_field(name="💎 Spirit stones", value=str(player.spirit_stones), inline=True)
-    embed.add_field(name="⚡ Stamina", value=f"**{player.stamina}/100**", inline=True)
-
-    if passive_qi > 0:
-        embed.add_field(
-            name="🌙 Passive qi",
-            value=f"**+{passive_qi}** while away · **+{passive_qi + res.qi_gain}** this session",
-            inline=False,
-        )
 
     if drops:
         embed.add_field(
@@ -67,6 +74,9 @@ def build_cultivate_embed(
             value=format_loot_lines(drops, get_item_name),
             inline=False,
         )
+
+    if res.meridian_note:
+        embed.add_field(name="🌀 Meridians", value=res.meridian_note, inline=False)
 
     embed.add_field(name="🏔️ Realm", value=realm_display, inline=False)
     embed.set_footer(text="🌿 Gather · ⚔️ Hunt · 📜 Adventure while you recover")

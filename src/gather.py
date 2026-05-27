@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from .character import get_character_modifiers
 from .combat_stats import compute_combat_stats, gather_quantity_bonus, gather_rare_bonus
+from .loot import load_drop_rarity_config, parse_loot_table, roll_bonus_loot, roll_weighted_loot_pool
 from .content import get_area
 from .inventory import add_item, get_item_name
 from .models import Player
@@ -25,6 +26,7 @@ class GatherNode:
     min_qty: int
     max_qty: int
     message: str = ""
+    rarity: str = "common"
 
 
 @dataclass(frozen=True)
@@ -58,6 +60,7 @@ def _load_gather_config() -> dict[str, GatherAreaDef]:
                     weight=n["weight"],
                     min_qty=n["min"],
                     max_qty=n["max"],
+                    rarity=str(n.get("rarity", "common")),
                 )
                 for n in data["nodes"]
             )
@@ -68,6 +71,7 @@ def _load_gather_config() -> dict[str, GatherAreaDef]:
                     min_qty=n["min"],
                     max_qty=n["max"],
                     message=n.get("message", ""),
+                    rarity=str(n.get("rarity", "uncommon")),
                 )
                 for n in data.get("rare_nodes", [])
             )
@@ -139,9 +143,12 @@ def run_gather(
             messages=["No gather nodes are configured for this region."],
         )
 
+    area = get_area(area_id)
+    area_min_realm = area.min_realm if area is not None else 0
     mod = get_character_modifiers(session, player)
     stats = compute_combat_stats(player, session, mod)
     qty_mult = gather_quantity_bonus(stats.comprehension)
+    drop_cfg = load_drop_rarity_config()
 
     node = _pick_weighted(gather_def.nodes, rng)
     if node is None:
@@ -161,15 +168,68 @@ def run_gather(
         f"You gather **{get_item_name(node.item_id)}** ×{qty}.",
     ]
 
+    node_table = parse_loot_table(
+        [
+            {
+                "item_id": n.item_id,
+                "rarity": n.rarity,
+                "min": n.min_qty,
+                "max": n.max_qty,
+            }
+            for n in gather_def.nodes
+        ]
+    )
+    bonus_chance = drop_cfg.gather_bonus_roll_chance + gather_rare_bonus(stats.luck, mod.drop_luck)
+    if node_table and rng.random() < bonus_chance:
+        bonus = roll_bonus_loot(
+            node_table,
+            rng,
+            rolls=drop_cfg.gather_bonus_roll_count,
+            luck=stats.luck,
+            drop_luck=mod.drop_luck,
+            player_realm_index=player.realm_index,
+            area_min_realm=area_min_realm,
+            qty_mult=qty_mult,
+        )
+        for item_id, bonus_qty in bonus.items():
+            add_item(session, player.id, item_id, bonus_qty)
+            drops[item_id] = drops.get(item_id, 0) + bonus_qty
+        if bonus:
+            extras = ", ".join(f"**{get_item_name(i)}** ×{q}" for i, q in bonus.items())
+            messages.append(f"Fortune smiles — extra haul: {extras}.")
+
     rare_message: str | None = None
     rare_chance = gather_def.rare_node_chance + gather_rare_bonus(stats.luck, mod.drop_luck)
     if gather_def.rare_nodes and rng.random() < rare_chance:
-        rare = _pick_weighted(gather_def.rare_nodes, rng)
-        if rare is not None:
-            rare_qty = _roll_qty(rare, qty_mult, rng)
-            add_item(session, player.id, rare.item_id, rare_qty)
-            drops[rare.item_id] = drops.get(rare.item_id, 0) + rare_qty
-            rare_message = rare.message or f"A rare find: **{get_item_name(rare.item_id)}** ×{rare_qty}."
+        rare_table = parse_loot_table(
+            [
+                {
+                    "item_id": n.item_id,
+                    "rarity": n.rarity,
+                    "min": n.min_qty,
+                    "max": n.max_qty,
+                }
+                for n in gather_def.rare_nodes
+            ]
+        )
+        rolled = roll_weighted_loot_pool(
+            rare_table,
+            rng,
+            luck=stats.luck,
+            drop_luck=mod.drop_luck,
+            player_realm_index=player.realm_index,
+            area_min_realm=area_min_realm,
+            qty_mult=qty_mult * 1.25,
+        )
+        if rolled is not None:
+            rare_item, rare_qty = rolled
+            add_item(session, player.id, rare_item, rare_qty)
+            drops[rare_item] = drops.get(rare_item, 0) + rare_qty
+            rare_node = next((n for n in gather_def.rare_nodes if n.item_id == rare_item), None)
+            rare_message = (
+                (rare_node.message if rare_node else "")
+                or f"A rare find: **{get_item_name(rare_item)}** ×{rare_qty}."
+            )
             messages.append(rare_message)
 
     from .game_sects import on_sect_activity
@@ -183,6 +243,12 @@ def run_gather(
         item_id=primary_item,
     )
     messages.extend(sect_msgs)
+
+    from .foundation import roll_gather_meridian_insight
+
+    meridian_msg = roll_gather_meridian_insight(player, stats.comprehension, rng)
+    if meridian_msg:
+        messages.append(meridian_msg)
 
     return GatherResult(
         success=True,

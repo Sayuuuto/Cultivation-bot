@@ -3,41 +3,41 @@
     {
       "id": "injured_elder",
       "type": "choice",
-      "prompt": "An injured elder cultivator slumps against a bamboo root, clutching a storage ring.",
+      "prompt": "A bloodied elder cultivator slumps against bamboo roots, whispering for help. His storage ring glints in the mud.",
       "choices": [
-        {"id": "help", "label": "Treat his wounds and share qi", "karma_delta": 15, "success_bonus": 0.05, "drop_mult": 0.9, "fail_chance": 0.08, "manual_pool": "righteous_elder", "manual_chance": 0.85},
-        {"id": "rob", "label": "Take his storage ring", "karma_delta": -20, "success_bonus": -0.05, "drop_mult": 1.4, "fail_chance": 0.18, "spirit_stones": 12, "manual_pool": "demonic_elder", "manual_chance": 0.5},
-        {"id": "ignore", "label": "Walk past silently", "karma_delta": 0, "success_bonus": 0.0, "drop_mult": 1.0, "fail_chance": 0.05}
+        {"id": "help", "label": "Treat his wounds and share your qi", "karma_delta": 15, "success_bonus": 0.05, "drop_mult": 0.9, "fail_chance": 0.08, "manual_pool": "righteous_elder", "manual_chance": 0.85},
+        {"id": "rob", "label": "Strip his ring and leave him in the mud", "karma_delta": -20, "success_bonus": -0.05, "drop_mult": 1.4, "fail_chance": 0.18, "spirit_stones": 12, "manual_pool": "demonic_elder", "manual_chance": 0.5},
+        {"id": "ignore", "label": "Walk past without meeting his eyes", "karma_delta": -6, "success_bonus": 0.0, "drop_mult": 1.0, "fail_chance": 0.05}
       ]
     },
     {
       "id": "trapped_beast",
       "type": "choice",
-      "prompt": "A spirit beast is trapped in a hunter's snare, eyes wide with pain.",
+      "prompt": "A young spirit beast thrashes in a hunter's snare, ribs heaving with pain.",
       "choices": [
-        {"id": "free", "label": "Cut the snare and free it", "karma_delta": 8, "success_bonus": 0.04, "drop_mult": 0.85, "fail_chance": 0.1, "manual_pool": "righteous_elder", "manual_chance": 0.4},
-        {"id": "harvest", "label": "Harvest its core while trapped", "karma_delta": -12, "success_bonus": -0.04, "drop_mult": 1.5, "fail_chance": 0.2},
-        {"id": "leave", "label": "Leave it to fate", "karma_delta": 0, "success_bonus": 0.0, "drop_mult": 0.9, "fail_chance": 0.04}
+        {"id": "free", "label": "Cut the snare and guide it to safety", "karma_delta": 10, "success_bonus": 0.04, "drop_mult": 0.85, "fail_chance": 0.1, "manual_pool": "righteous_elder", "manual_chance": 0.4},
+        {"id": "harvest", "label": "Harvest its core while it cannot fight back", "karma_delta": -14, "success_bonus": -0.04, "drop_mult": 1.5, "fail_chance": 0.2},
+        {"id": "leave", "label": "Leave it tearing at the wire", "karma_delta": -5, "success_bonus": 0.0, "drop_mult": 0.9, "fail_chance": 0.04}
       ]
     },
     {
       "id": "beast_on_path",
       "type": "choice",
-      "prompt": "A low spirit beast blocks the bamboo path, growling softly.",
+      "prompt": "A cornered spirit beast blocks the path. Villagers said it took livestock — its eyes are wild with fear.",
       "choices": [
-        {"id": "fight", "label": "Fight head-on", "success_bonus": 0.0, "drop_mult": 1.2, "fail_chance": 0.14},
-        {"id": "detour", "label": "Take the muddy detour", "success_bonus": 0.1, "drop_mult": 0.85, "fail_chance": 0.06},
-        {"id": "bait", "label": "Bait it with herbs", "success_bonus": -0.05, "drop_mult": 1.35, "fail_chance": 0.2}
+        {"id": "fight", "label": "Slay it before it can strike", "karma_delta": -8, "success_bonus": 0.0, "drop_mult": 1.2, "fail_chance": 0.14},
+        {"id": "detour", "label": "Circle wide and let it flee", "karma_delta": 6, "success_bonus": 0.1, "drop_mult": 0.85, "fail_chance": 0.06},
+        {"id": "bait", "label": "Lure it away with herbs, then withdraw", "karma_delta": 4, "success_bonus": -0.05, "drop_mult": 1.15, "fail_chance": 0.2}
       ]
     },
     {
       "id": "mist_crossroads",
       "type": "choice",
-      "prompt": "Mist hides a crossroads. One trail smells of resin, another of cold metal.",
+      "prompt": "Mist hides a crossroads. A moaning cultivator lies beside a resin trail; cold metal glints down the other fork.",
       "choices": [
-        {"id": "resin_trail", "label": "Follow the resin scent", "success_bonus": 0.05, "drop_mult": 1.1, "fail_chance": 0.08},
-        {"id": "metal_trail", "label": "Follow the metal chill", "success_bonus": -0.02, "drop_mult": 1.25, "fail_chance": 0.12},
-        {"id": "wait", "label": "Wait for the mist to clear", "success_bonus": 0.12, "drop_mult": 0.75, "fail_chance": 0.04}
+        {"id": "resin_trail", "label": "Follow the resin scent to aid the fallen", "karma_delta": 7, "success_bonus": 0.05, "drop_mult": 1.0, "fail_chance": 0.08},
+        {"id": "metal_trail", "label": "Loot the corpse by the cold metal trail", "karma_delta": -12, "success_bonus": -0.02, "drop_mult": 1.25, "fail_chance": 0.12},
+        {"id": "wait", "label": "Wait for the mist to clear without interfering", "karma_delta": -3, "success_bonus": 0.12, "drop_mult": 0.75, "fail_chance": 0.04}
       ]
     },
     {
@@ -57,41 +57,41 @@
     {
       "id": "wounded_rival",
       "type": "choice",
-      "prompt": "A rival cultivator from another sect lies wounded after a beast attack.",
+      "prompt": "A rival cultivator from another sect lies bleeding after a beast attack, begging for a pill.",
       "choices": [
-        {"id": "share_pill", "label": "Share a healing pill", "karma_delta": 10, "success_bonus": 0.06, "drop_mult": 0.85, "fail_chance": 0.08, "manual_pool": "righteous_elder", "manual_chance": 0.45},
-        {"id": "finish", "label": "Finish them and loot the body", "karma_delta": -15, "success_bonus": -0.06, "drop_mult": 1.45, "fail_chance": 0.2, "manual_pool": "demonic_elder", "manual_chance": 0.55},
-        {"id": "bind", "label": "Bind their wound, take a token", "karma_delta": 0, "success_bonus": 0.02, "drop_mult": 1.05, "fail_chance": 0.1}
+        {"id": "share_pill", "label": "Share a healing pill and guard them until help arrives", "karma_delta": 12, "success_bonus": 0.06, "drop_mult": 0.85, "fail_chance": 0.08, "manual_pool": "righteous_elder", "manual_chance": 0.45},
+        {"id": "finish", "label": "Finish them and loot the body", "karma_delta": -18, "success_bonus": -0.06, "drop_mult": 1.45, "fail_chance": 0.2, "manual_pool": "demonic_elder", "manual_chance": 0.55},
+        {"id": "bind", "label": "Bind their wound, then take their sect token as payment", "karma_delta": -6, "success_bonus": 0.02, "drop_mult": 1.05, "fail_chance": 0.1}
       ]
     },
     {
       "id": "corrupt_disciple",
       "type": "choice",
-      "prompt": "A disciple in torn robes offers you a dark manual in exchange for silence.",
+      "prompt": "A disciple in torn robes offers you a blood-stained manual if you swear silence.",
       "choices": [
-        {"id": "report", "label": "Report them to the nearest sect", "karma_delta": 12, "success_bonus": 0.04, "drop_mult": 0.8, "fail_chance": 0.12, "sect_invitation": "imperial_guard"},
-        {"id": "accept", "label": "Accept the dark offer", "karma_delta": -18, "success_bonus": -0.04, "drop_mult": 1.2, "fail_chance": 0.16, "manual_pool": "demonic_elder", "manual_chance": 0.9, "sect_invitation": "shadow_pavilion"},
-        {"id": "trade", "label": "Trade information only", "karma_delta": 0, "success_bonus": 0.0, "drop_mult": 1.0, "fail_chance": 0.1, "manual_pool": "neutral_wanderer", "manual_chance": 0.35}
+        {"id": "report", "label": "Drag them to the nearest sect for judgment", "karma_delta": 14, "success_bonus": 0.04, "drop_mult": 0.8, "fail_chance": 0.12, "sect_invitation": "imperial_guard"},
+        {"id": "accept", "label": "Accept the dark manual and their secret", "karma_delta": -20, "success_bonus": -0.04, "drop_mult": 1.2, "fail_chance": 0.16, "manual_pool": "demonic_elder", "manual_chance": 0.9, "sect_invitation": "shadow_pavilion"},
+        {"id": "trade", "label": "Trade rumors only — keep your hands clean of their crime", "karma_delta": -4, "success_bonus": 0.0, "drop_mult": 1.0, "fail_chance": 0.1, "manual_pool": "neutral_wanderer", "manual_chance": 0.35}
       ]
     },
     {
       "id": "bandit_ambush",
       "type": "choice",
-      "prompt": "Bandits emerge from cliffside smoke, demanding your spirit stones.",
+      "prompt": "Bandits emerge from cliffside smoke, shaking down a family of miners for spirit stones.",
       "choices": [
-        {"id": "stand", "label": "Stand your ground", "success_bonus": 0.0, "drop_mult": 1.15, "fail_chance": 0.16},
-        {"id": "pay", "label": "Toss stones and run", "success_bonus": 0.08, "drop_mult": 0.7, "fail_chance": 0.05},
-        {"id": "charge", "label": "Charge through the smoke", "success_bonus": -0.08, "drop_mult": 1.4, "fail_chance": 0.22}
+        {"id": "stand", "label": "Stand between the bandits and the family", "karma_delta": 10, "success_bonus": 0.0, "drop_mult": 1.1, "fail_chance": 0.16},
+        {"id": "pay", "label": "Pay them off with your own stones and flee", "karma_delta": -5, "success_bonus": 0.08, "drop_mult": 0.7, "fail_chance": 0.05},
+        {"id": "charge", "label": "Join the bandits and split the miners' haul", "karma_delta": -16, "success_bonus": -0.08, "drop_mult": 1.4, "fail_chance": 0.22}
       ]
     },
     {
       "id": "collapsed_mine",
       "type": "choice",
-      "prompt": "A collapsed mine shaft glitters with ore — but the ground trembles.",
+      "prompt": "Trapped miners hammer on stone below a collapsed shaft. Ore glitters beside a shaky support beam.",
       "choices": [
-        {"id": "quick_grab", "label": "Grab what you can quickly", "success_bonus": -0.03, "drop_mult": 1.3, "fail_chance": 0.18},
-        {"id": "brace", "label": "Brace the entrance and dig carefully", "success_bonus": 0.06, "drop_mult": 0.95, "fail_chance": 0.09},
-        {"id": "leave", "label": "Leave before it collapses", "success_bonus": 0.15, "drop_mult": 0.6, "fail_chance": 0.02}
+        {"id": "quick_grab", "label": "Grab the ore and leave them to dig out alone", "karma_delta": -11, "success_bonus": -0.03, "drop_mult": 1.3, "fail_chance": 0.18},
+        {"id": "brace", "label": "Brace the shaft and haul the miners up first", "karma_delta": 12, "success_bonus": 0.06, "drop_mult": 0.95, "fail_chance": 0.09},
+        {"id": "leave", "label": "Leave before the ceiling gives way", "karma_delta": -7, "success_bonus": 0.15, "drop_mult": 0.6, "fail_chance": 0.02}
       ]
     },
     {
@@ -111,41 +111,41 @@
     {
       "id": "injured_elder_ruins",
       "type": "choice",
-      "prompt": "Beneath a fallen pillar, an elder gasps for breath — a jade manual case at his side.",
+      "prompt": "Beneath a fallen pillar, an elder gasps for breath — a jade manual case beside him.",
       "choices": [
-        {"id": "help", "label": "Stabilize him with your qi", "karma_delta": 15, "success_bonus": 0.05, "drop_mult": 0.88, "fail_chance": 0.09, "manual_pool": "righteous_elder", "manual_chance": 0.9, "sect_invitation": "imperial_guard"},
-        {"id": "rob", "label": "Take the manual case", "karma_delta": -20, "success_bonus": -0.06, "drop_mult": 1.5, "fail_chance": 0.22, "manual_pool": "demonic_elder", "manual_chance": 0.75, "sect_invitation": "shadow_pavilion"},
-        {"id": "ignore", "label": "Slip away unnoticed", "karma_delta": 0, "success_bonus": 0.0, "drop_mult": 0.95, "fail_chance": 0.06}
+        {"id": "help", "label": "Stabilize him with your qi and guard the case", "karma_delta": 16, "success_bonus": 0.05, "drop_mult": 0.88, "fail_chance": 0.09, "manual_pool": "righteous_elder", "manual_chance": 0.9, "sect_invitation": "imperial_guard"},
+        {"id": "rob", "label": "Take the manual case and slip away", "karma_delta": -22, "success_bonus": -0.06, "drop_mult": 1.5, "fail_chance": 0.22, "manual_pool": "demonic_elder", "manual_chance": 0.75, "sect_invitation": "shadow_pavilion"},
+        {"id": "ignore", "label": "Sneak past while he cannot stop you", "karma_delta": -7, "success_bonus": 0.0, "drop_mult": 0.95, "fail_chance": 0.06}
       ]
     },
     {
       "id": "trapped_spirit_beast",
       "type": "choice",
-      "prompt": "A young moonwell beast is caught in ancient chains that pulse with corrupt qi.",
+      "prompt": "A young moonwell beast is chained in corrupt qi, tearing at its own fur.",
       "choices": [
-        {"id": "free", "label": "Break the chains and free it", "karma_delta": 8, "success_bonus": 0.03, "drop_mult": 0.9, "fail_chance": 0.11, "manual_pool": "righteous_elder", "manual_chance": 0.5},
-        {"id": "harvest", "label": "Harvest its spirit core", "karma_delta": -12, "success_bonus": -0.05, "drop_mult": 1.55, "fail_chance": 0.22},
-        {"id": "leave", "label": "Leave the ruins undisturbed", "karma_delta": 0, "success_bonus": 0.05, "drop_mult": 0.75, "fail_chance": 0.04}
+        {"id": "free", "label": "Break the chains and carry it to clean water", "karma_delta": 11, "success_bonus": 0.03, "drop_mult": 0.9, "fail_chance": 0.11, "manual_pool": "righteous_elder", "manual_chance": 0.5},
+        {"id": "harvest", "label": "Harvest its spirit core while it is bound", "karma_delta": -15, "success_bonus": -0.05, "drop_mult": 1.55, "fail_chance": 0.22},
+        {"id": "leave", "label": "Leave it chained in the ruins", "karma_delta": -6, "success_bonus": 0.05, "drop_mult": 0.75, "fail_chance": 0.04}
       ]
     },
     {
       "id": "guardian_statue",
       "type": "choice",
-      "prompt": "A cracked guardian statue turns its head toward you.",
+      "prompt": "A cracked guardian statue turns toward you. Offerings lie at its feet — someone still tends this shrine.",
       "choices": [
-        {"id": "bow", "label": "Bow and offer qi", "success_bonus": 0.08, "drop_mult": 0.9, "fail_chance": 0.07},
-        {"id": "shatter", "label": "Shatter the core", "success_bonus": -0.1, "drop_mult": 1.45, "fail_chance": 0.25},
-        {"id": "circle", "label": "Circle wide through the ruins", "success_bonus": 0.03, "drop_mult": 1.05, "fail_chance": 0.11}
+        {"id": "bow", "label": "Bow and leave a sliver of qi as tribute", "karma_delta": 8, "success_bonus": 0.08, "drop_mult": 0.9, "fail_chance": 0.07},
+        {"id": "shatter", "label": "Shatter the core and steal the ore within", "karma_delta": -14, "success_bonus": -0.1, "drop_mult": 1.45, "fail_chance": 0.25},
+        {"id": "circle", "label": "Circle wide without touching the offerings", "karma_delta": -3, "success_bonus": 0.03, "drop_mult": 1.05, "fail_chance": 0.11}
       ]
     },
     {
       "id": "moonwell_pool",
       "type": "choice",
-      "prompt": "Moonlight reveals a hidden pool. Something stirs beneath the surface.",
+      "prompt": "Moonlight reveals a hidden pool. A childlike spirit watches from beneath the surface.",
       "choices": [
-        {"id": "drink", "label": "Drink from the pool", "success_bonus": 0.0, "drop_mult": 1.2, "fail_chance": 0.15},
-        {"id": "skim", "label": "Skim lotus from the edge", "success_bonus": 0.05, "drop_mult": 1.0, "fail_chance": 0.1},
-        {"id": "probe", "label": "Probe the depths with qi", "success_bonus": -0.05, "drop_mult": 1.35, "fail_chance": 0.2}
+        {"id": "drink", "label": "Drain the pool for power, heedless of the spirit", "karma_delta": -10, "success_bonus": 0.0, "drop_mult": 1.2, "fail_chance": 0.15},
+        {"id": "skim", "label": "Skim lotus from the edge and thank the spirit", "karma_delta": 5, "success_bonus": 0.05, "drop_mult": 1.0, "fail_chance": 0.1},
+        {"id": "probe", "label": "Probe the depths with qi, risking its home", "karma_delta": -6, "success_bonus": -0.05, "drop_mult": 1.35, "fail_chance": 0.2}
       ]
     },
     {
@@ -165,41 +165,41 @@
     {
       "id": "starving_refugee",
       "type": "choice",
-      "prompt": "A starving refugee begs for herbs outside the village gate.",
+      "prompt": "A starving refugee begs for herbs outside the village gate, a child clinging to their sleeve.",
       "choices": [
-        {"id": "share", "label": "Share your herbs and qi", "karma_delta": 12, "reputation_delta": 8, "success_bonus": 0.04, "drop_mult": 0.85, "fail_chance": 0.06},
-        {"id": "demand", "label": "Demand payment for help", "karma_delta": -5, "reputation_delta": -6, "success_bonus": -0.02, "drop_mult": 1.2, "fail_chance": 0.12},
-        {"id": "ignore", "label": "Walk past without a word", "karma_delta": 0, "reputation_delta": -2, "success_bonus": 0.0, "drop_mult": 0.95, "fail_chance": 0.04}
+        {"id": "share", "label": "Share your herbs and qi without asking payment", "karma_delta": 14, "reputation_delta": 8, "success_bonus": 0.04, "drop_mult": 0.85, "fail_chance": 0.06},
+        {"id": "demand", "label": "Demand their family heirloom for a single herb", "karma_delta": -10, "reputation_delta": -6, "success_bonus": -0.02, "drop_mult": 1.2, "fail_chance": 0.12},
+        {"id": "ignore", "label": "Walk past the child without a word", "karma_delta": -7, "reputation_delta": -2, "success_bonus": 0.0, "drop_mult": 0.95, "fail_chance": 0.04}
       ]
     },
     {
       "id": "herb_merchant",
       "type": "choice",
-      "prompt": "A traveling herb merchant offers a rare bundle at a steep price.",
+      "prompt": "A traveling herb merchant offers a rare bundle. A poor acolyte behind you cannot afford even one stem.",
       "choices": [
-        {"id": "buy", "label": "Pay generously for the bundle", "success_bonus": 0.06, "drop_mult": 1.25, "fail_chance": 0.05, "reputation_delta": 4},
-        {"id": "haggle", "label": "Haggle aggressively", "success_bonus": -0.03, "drop_mult": 1.15, "fail_chance": 0.14, "reputation_delta": -3},
-        {"id": "decline", "label": "Decline politely", "success_bonus": 0.02, "drop_mult": 0.9, "fail_chance": 0.03}
+        {"id": "buy", "label": "Buy the bundle and gift half to the acolyte", "karma_delta": 9, "success_bonus": 0.06, "drop_mult": 1.25, "fail_chance": 0.05, "reputation_delta": 6},
+        {"id": "haggle", "label": "Haggle until the merchant turns the acolyte away", "karma_delta": -7, "success_bonus": -0.03, "drop_mult": 1.15, "fail_chance": 0.14, "reputation_delta": -3},
+        {"id": "decline", "label": "Decline politely and leave the acolyte empty-handed", "karma_delta": -4, "success_bonus": 0.02, "drop_mult": 0.9, "fail_chance": 0.03}
       ]
     },
     {
       "id": "village_well",
       "type": "choice",
-      "prompt": "The village well hums with faint qi. Locals warn you away.",
+      "prompt": "The village well hums with faint qi. Locals warn that draining it will blight next season's crops.",
       "choices": [
-        {"id": "drink", "label": "Drink deeply", "success_bonus": 0.0, "drop_mult": 1.15, "fail_chance": 0.12},
-        {"id": "sample", "label": "Sample a single sip", "success_bonus": 0.05, "drop_mult": 1.0, "fail_chance": 0.07},
-        {"id": "leave", "label": "Heed the warnings", "success_bonus": 0.1, "drop_mult": 0.8, "fail_chance": 0.03}
+        {"id": "drink", "label": "Drink deeply despite their pleas", "karma_delta": -9, "success_bonus": 0.0, "drop_mult": 1.15, "fail_chance": 0.12},
+        {"id": "sample", "label": "Sample a sip and leave the rest for the village", "karma_delta": 4, "success_bonus": 0.05, "drop_mult": 1.0, "fail_chance": 0.07},
+        {"id": "leave", "label": "Heed the warnings and walk on", "karma_delta": 3, "success_bonus": 0.1, "drop_mult": 0.8, "fail_chance": 0.03}
       ]
     },
     {
       "id": "night_watch",
       "type": "choice",
-      "prompt": "The night watch asks you to help patrol the forest edge.",
+      "prompt": "The night watch asks you to help patrol the forest edge — bandits have been taking travelers.",
       "choices": [
-        {"id": "help", "label": "Join the patrol", "karma_delta": 6, "reputation_delta": 10, "success_bonus": 0.04, "drop_mult": 0.95, "fail_chance": 0.1},
-        {"id": "bribe", "label": "Bribe them to look away", "karma_delta": -8, "reputation_delta": -10, "success_bonus": -0.04, "drop_mult": 1.3, "fail_chance": 0.18},
-        {"id": "slip", "label": "Slip away in the mist", "success_bonus": 0.08, "drop_mult": 0.75, "fail_chance": 0.06}
+        {"id": "help", "label": "Join the patrol and shield the road", "karma_delta": 8, "reputation_delta": 10, "success_bonus": 0.04, "drop_mult": 0.95, "fail_chance": 0.1},
+        {"id": "bribe", "label": "Bribe them to look away while you slip into the woods", "karma_delta": -11, "reputation_delta": -10, "success_bonus": -0.04, "drop_mult": 1.3, "fail_chance": 0.18},
+        {"id": "slip", "label": "Slip away — not your village, not your fight", "karma_delta": -6, "success_bonus": 0.08, "drop_mult": 0.75, "fail_chance": 0.06}
       ]
     },
     {
@@ -219,41 +219,41 @@
     {
       "id": "lost_disciple",
       "type": "choice",
-      "prompt": "A lost disciple from a minor sect stumbles out of the pines, delirious.",
+      "prompt": "A lost disciple stumbles from the pines, delirious — they mutter their mother's village name.",
       "choices": [
-        {"id": "guide", "label": "Guide them back toward the village", "karma_delta": 10, "reputation_delta": 12, "success_bonus": 0.05, "drop_mult": 0.88, "fail_chance": 0.08, "manual_pool": "righteous_elder", "manual_chance": 0.4},
-        {"id": "loot", "label": "Search their storage ring", "karma_delta": -14, "reputation_delta": -12, "success_bonus": -0.05, "drop_mult": 1.4, "fail_chance": 0.2, "manual_pool": "demonic_elder", "manual_chance": 0.45},
-        {"id": "leave", "label": "Leave them to the forest", "karma_delta": -3, "reputation_delta": -5, "success_bonus": 0.0, "drop_mult": 0.95, "fail_chance": 0.06}
+        {"id": "guide", "label": "Guide them back toward their mother's village", "karma_delta": 12, "reputation_delta": 12, "success_bonus": 0.05, "drop_mult": 0.88, "fail_chance": 0.08, "manual_pool": "righteous_elder", "manual_chance": 0.4},
+        {"id": "loot", "label": "Search their storage ring while they cannot resist", "karma_delta": -16, "reputation_delta": -12, "success_bonus": -0.05, "drop_mult": 1.4, "fail_chance": 0.2, "manual_pool": "demonic_elder", "manual_chance": 0.45},
+        {"id": "leave", "label": "Leave them to wander deeper into the forest", "karma_delta": -8, "reputation_delta": -5, "success_bonus": 0.0, "drop_mult": 0.95, "fail_chance": 0.06}
       ]
     },
     {
       "id": "fallen_tree",
       "type": "choice",
-      "prompt": "A massive pine blocks the trail — resin seeps from its splintered trunk.",
+      "prompt": "A massive pine blocks the trail. A wounded courier is pinned beneath a branch, resin seeping from the trunk.",
       "choices": [
-        {"id": "harvest", "label": "Harvest resin before moving on", "success_bonus": -0.02, "drop_mult": 1.35, "fail_chance": 0.14},
-        {"id": "climb", "label": "Climb over carefully", "success_bonus": 0.06, "drop_mult": 0.9, "fail_chance": 0.08},
-        {"id": "detour", "label": "Take the long detour", "success_bonus": 0.1, "drop_mult": 0.75, "fail_chance": 0.05}
+        {"id": "harvest", "label": "Harvest resin before lifting the branch off them", "karma_delta": -9, "success_bonus": -0.02, "drop_mult": 1.35, "fail_chance": 0.14},
+        {"id": "climb", "label": "Heave the branch free, then take only fallen resin", "karma_delta": 8, "success_bonus": 0.06, "drop_mult": 0.9, "fail_chance": 0.08},
+        {"id": "detour", "label": "Detour around and leave the courier calling for help", "karma_delta": -10, "success_bonus": 0.1, "drop_mult": 0.75, "fail_chance": 0.05}
       ]
     },
     {
       "id": "spirit_deer",
       "type": "choice",
-      "prompt": "A spirit deer watches you from the undergrowth, unafraid.",
+      "prompt": "A spirit deer watches you from the undergrowth, unafraid — hunters' arrows still in its flank.",
       "choices": [
-        {"id": "approach", "label": "Approach with open palms", "karma_delta": 5, "reputation_delta": 6, "success_bonus": 0.04, "drop_mult": 1.0, "fail_chance": 0.09},
-        {"id": "hunt", "label": "Strike while it is calm", "karma_delta": -10, "reputation_delta": -8, "success_bonus": -0.06, "drop_mult": 1.45, "fail_chance": 0.2},
-        {"id": "observe", "label": "Observe from cover", "success_bonus": 0.08, "drop_mult": 0.85, "fail_chance": 0.05}
+        {"id": "approach", "label": "Approach with open palms and draw out the arrows", "karma_delta": 9, "reputation_delta": 6, "success_bonus": 0.04, "drop_mult": 1.0, "fail_chance": 0.09},
+        {"id": "hunt", "label": "Strike while it is calm and claim the antlers", "karma_delta": -12, "reputation_delta": -8, "success_bonus": -0.06, "drop_mult": 1.45, "fail_chance": 0.2},
+        {"id": "observe", "label": "Watch from cover until it bleeds out", "karma_delta": -7, "success_bonus": 0.08, "drop_mult": 0.85, "fail_chance": 0.05}
       ]
     },
     {
       "id": "ancient_marker",
       "type": "choice",
-      "prompt": "An ancient boundary marker pulses with warning qi.",
+      "prompt": "An ancient boundary marker pulses with warning qi — a pilgrim kneels before it, praying for safe passage.",
       "choices": [
-        {"id": "respect", "label": "Bow and offer a sliver of qi", "karma_delta": 4, "reputation_delta": 5, "success_bonus": 0.06, "drop_mult": 0.9, "fail_chance": 0.06},
-        {"id": "break", "label": "Shatter the marker for ore", "karma_delta": -12, "reputation_delta": -10, "success_bonus": -0.08, "drop_mult": 1.5, "fail_chance": 0.22},
-        {"id": "circle", "label": "Circle wide through the pines", "success_bonus": 0.02, "drop_mult": 1.05, "fail_chance": 0.1}
+        {"id": "respect", "label": "Bow beside the pilgrim and offer a sliver of qi", "karma_delta": 7, "reputation_delta": 5, "success_bonus": 0.06, "drop_mult": 0.9, "fail_chance": 0.06},
+        {"id": "break", "label": "Shatter the marker for the ore inside", "karma_delta": -14, "reputation_delta": -10, "success_bonus": -0.08, "drop_mult": 1.5, "fail_chance": 0.22},
+        {"id": "circle", "label": "Circle wide and leave the pilgrim to their fate", "karma_delta": -5, "success_bonus": 0.02, "drop_mult": 1.05, "fail_chance": 0.1}
       ]
     },
     {
@@ -273,41 +273,41 @@
     {
       "id": "sinking_traveler",
       "type": "choice",
-      "prompt": "A traveler sinks in the bog, reaching for your hand.",
+      "prompt": "A traveler sinks in the bog, reaching for your hand — their pack is already underwater.",
       "choices": [
-        {"id": "rescue", "label": "Pull them free with qi rope", "karma_delta": 14, "reputation_delta": 15, "success_bonus": 0.04, "drop_mult": 0.85, "fail_chance": 0.12, "manual_pool": "righteous_elder", "manual_chance": 0.5},
-        {"id": "take", "label": "Take their pack and leave", "karma_delta": -18, "reputation_delta": -15, "success_bonus": -0.06, "drop_mult": 1.5, "fail_chance": 0.22, "spirit_stones": 18},
-        {"id": "watch", "label": "Watch from solid ground", "karma_delta": -5, "reputation_delta": -8, "success_bonus": 0.0, "drop_mult": 0.9, "fail_chance": 0.05}
+        {"id": "rescue", "label": "Pull them free with a qi rope", "karma_delta": 16, "reputation_delta": 15, "success_bonus": 0.04, "drop_mult": 0.85, "fail_chance": 0.12, "manual_pool": "righteous_elder", "manual_chance": 0.5},
+        {"id": "take", "label": "Take their pack and leave them to the bog", "karma_delta": -20, "reputation_delta": -15, "success_bonus": -0.06, "drop_mult": 1.5, "fail_chance": 0.22, "spirit_stones": 18},
+        {"id": "watch", "label": "Watch from solid ground until they stop calling", "karma_delta": -9, "reputation_delta": -8, "success_bonus": 0.0, "drop_mult": 0.9, "fail_chance": 0.05}
       ]
     },
     {
       "id": "bog_lanterns",
       "type": "choice",
-      "prompt": "Will-o-wisps drift over the black water, luring travelers astray.",
+      "prompt": "Will-o-wisps drift over black water, luring a lost merchant toward the deep.",
       "choices": [
-        {"id": "follow", "label": "Follow the lights", "success_bonus": -0.05, "drop_mult": 1.4, "fail_chance": 0.2},
-        {"id": "anchor", "label": "Anchor your qi and press forward", "success_bonus": 0.06, "drop_mult": 1.0, "fail_chance": 0.1},
-        {"id": "retreat", "label": "Retreat to higher ground", "success_bonus": 0.12, "drop_mult": 0.7, "fail_chance": 0.04}
+        {"id": "follow", "label": "Follow the lights and loot what the merchant drops", "karma_delta": -13, "success_bonus": -0.05, "drop_mult": 1.4, "fail_chance": 0.2},
+        {"id": "anchor", "label": "Anchor the merchant's qi and lead them to shore", "karma_delta": 10, "success_bonus": 0.06, "drop_mult": 1.0, "fail_chance": 0.1},
+        {"id": "retreat", "label": "Retreat to higher ground without warning them", "karma_delta": -6, "success_bonus": 0.12, "drop_mult": 0.7, "fail_chance": 0.04}
       ]
     },
     {
       "id": "corrupt_shrine",
       "type": "choice",
-      "prompt": "A half-sunken shrine offers a dark bargain — power for a price.",
+      "prompt": "A half-sunken shrine offers a dark bargain — power for a price whispered in your bones.",
       "choices": [
-        {"id": "accept", "label": "Accept the shrine's blessing", "karma_delta": -10, "reputation_delta": -12, "success_bonus": 0.08, "drop_mult": 1.2, "fail_chance": 0.14},
-        {"id": "purify", "label": "Attempt to purify it", "karma_delta": 8, "reputation_delta": 10, "success_bonus": 0.02, "drop_mult": 0.85, "fail_chance": 0.16},
-        {"id": "flee", "label": "Flee before it notices you", "success_bonus": 0.1, "drop_mult": 0.75, "fail_chance": 0.06}
+        {"id": "accept", "label": "Accept the shrine's dark blessing", "karma_delta": -12, "reputation_delta": -12, "success_bonus": 0.08, "drop_mult": 1.2, "fail_chance": 0.14},
+        {"id": "purify", "label": "Burn incense and attempt to purify it", "karma_delta": 10, "reputation_delta": 10, "success_bonus": 0.02, "drop_mult": 0.85, "fail_chance": 0.16},
+        {"id": "flee", "label": "Flee before the whisper names your loved ones", "karma_delta": -4, "success_bonus": 0.1, "drop_mult": 0.75, "fail_chance": 0.06}
       ]
     },
     {
       "id": "hollow_pearl_bed",
       "type": "choice",
-      "prompt": "Pearls glint beneath the surface — but something massive stirs below.",
+      "prompt": "Pearls glint beneath the surface — a fisher family pleads with you not to stir the leviathan below.",
       "choices": [
-        {"id": "dive", "label": "Dive for the pearls", "success_bonus": -0.08, "drop_mult": 1.55, "fail_chance": 0.24},
-        {"id": "hook", "label": "Hook pearls from the bank", "success_bonus": 0.0, "drop_mult": 1.2, "fail_chance": 0.14},
-        {"id": "mark", "label": "Mark the spot and withdraw", "success_bonus": 0.08, "drop_mult": 0.8, "fail_chance": 0.05}
+        {"id": "dive", "label": "Dive for pearls despite their warnings", "karma_delta": -11, "success_bonus": -0.08, "drop_mult": 1.55, "fail_chance": 0.24},
+        {"id": "hook", "label": "Hook pearls from the bank and share half with the family", "karma_delta": 6, "success_bonus": 0.0, "drop_mult": 1.2, "fail_chance": 0.14},
+        {"id": "mark", "label": "Mark the spot for the family and withdraw", "karma_delta": 4, "success_bonus": 0.08, "drop_mult": 0.8, "fail_chance": 0.05}
       ]
     },
     {

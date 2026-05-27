@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass, field
 
 from .rules import StatusRule, load_combat_rules
@@ -33,7 +34,13 @@ def apply_status(target: CombatantState, status_id: str) -> str | None:
     existing = next((s for s in target.statuses if s.status_id == status_id), None)
     if existing is not None:
         existing.stacks = min(rule.max_stacks, existing.stacks + 1)
-        existing.turns_remaining = max(existing.turns_remaining, rule.duration)
+        if rule.damage_per_stack > 0:
+            # DoT: refresh duration; stacks raise per-tick damage.
+            existing.turns_remaining = max(existing.turns_remaining, rule.duration)
+        else:
+            # CC: each re-apply adds another turn skipped (capped).
+            cc_cap = rule.max_stacks * rule.duration
+            existing.turns_remaining = min(cc_cap, existing.turns_remaining + rule.duration)
     else:
         target.statuses.append(
             StatusInstance(status_id=status_id, stacks=1, turns_remaining=rule.duration)
@@ -45,12 +52,67 @@ def apply_status(target: CombatantState, status_id: str) -> str | None:
     return status_id
 
 
+def get_status_instance(target: CombatantState, status_id: str) -> StatusInstance | None:
+    return next((s for s in target.statuses if s.status_id == status_id), None)
+
+
+def status_stacks(target: CombatantState, status_id: str) -> int:
+    inst = get_status_instance(target, status_id)
+    return inst.stacks if inst is not None else 0
+
+
+def status_turns_remaining(target: CombatantState, status_id: str) -> int:
+    inst = get_status_instance(target, status_id)
+    return inst.turns_remaining if inst is not None else 0
+
+
 def has_status(target: CombatantState, status_id: str) -> bool:
     return any(s.status_id == status_id for s in target.statuses)
 
 
+def attacker_damage_multiplier(attacker: CombatantState) -> float:
+    """Stacking penalty when the attacker is sealed, etc."""
+    mult = 1.0
+    for status in attacker.statuses:
+        rule = _status_rule(status.status_id)
+        if rule is not None and rule.damage_mult < 1.0:
+            mult *= rule.damage_mult
+    return mult
+
+
 def is_stunned(target: CombatantState) -> bool:
     return has_status(target, "stun")
+
+
+def turn_skip_message(actor: CombatantState, actor_name: str, rng: random.Random) -> str | None:
+    """Stun always skips; fear may skip (roll can fail)."""
+    if is_stunned(actor):
+        return f"**{actor_name}** is stunned and cannot act."
+    fear_rule = _status_rule("fear")
+    if fear_rule is not None and has_status(actor, "fear") and fear_rule.skip_turn_chance > 0:
+        if rng.random() < fear_rule.skip_turn_chance:
+            return f"**{actor_name}** is frozen by fear and loses the turn!"
+    return None
+
+
+def spread_burn(
+    carrier: CombatantState,
+    carrier_name: str,
+    others: list[tuple[CombatantState, str]],
+    rng: random.Random,
+) -> list[str]:
+    """Spread burn to nearby foes (dungeon / multi-target fights). Bleed does not spread."""
+    rule = _status_rule("burn")
+    if rule is None or not rule.propagates or not has_status(carrier, "burn"):
+        return []
+    lines: list[str] = []
+    for target, name in others:
+        if has_status(target, "burn"):
+            continue
+        if rng.random() < rule.spread_chance:
+            apply_status(target, "burn")
+            lines.append(f"**Burn** leaps from **{carrier_name}** to **{name}**!")
+    return lines
 
 
 def cleanse_debuffs(target: CombatantState, count: int, *, only: set[str] | None = None) -> list[str]:

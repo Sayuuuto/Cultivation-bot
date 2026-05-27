@@ -199,15 +199,45 @@ def get_encounters_for_area(area_id: str) -> list[AdventureEncounter]:
     return encounters
 
 
+def is_moral_choice_encounter(encounter: AdventureEncounter) -> bool:
+    """Choice events where at least one path clearly helps and one clearly harms others."""
+    if encounter.encounter_type != "choice" or not encounter.choices:
+        return False
+    deltas = [c.karma_delta for c in encounter.choices]
+    return any(d > 0 for d in deltas) and any(d < 0 for d in deltas)
+
+
 def _default_encounter(segment: int) -> AdventureEncounter:
     return AdventureEncounter(
         id=f"generic_{segment}",
-        prompt="The path narrows. How do you proceed?",
+        prompt="A wounded traveler waves from the roadside, clutching a torn satchel.",
         encounter_type="choice",
         choices=(
-            AdventureChoice("steady", "Press forward steadily", 0.05, 1.0, 0.08),
-            AdventureChoice("scout", "Scout from cover", 0.1, 0.85, 0.05),
-            AdventureChoice("rush", "Rush through", -0.05, 1.2, 0.16),
+            AdventureChoice(
+                "aid",
+                "Carry them to the nearest village healer",
+                0.05,
+                0.9,
+                0.08,
+                karma_delta=10,
+            ),
+            AdventureChoice(
+                "rob",
+                "Take their satchel and leave them in the dust",
+                -0.05,
+                1.35,
+                0.18,
+                karma_delta=-16,
+                spirit_stones=10,
+            ),
+            AdventureChoice(
+                "pass",
+                "Walk past without meeting their eyes",
+                0.0,
+                0.95,
+                0.05,
+                karma_delta=-4,
+            ),
         ),
     )
 
@@ -227,7 +257,14 @@ def _encounter_by_id(area_id: str, encounter_id: str, segment: int) -> Adventure
     return encounter
 
 
-def _pick_encounter(rng: random.Random, area_id: str, segment: int, player: Player | None = None) -> AdventureEncounter:
+def _pick_encounter(
+    rng: random.Random,
+    area_id: str,
+    segment: int,
+    player: Player | None = None,
+    *,
+    state: dict | None = None,
+) -> AdventureEncounter:
     if player is not None:
         from .novice_trial import is_first_adventure, pick_novice_encounter
 
@@ -238,6 +275,25 @@ def _pick_encounter(rng: random.Random, area_id: str, segment: int, player: Play
     pool = get_encounters_for_area(area_id)
     if not pool:
         return _default_encounter(segment)
+
+    moral = [e for e in pool if is_moral_choice_encounter(e)]
+    other_choices = [
+        e for e in pool if e.encounter_type == "choice" and e not in moral
+    ]
+    combat = [e for e in pool if e.encounter_type == "combat"]
+
+    need_karma = bool(state) and not state.get("karma_touched") and segment >= SEGMENTS_PER_RUN
+    if need_karma and moral:
+        return rng.choice(moral)
+    if moral and rng.random() < 0.82:
+        return rng.choice(moral)
+    non_combat = moral + other_choices
+    if non_combat and rng.random() < 0.78:
+        return rng.choice(non_combat)
+    if combat:
+        return rng.choice(combat)
+    if moral:
+        return rng.choice(moral)
     return rng.choice(pool)
 
 
@@ -262,17 +318,33 @@ def _new_adventure_state(player: Player, area: AreaDef, stance: str) -> dict:
     }
 
 
-def _roll_drop(rng: random.Random, drops: tuple[DropEntry, ...], qty_mult: float, luck: float) -> tuple[str, int] | None:
+def _roll_drop(
+    rng: random.Random,
+    drops: tuple[DropEntry, ...],
+    qty_mult: float,
+    luck: float,
+    drop_luck: float,
+    *,
+    player_realm_index: int,
+    area_min_realm: int,
+) -> tuple[str, int] | None:
+    from .loot import LootDropEntry, roll_weighted_loot_pool
+
     if not drops:
         return None
-    pool: list[DropEntry] = []
-    for drop in drops:
-        weight = max(1, int(drop.weight * (1.0 + luck * 0.2)))
-        pool.extend([drop] * weight)
-    chosen = rng.choice(pool)
-    qty = rng.randint(chosen.min_qty, chosen.max_qty)
-    qty = max(1, int(qty * qty_mult))
-    return chosen.item_id, qty
+    table = tuple(
+        LootDropEntry(item_id=d.item_id, rarity=d.rarity, min_qty=d.min_qty, max_qty=d.max_qty)
+        for d in drops
+    )
+    return roll_weighted_loot_pool(
+        table,
+        rng,
+        luck=luck,
+        drop_luck=drop_luck,
+        player_realm_index=player_realm_index,
+        area_min_realm=area_min_realm,
+        qty_mult=qty_mult,
+    )
 
 
 def _pick_rare_event(rng: random.Random, events: tuple[RareEventDef, ...]) -> RareEventDef | None:
@@ -441,6 +513,7 @@ def _start_combat_encounter(
     )
     state["pending_combat"] = True
     state["combat_encounter_id"] = encounter.id
+    state["combat_monster_id"] = monster.monster_id
     boss_note = " **Boss fight!**" if encounter.is_boss else ""
     state.setdefault("messages", []).append(
         f"{_encounter_icon('combat')} **Combat!**{boss_note} {encounter.prompt}"
@@ -463,14 +536,45 @@ def _resolve_combat_segment(
     mod = get_character_modifiers(session, player)
 
     if victory:
+        from .combat_stats import compute_combat_stats
+        from .loot import roll_creature_loot
+
         state["segments_cleared"] = int(state.get("segments_cleared", 0)) + 1
         drop_mult = stance_mod["drop_mult"]
-        rolled = _roll_drop(rng, area.drops, drop_mult, mod.drop_luck)
+        stats = compute_combat_stats(player, session, mod)
         drops: dict[str, int] = state.setdefault("drops", {})
-        if rolled:
-            item_id, qty = rolled
-            drops[item_id] = drops.get(item_id, 0) + qty
+        monster_id = state.get("combat_monster_id")
+        monster = get_monster(str(monster_id)) if monster_id else None
+        if monster is not None and monster.drops:
+            tier = monster.combat_tier if monster.combat_tier in {"normal", "elite", "boss"} else "normal"
+            loot = roll_creature_loot(
+                monster.drops,
+                rng,
+                combat_tier=tier,
+                luck=stats.luck,
+                drop_luck=mod.drop_luck,
+                player_realm_index=player.realm_index,
+                area_min_realm=area.min_realm,
+                qty_mult=drop_mult,
+            )
+            for item_id, qty in loot.items():
+                drops[item_id] = drops.get(item_id, 0) + qty
+        else:
+            rolled = _roll_drop(
+                rng,
+                area.drops,
+                drop_mult,
+                stats.luck,
+                mod.drop_luck,
+                player_realm_index=player.realm_index,
+                area_min_realm=area.min_realm,
+            )
+            if rolled:
+                item_id, qty = rolled
+                drops[item_id] = drops.get(item_id, 0) + qty
         state["messages"].append("Victory in combat — you claim spoils from the foe.")
+        state.pop("combat_monster_id", None)
+        _apply_combat_stance_karma(player, stance, state)
     else:
         penalty = max(5, 8 + area.min_realm * 3)
         state["qi_penalty"] = int(state.get("qi_penalty", 0)) + penalty
@@ -556,10 +660,20 @@ def start_adventure_session(
     assert area is not None
 
     stance = stance.lower()
-    from .novice_trial import is_first_adventure
+    from .novice_trial import heal_stuck_novice_adventure, is_first_adventure
 
-    encounter = _pick_encounter(rng, area_id, 1, player)
+    if heal_stuck_novice_adventure(player):
+        state_hint = (
+            "_The sect reopens your first journey — seek the **Sage of the Bamboo Path** "
+            "in the **Whispering Bamboo Grove**._"
+        )
+    else:
+        state_hint = ""
+
     state = _new_adventure_state(player, area, stance)
+    if state_hint:
+        state["messages"].append(state_hint)
+    encounter = _pick_encounter(rng, area_id, 1, player, state=state)
     if is_first_adventure(player):
         state["novice_adventure"] = True
         state["messages"].append(
@@ -639,6 +753,28 @@ def resume_adventure_session(
     )
 
 
+COMBAT_STANCE_KARMA: dict[str, int] = {
+    "cautious": 3,
+    "balanced": -2,
+    "reckless": -7,
+}
+
+
+def _apply_combat_stance_karma(player: Player, stance: str, state: dict) -> None:
+    delta = COMBAT_STANCE_KARMA.get(stance, -2)
+    if stance == "cautious":
+        state["messages"].append("You sheathe your blade once the foe falls — mercy where you can grant it.")
+    elif stance == "reckless":
+        state["messages"].append("You leave no survivor and take every scrap — the path runs red behind you.")
+    else:
+        state["messages"].append("You end the threat with cold efficiency — no mercy, no cruelty beyond need.")
+    _apply_choice_karma(
+        player,
+        AdventureChoice("combat_resolve", "Combat aftermath", 0.0, 1.0, 0.0, karma_delta=delta),
+        state,
+    )
+
+
 def _apply_choice_karma(
     player: Player,
     choice: AdventureChoice,
@@ -648,6 +784,7 @@ def _apply_choice_karma(
 
     if not choice.karma_delta:
         return
+    state["karma_touched"] = True
     before = player.karma
     player.karma = clamp_karma(player.karma + choice.karma_delta)
     delta = player.karma - before
@@ -787,8 +924,19 @@ def _resolve_segment(
     drop_mult = stance_mod["drop_mult"] * choice.drop_mult * underleveled_drop_bonus(gap)
 
     if rng.random() <= success_chance:
+        from .combat_stats import compute_combat_stats
+
         state["segments_cleared"] = int(state.get("segments_cleared", 0)) + 1
-        rolled = _roll_drop(rng, area.drops, drop_mult, mod.drop_luck)
+        stats = compute_combat_stats(player, session, mod)
+        rolled = _roll_drop(
+            rng,
+            area.drops,
+            drop_mult,
+            stats.luck,
+            mod.drop_luck,
+            player_realm_index=player.realm_index,
+            area_min_realm=area.min_realm,
+        )
         drops: dict[str, int] = state.setdefault("drops", {})
         if rolled:
             item_id, qty = rolled
@@ -848,7 +996,7 @@ def _advance_adventure_after_segment(
         return _build_shrine_pending(active, area, state), None
 
     next_segment = current_segment + 1
-    next_encounter = _pick_encounter(rng, active.area_id, next_segment, player)
+    next_encounter = _pick_encounter(rng, active.area_id, next_segment, player, state=state)
     active.segment = next_segment
     active.encounter_id = next_encounter.id
     _save_state(active, state)
@@ -949,7 +1097,13 @@ def apply_adventure_combat_outcome(
     state = _load_state(active)
     if fled:
         state["failed_run"] = True
-        state["messages"].append("You fled the combat encounter.")
+        state["messages"].append("You fled the combat encounter — lives may still hang in the balance.")
+        _apply_choice_karma(
+            player,
+            AdventureChoice("flee", "Flee combat", 0.0, 1.0, 0.0, karma_delta=-5),
+            state,
+        )
+        session.add(player)
         return _finalize_adventure(session, player, area, active.stance, state, active), None
 
     _, run_failed = _resolve_combat_segment(
@@ -1019,7 +1173,6 @@ def _finalize_adventure(
 
     adventure_success = outcome == "success"
     if adventure_success:
-        player.adventures_completed = int(getattr(player, "adventures_completed", 0) or 0) + 1
         from .game_sects import on_sect_activity
 
         merit_msgs = on_sect_activity(

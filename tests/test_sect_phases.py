@@ -127,6 +127,42 @@ def test_sect_shop_rejects_insufficient_merit(session, player):
     assert "merit" in msg.lower()
 
 
+def test_wolf_sect_task_counts_hound_and_wolf(session, player):
+    from src.hunt import beast_matches_sect_tag
+
+    assert beast_matches_sect_tag("mist_fang_wolf", "wolf")
+    assert beast_matches_sect_tag("mist_hound", "wolf")
+    assert beast_matches_sect_tag("mire_hound", "wolf")
+    assert not beast_matches_sect_tag("spirit_hare", "wolf")
+
+
+def test_hunt_sect_task_progress_and_mismatch_hint(session, player):
+    from src.game_sects import ensure_daily_sect_task, format_sect_task_status, join_game_sect
+
+    player.karma = 0
+    player.realm_index = 1
+    join_game_sect(session, player, "wudang")
+    session.commit()
+
+    task = ensure_daily_sect_task(session, player)
+    assert task is not None
+    assert task.task_type == "hunt"
+    assert task.beast_tag == "wolf"
+
+    status_text = format_sect_task_status(player)
+    assert "Mist Fang Wolf" in status_text or "Mist Hound" in status_text
+    assert "/hunt" in status_text
+
+    bad = record_sect_task_progress(session, player, "hunt", beast_id="spirit_hare")
+    assert player.sect_daily_task_progress == 0
+    assert bad and "unchanged" in bad[0].lower()
+
+    good = record_sect_task_progress(session, player, "hunt", beast_id="mist_hound")
+    session.commit()
+    assert player.sect_daily_task_progress == 1
+    assert good and "progress" in good[0].lower()
+
+
 def test_award_sect_merit_only_when_member(session, player):
     player.game_sect_id = None
     assert award_sect_merit(player, 50) == 0

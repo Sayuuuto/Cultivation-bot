@@ -7,7 +7,7 @@
   "Violet Lightning Root": {
     "adventure_success": 0.06,
     "dungeon_damage": 0.08,
-    "stamina_efficiency": 0.92,
+    "cultivate_qi_mult": 0.92,
     "description": "Crackling with speed; bursts forward but burns quickly."
   },
   "Flame Ember Root": {

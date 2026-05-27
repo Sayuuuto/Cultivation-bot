@@ -12,5 +12,11 @@
     {"name": "Immortal Monarch", "base_qi_cap": 180000}
   ],
   "substages": ["early", "mid", "late"],
-  "substage_multipliers": [1.0, 1.5, 2.2]
+  "substage_multipliers": [1.0, 1.5, 2.2],
+  "breakthrough": {
+    "start_success": 0.90,
+    "penalty_per_realm": 0.055,
+    "penalty_per_substage": 0.008,
+    "min_base_success": 0.30
+  }
 }

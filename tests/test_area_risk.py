@@ -20,7 +20,6 @@ def test_list_unlocked_areas_includes_higher_realm_zones(session, player):
 
 def test_mortal_can_start_hunt_in_deadly_zone(session, player):
     player.realm_index = 0
-    player.stamina = 100
     session.commit()
 
     pending, err = start_hunt_combat(session, player, "moonwell_ruins")
@@ -31,7 +30,6 @@ def test_mortal_can_start_hunt_in_deadly_zone(session, player):
 
 def test_mortal_hunt_in_moonwell_usually_fails(session, player):
     player.realm_index = 0
-    player.stamina = 100
     session.commit()
 
     wins = 0
@@ -44,7 +42,6 @@ def test_mortal_hunt_in_moonwell_usually_fails(session, player):
 
 def test_underleveled_hunt_victory_grants_bonus_drops(session, player, monkeypatch):
     player.realm_index = 0
-    player.stamina = 100
     session.commit()
 
     def fake_auto_combat(stats, beast, mod=None, rng=None):

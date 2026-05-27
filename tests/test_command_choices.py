@@ -8,6 +8,7 @@ from src.command_choices import (
     can_bind_technique_manual,
     list_affixable_slots,
     list_craftable_recipes,
+    list_recipe_options,
     list_enterable_dungeons,
     list_equippable_techniques,
     list_forgeable_slots,
@@ -40,6 +41,13 @@ def test_list_player_manuals_excludes_learned_techniques(session, player):
     ids = {item_id for item_id, _ in manuals}
     assert "manual_swift_slash" in ids
     assert "manual_ember_palm" not in ids
+
+
+def test_list_recipe_options_includes_all_pills(session, player):
+    options = list_recipe_options(session, player.id, "pill")
+    recipe_ids = {recipe_id for recipe_id, _ in options}
+    assert "qi_gathering_pill" in recipe_ids
+    assert len(recipe_ids) >= 2
 
 
 def test_list_craftable_recipes_only_when_materials_present(session, player):

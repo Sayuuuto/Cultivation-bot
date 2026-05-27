@@ -134,12 +134,13 @@ def _maybe_apply_status(
     traits: list[str],
     log_prefix: str = "",
 ) -> bool:
+    name = state.opponent_name if target is state.opponent else "You"
     if status_id == "bleed" and _is_bleed_immune(traits):
+        state.log.append(f"{log_prefix}**{name}** resists **bleed**.")
         return False
     if rng.random() >= chance:
         return False
     apply_status(target, status_id)
-    name = state.opponent_name if target is state.opponent else "You"
     state.log.append(f"{log_prefix}**{name}** is afflicted with **{status_id}**.")
     return True
 
@@ -370,6 +371,8 @@ def resolve_technique(
     passive: TechniqueDef | None,
     technique_id: str,
     rng: random.Random,
+    *,
+    volley: bool = False,
 ) -> str | None:
     tech = get_technique(technique_id)
     if tech is None:
@@ -377,21 +380,30 @@ def resolve_technique(
     if state.player.sealed and technique_id not in SEAL_EXEMPT_TECHNIQUE_IDS:
         return "Your meridians are **sealed** — only **Basic Strike** still responds."
     cd = state.technique_cooldowns.get(technique_id, 0)
-    if cd > 0:
+    if cd > 0 and not volley:
         return f"**{tech.name}** is on cooldown ({cd} turn(s))."
 
     crit_chance = _crit_chance(stats, passive) + _low_hp_crit_bonus(passive, state.opponent)
     is_crit = rng.random() < crit_chance
-    damage_mult = 0.75 if state.player.feared else 1.0
+    damage_mult = 1.0
 
     total_dealt = 0
     effects = get_technique_effects(tech)
-    for effect in effects:
-        if effect.trigger != "on_use":
-            continue
+    on_use = [e for e in effects if e.trigger == "on_use"]
+    damage_effects = [e for e in on_use if e.type != "apply_status"]
+    status_effects = [e for e in on_use if e.type == "apply_status"]
+    requires_hit = any(e.type in {"damage", "multi_hit", "lifesteal", "dodge_next"} for e in damage_effects)
+
+    for effect in damage_effects:
         total_dealt += _resolve_effect(
             effect, state, stats, tech, passive, rng, crit=is_crit, damage_mult=damage_mult
         )
+
+    if status_effects and (not requires_hit or total_dealt > 0):
+        for effect in status_effects:
+            _resolve_effect(
+                effect, state, stats, tech, passive, rng, crit=is_crit, damage_mult=damage_mult
+            )
 
     if total_dealt > 0 and tech.damage_type != "none":
         crit_note = " **Critical!**" if is_crit else ""
@@ -404,7 +416,7 @@ def resolve_technique(
     ):
         state.consecutive_hits = 0
 
-    if tech.cooldown > 0:
+    if tech.cooldown > 0 and not volley:
         state.technique_cooldowns[technique_id] = tech.cooldown
     return None
 

@@ -39,6 +39,7 @@ def test_forge_missing_materials_lists_farm_locations(session, player):
 def test_craft_missing_materials_lists_farm_locations(session, player):
     res = craft_recipe(session, player, "qi_gathering_pill", amount=1, rng=random.Random(0))
     assert res.success is False
+    assert "brew this pill" in res.message.lower()
     assert "Whispering Bamboo Grove" in res.message
     assert "/item" in res.message
 

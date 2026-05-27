@@ -1,0 +1,737 @@
+{
+  "enemy_templates": {
+    "warden": {
+      "name": "Dungeon Warden",
+      "hp": 70,
+      "attack": 11,
+      "defense": 4,
+      "speed": 9,
+      "combat_tier": "normal",
+      "drops": [
+        {
+          "item_id": "minor_beast_core",
+          "rarity": "common",
+          "min": 1,
+          "max": 1
+        },
+        {
+          "item_id": "green_dew_herb",
+          "rarity": "uncommon",
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item_id": "technique_fragment",
+          "rarity": "legendary",
+          "min": 1,
+          "max": 1
+        }
+      ]
+    },
+    "stalker": {
+      "name": "Corridor Stalker",
+      "hp": 55,
+      "attack": 13,
+      "defense": 3,
+      "speed": 12,
+      "combat_tier": "normal",
+      "drops": [
+        {
+          "item_id": "minor_beast_core",
+          "rarity": "common",
+          "min": 1,
+          "max": 1
+        },
+        {
+          "item_id": "ember_moss",
+          "rarity": "uncommon",
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item_id": "bandit_token",
+          "rarity": "rare",
+          "min": 1,
+          "max": 1
+        }
+      ]
+    },
+    "elite": {
+      "name": "Vault Elite",
+      "hp": 95,
+      "attack": 15,
+      "defense": 6,
+      "speed": 10,
+      "combat_tier": "elite",
+      "drops": [
+        {
+          "item_id": "refined_beast_core",
+          "rarity": "common",
+          "min": 1,
+          "max": 1
+        },
+        {
+          "item_id": "spirit_iron_shard",
+          "rarity": "uncommon",
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item_id": "affix_stone",
+          "rarity": "rare",
+          "min": 1,
+          "max": 1
+        },
+        {
+          "item_id": "technique_fragment",
+          "rarity": "legendary",
+          "min": 1,
+          "max": 1
+        }
+      ]
+    },
+    "boss": {
+      "name": "Dungeon Lord",
+      "hp": 220,
+      "attack": 22,
+      "defense": 9,
+      "speed": 11,
+      "combat_tier": "boss",
+      "drops": [
+        {
+          "item_id": "refined_beast_core",
+          "rarity": "common",
+          "min": 2,
+          "max": 3
+        },
+        {
+          "item_id": "spirit_iron_shard",
+          "rarity": "uncommon",
+          "min": 2,
+          "max": 3
+        },
+        {
+          "item_id": "ancient_dust",
+          "rarity": "uncommon",
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item_id": "affix_stone",
+          "rarity": "rare",
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item_id": "technique_fragment",
+          "rarity": "rare",
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item_id": "script_shard",
+          "rarity": "legendary",
+          "min": 1,
+          "max": 1
+        }
+      ]
+    }
+  },
+  "dungeons": {
+    "mortal_catacomb": {
+      "name": "Mortal Catacomb",
+      "realm_index": 0,
+      "recommended_party": 2,
+      "rooms": [
+        {
+          "label": "Entry Hall",
+          "enemies": [
+            {
+              "template": "warden",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "label": "Bone Gallery",
+          "enemies": [
+            {
+              "template": "stalker",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "label": "Sealed Vault",
+          "enemies": [
+            {
+              "template": "elite",
+              "count": 1
+            },
+            {
+              "template": "warden",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "label": "Throne of Dust",
+          "boss": "boss"
+        }
+      ],
+      "rewards": {
+        "guaranteed": [
+          {
+            "item_id": "minor_beast_core",
+            "min": 1,
+            "max": 2,
+            "rarity": "common"
+          }
+        ],
+        "bonus": [
+          {
+            "item_id": "green_dew_herb",
+            "min": 1,
+            "max": 3,
+            "chance": 0.5,
+            "rarity": "uncommon"
+          },
+          {
+            "item_id": "affix_stone",
+            "min": 1,
+            "max": 1,
+            "chance": 0.12,
+            "rarity": "uncommon"
+          }
+        ]
+      }
+    },
+    "qi_refining_depths": {
+      "name": "Qi Refining Depths",
+      "realm_index": 1,
+      "recommended_party": 2,
+      "rooms": [
+        {
+          "label": "Flooded Tunnel",
+          "enemies": [
+            {
+              "template": "stalker",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "label": "Crystal Cavern",
+          "enemies": [
+            {
+              "template": "warden",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "label": "Guardian Hall",
+          "enemies": [
+            {
+              "template": "elite",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "label": "Depth Serpent's Nest",
+          "boss": "boss"
+        }
+      ],
+      "rewards": {
+        "guaranteed": [
+          {
+            "item_id": "refined_beast_core",
+            "min": 1,
+            "max": 1,
+            "rarity": "common"
+          }
+        ],
+        "bonus": [
+          {
+            "item_id": "spirit_iron_shard",
+            "min": 1,
+            "max": 2,
+            "chance": 0.35,
+            "rarity": "uncommon"
+          },
+          {
+            "item_id": "manual_iron_cleave",
+            "min": 1,
+            "max": 1,
+            "chance": 0.06,
+            "rarity": "uncommon"
+          }
+        ]
+      }
+    },
+    "foundation_crypt": {
+      "name": "Foundation Crypt",
+      "realm_index": 2,
+      "recommended_party": 2,
+      "rooms": [
+        {
+          "label": "Outer Crypt",
+          "enemies": [
+            {
+              "template": "warden",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "label": "Inner Sanctum",
+          "enemies": [
+            {
+              "template": "stalker",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "label": "Rune Chamber",
+          "enemies": [
+            {
+              "template": "elite",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "label": "Foundation Throne",
+          "boss": "boss"
+        }
+      ],
+      "rewards": {
+        "guaranteed": [
+          {
+            "item_id": "ancient_dust",
+            "min": 1,
+            "max": 2,
+            "rarity": "common"
+          }
+        ],
+        "bonus": [
+          {
+            "item_id": "affix_stone",
+            "min": 1,
+            "max": 1,
+            "chance": 0.18,
+            "rarity": "uncommon"
+          }
+        ]
+      }
+    },
+    "core_formation_mine": {
+      "name": "Core Formation Mine",
+      "realm_index": 3,
+      "recommended_party": 3,
+      "rooms": [
+        {
+          "label": "Shattered Shaft",
+          "enemies": [
+            {
+              "template": "stalker",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "label": "Ore Gallery",
+          "enemies": [
+            {
+              "template": "warden",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "label": "Core Vault",
+          "enemies": [
+            {
+              "template": "elite",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "label": "Mine Overlord",
+          "boss": "boss"
+        }
+      ],
+      "rewards": {
+        "guaranteed": [
+          {
+            "item_id": "spirit_iron_shard",
+            "min": 2,
+            "max": 3,
+            "rarity": "common"
+          }
+        ],
+        "bonus": [
+          {
+            "item_id": "manual_flame_burst",
+            "min": 1,
+            "max": 1,
+            "chance": 0.07,
+            "rarity": "uncommon"
+          }
+        ]
+      }
+    },
+    "nascent_soul_sanctum": {
+      "name": "Nascent Soul Sanctum",
+      "realm_index": 4,
+      "recommended_party": 3,
+      "rooms": [
+        {
+          "label": "Soul Gate",
+          "enemies": [
+            {
+              "template": "warden",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "label": "Echoing Halls",
+          "enemies": [
+            {
+              "template": "stalker",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "label": "Binding Circle",
+          "enemies": [
+            {
+              "template": "elite",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "label": "Nascent Avatar",
+          "boss": "boss"
+        }
+      ],
+      "rewards": {
+        "guaranteed": [
+          {
+            "item_id": "refined_beast_core",
+            "min": 2,
+            "max": 2,
+            "rarity": "common"
+          }
+        ],
+        "bonus": [
+          {
+            "item_id": "manual_meridian_strike",
+            "min": 1,
+            "max": 1,
+            "chance": 0.08,
+            "rarity": "uncommon"
+          }
+        ]
+      }
+    },
+    "spirit_severing_pass": {
+      "name": "Spirit Severing Pass",
+      "realm_index": 5,
+      "recommended_party": 3,
+      "rooms": [
+        {
+          "label": "Wind Bridge",
+          "enemies": [
+            {
+              "template": "stalker",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "label": "Severing Hall",
+          "enemies": [
+            {
+              "template": "elite",
+              "count": 2
+            }
+          ]
+        },
+        {
+          "label": "Frozen Antechamber",
+          "enemies": [
+            {
+              "template": "warden",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "label": "Pass Warden",
+          "boss": "boss"
+        }
+      ],
+      "rewards": {
+        "guaranteed": [
+          {
+            "item_id": "ancient_dust",
+            "min": 2,
+            "max": 3,
+            "rarity": "common"
+          }
+        ],
+        "bonus": [
+          {
+            "item_id": "affix_stone",
+            "min": 1,
+            "max": 1,
+            "chance": 0.2,
+            "rarity": "uncommon"
+          }
+        ]
+      }
+    },
+    "void_refinement_rift": {
+      "name": "Void Refinement Rift",
+      "realm_index": 6,
+      "recommended_party": 4,
+      "rooms": [
+        {
+          "label": "Rift Mouth",
+          "enemies": [
+            {
+              "template": "stalker",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "label": "Void Gallery",
+          "enemies": [
+            {
+              "template": "elite",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "label": "Null Chamber",
+          "enemies": [
+            {
+              "template": "warden",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "label": "Void Sovereign",
+          "boss": "boss"
+        }
+      ],
+      "rewards": {
+        "guaranteed": [
+          {
+            "item_id": "spirit_iron_shard",
+            "min": 3,
+            "max": 4,
+            "rarity": "common"
+          }
+        ],
+        "bonus": [
+          {
+            "item_id": "manual_void_pulse",
+            "min": 1,
+            "max": 1,
+            "chance": 0.05,
+            "rarity": "uncommon"
+          }
+        ]
+      }
+    },
+    "ascension_tower": {
+      "name": "Ascension Tower",
+      "realm_index": 7,
+      "recommended_party": 4,
+      "rooms": [
+        {
+          "label": "Lower Spire",
+          "enemies": [
+            {
+              "template": "warden",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "label": "Mid Spire",
+          "enemies": [
+            {
+              "template": "elite",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "label": "Upper Spire",
+          "enemies": [
+            {
+              "template": "stalker",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "label": "Tower Apex",
+          "boss": "boss"
+        }
+      ],
+      "rewards": {
+        "guaranteed": [
+          {
+            "item_id": "refined_beast_core",
+            "min": 2,
+            "max": 3,
+            "rarity": "common"
+          }
+        ],
+        "bonus": [
+          {
+            "item_id": "affix_stone",
+            "min": 1,
+            "max": 2,
+            "chance": 0.22,
+            "rarity": "uncommon"
+          }
+        ]
+      }
+    },
+    "heavenly_trial_grounds": {
+      "name": "Heavenly Trial Grounds",
+      "realm_index": 8,
+      "recommended_party": 4,
+      "rooms": [
+        {
+          "label": "Trial Gate",
+          "enemies": [
+            {
+              "template": "elite",
+              "count": 3
+            }
+          ]
+        },
+        {
+          "label": "Judgment Field",
+          "enemies": [
+            {
+              "template": "stalker",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "label": "Heavenly Seal",
+          "enemies": [
+            {
+              "template": "warden",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "label": "Trial Arbiter",
+          "boss": "boss"
+        }
+      ],
+      "rewards": {
+        "guaranteed": [
+          {
+            "item_id": "ancient_dust",
+            "min": 3,
+            "max": 4,
+            "rarity": "common"
+          }
+        ],
+        "bonus": [
+          {
+            "item_id": "manual_heavens_cleave",
+            "min": 1,
+            "max": 1,
+            "chance": 0.04,
+            "rarity": "uncommon"
+          }
+        ]
+      }
+    },
+    "monarch_mausoleum": {
+      "name": "Immortal Monarch Mausoleum",
+      "realm_index": 9,
+      "recommended_party": 5,
+      "rooms": [
+        {
+          "label": "Dynasty Gate",
+          "enemies": [
+            {
+              "template": "elite",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "label": "Jade Procession",
+          "enemies": [
+            {
+              "template": "stalker",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "label": "Imperial Vault",
+          "enemies": [
+            {
+              "template": "warden",
+              "count": 4
+            }
+          ]
+        },
+        {
+          "label": "Monarch's Throne",
+          "boss": "boss"
+        }
+      ],
+      "rewards": {
+        "guaranteed": [
+          {
+            "item_id": "refined_beast_core",
+            "min": 3,
+            "max": 3,
+            "rarity": "common"
+          }
+        ],
+        "bonus": [
+          {
+            "item_id": "affix_stone",
+            "min": 1,
+            "max": 2,
+            "chance": 0.25,
+            "rarity": "uncommon"
+          },
+          {
+            "item_id": "manual_meridian_strike",
+            "min": 1,
+            "max": 1,
+            "chance": 0.05,
+            "rarity": "uncommon"
+          }
+        ]
+      }
+    }
+  }
+}

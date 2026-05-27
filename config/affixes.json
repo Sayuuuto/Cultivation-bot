@@ -1,7 +1,7 @@
 {
   "keen": {"name": "Keen", "power": 0.08, "description": "+Power"},
   "guarding": {"name": "Guarding", "defense": 0.10, "description": "+Defense"},
-  "flowing": {"name": "Flowing", "stamina_efficiency": 1.08, "description": "+Stamina efficiency"},
+  "flowing": {"name": "Flowing", "cultivate_qi_mult": 1.08, "description": "+Cultivate qi"},
   "fortunate": {"name": "Fortunate", "drop_luck": 0.08, "description": "+Drop luck"},
   "steady": {"name": "Steady", "breakthrough_stability": 0.04, "description": "+Breakthrough stability"},
   "ravenous": {"name": "Ravenous", "dungeon_damage": 0.10, "dungeon_risk": 0.05, "description": "+Dungeon damage, +risk"}

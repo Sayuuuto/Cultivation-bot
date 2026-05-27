@@ -13,7 +13,6 @@ from .config import Config
 from .game import (
     DuelResult,
     apply_offline_progress,
-    apply_stamina_regen,
     duel,
     to_utc,
     utcnow,
@@ -227,8 +226,6 @@ def execute_duel(
     now: datetime | None = None,
 ) -> ExecutedDuel:
     now = to_utc(now or utcnow())
-    apply_stamina_regen(challenger, now)
-    apply_stamina_regen(opponent, now)
     offline_qi = apply_offline_progress(challenger, now, cfg.offline_cap_minutes)
     if offline_qi > 0:
         challenger.qi += offline_qi

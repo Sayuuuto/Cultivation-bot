@@ -54,8 +54,6 @@ def opponent_player(session, player):
         substage=0,
         qi=80,
         spirit_stones=5,
-        stamina=100,
-        stamina_last_updated_at=datetime.now(timezone.utc),
         last_active_at=datetime.now(timezone.utc),
     )
     session.add(opp)

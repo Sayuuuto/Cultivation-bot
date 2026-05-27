@@ -27,7 +27,12 @@ def _craft_once(
     rng: random.Random,
 ) -> CraftResult:
     if not has_items(session, player.id, recipe.inputs):
-        action = "key" if recipe.recipe_type == "key" else "craft"
+        if recipe.recipe_type == "key":
+            action = "key"
+        elif recipe.recipe_type == "pill":
+            action = "pill"
+        else:
+            action = "craft"
         return CraftResult(
             success=False,
             recipe_name=recipe.name,

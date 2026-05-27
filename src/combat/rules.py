@@ -15,6 +15,10 @@ class StatusRule:
     duration: int = 1
     max_stacks: int = 1
     damage_mult: float = 1.0
+    propagates: bool = False
+    spread_chance: float = 0.0
+    skip_turn_chance: float = 0.0
+    cancels_turn: bool = False
 
 
 @dataclass(frozen=True)
@@ -39,6 +43,10 @@ def load_combat_rules() -> CombatRules:
             duration=int(data.get("duration", 1)),
             max_stacks=int(data.get("max_stacks", 1)),
             damage_mult=float(data.get("damage_mult", 1.0)),
+            propagates=bool(data.get("propagates", False)),
+            spread_chance=float(data.get("spread_chance", 0.0)),
+            skip_turn_chance=float(data.get("skip_turn_chance", 0.0)),
+            cancels_turn=bool(data.get("cancels_turn", False)),
         )
     return CombatRules(
         max_turns=int(raw.get("max_turns", 8)),

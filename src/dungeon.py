@@ -25,9 +25,26 @@ class DungeonResult:
     qi_delta: int = 0
 
 
-def _roll_bonus_drop(rng: random.Random, drop: DropEntry, luck: float) -> tuple[str, int] | None:
-    chance = drop.chance or 0.0
-    if rng.random() > chance * (1.0 + luck):
+def _roll_bonus_drop(
+    rng: random.Random,
+    drop: DropEntry,
+    luck: float,
+    drop_luck: float,
+    *,
+    player_realm_index: int,
+    area_min_realm: int,
+) -> tuple[str, int] | None:
+    from .loot import effective_drop_chance
+
+    base = drop.chance if drop.chance is not None else effective_drop_chance(
+        drop.rarity,
+        combat_tier="boss",
+        luck=luck,
+        drop_luck=drop_luck,
+        player_realm_index=player_realm_index,
+        area_min_realm=area_min_realm,
+    )
+    if rng.random() > base:
         return None
     qty = rng.randint(drop.min_qty, drop.max_qty)
     return drop.item_id, qty
@@ -108,11 +125,34 @@ def run_dungeon(
 
     if boss_win:
         messages.append("The cavern boss falls. The path opens.")
-        for drop in dungeon.guaranteed_drops:
-            qty = rng.randint(drop.min_qty, drop.max_qty)
-            drops[drop.item_id] = drops.get(drop.item_id, 0) + qty
+        from .combat_stats import compute_combat_stats
+        from .loot import LootDropEntry, merge_loot_dicts, roll_creature_loot
+
+        stats = compute_combat_stats(player, session, mod)
+        boss_table = tuple(
+            LootDropEntry(item_id=d.item_id, rarity=d.rarity, min_qty=d.min_qty, max_qty=d.max_qty)
+            for d in dungeon.guaranteed_drops
+        )
+        boss_loot = roll_creature_loot(
+            boss_table,
+            rng,
+            combat_tier="boss",
+            luck=stats.luck,
+            drop_luck=mod.drop_luck + mod.dungeon_luck,
+            player_realm_index=player.realm_index,
+            area_min_realm=dungeon.min_realm,
+            skip_manuals=False,
+        )
+        drops = merge_loot_dicts(drops, boss_loot)
         for drop in dungeon.bonus_drops:
-            rolled = _roll_bonus_drop(rng, drop, mod.drop_luck + mod.dungeon_luck)
+            rolled = _roll_bonus_drop(
+                rng,
+                drop,
+                stats.luck,
+                mod.drop_luck + mod.dungeon_luck,
+                player_realm_index=player.realm_index,
+                area_min_realm=dungeon.min_realm,
+            )
             if rolled:
                 item_id, qty = rolled
                 drops[item_id] = drops.get(item_id, 0) + qty

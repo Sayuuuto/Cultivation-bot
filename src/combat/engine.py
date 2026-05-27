@@ -9,11 +9,13 @@ from ..modifiers import CharacterModifiers
 from .catalog import TechniqueDef
 from .effects import (
     CombatantState,
+    attacker_damage_multiplier,
     has_status,
     is_stunned,
     status_instances_from_json,
     status_instances_to_json,
     tick_statuses,
+    turn_skip_message,
 )
 from .rules import load_combat_rules
 from .triggers import (
@@ -119,6 +121,8 @@ class CombatState:
             max_hp=int(data["opponent_max_hp"]),
             statuses=status_instances_from_json(data.get("opponent_statuses", [])),
         )
+        opponent.sealed = has_status(opponent, "seal")
+        opponent.feared = has_status(opponent, "fear")
         return cls(
             turn=int(data.get("turn", 1)),
             player=player,
@@ -251,6 +255,7 @@ def _check_end(state: CombatState) -> None:
 
 def _opponent_damage(
     attack: int,
+    attacker: CombatantState,
     stats: PlayerCombatStats,
     mod: CharacterModifiers | None,
     rng: random.Random,
@@ -258,7 +263,11 @@ def _opponent_damage(
     variance = rng.uniform(0.90, 1.10)
     raw = attack * variance
     defense = stats.defense * (1.0 + (mod.adventure_defense if mod else 0.0))
-    return max(1, int(raw - defense * 0.35))
+    damage = max(1, int(raw - defense * 0.35))
+    mult = attacker_damage_multiplier(attacker)
+    if mult < 1.0:
+        damage = max(1, int(damage * mult))
+    return damage
 
 
 def _opponent_turn(
@@ -268,14 +277,15 @@ def _opponent_turn(
     passive: TechniqueDef | None,
     rng: random.Random,
 ) -> None:
-    if is_stunned(state.opponent):
-        state.log.append(f"**{state.opponent_name}** is stunned and cannot act.")
+    skip = turn_skip_message(state.opponent, state.opponent_name, rng)
+    if skip:
+        state.log.append(skip)
         return
     if state.player.dodge_next or rng.random() < stats.dodge:
         state.player.dodge_next = False
         state.log.append(f"**{state.opponent_name}** attacks — you dodge!")
         return
-    taken = _opponent_damage(state.opponent_attack, stats, mod, rng)
+    taken = _opponent_damage(state.opponent_attack, state.opponent, stats, mod, rng)
     from .triggers import _deal_damage_to_player
 
     _deal_damage_to_player(state, taken)
@@ -305,8 +315,9 @@ def execute_turn(
     if state.finished:
         return TurnResult(state=state, messages=["Combat already ended."], error="Combat already ended.")
 
-    if is_stunned(state.player):
-        state.log.append(f"**{_actor_label(state)}** is **stunned** and cannot act!")
+    player_skip = turn_skip_message(state.player, _actor_label(state), rng)
+    if player_skip:
+        state.log.append(player_skip)
     elif action == "strike":
         err = resolve_technique(state, stats, passive, "basic_strike", rng)
         if err:
@@ -426,8 +437,9 @@ def execute_pvp_turn(
     if state.finished:
         return TurnResult(state=state, messages=["Combat already ended."], error="Combat already ended.")
 
-    if is_stunned(state.player):
-        state.log.append(f"**{_actor_label(state)}** is **stunned** and cannot act!")
+    player_skip = turn_skip_message(state.player, _actor_label(state), rng)
+    if player_skip:
+        state.log.append(player_skip)
     elif action == "strike":
         err = resolve_technique(state, stats, passive, "basic_strike", rng)
         if err:

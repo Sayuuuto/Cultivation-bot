@@ -127,6 +127,10 @@ def _migrate_player_columns(engine) -> None:
             "novice_cultivates": "INTEGER DEFAULT 0",
             "adventures_completed": "INTEGER DEFAULT 0",
             "abode_channel_id": "VARCHAR(32)",
+            "foundation_body_json": "VARCHAR(512) DEFAULT '{}'",
+            "foundation_meridian_json": "VARCHAR(512) DEFAULT '{}'",
+            "meridian_points": "INTEGER DEFAULT 0",
+            "body_temper_charges": "INTEGER DEFAULT 0",
         },
     )
     _migrate_novice_trial_existing_players(engine)

@@ -3,9 +3,11 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from src.config import Config
+from src.consumables import use_item
 from src.player_dashboard import build_profile_embed, build_techniques_embed, format_activity_lanes
 from src.content import load_all_content
 from src.inventory import add_item, load_item_catalog
+import random
 
 
 def test_format_activity_lanes(session, player, cfg):
@@ -44,6 +46,36 @@ def test_build_profile_embed_includes_martial_dao(session, player, cfg):
     field_names = {f.name for f in embed.fields}
     assert "Martial dao" in field_names
     assert "Activity lanes" in field_names
+    assert "Lingering effects" in field_names
+
+
+def test_profile_shows_active_pill_effect(session, player, cfg):
+    load_all_content()
+    load_item_catalog()
+    from src.combat_stats import compute_combat_stats
+    from src.game import REALMS, SUBSTAGES
+
+    add_item(session, player.id, "qi_gathering_pill", 1)
+    session.commit()
+    use_item(session, player, "qi_gathering_pill", rng=random.Random(1))
+    session.commit()
+
+    now = datetime.now(timezone.utc)
+    combat = compute_combat_stats(player, session)
+    realm_text = f"{REALMS[player.realm_index]} ({SUBSTAGES[player.substage]})"
+    embed = build_profile_embed(
+        player,
+        session,
+        cfg,
+        now,
+        offline_qi=0,
+        combat=combat,
+        realm_display=realm_text,
+        remaining_fn=lambda n, l, s: 0,
+    )
+    effects_field = next(f for f in embed.fields if f.name == "Lingering effects")
+    assert "Qi Gathering" in effects_field.value
+    assert "+55%" in effects_field.value
 
 
 def test_build_techniques_embed_lists_manuals(session, player):

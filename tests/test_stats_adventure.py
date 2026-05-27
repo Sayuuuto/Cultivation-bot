@@ -37,7 +37,7 @@ def test_flow_pill_grants_adventure_haste(session, player):
     ok, _ = use_item(session, player, "flow_pill", rng=random.Random(1))
     session.commit()
     assert ok is True
-    assert get_haste_reduction_seconds(session, player.id, "adventure") == 600
+    assert get_haste_reduction_seconds(session, player.id, "adventure") == 900
 
 
 def test_interactive_adventure_choice_flow(session, player):

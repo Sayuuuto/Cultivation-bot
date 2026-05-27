@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 from src.config import Config
+from src.bot import cooldown_remaining
 from src.guidance import (
     build_cooldown_lines,
     format_cooldown_status,
@@ -43,11 +44,18 @@ def test_cooldown_lines_ready_cultivate(player: Player, cfg: Config):
     assert any("/cultivate" in line and "Ready now" in line for line in lines)
 
 
-def test_cooldown_lines_daily_claimed(player: Player, cfg: Config):
+def test_cooldown_lines_daily_on_cooldown(player: Player, cfg: Config):
     now = datetime.now(timezone.utc)
     player.last_daily_at = now
-    lines = build_cooldown_lines(player, cfg, now, lambda _n, _l, _s: 0)
-    assert any("/daily" in line and "claimed today" in line for line in lines)
+    lines = build_cooldown_lines(
+        player,
+        cfg,
+        now,
+        cooldown_remaining,
+    )
+    daily_line = next(line for line in lines if "/daily" in line)
+    assert "Ready now" not in daily_line
+    assert "24h" in daily_line
 
 
 def test_reroll_free_available(player: Player):

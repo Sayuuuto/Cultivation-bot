@@ -187,6 +187,8 @@ def format_missing_materials_message(
         header = "You don't have enough materials to **forge** this piece."
     elif action == "key":
         header = "You don't have enough materials to **craft this key**."
+    elif action == "pill":
+        header = "You don't have enough materials to **brew this pill**."
     elif action == "manual":
         header = "To **bind a technique manual** (`/craft manual`), you still need:"
     else:

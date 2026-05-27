@@ -39,6 +39,7 @@ class TechniqueDef:
     effects: tuple[EffectDef, ...] = ()
     passive_triggers: tuple[PassiveTriggerDef, ...] = ()
     synergy_hint: str = ""
+    targeting: str = "single"
 
 
 def _parse_effects(raw: list[dict] | None) -> tuple[EffectDef, ...]:
@@ -108,6 +109,7 @@ def load_technique_catalog() -> dict[str, TechniqueDef]:
             effects=effects,
             passive_triggers=passive_triggers,
             synergy_hint=str(data.get("synergy_hint", "")),
+            targeting=str(data.get("targeting", "single")),
         )
     return catalog
 

@@ -27,7 +27,7 @@ Three activity lanes:
 
 **Martial techniques:** hunt/adventure/dungeon/shop drop manuals ? /learn ? /equip-technique. Use **/techniques** for loadout, alignment tags, synergy hints, and study/equip menus. Post the full manual catalog to a channel with **/post-library** (or py -m src.post_library).
 
-**Karma:** earned through adventure moral choices (not chosen at /start). Righteous (+30+) and Demonic (?30?) tiers bias manual pool rolls and breakthrough manuals. Combat stats are unchanged ó build identity comes from techniques.
+**Karma:** earned through adventure moral choices (not chosen at /start). Righteous (+30+) and Demonic (?30?) tiers bias manual pool rolls and breakthrough manuals. Combat stats are unchanged ù build identity comes from techniques.
 
 **UI:** combat shows HP bars, status badges, technique cooldowns on buttons, and emoji combat logs. `/cultivate` has ~12% rare dao events (qi surges, spirit veins, manual drops, fragments).
 
@@ -40,13 +40,19 @@ Post the server tutorial with **`/post-tutorial`** (or `py -m src.post_tutorial`
 - First run creates the SQLite tables automatically (MVP-level).
 - Slash command registration uses `GUILD_ID` if provided.
 - `/start` creates a private **abode** channel (`abode-your-dao-name`) and assigns a **realm role** (starting at Mortal). The bot needs **Manage Channels** and **Manage Roles**, with its role placed above realm roles. Optionally set `ABODE_CATEGORY_ID` in `.env` for where abodes are created.
+- `/dungeon` opens a private expedition channel for the party under **Dungeons** (set `DUNGEON_CATEGORY_ID` or let the bot create that category).
 - `/duel` runs **turn-based arena PvP** in a temporary private channel. Set `PVP_RESULTS_CHANNEL_ID` for the permanent results feed and optionally `ARENA_CATEGORY_ID` for arena placement.
 
 ## Tests
 
 Backend tests (game logic, inventory, cooldown/datetime helpers) use pytest with an in-memory SQLite DB  no Discord connection required.
 
+**Slash-command integration tests** invoke each registered `/command` callback with a mock Discord interaction, validate views (including duplicate `custom_id` checks), and run workflows such as `/hunt` combat buttons.
+
 ```powershell
 py -m pip install -r requirements-dev.txt
 py -m pytest tests -v
+py -m pytest tests/test_slash_commands_integration.py -v
 ```
+
+When you add a new slash command, add a matching entry in `tests/slash_command_specs.py`.

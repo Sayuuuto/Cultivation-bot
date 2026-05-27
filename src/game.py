@@ -65,11 +65,6 @@ from .karma import (
 )
 
 
-def stamina_regen_per_hour() -> int:
-    # Tied to your pacing preference: casual, not hardcore.
-    return 10
-
-
 def spirit_stones_daily_base() -> int:
     return 50
 
@@ -86,34 +81,18 @@ def cultivate_base_qi_gain(realm_index: int) -> int:
     return 10 + realm_index * 2
 
 
+def passive_qi_per_minute(realm_index: int) -> float:
+    """Qi banked per minute while inactive; paid out on the player's next action."""
+    return cultivate_base_qi_gain(realm_index) / 15.0
+
+
+CULTIVATE_LUCK_MIN = 0.85
+CULTIVATE_LUCK_MAX = 1.15
+
+
 def cultivate_stone_chance(realm_index: int) -> float:
     # Small chance to grant 1..3 stones per cultivate.
     return min(0.25, 0.12 + realm_index * 0.01)
-
-
-def energy_stamina_multiplier(stamina: int, stamina_max: int = 100) -> float:
-    frac = 0.0 if stamina_max <= 0 else max(0.0, min(1.0, stamina / stamina_max))
-    return 0.7 + 0.6 * frac  # 0.7..1.3
-
-
-def compute_stamina_regen(stamina_last_updated_at: datetime, now: datetime, stamina_max: int = 100) -> int:
-    now = to_utc(now)
-    stamina_last_updated_at = to_utc(stamina_last_updated_at)
-    if now <= stamina_last_updated_at:
-        return 0
-    hours = (now - stamina_last_updated_at).total_seconds() / 3600.0
-    regen = hours * stamina_regen_per_hour()
-    return clamp_int(regen, 0, stamina_max)
-
-
-def apply_stamina_regen(player: Player, now: datetime) -> None:
-    if player.stamina_last_updated_at is None:
-        player.stamina_last_updated_at = now
-        return
-    regen = compute_stamina_regen(player.stamina_last_updated_at, now)
-    if regen > 0:
-        player.stamina = min(100, player.stamina + regen)
-        player.stamina_last_updated_at = now
 
 
 def apply_offline_progress(player: Player, now: datetime, offline_cap_minutes: int, cap_mult: float = 1.0) -> int:
@@ -145,8 +124,6 @@ class CultivateResult:
     qi_gain: int
     stones_gain: int
     new_qi: int
-    new_stamina: int
-    stamina_cost: int
     leveled_up: bool
     new_realm_index: int
     new_substage: int
@@ -157,6 +134,7 @@ class CultivateResult:
     event_message: str = ""
     event_qi_mult: float = 1.0
     bonus_drops: dict[str, int] | None = None
+    meridian_note: str = ""
 
 
 def cultivate(
@@ -175,11 +153,8 @@ def cultivate(
     rng = rng or random.Random()
     now = utcnow()
     qi_mult = 1.0 if mod is None else getattr(mod, "cultivate_qi_mult", 1.0) * getattr(mod, "qi_gathering_mult", 1.0)
-    stamina_eff = 1.0 if mod is None else getattr(mod, "stamina_efficiency", 1.0)
     offline_mult = 1.0 if mod is None else getattr(mod, "offline_cap_mult", 1.0)
     clan_mult = 1.0 if mod is None else getattr(mod, "clan_contribution_mult", 1.0)
-
-    apply_stamina_regen(player, now)
 
     # Offline progress (partial cap) applied on the first action after being inactive.
     offline_qi = 0
@@ -188,20 +163,13 @@ def cultivate(
 
     player.last_active_at = now
 
-    stamina_cost = max(1, int(8 / stamina_eff))
-    effective_stamina = max(0, player.stamina)
-    stamina_multiplier = energy_stamina_multiplier(effective_stamina)
-
-    # Consume stamina even if low; casual but consistent.
-    player.stamina = max(0, player.stamina - stamina_cost)
-
     base = cultivate_base_qi_gain(player.realm_index)
     # Luck makes it feel less robotic without becoming pay-to-win.
     luck_roll = rng.uniform(0.85, 1.15)
     from .cultivate_events import roll_cultivate_event
     from .novice_trial import apply_novice_cultivate_boost, on_cultivated, should_force_first_cultivate_event
 
-    qi_gain = int(base * stamina_multiplier * luck_roll * qi_mult) + offline_qi
+    qi_gain = int(base * luck_roll * qi_mult) + offline_qi
     qi_gain = apply_novice_cultivate_boost(player, max(0, qi_gain))
 
     event = roll_cultivate_event(
@@ -217,6 +185,7 @@ def cultivate(
     event_message = ""
     event_qi_mult = 1.0
     bonus_drops: dict[str, int] = {}
+    meridian_note = ""
 
     if event is not None:
         event_id = event.event_id
@@ -226,8 +195,10 @@ def cultivate(
         event_qi_mult = event.qi_mult
         qi_gain = max(0, int(qi_gain * event.qi_mult) + event.bonus_qi)
         bonus_drops = dict(event.drops)
-        if event.stamina_restore > 0:
-            player.stamina = min(100, player.stamina + event.stamina_restore)
+        if event.meridian_points > 0:
+            from .foundation import grant_meridian_points
+
+            meridian_note = grant_meridian_points(player, event.meridian_points)
 
     player.qi += qi_gain
 
@@ -264,6 +235,15 @@ def cultivate(
     if stones_gain:
         msg += f" 💎 **+{stones_gain}** spirit stones answer your call."
 
+    from .foundation import roll_cultivate_meridian_insight
+
+    if not meridian_note:
+        extra_meridian = roll_cultivate_meridian_insight(player, rng)
+        if extra_meridian:
+            meridian_note = extra_meridian
+    if meridian_note:
+        msg += f"\n{meridian_note}"
+
     trial_msgs = on_cultivated(player)
     if trial_msgs:
         msg += "\n" + "\n".join(trial_msgs)
@@ -279,8 +259,6 @@ def cultivate(
         qi_gain=qi_gain,
         stones_gain=stones_gain,
         new_qi=player.qi,
-        new_stamina=player.stamina,
-        stamina_cost=stamina_cost,
         leveled_up=leveled_up,
         new_realm_index=new_realm_index,
         new_substage=new_substage,
@@ -291,6 +269,7 @@ def cultivate(
         event_message=event_message,
         event_qi_mult=event_qi_mult,
         bonus_drops=bonus_drops or None,
+        meridian_note=meridian_note,
     )
 
 
@@ -304,6 +283,12 @@ class BreakthroughResult:
     success_chance: float = 0.0
 
 
+BREAKTHROUGH_SUCCESS_CAP = 0.99
+BREAKTHROUGH_SUCCESS_FLOOR = 0.10
+QI_OVERFLOW_BONUS_CAP = 0.04
+CLARITY_BONUS_PER_CHARGE = 0.14
+
+
 @dataclass(frozen=True)
 class BreakthroughPreview:
     success_chance: float
@@ -315,23 +300,46 @@ class BreakthroughPreview:
     karma_bonus: float
     stability_bonus: float
     clarity_bonus: float
+    qi_fill_bonus: float
     realm_penalty: float
+    clarity_charges: int = 0
 
 
-def compute_breakthrough_preview(player: Player, mod=None) -> BreakthroughPreview:
+def compute_breakthrough_preview(
+    player: Player,
+    mod=None,
+    *,
+    session=None,
+    player_id: int | None = None,
+) -> BreakthroughPreview:
+    from .effects import clarity_breakthrough_bonus
+    from .realms import breakthrough_start_success, realm_breakthrough_base_success
+
     cap = qi_cap(player.realm_index, player.substage, player)
-    base_success = 0.70
-    difficulty_penalty = player.realm_index * 0.015
+    base_success = realm_breakthrough_base_success(player.realm_index, player.substage)
+    realm_anchor = breakthrough_start_success()
+    realm_penalty = max(0.0, realm_anchor - base_success)
     karma_bonus, fail_setback_mult = karma_breakthrough_modifiers(player.karma)
     stability_bonus = 0.0
-    clarity_bonus = 0.0
     if mod is not None:
         stability_bonus = getattr(mod, "breakthrough_stability", 0.0)
-        clarity_bonus = getattr(mod, "clarity_breakthrough_bonus", 0.0)
         fail_setback_mult *= getattr(mod, "breakthrough_setback_mult", 1.0)
 
-    total_bonus = karma_bonus + stability_bonus + clarity_bonus
-    success_chance = max(0.15, min(0.92, base_success + total_bonus - difficulty_penalty))
+    qi_fill_bonus = 0.0
+    if cap > 0 and player.qi >= cap:
+        overflow_ratio = max(0.0, (player.qi - cap) / cap)
+        qi_fill_bonus = min(QI_OVERFLOW_BONUS_CAP, overflow_ratio * 0.08)
+
+    clarity_charges = 0
+    clarity_bonus = 0.0
+    if session is not None and player_id is not None:
+        clarity_charges, clarity_bonus = clarity_breakthrough_bonus(session, player_id)
+
+    total_bonus = karma_bonus + stability_bonus + clarity_bonus + qi_fill_bonus
+    success_chance = max(
+        BREAKTHROUGH_SUCCESS_FLOOR,
+        min(BREAKTHROUGH_SUCCESS_CAP, base_success + total_bonus),
+    )
     setback_base = player.qi * (0.15 + 0.02 * player.realm_index)
     estimated_setback = int(setback_base * fail_setback_mult)
 
@@ -345,17 +353,28 @@ def compute_breakthrough_preview(player: Player, mod=None) -> BreakthroughPrevie
         karma_bonus=karma_bonus,
         stability_bonus=stability_bonus,
         clarity_bonus=clarity_bonus,
-        realm_penalty=difficulty_penalty,
+        qi_fill_bonus=qi_fill_bonus,
+        realm_penalty=realm_penalty,
+        clarity_charges=clarity_charges,
     )
 
 
-def breakthrough(player: Player, cfg: Config, rng: random.Random | None = None, mod=None) -> BreakthroughResult:
+def breakthrough(
+    player: Player,
+    cfg: Config,
+    rng: random.Random | None = None,
+    mod=None,
+    *,
+    session=None,
+    player_id: int | None = None,
+) -> BreakthroughResult:
     rng = rng or random.Random()
-    now = utcnow()
-
+    _ = cfg  # reserved for future tuning hooks
     cap = qi_cap(player.realm_index, player.substage, player)
     if player.qi < cap:
-        preview = compute_breakthrough_preview(player, mod)
+        preview = compute_breakthrough_preview(
+            player, mod, session=session, player_id=player_id or player.id
+        )
         return BreakthroughResult(
             success=False,
             qi_delta=0,
@@ -365,7 +384,9 @@ def breakthrough(player: Player, cfg: Config, rng: random.Random | None = None, 
             success_chance=preview.success_chance,
         )
 
-    preview = compute_breakthrough_preview(player, mod)
+    preview = compute_breakthrough_preview(
+        player, mod, session=session, player_id=player_id or player.id
+    )
     success_chance = preview.success_chance
     fail_setback_mult = preview.fail_setback_multiplier
 
@@ -399,8 +420,6 @@ def breakthrough(player: Player, cfg: Config, rng: random.Random | None = None, 
     setback_base = player.qi * (0.15 + 0.02 * player.realm_index)
     setback = int(setback_base * fail_setback_mult)
     player.qi = max(0, player.qi - setback)
-    # Small stamina penalty to keep it feeling real.
-    player.stamina = max(0, player.stamina - 3)
 
     return BreakthroughResult(
         success=False,

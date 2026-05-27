@@ -6,18 +6,41 @@ import pytest
 
 from src.auto_combat import BeastTemplate
 from src.combat.catalog import get_technique, load_technique_catalog
-from src.combat.effects import CombatantState, apply_status, has_status, is_stunned, tick_statuses
+from src.combat.effects import (
+    CombatantState,
+    apply_status,
+    has_status,
+    is_stunned,
+    spread_burn,
+    status_stacks,
+    tick_statuses,
+    turn_skip_message,
+)
 from src.combat.engine import (
     CombatState,
+    _opponent_damage,
     create_combat_state,
     execute_turn,
     opponent_from_beast,
 )
-from src.combat.triggers import _compute_base_damage
-from src.combat.loadout import equip_technique, ensure_starter_techniques, get_learned_technique_ids, learn_technique
+from src.combat.triggers import _compute_base_damage, _maybe_apply_status
+from src.combat.loadout import (
+    equip_technique,
+    ensure_starter_techniques,
+    get_equipped_active_techniques,
+    get_learned_technique_ids,
+    learn_technique,
+)
 from src.combat.learn import learn_technique_from_manual
 from src.combat.rules import load_combat_rules
-from src.combat.session import create_active_combat, get_active_combat, load_combat_state, process_combat_action
+from src.combat.session import (
+    COMBAT_BUSY_MESSAGE,
+    abandon_active_combat,
+    create_active_combat,
+    get_active_combat,
+    load_combat_state,
+    process_combat_action,
+)
 from src.combat_stats import PlayerCombatStats
 from src.hunt import finalize_hunt_combat, start_hunt_combat
 from src.inventory import add_item
@@ -61,6 +84,16 @@ def test_status_burn_ticks_damage():
     lines = tick_statuses(target)
     assert lines
     assert target.hp < 50
+
+
+def test_burn_stacks_increase_dot():
+    target = CombatantState(hp=100, max_hp=100)
+    apply_status(target, "burn")
+    apply_status(target, "burn")
+    assert status_stacks(target, "burn") == 2
+    hp_before = target.hp
+    tick_statuses(target)
+    assert target.hp == hp_before - 8
 
 
 def test_status_stun_blocks_action():
@@ -123,6 +156,18 @@ def test_combat_state_roundtrip_json():
     assert restored.opponent_name == "Hare"
 
 
+def test_equipped_active_techniques_dedupe_same_art_in_two_slots(session, player):
+    ensure_starter_techniques(session, player.id)
+    learn_technique(session, player.id, "swift_slash")
+    equip_technique(session, player, "swift_slash", "2")
+    equip_technique(session, player, "swift_slash", "3")
+    session.commit()
+    equipped = get_equipped_active_techniques(session, player.id)
+    ids = [t.technique_id for t in equipped]
+    assert ids.count("swift_slash") == 1
+    assert ids.count("basic_strike") == 1
+
+
 def test_learn_and_equip_technique(session, player):
     ensure_starter_techniques(session, player.id)
     session.commit()
@@ -144,6 +189,30 @@ def test_learn_from_manual_consumes_item(session, player):
     assert "Ember Palm" in msg
     session.commit()
     assert "ember_palm" in get_learned_technique_ids(session, player.id)
+
+
+def test_start_hunt_blocked_while_combat_active(session, player):
+    player.realm_index = 1
+    session.commit()
+    start, err = start_hunt_combat(session, player, "bamboo_grove", rng=random.Random(5))
+    assert err is None and start is not None
+    again, err2 = start_hunt_combat(session, player, "bamboo_grove", rng=random.Random(6))
+    assert again is None
+    assert err2 == COMBAT_BUSY_MESSAGE
+
+
+def test_abandon_active_combat_clears_row(session, player):
+    player.realm_index = 1
+    session.commit()
+    start, err = start_hunt_combat(session, player, "bamboo_grove", rng=random.Random(5))
+    assert err is None and start is not None
+    cleared, msg = abandon_active_combat(session, player.id)
+    assert cleared
+    assert "cleared" in msg.lower()
+    session.commit()
+    assert get_active_combat(session, player.id) is None
+    retry, err3 = start_hunt_combat(session, player, "bamboo_grove", rng=random.Random(7))
+    assert err3 is None and retry is not None
 
 
 def test_active_combat_persistence(session, player):
@@ -218,3 +287,83 @@ def test_technique_turn_with_equipped(session, player):
     result = execute_turn(state, stats, None, None, "technique", technique_id="ember_palm", rng=random.Random(99))
     assert result.error is None
     assert result.state.opponent.hp < beast.hp
+
+
+def test_fear_can_skip_opponent_turn():
+    stats = _stats()
+    beast = BeastTemplate("hare", "Spirit Hare", 35, 7, 2, ())
+    state = create_combat_state(stats, opponent_from_beast(beast))
+    apply_status(state.opponent, "fear")
+
+    class _AlwaysFear:
+        def random(self) -> float:
+            return 0.0
+
+    execute_turn(state, stats, None, None, "strike", rng=_AlwaysFear())
+    assert any("fear" in line.lower() for line in state.log)
+
+
+def test_bleed_hits_harder_per_stack():
+    rules = load_combat_rules()
+    bleed = rules.statuses["bleed"]
+    assert bleed.damage_per_stack >= 5
+    assert bleed.max_stacks >= 4
+    assert not bleed.propagates
+
+
+def test_burn_propagates_config():
+    rules = load_combat_rules()
+    burn = rules.statuses["burn"]
+    assert burn.propagates
+    assert burn.spread_chance > 0
+
+
+def test_stun_always_skips_turn():
+    actor = CombatantState(hp=80, max_hp=80)
+    apply_status(actor, "stun")
+    assert turn_skip_message(actor, "Foe", random.Random(99)) is not None
+
+
+def test_spread_burn_jumps_to_second_foe():
+    carrier = CombatantState(hp=50, max_hp=50)
+    other = CombatantState(hp=50, max_hp=50)
+    apply_status(carrier, "burn")
+
+    class _AlwaysSpread:
+        def random(self) -> float:
+            return 0.0
+
+    lines = spread_burn(carrier, "Alpha", [(other, "Beta")], _AlwaysSpread())
+    assert has_status(other, "burn")
+    assert lines
+
+
+def test_ember_palm_burn_proc_forced_rng():
+    stats = _stats()
+    beast = BeastTemplate("hare", "Spirit Hare", 35, 7, 2, ())
+    state = create_combat_state(stats, opponent_from_beast(beast))
+    state.opponent_traits = []
+
+    class _AlwaysProc:
+        def random(self) -> float:
+            return 0.0
+
+    execute_turn(state, stats, None, None, "technique", technique_id="ember_palm", rng=_AlwaysProc())
+    assert has_status(state.opponent, "burn")
+    assert any("afflicted" in line.lower() for line in state.log)
+
+
+def test_bleed_immune_logs_resist():
+    stats = _stats()
+    beast = BeastTemplate("serpent", "Serpent", 55, 12, 4, ("bleed_immune",))
+    state = create_combat_state(stats, opponent_from_beast(beast))
+    applied = _maybe_apply_status(
+        state,
+        state.opponent,
+        "bleed",
+        1.0,
+        random.Random(0),
+        traits=state.opponent_traits,
+    )
+    assert not applied
+    assert any("resists" in line.lower() for line in state.log)

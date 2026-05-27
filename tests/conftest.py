@@ -20,6 +20,7 @@ def cfg() -> Config:
         tutorial_channel_id=None,
         library_channel_id=None,
         abode_category_id=None,
+        dungeon_category_id=None,
         arena_category_id=None,
         pvp_results_channel_id=None,
     )
@@ -59,8 +60,6 @@ def player(session: Session) -> Player:
         substage=0,
         qi=0,
         spirit_stones=0,
-        stamina=100,
-        stamina_last_updated_at=now,
         last_active_at=now,
     )
     session.add(p)
@@ -86,8 +85,6 @@ def player_two(session: Session) -> Player:
         substage=0,
         qi=50,
         spirit_stones=100,
-        stamina=100,
-        stamina_last_updated_at=now,
         last_active_at=now,
     )
     session.add(p)

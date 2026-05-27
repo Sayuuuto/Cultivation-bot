@@ -23,7 +23,6 @@ STAT_DISPLAY: dict[str, tuple[str, str]] = {
     "rare_event_mult": ("Rare event chance", "mult"),
     "pvp_power": ("PvP power", "add_pct"),
     "pvp_stones_mult": ("Duel stone winnings", "mult"),
-    "stamina_efficiency": ("Stamina efficiency", "mult"),
     "clan_contribution_mult": ("Clan qi contribution", "mult"),
 }
 
@@ -49,7 +48,7 @@ ROOT_TIERS: dict[str, RootTierEntry] = {
         early_tier="A",
         late_tier="B",
         early_summary="Strong adventures and early dungeon damage.",
-        late_summary="Stamina tax (×0.92) slows long-term cultivate sessions.",
+        late_summary="Slightly slower qi scaling than pure cultivate roots at high realms.",
         best_for="Aggressive explorers · early PvE burst",
     ),
     "Flame Ember Root": RootTierEntry(

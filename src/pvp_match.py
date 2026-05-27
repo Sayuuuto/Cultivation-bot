@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from .character import get_character_modifiers
 from .config import Config
 from .cooldown_haste import consume_haste_for_activity
-from .game import apply_offline_progress, apply_stamina_regen, to_utc, utcnow
+from .game import apply_offline_progress, to_utc, utcnow
 from .models import ActivePvpMatch, PendingDuel, Player
 from .pvp_combat import PvpCombatState, create_pvp_combat_state, deserialize_pvp_state, serialize_pvp_state
 
@@ -124,8 +124,6 @@ def finalize_pvp_match(
     if challenger is None or opponent is None:
         raise ValueError("PvP match players missing.")
 
-    apply_stamina_regen(challenger, now)
-    apply_stamina_regen(opponent, now)
     offline_qi = apply_offline_progress(challenger, now, cfg.offline_cap_minutes)
     if offline_qi > 0:
         challenger.qi += offline_qi

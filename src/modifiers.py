@@ -16,8 +16,6 @@ class CharacterModifiers:
     rare_event_mult: float = 1.0
     pvp_power: float = 0.0
     pvp_stones_mult: float = 1.0
-    stamina_efficiency: float = 1.0
-    stamina_regen_mult: float = 1.0
     offline_cap_mult: float = 1.0
     clan_contribution_mult: float = 1.0
     dungeon_luck: float = 0.0

@@ -39,6 +39,27 @@ def get_substage_multipliers() -> list[float]:
     return [float(v) for v in _load_realms_config()["substage_multipliers"]]
 
 
+def get_breakthrough_config() -> dict:
+    return dict(_load_realms_config().get("breakthrough", {}))
+
+
+def realm_breakthrough_base_success(realm_index: int, substage: int) -> float:
+    """Base breakthrough odds before karma, pills, and gear — high in Mortal, lower in late realms."""
+    cfg = get_breakthrough_config()
+    start = float(cfg.get("start_success", 0.90))
+    per_realm = float(cfg.get("penalty_per_realm", 0.055))
+    per_sub = float(cfg.get("penalty_per_substage", 0.008))
+    minimum = float(cfg.get("min_base_success", 0.30))
+    realm_index = max(0, min(realm_index, len(REALMS) - 1))
+    substage = max(0, min(substage, len(SUBSTAGES) - 1))
+    penalty = realm_index * per_realm + substage * per_sub
+    return max(minimum, start - penalty)
+
+
+def breakthrough_start_success() -> float:
+    return float(get_breakthrough_config().get("start_success", 0.90))
+
+
 # Backward-compatible module-level constants (loaded once at import).
 REALMS = get_realm_names()
 SUBSTAGES = get_substage_names()

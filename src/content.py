@@ -10,9 +10,10 @@ CONFIG_DIR = Path(__file__).resolve().parent.parent / "config"
 @dataclass(frozen=True)
 class DropEntry:
     item_id: str
-    weight: int
     min_qty: int
     max_qty: int
+    rarity: str = "common"
+    weight: int = 0
     chance: float | None = None
 
 
@@ -98,15 +99,16 @@ def load_all_content() -> None:
     areas_raw = _load_json("areas.json")
     areas: dict[str, AreaDef] = {}
     for area_id, data in areas_raw.items():
+        from .loot import parse_loot_table
+
         drops = tuple(
             DropEntry(
-                item_id=d["item_id"],
-                weight=d["weight"],
-                min_qty=d["min"],
-                max_qty=d["max"],
-                chance=d.get("chance"),
+                item_id=e.item_id,
+                min_qty=e.min_qty,
+                max_qty=e.max_qty,
+                rarity=e.rarity,
             )
-            for d in data["drops"]
+            for e in parse_loot_table(data["drops"])
         )
         rare_events = tuple(
             RareEventDef(id=e["id"], weight=e["weight"], message=e["message"])
@@ -143,19 +145,28 @@ def load_all_content() -> None:
     dungeons_raw = _load_json("dungeons.json")
     dungeons: dict[str, DungeonDef] = {}
     for dungeon_id, data in dungeons_raw.items():
+        from .loot import parse_loot_drop, parse_loot_table
+
         guaranteed = tuple(
-            DropEntry(item_id=d["item_id"], weight=1, min_qty=d["min"], max_qty=d["max"], chance=None)
-            for d in data.get("guaranteed_drops", [])
+            DropEntry(
+                item_id=e.item_id,
+                min_qty=e.min_qty,
+                max_qty=e.max_qty,
+                rarity=e.rarity,
+            )
+            for e in parse_loot_table(data.get("guaranteed_drops", []))
         )
         bonus = tuple(
             DropEntry(
-                item_id=d["item_id"],
-                weight=1,
-                min_qty=d["min"],
-                max_qty=d["max"],
+                item_id=e.item_id,
+                min_qty=e.min_qty,
+                max_qty=e.max_qty,
+                rarity=e.rarity,
                 chance=d.get("chance"),
             )
             for d in data.get("bonus_drops", [])
+            for e in [parse_loot_drop(d)]
+            if e is not None
         )
         dungeons[dungeon_id] = DungeonDef(
             dungeon_id=dungeon_id,

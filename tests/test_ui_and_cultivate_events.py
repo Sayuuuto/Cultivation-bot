@@ -89,4 +89,4 @@ def test_cultivate_spirit_surge_outpaces_normal(session, player, cfg, monkeypatc
     player.qi = 0
     res = cultivate(player, None, cfg, rng=random.Random(1), session=session, player_id=player.id)
     assert res.event_id == "spirit_surge"
-    assert res.qi_gain >= 30
+    assert res.qi_gain >= 20

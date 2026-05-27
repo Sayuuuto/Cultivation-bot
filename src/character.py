@@ -16,7 +16,7 @@ def _apply_additive(mod: CharacterModifiers, values: dict[str, float]) -> None:
         if not hasattr(mod, key):
             continue
         current = getattr(mod, key)
-        if key.endswith("_mult") or key in ("stamina_efficiency", "rare_event_mult"):
+        if key.endswith("_mult") or key in ("rare_event_mult",):
             setattr(mod, key, current * val)
         else:
             setattr(mod, key, current + val)

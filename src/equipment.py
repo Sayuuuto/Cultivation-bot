@@ -16,7 +16,6 @@ AFFIX_FIELD_MAP = {
 }
 
 MULT_FIELDS = {
-    "stamina_efficiency",
     "rare_event_mult",
     "breakthrough_setback_mult",
     "cultivate_qi_mult",

@@ -88,7 +88,8 @@ def get_help_sections() -> list[tuple[str, str]]:
             "Three activity lanes",
             "**Cultivation** — `/cultivate` · `/breakthrough`\n"
             "**Resource** — `/gather` · `/hunt` (5 min, button combat on hunt)\n"
-            "**Story** — `/adventure` · `/dungeon` (20 min / 2 hr cooldowns)",
+            "**Story** — `/adventure` · `/dungeon` party runs (2 hr cooldown, 2–5 daoists)\n"
+            "**Foundation** — `/temper` (hunt mats) · `/meridian` (cultivate points)",
         ),
         (
             "Martial techniques",
@@ -109,14 +110,17 @@ def get_help_sections() -> list[tuple[str, str]]:
             "`/recipes` — pill, key, and forge recipes\n"
             "`/inventory` — item names by category · `/item` — full item card\n"
             "`/shop` — browse or buy with spirit stones (autocomplete)\n"
-            "`/craft pill` · `/craft key` · `/craft manual` — autocomplete craftables\n"
+            "`/craft pill` — any recipe; shortages show where to farm · `/craft key` · `/craft manual`\n"
             "`/use` — consume pills (autocomplete from your bag)",
         ),
         (
             "Dungeons & gear",
-            "`/dungeon` — key-gated runs (autocomplete when you hold a key)\n"
+            "`/dungeon` — realm dungeon alone, or tag up to **3** allies who **Accept**\n"
             "`/forge` · `/equip` — craft gear and apply affix stones (autocomplete)\n"
-            "`/loadout` · `/stats` — gear affixes and combat stat breakdown",
+            "`/loadout` · `/stats` — foundation, gear, and combat stat breakdown\n"
+            "`/temper` — permanent body stats from beast cores and herbs\n"
+            "`/meridian` — spend meridian points from cultivate and gather\n"
+            "`/dungeon` — solo or with up to 3 tagged allies (they Accept to join)",
         ),
         (
             "Social",
@@ -128,7 +132,7 @@ def get_help_sections() -> list[tuple[str, str]]:
         (
             "Other",
             "`/reset` — rewrite your character (requires confirm)\n\n"
-            "**Tips:** Stamina affects cultivate gains. **Karma** (earned in adventures) shifts breakthrough risk and manual drops. "
+            "**Tips:** **Karma** (earned in adventures) shifts breakthrough risk and manual drops. "
             "Origin and spirit root passively shape your dao.",
         ),
     ]
@@ -175,12 +179,6 @@ def build_cooldown_lines(
     lines: list[str] = []
     for _key, label, attr in COOLDOWN_COMMANDS:
         seconds = getattr(cfg, attr)
-        if _key == "daily":
-            if _daily_claimed_today(player, now):
-                lines.append(f"**{label}** — claimed today · next reset UTC midnight")
-            else:
-                lines.append(f"**{label}** — **Ready now** (once per UTC day)")
-            continue
         last_map = {
             "cultivate": player.last_cultivate_at,
             "gather": player.last_gather_at,
@@ -188,11 +186,20 @@ def build_cooldown_lines(
             "adventure": player.last_adventure_at,
             "dungeon": player.last_dungeon_at,
             "duel": player.last_pvp_at,
+            "daily": player.last_daily_at,
         }
         last = last_map.get(_key)
         remaining = remaining_fn(now, last, seconds)
         haste = 0
-        if session is not None and _key in {"cultivate", "adventure", "dungeon", "duel", "gather", "hunt"}:
+        if session is not None and _key in {
+            "cultivate",
+            "adventure",
+            "dungeon",
+            "duel",
+            "gather",
+            "hunt",
+            "daily",
+        }:
             haste = get_haste_reduction_seconds(session, player.id, _key)
             if haste > 0:
                 remaining = max(0, remaining - haste)
@@ -232,13 +239,13 @@ def get_next_steps(
     if player is None:
         return "You have not started yet. Use **`/start`** to begin, then **`/help`** for the full guide."
 
-    cap = qi_cap(player.realm_index, player.substage)
+    cap = qi_cap(player.realm_index, player.substage, player)
     qi_pct = 0 if cap <= 0 else int(min(100, player.qi / cap * 100))
     cult_ready = remaining_fn(now, player.last_cultivate_at, cfg.cultivate_cooldown_seconds) == 0
     gather_ready = remaining_fn(now, player.last_gather_at, cfg.gather_cooldown_seconds) == 0
     hunt_ready = remaining_fn(now, player.last_hunt_at, cfg.hunt_cooldown_seconds) == 0
     adv_ready = remaining_fn(now, player.last_adventure_at, cfg.adventure_cooldown_seconds) == 0
-    daily_ready = not _daily_claimed_today(player, now)
+    daily_ready = remaining_fn(now, player.last_daily_at, cfg.daily_cooldown_seconds) == 0
 
     hints: list[str] = []
 
@@ -367,7 +374,7 @@ def get_next_steps(
         return "Higher **Fortune** and **Insight** improve adventure drops and rare events. **`/loadout`** for details."
 
     if command in ("craft_pill", "craft_key"):
-        return "Autocomplete lists only recipes you can craft now. **`/use`** pills before a busy session."
+        return "Pick any pill in **`/craft pill`** — missing mats show where to farm. **`/use`** pills before a busy session."
 
     if command == "dungeon":
         return "Rest and recover. **`/cooldown`** tracks dungeon timer · craft another key with **`/craft key`**."
@@ -403,7 +410,7 @@ def get_next_steps(
         return "Clan qi grows when you **`/cultivate`**. **`/profile`** shows your clan and sect."
 
     if command.startswith("sect"):
-        return "Earn merit from activities and **`/sect-task`** dailies. Spend merit at **`/sect-shop`**."
+        return "Check **`/sect-task`** for today's goal, where to do it, and which beasts or materials count."
 
     return "See **`/help`** for commands or **`/cooldown`** for what is ready."
 

@@ -58,9 +58,14 @@ def randint_for_weighted_event(events: tuple[RareEventDef, ...], event_id: str) 
 
 
 def safe_adventure_segment_floats(*, trigger_rare: bool = False) -> list[float]:
-    """Per segment: skip catastrophe, succeed, optional rare-event gate."""
-    rare = 0.0 if trigger_rare else 0.99
-    return [0.99, 0.01, rare]
+    """Per segment: skip catastrophe, succeed, loot pick, qty jitter, optional rare-event gate."""
+    rare = 0.001 if trigger_rare else 0.99
+    return [0.99, 0.01, 0.1, 0.5, rare]
+
+
+def adventure_start_floats(*, segments: int = 2) -> list[float]:
+    """Reserve floats for `_pick_encounter` (up to 2 rolls) plus segment resolution."""
+    return [0.99, 0.99, *(safe_adventure_segment_floats() * segments)]
 
 
 def collect_ids_over_seeds(picker, seeds: range) -> set[str]:

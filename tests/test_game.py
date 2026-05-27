@@ -3,13 +3,16 @@ from __future__ import annotations
 import random
 from datetime import datetime, timedelta, timezone
 
+import pytest
+
+from src.character import get_character_modifiers
 from src.config import Config
+from src.effects import add_effect
 from src.game import (
     apply_offline_progress,
-    apply_stamina_regen,
     breakthrough,
+    compute_breakthrough_preview,
     compute_daily_rewards,
-    compute_stamina_regen,
     cultivate,
     duel,
     qi_cap,
@@ -31,15 +34,6 @@ def test_to_utc_handles_naive_and_aware():
     assert to_utc(aware) == aware
 
 
-def test_stamina_regen_with_naive_db_timestamp():
-    now = datetime.now(timezone.utc)
-    naive_last = datetime(2026, 5, 26, 10, 0, 0)  # 2 hours ago if now is 12:00 - use fixed delta instead
-    last = now - timedelta(hours=2)
-    naive_last = last.replace(tzinfo=None)
-    regen = compute_stamina_regen(naive_last, now)
-    assert regen == 20  # 2 hours * 10 per hour, capped at 100
-
-
 def test_offline_progress_with_naive_last_active(player: Player, cfg: Config):
     now = datetime.now(timezone.utc)
     player.last_active_at = (now - timedelta(hours=1)).replace(tzinfo=None)
@@ -53,7 +47,6 @@ def test_cultivate_increases_qi(player: Player, cfg: Config):
     res = cultivate(player, None, cfg, rng=rng)
     assert res.qi_gain > 0
     assert player.qi == before_qi + res.qi_gain
-    assert player.stamina < 100
 
 
 def test_breakthrough_requires_full_qi(player: Player, cfg: Config):
@@ -91,6 +84,28 @@ def test_breakthrough_failure_reduces_qi(player: Player, cfg: Config):
     assert player.qi < before
 
 
+def test_breakthrough_succeeds_when_qi_far_above_cap(player: Player, cfg: Config):
+    cap = qi_cap(player.realm_index, player.substage, player)
+    player.qi = cap * 5
+    res = breakthrough(player, cfg, rng=FixedRoll(0.0))
+    assert res.success is True
+    assert player.substage == 1
+
+
+def test_breakthrough_roll_includes_clarity_pills(session, player: Player, cfg: Config):
+    cap = qi_cap(player.realm_index, player.substage, player)
+    player.qi = cap
+    add_effect(session, player.id, "clarity", charges=3)
+    session.commit()
+    mod = get_character_modifiers(session, player)
+    preview = compute_breakthrough_preview(player, mod, session=session, player_id=player.id)
+    res = breakthrough(
+        player, cfg, rng=FixedRoll(0.99), mod=mod, session=session, player_id=player.id
+    )
+    assert res.success_chance == pytest.approx(preview.success_chance, abs=0.001)
+    assert res.success is True
+
+
 def test_duel_is_stones_only(player: Player, cfg: Config):
     opponent = Player(
         guild_id=player.guild_id,
@@ -100,8 +115,6 @@ def test_duel_is_stones_only(player: Player, cfg: Config):
         substage=0,
         qi=50,
         spirit_stones=0,
-        stamina=100,
-        stamina_last_updated_at=player.stamina_last_updated_at,
         last_active_at=player.last_active_at,
     )
     player.qi = 50
@@ -122,9 +135,3 @@ def test_daily_rewards_scale_with_streak(player: Player):
     assert qi == 10 + player.realm_index * 2
 
 
-def test_apply_stamina_regen(player: Player):
-    now = datetime.now(timezone.utc)
-    player.stamina = 50
-    player.stamina_last_updated_at = (now - timedelta(hours=3)).replace(tzinfo=None)
-    apply_stamina_regen(player, now)
-    assert player.stamina == 80

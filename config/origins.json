@@ -1,6 +1,6 @@
 {
   "Mountain Rises": {
-    "stamina_regen_mult": 1.15,
+    "cultivate_qi_mult": 1.05,
     "breakthrough_stability": 0.02,
     "adventure_defense": 0.05,
     "description": "Your foundation is as unmoving as the peaks."

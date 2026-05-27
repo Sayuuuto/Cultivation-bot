@@ -21,11 +21,11 @@ def load_content():
 
 
 def test_character_modifiers_from_origin(session, player):
-    player.origin = "Mountain Rises"
+    player.origin = "Waterside Vow"
     player.spirit_root = "Pure Jade Root"
     mod = get_character_modifiers(session, player)
-    assert mod.stamina_regen_mult > 1.0
     assert mod.breakthrough_stability > 0
+    assert mod.cultivate_qi_mult > 1.0
 
 
 def test_adventure_success_grants_drops(session, player):

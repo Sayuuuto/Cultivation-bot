@@ -63,9 +63,6 @@ class Player(Base):
     qi: Mapped[int] = mapped_column(Integer, default=0)
     spirit_stones: Mapped[int] = mapped_column(Integer, default=0)
 
-    stamina: Mapped[int] = mapped_column(Integer, default=100)
-    stamina_last_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
-
     # Times
     last_cultivate_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     last_daily_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -84,6 +81,12 @@ class Player(Base):
     pvp_losses: Mapped[int] = mapped_column(Integer, default=0)
 
     remind_dms_blocked: Mapped[bool] = mapped_column(default=False)
+
+    # Permanent foundation stats (body tempering + meridian cultivation).
+    foundation_body_json: Mapped[str] = mapped_column(String(512), default="{}")
+    foundation_meridian_json: Mapped[str] = mapped_column(String(512), default="{}")
+    meridian_points: Mapped[int] = mapped_column(Integer, default=0)
+    body_temper_charges: Mapped[int] = mapped_column(Integer, default=0)
 
     # Private Discord abode channel for this cultivator (server-specific).
     abode_channel_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
@@ -189,6 +192,26 @@ class AdventureRun(Base):
     outcome: Mapped[str] = mapped_column(String(16), default="partial")
     rewards_json: Mapped[str] = mapped_column(String(2048), default="{}")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ActiveDungeonParty(Base):
+    __tablename__ = "active_dungeon_parties"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    guild_id: Mapped[str] = mapped_column(String(32), index=True)
+    leader_discord_id: Mapped[str] = mapped_column(String(32), index=True)
+    dungeon_id: Mapped[str] = mapped_column(String(64))
+    members_json: Mapped[str] = mapped_column(String(2048), default="[]")
+    invites_json: Mapped[str] = mapped_column(String(2048), default="[]")
+    channel_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    lobby_message_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    combat_message_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    room_index: Mapped[int] = mapped_column(Integer, default=0)
+    state_json: Mapped[str] = mapped_column(String(16384), default="{}")
+    status: Mapped[str] = mapped_column(String(16), default="lobby")  # lobby/in_combat/completed/cancelled
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
 class DungeonRun(Base):

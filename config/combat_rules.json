@@ -6,11 +6,17 @@
   "beast_speed_from_attack_ratio": 0.5,
   "player_basic_attack_ratio": 1.0,
   "statuses": {
-    "burn": {"damage_per_stack": 4, "duration": 3, "max_stacks": 1},
-    "bleed": {"damage_per_stack": 3, "duration": 4, "max_stacks": 3},
+    "burn": {
+      "damage_per_stack": 4,
+      "duration": 3,
+      "max_stacks": 3,
+      "propagates": true,
+      "spread_chance": 0.4
+    },
+    "bleed": {"damage_per_stack": 5, "duration": 5, "max_stacks": 4},
     "poison": {"damage_per_stack": 2, "duration": 5, "max_stacks": 2},
-    "stun": {"duration": 1, "max_stacks": 1},
-    "fear": {"duration": 2, "damage_mult": 0.75, "max_stacks": 1},
-    "seal": {"duration": 2, "max_stacks": 1}
+    "stun": {"duration": 1, "max_stacks": 3, "cancels_turn": true},
+    "fear": {"duration": 2, "max_stacks": 2, "skip_turn_chance": 0.45},
+    "seal": {"duration": 2, "damage_mult": 0.85, "max_stacks": 2}
   }
 }

@@ -1,0 +1,55 @@
+{
+  "body_stats": {
+    "external_strength": {
+      "label": "External Strength",
+      "inputs": {"minor_beast_core": 1, "green_dew_herb": 2}
+    },
+    "defense": {
+      "label": "Defense",
+      "inputs": {"minor_beast_core": 1, "bamboo_resin": 1}
+    },
+    "agility": {
+      "label": "Agility",
+      "inputs": {"minor_beast_core": 1, "green_dew_herb": 1}
+    },
+    "hp": {
+      "label": "Vitality",
+      "inputs": {"minor_beast_core": 2, "bamboo_resin": 1},
+      "hp_per_stack": 8
+    }
+  },
+  "body_caps_base": {
+    "external_strength": 5,
+    "defense": 3,
+    "agility": 2,
+    "hp": 4
+  },
+  "body_cap_per_realm": {
+    "external_strength": 2,
+    "defense": 1,
+    "agility": 1,
+    "hp": 2
+  },
+  "meridian_stats": {
+    "internal_strength": {"label": "Internal Strength", "cost": 2},
+    "spiritual_sense": {"label": "Spirit Sense", "cost": 2},
+    "hp": {"label": "Vitality", "cost": 1, "hp_per_stack": 5},
+    "comprehension": {"label": "Comprehension", "cost": 3}
+  },
+  "meridian_caps_base": {
+    "internal_strength": 3,
+    "spiritual_sense": 3,
+    "hp": 4,
+    "comprehension": 2
+  },
+  "meridian_cap_per_realm": {
+    "internal_strength": 1,
+    "spiritual_sense": 1,
+    "hp": 1,
+    "comprehension": 1
+  },
+  "lesser_temper_priority": ["external_strength", "defense", "hp", "agility"],
+  "gather_meridian_base_chance": 0.07,
+  "gather_meridian_per_comprehension": 0.0015,
+  "cultivate_meridian_chance": 0.04
+}

@@ -29,6 +29,7 @@ def cfg() -> Config:
         tutorial_channel_id=None,
         library_channel_id=None,
         abode_category_id=None,
+        dungeon_category_id=None,
         arena_category_id=None,
         pvp_results_channel_id=None,
     )
@@ -49,8 +50,6 @@ def opponent_player(session, player) -> Player:
         substage=0,
         qi=80,
         spirit_stones=5,
-        stamina=100,
-        stamina_last_updated_at=now,
         last_active_at=now,
     )
     session.add(opp)

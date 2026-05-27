@@ -25,6 +25,7 @@ from .item_info import format_manual_bind_progress
 from .karma import karma_tier_label
 from .reputation import reputation_tier_label
 from .ui.formatting import format_qi_bar
+from .effects import format_active_effects_block
 from .models import Clan, Player
 
 
@@ -177,24 +178,42 @@ def build_profile_embed(
         inline=False,
     )
 
-    resources = (
-        f"💎 Spirit stones **{player.spirit_stones}**\n"
-        f"⚡ Stamina **{player.stamina}/100**"
-    )
+    effects_block = format_active_effects_block(session, player.id)
+    if effects_block:
+        embed.add_field(name="Lingering effects", value=effects_block, inline=False)
+    else:
+        embed.add_field(
+            name="Lingering effects",
+            value="_None — consume pills with **`/use`** before cultivating or adventuring._",
+            inline=False,
+        )
+
+    resources = f"💎 Spirit stones **{player.spirit_stones}**"
     embed.add_field(name="Resources", value=resources, inline=True)
 
     mod = get_character_modifiers(session, player)
-    from .cultivation_preview import preview_cultivate_qi, format_active_cultivate_line, format_passive_qi_line
+    from .cultivation_preview import (
+        format_active_cultivate_line,
+        format_passive_qi_rate_line,
+        preview_cultivate_qi,
+    )
 
     cult_preview = preview_cultivate_qi(player, mod, cfg, now)
-    cult_lines = [format_passive_qi_line(cult_preview)]
-    cult_lines.append(format_active_cultivate_line(cult_preview, mod).replace("**", ""))
-    embed.add_field(name="Next cultivate", value="\n".join(cult_lines), inline=True)
+    embed.add_field(
+        name="🌙 Passive Qi",
+        value=format_passive_qi_rate_line(cult_preview),
+        inline=False,
+    )
+    embed.add_field(
+        name="🧘 /cultivate",
+        value=format_active_cultivate_line(cult_preview, mod),
+        inline=False,
+    )
 
     if offline_qi > 0:
         embed.add_field(
-            name="While you were away",
-            value=f"**+{offline_qi} passive Qi** was added to your pool.",
+            name="Collected just now",
+            value=f"**+{offline_qi} passive Qi** from time away was added to your pool.",
             inline=False,
         )
 

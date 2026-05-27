@@ -201,14 +201,14 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "**Activity lanes** — live timers for cultivate / gather / hunt / adventure / dungeon\n"
                     "**Martial dao** — loadout, learned arts, unread manuals, craft progress\n"
                     "**Combat stats** — HP, strength, agility, defense (for button fights)\n"
-                    "**Resources** — spirit stones & stamina\n"
-                    "**Next cultivate** — preview of your upcoming qi gain",
+                    "**Resources** — spirit stones\n"
+                    "**Qi gathering** — passive **Qi/min** while away + **`/cultivate`** preview (pills boost active only)",
                 ),
                 (
                     "Profile buttons",
-                    "**Cultivate** — same as **`/cultivate`** (applies offline qi + stamina regen first)\n"
+                    "**Cultivate** — same as **`/cultivate`** (collects banked passive qi + active roll)\n"
                     "**Breakthrough** — same as **`/breakthrough`** when qi is full\n\n"
-                    f"{subtext(f'Offline passive qi — up to {OFFLINE_QI_CAP_MINUTES} minutes while away')}",
+                    f"{subtext(f'Passive qi accrues at a fixed rate while away (up to {OFFLINE_QI_CAP_MINUTES} min banked)')}",
                 ),
             ],
             author="Chapter 4 · Profile",
@@ -224,8 +224,8 @@ def build_tutorial_pages() -> list[discord.Embed]:
             [
                 (
                     "Core rhythm",
-                    "1. **`/daily`** — stipend of qi and spirit stones (once per UTC day)\n"
-                    "2. **`/cultivate`** — gather qi (**15 min** cooldown; uses stamina)\n"
+                    "1. **`/daily`** — stipend of qi and spirit stones (24h cooldown; haste pills apply)\n"
+                    "2. **`/cultivate`** — active qi roll (**15 min** cooldown; Qi Gathering pills boost this)\n"
                     "3. **`/profile`** — realm, qi cap, timers, **Cultivate** button\n"
                     "4. **`/breakthrough`** — when qi is **full**, attempt to advance\n"
                     "5. **`/cooldown`** — see what is ready right now",
@@ -233,8 +233,8 @@ def build_tutorial_pages() -> list[discord.Embed]:
                 (
                     "Dao events & breakthrough",
                     f"{quote(f'~{dao_chance * 100:.0f}% dao event chance per cultivate — Spirit Surge, Heavenly Glimpse, Scripture Whisper, and more.')}\n"
-                    f"Passive rolls: ~{CULTIVATE_FRAGMENT_CHANCE * 100:.0f}% technique fragment · ~{CULTIVATE_MANUAL_CHANCE * 100:.1f}% manual.\n\n"
-                    "**Stamina** (0–100) affects cultivate gains · regens over time.\n"
+                    "**Passive qi** — **`/profile`** shows your **Qi/min** while inactive; banked on any action.\n"
+                    f"**`/cultivate` rolls** — ~{CULTIVATE_FRAGMENT_CHANCE * 100:.0f}% technique fragment · ~{CULTIVATE_MANUAL_CHANCE * 100:.1f}% manual.\n\n"
                     "**Daily streak** on `/profile` boosts stipend stones.\n"
                     "**Clarity pills** boost breakthrough stability for one attempt.\n"
                     f"**`/breakthrough`** — ~{BREAKTHROUGH_MANUAL_CHANCE * 100:.0f}% manual on success; karma picks the pool.",
@@ -296,7 +296,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "2. **`/adventure`** — karma choices, combat wins, rare events\n"
                     f"3. **`/cultivate`** — ~{CULTIVATE_FRAGMENT_CHANCE * 100:.0f}% fragment · ~{CULTIVATE_MANUAL_CHANCE * 100:.1f}% manual · dao events\n"
                     f"4. **`/breakthrough`** — ~{BREAKTHROUGH_MANUAL_CHANCE * 100:.0f}% manual on success (karma pool)\n"
-                    "5. **`/dungeon`** — bonus loot + weekly boss manual\n"
+                    "5. **`/dungeon`** — solo or tag up to 3 allies (Accept); 4-room co-op combat\n"
                     "6. **`/shop`** — pamphlets & Unidentified Scroll gamble\n"
                     f"7. **`/craft manual`** — bind {FRAGMENTS_FOR_MANUAL} fragments + scroll + ink\n\n"
                     f"{quote('Duplicate manuals you already know crumble into 2× Technique Fragment.')}",
@@ -352,7 +352,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                 (
                     "Commands",
                     "**`/recipes`** — pill, key, and forge recipes (filter: all / pill / key / forge)\n"
-                    "**`/craft pill`** · **`/craft key`** · **`/craft manual`** — autocomplete craftables\n"
+                    "**`/craft pill`** — pick any recipe; missing mats show farm spots · **`/craft key`** · **`/craft manual`**\n"
                     "**`/inventory`** — item names grouped by category\n"
                     "**`/item`** — full card: effects, crafting uses, farm locations\n"
                     "**`/shop`** — browse catalog (no args) or **`/shop item:<name>`** to buy\n"
@@ -416,7 +416,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
             [
                 (
                     "Blackwind Cavern",
-                    "**`/dungeon`** — enter when you hold a key (autocomplete)\n"
+                    "**`/dungeon`** — realm dungeon alone, or tag up to 3 allies who press **Accept**\n"
                     "**`/craft key`** — Foundation Establishment realm+\n"
                     f"{chip('2 hr')} cooldown · **weekly boss manual** on first clear each week\n"
                     f"{quote('Bring Blood Ember pills for extra damage.')}",
@@ -489,8 +489,8 @@ def build_tutorial_pages() -> list[discord.Embed]:
     cooldown.add_field(name="⚔️ `/gather` · `/hunt`", value=f"every {chip('5 min')}", inline=True)
     cooldown.add_field(name="🌿 `/adventure`", value=f"every {chip('20 min')}", inline=True)
     cooldown.add_field(name="🏚️ `/dungeon`", value=f"every {chip('2 hr')}", inline=True)
+    cooldown.add_field(name="📜 `/daily`", value=f"every {chip('24 hr')} · haste pills apply", inline=True)
     cooldown.add_field(name="⚔️ `/duel`", value=f"every {chip('2 hr')}", inline=True)
-    cooldown.add_field(name="📅 `/daily`", value="once per UTC day", inline=True)
     cooldown.add_field(
         name="No cooldown",
         value=quote(_no_cooldown_commands()),

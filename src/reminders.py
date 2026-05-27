@@ -9,7 +9,6 @@ from sqlalchemy.orm import Session
 from .config import Config
 from .cooldown_haste import get_haste_reduction_seconds
 from .game import to_utc, utcnow
-from .guidance import _daily_claimed_today
 from .models import Player, PlayerReminder
 
 REMINDER_ACTIVITIES = ("cultivate", "adventure", "dungeon", "duel", "daily", "gather", "hunt")
@@ -31,9 +30,10 @@ ACTIVITY_COOLDOWN_ATTR: dict[str, str] = {
     "duel": "pvp_cooldown_seconds",
     "gather": "gather_cooldown_seconds",
     "hunt": "hunt_cooldown_seconds",
+    "daily": "daily_cooldown_seconds",
 }
 
-HASTE_ACTIVITIES = frozenset({"cultivate", "adventure", "dungeon", "gather", "hunt"})
+HASTE_ACTIVITIES = frozenset({"cultivate", "adventure", "dungeon", "gather", "hunt", "daily", "duel"})
 
 LAST_ACTIVITY_ATTR: dict[str, str] = {
     "cultivate": "last_cultivate_at",
@@ -48,9 +48,9 @@ LAST_ACTIVITY_ATTR: dict[str, str] = {
 REMINDER_MESSAGES: dict[str, str] = {
     "cultivate": "Your meridians settle — **`/cultivate`** is ready.",
     "adventure": "The path clears — **`/adventure`** awaits.",
-    "dungeon": "The dungeon gate stirs — **`/dungeon`** is ready.",
+    "dungeon": "A realm dungeon awaits — rally allies with **`/dungeon`**.",
     "duel": "Your dao steadies — you may **`/duel`** again.",
-    "daily": "A new UTC day begins — your **`/daily`** stipend is ready.",
+    "daily": "Your stipend gate opens — **`/daily`** is ready again.",
     "gather": "The wilds whisper — **`/gather`** is ready.",
     "hunt": "Prey stirs nearby — **`/hunt`** is ready.",
 }
@@ -75,9 +75,6 @@ def _cooldown_remaining(
     activity: str,
     now: datetime,
 ) -> int:
-    if activity == "daily":
-        return 0 if not _daily_claimed_today(player, now) else -1
-
     attr = LAST_ACTIVITY_ATTR[activity]
     last = getattr(player, attr)
     cooldown = getattr(cfg, ACTIVITY_COOLDOWN_ATTR[activity])
@@ -101,11 +98,6 @@ def compute_ready_at(
     now: datetime | None = None,
 ) -> datetime:
     now = to_utc(now or utcnow())
-    if activity == "daily":
-        if _daily_claimed_today(player, now):
-            return _next_utc_midnight_after(now)
-        return now
-
     remaining = _cooldown_remaining(session, player, cfg, activity, now)
     if remaining <= 0:
         return now

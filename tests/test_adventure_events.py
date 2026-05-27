@@ -20,6 +20,7 @@ from src.adventure import (
     apply_adventure_combat_outcome,
     apply_adventure_choice,
     get_encounters_for_area,
+    is_moral_choice_encounter,
     start_adventure_session,
 )
 from src.manuals import RARE_EVENT_META_KEYS
@@ -39,6 +40,9 @@ from tests.rng_helpers import (
 
 @pytest.fixture(autouse=True)
 def load_content():
+    import src.adventure as adventure_mod
+
+    adventure_mod._encounters = None
     load_all_content()
     load_item_catalog()
 
@@ -59,6 +63,9 @@ def test_every_configured_rare_event_has_rewards():
 
 
 def test_every_encounter_has_valid_choices():
+    import src.adventure as adventure_mod
+
+    adventure_mod._encounters = None
     for area_id in get_areas():
         for encounter in get_encounters_for_area(area_id):
             assert encounter.prompt
@@ -66,9 +73,15 @@ def test_every_encounter_has_valid_choices():
                 assert encounter.monster_id
                 continue
             assert len(encounter.choices) >= 2
+            assert is_moral_choice_encounter(encounter), (
+                f"{area_id}/{encounter.id} needs at least one merciful and one cruel path"
+            )
             for choice in encounter.choices:
                 assert choice.id
                 assert choice.label
+                assert choice.karma_delta != 0, (
+                    f"{area_id}/{encounter.id}/{choice.id} must shift karma"
+                )
                 assert 0.0 <= choice.fail_chance <= 1.0
 
 
@@ -259,7 +272,7 @@ def test_each_choice_id_accepted_on_first_segment(session, player: Player, area_
             rng = ScriptedRNG(
                 floats=safe_adventure_segment_floats() * 2,
                 encounter_queue=[encounter, encounter],
-                randint_queue=[1, 1, 1, 1],
+                randint_queue=[],
             )
             pending, err = start_adventure_session(session, player, area_id, "balanced", rng=rng)
             assert err is None and pending is not None
@@ -289,7 +302,7 @@ def test_every_area_drop_item_can_roll_from_table(area_id: str):
     expected = {d.item_id for d in area.drops}
 
     def pick_item(seed_rng: random.Random) -> str:
-        rolled = _roll_drop(seed_rng, area.drops, 1.0, 0.0)
+        rolled = _roll_drop(seed_rng, area.drops, 1.0, 0.0, 0.0, player_realm_index=2, area_min_realm=area.min_realm)
         assert rolled is not None
         return rolled[0]
 
@@ -358,9 +371,45 @@ def test_pity_counter_increments_without_rare(session, player: Player):
         "qi_penalty": 0,
     }
     safe_choice = AdventureChoice("safe", "Play it safe", 0.15, 1.0, 0.0)
-    rng = ScriptedRNG(floats=safe_adventure_segment_floats(trigger_rare=False), randint_queue=[1])
+    rng = ScriptedRNG(floats=safe_adventure_segment_floats(trigger_rare=False))
     _resolve_segment(session, player, area, "balanced", safe_choice, state, rng)
     assert state["segments_since_rare"] == 3
+
+
+def test_choice_shifts_karma_without_zero_neutral(session, player: Player):
+    import src.adventure as adventure_mod
+
+    adventure_mod._encounters = None
+    encounter = next(
+        e for e in get_encounters_for_area("bamboo_grove") if e.id == "injured_elder"
+    )
+    help_choice = next(c for c in encounter.choices if c.id == "help")
+    rob_choice = next(c for c in encounter.choices if c.id == "rob")
+
+    player.realm_index = 0
+    session.commit()
+    area = get_area("bamboo_grove")
+    state = {"drops": {}, "messages": [], "rare_events": [], "segments_cleared": 0, "qi_penalty": 0}
+    rng = ScriptedRNG(floats=safe_adventure_segment_floats())
+
+    before = player.karma
+    _resolve_segment(session, player, area, "balanced", help_choice, state, rng)
+    assert player.karma > before
+
+    player.karma = before
+    state = {"drops": {}, "messages": [], "rare_events": [], "segments_cleared": 0, "qi_penalty": 0}
+    _resolve_segment(session, player, area, "balanced", rob_choice, state, rng)
+    assert player.karma < before
+
+
+def test_combat_victory_shifts_karma(session, player: Player):
+    area = get_area("bamboo_grove")
+    state = {"drops": {}, "messages": [], "rare_events": [], "segments_cleared": 0, "qi_penalty": 0}
+    rng = ScriptedRNG(floats=safe_adventure_segment_floats(trigger_rare=False))
+    before = player.karma
+    _resolve_combat_segment(session, player, area, "reckless", state, rng, victory=True)
+    assert player.karma < before
+    assert state.get("karma_touched")
 
 
 @pytest.mark.parametrize("area_id", ["bamboo_grove", "ashen_cliff", "moonwell_ruins"])
@@ -371,7 +420,7 @@ def test_combat_victory_advances_adventure(session, player: Player, area_id: str
     rng = ScriptedRNG(
         encounter_queue=[combat_encounters[0], combat_encounters[0]],
         floats=safe_adventure_segment_floats() * 2,
-        randint_queue=[1, 1],
+        randint_queue=[],
     )
     pending, err = start_adventure_session(session, player, area_id, "balanced", rng=rng)
     assert err is None and pending is not None

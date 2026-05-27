@@ -62,7 +62,7 @@
   "qi_gathering_pill": {
     "name": "Qi Gathering Pill",
     "category": "pill",
-    "description": "Boosts qi gain from cultivation for a short time."
+    "description": "+55% qi on your next cultivates. Stack pills to add more charges (3 per pill)."
   },
   "tempering_pill": {
     "name": "Tempering Pill",
@@ -72,7 +72,7 @@
   "clarity_pill": {
     "name": "Clarity Pill",
     "category": "pill",
-    "description": "Steadies the mind for breakthrough attempts."
+    "description": "+14% breakthrough chance per charge. Stack before /breakthrough — all charges apply at once."
   },
   "swiftwind_pill": {
     "name": "Swiftwind Pill",
@@ -97,22 +97,22 @@
   "flow_pill": {
     "name": "Flow Meridian Pill",
     "category": "pill",
-    "description": "Opens the meridians for swifter travel — shaves time off your next adventure."
+    "description": "Shaves 15 min off your next 2 command cooldowns (/hunt, /daily, etc.). Stackable."
   },
   "meridian_surge_pill": {
     "name": "Meridian Surge Pill",
     "category": "pill",
-    "description": "Surges qi circulation so your next cultivations return sooner."
+    "description": "Shaves 15 min off your next 3 command cooldowns. Stack pills to extend the streak."
   },
   "gatebreaker_dust": {
     "name": "Gatebreaker Dust",
     "category": "pill",
-    "description": "Grinds dungeon seals — your next dungeon run ignores much of the gate cooldown."
+    "description": "Shaves 40 min off your next 2 command cooldowns. Stackable."
   },
   "void_pulse_pill": {
     "name": "Void Pulse Pill",
     "category": "pill",
-    "description": "A single pulse through every meridian — all major cooldowns shorten for one use each."
+    "description": "Shaves 60 min off your next 2 command cooldowns — every activity, including /daily."
   },
   "spirit_blade": {
     "name": "Spirit Blade",

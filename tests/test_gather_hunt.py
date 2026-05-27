@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from src.config import Config
 from src.cooldown_haste import get_haste_reduction_seconds
-from src.effects import add_void_pulse_haste
+from src.effects import add_haste_effect
 from src.gather import run_gather
 from src.hunt import run_hunt
 from src.inventory import get_item_quantity
@@ -45,10 +45,10 @@ def test_reminders_include_gather_and_hunt():
 
 
 def test_void_pulse_includes_gather_hunt_haste(session, player):
-    add_void_pulse_haste(session, player.id)
+    add_haste_effect(session, player.id, "void_pulse_pill")
     session.commit()
-    assert get_haste_reduction_seconds(session, player.id, "gather") == 180
-    assert get_haste_reduction_seconds(session, player.id, "hunt") == 180
+    assert get_haste_reduction_seconds(session, player.id, "gather") == 3600
+    assert get_haste_reduction_seconds(session, player.id, "hunt") == 3600
 
 
 def test_gather_ready_at(session, player, cfg):

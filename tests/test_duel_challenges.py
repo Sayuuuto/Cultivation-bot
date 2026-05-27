@@ -36,6 +36,7 @@ def cfg() -> Config:
         tutorial_channel_id=None,
         library_channel_id=None,
         abode_category_id=None,
+        dungeon_category_id=None,
         arena_category_id=None,
         pvp_results_channel_id=None,
     )
@@ -60,8 +61,6 @@ def opponent_player(session, player) -> Player:
         substage=0,
         qi=80,
         spirit_stones=5,
-        stamina=100,
-        stamina_last_updated_at=player.last_active_at,
         last_active_at=player.last_active_at,
     )
     session.add(opp)
@@ -90,7 +89,7 @@ def test_create_blocks_duplicate_pending(session, player, opponent_player, cfg, 
 
 
 def test_create_blocks_when_challenger_on_cooldown(session, player, opponent_player, cfg, now):
-    player.last_pvp_at = now - timedelta(minutes=30)
+    player.last_pvp_at = now - timedelta(seconds=2)
     session.add(player)
     session.commit()
 

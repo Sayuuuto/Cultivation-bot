@@ -184,6 +184,7 @@
     "alignment": "neutral",
     "role": "finisher",
     "description": "Releases a burst of scorching qi.",
+    "targeting": "all_enemies",
     "synergy_hint": "Strong burn applier with Ember Heart.",
     "manual_item_id": "manual_flame_burst",
     "effects": [

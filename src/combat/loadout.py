@@ -60,15 +60,20 @@ def get_loadout(session: Session, player_id: int) -> dict[str, str]:
 
 
 def get_equipped_active_techniques(session: Session, player_id: int) -> list[TechniqueDef]:
+    """Active arts in slot order (1→4). Each technique appears at most once."""
     loadout = get_loadout(session, player_id)
     catalog = load_technique_catalog()
     result: list[TechniqueDef] = []
+    seen: set[str] = set()
     for slot in ACTIVE_SLOTS:
         technique_id = loadout.get(slot)
-        if technique_id and technique_id in catalog:
-            tech = catalog[technique_id]
-            if tech.slot_type == "active":
-                result.append(tech)
+        if not technique_id or technique_id in seen:
+            continue
+        tech = catalog.get(technique_id)
+        if tech is None or tech.slot_type != "active":
+            continue
+        seen.add(technique_id)
+        result.append(tech)
     return result
 
 
@@ -112,13 +117,22 @@ def equip_technique(
         TechniqueLoadout.slot == slot,
     )
     row = session.execute(stmt).scalar_one_or_none()
+    replaced_id = row.technique_id if row is not None else None
     if row is None:
         session.add(TechniqueLoadout(player_id=player.id, slot=slot, technique_id=technique_id))
     else:
         row.technique_id = technique_id
+    session.flush()
+
+    swap_note = ""
+    if replaced_id and replaced_id != technique_id:
+        old = get_technique(replaced_id)
+        if old is not None:
+            swap_note = f" **{old.name}** is unequipped but still in **My Skills**."
+
     if slot == PASSIVE_SLOT:
-        return True, f"Equipped **{tech.name}** as your **passive** (always on in combat)."
-    return True, f"Equipped **{tech.name}** in **active slot {slot}** (manual use in combat)."
+        return True, f"Equipped **{tech.name}** as your **passive**.{swap_note}"
+    return True, f"Equipped **{tech.name}** in **slot {slot}**.{swap_note}"
 
 
 def format_techniques_embed_text(session: Session, player: Player) -> str:

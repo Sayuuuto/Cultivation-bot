@@ -24,7 +24,7 @@ from .character import get_character_modifiers
 
 from .combat.engine import create_combat_state, opponent_from_beast
 
-from .combat.session import create_active_combat, get_active_combat
+from .combat.session import COMBAT_BUSY_MESSAGE, create_active_combat, get_active_combat
 
 from .combat_stats import compute_combat_stats
 
@@ -36,7 +36,7 @@ from .area_risk import (
 )
 from .content import AreaDef, get_area
 
-from .gather import GatherNode
+from .loot import LootDropEntry, parse_loot_table, roll_creature_loot
 
 from .inventory import add_item, get_item_name
 
@@ -84,8 +84,9 @@ class HuntBeastDef:
     defense: int
 
     combat_tier: str
-    drops: tuple[GatherNode, ...]
+    drops: tuple[LootDropEntry, ...]
     traits: tuple[str, ...] = ()
+    tags: tuple[str, ...] = ()
 
 
 
@@ -181,25 +182,11 @@ def _load_hunt_config() -> dict[str, HuntAreaDef]:
 
                     combat_tier=b.get("combat_tier", "normal"),
 
-                    drops=tuple(
-
-                        GatherNode(
-
-                            item_id=d["item_id"],
-
-                            weight=d["weight"],
-
-                            min_qty=d["min"],
-
-                            max_qty=d["max"],
-
-                        )
-
-                        for d in b.get("drops", [])
-
-                    ),
+                    drops=parse_loot_table(b.get("drops", [])),
 
                     traits=tuple(b.get("traits", [])),
+
+                    tags=tuple(b.get("tags", [])),
 
                 )
 
@@ -287,39 +274,41 @@ def _validate_area(player: Player, area_id: str) -> tuple[AreaDef | None, str | 
 
 def _roll_hunt_drops(
     session: Session,
-    player_id: int,
+    player: Player,
     beast: HuntBeastDef,
     rng: random.Random,
     *,
     area_id: str | None = None,
+    area_min_realm: int = 0,
 ) -> dict[str, int]:
-    drops: dict[str, int] = {}
-    for entry in beast.drops:
-        if entry.item_id.startswith("manual_"):
-            continue
-        if rng.randint(1, 100) > entry.weight:
-            continue
-        qty = rng.randint(entry.min_qty, entry.max_qty)
-        drops[entry.item_id] = drops.get(entry.item_id, 0) + qty
-    if not drops and beast.drops:
-        fallback = next((d for d in beast.drops if not d.item_id.startswith("manual_")), beast.drops[0])
-        if not fallback.item_id.startswith("manual_"):
-            drops[fallback.item_id] = rng.randint(fallback.min_qty, fallback.max_qty)
+    from .combat_stats import compute_combat_stats
+
+    mod = get_character_modifiers(session, player)
+    stats = compute_combat_stats(player, session, mod)
+    tier = beast.combat_tier if beast.combat_tier in {"normal", "elite", "boss"} else "elite"
+    drops = roll_creature_loot(
+        beast.drops,
+        rng,
+        combat_tier=tier,
+        luck=stats.luck,
+        drop_luck=mod.drop_luck,
+        player_realm_index=player.realm_index,
+        area_min_realm=area_min_realm,
+    )
     if beast.combat_tier == "elite" and area_id:
         pool_id = ELITE_MANUAL_POOLS.get(area_id)
         if pool_id and rng.random() <= ELITE_MANUAL_CHANCE:
-            player = session.get(Player, player_id)
-            karma = player.karma if player is not None else 0
+            karma = player.karma
             manual_id = pick_manual_from_pool(
                 pool_id,
                 rng,
                 session=session,
-                player_id=player_id,
+                player_id=player.id,
                 karma=karma,
                 max_rarity="rare",
             )
             if manual_id is not None:
-                grant_manual_drop(session, player_id, manual_id, drops)
+                grant_manual_drop(session, player.id, manual_id, drops)
     return drops
 
 
@@ -335,6 +324,59 @@ def get_hunt_beast_def(area_id: str, beast_id: str) -> HuntBeastDef | None:
         return None
 
     return next((b for b in hunt_def.beasts if b.beast_id == beast_id), None)
+
+
+def find_hunt_beast_by_id(beast_id: str) -> tuple[HuntBeastDef, str] | None:
+    """Return (beast, area_id) for a beast id across all hunt areas."""
+    for area_id, hunt_def in get_hunt_areas().items():
+        for beast in hunt_def.beasts:
+            if beast.beast_id == beast_id:
+                return beast, area_id
+    return None
+
+
+def _beast_tag_set(beast_id: str, name: str, explicit_tags: tuple[str, ...]) -> set[str]:
+    tags = {t.lower() for t in explicit_tags if t}
+    hay_id = beast_id.lower()
+    hay_name = name.lower()
+    if "wolf" in hay_id or "wolf" in hay_name:
+        tags.add("wolf")
+    if "hound" in hay_id or "hound" in hay_name:
+        tags.update({"hound", "wolf"})
+    if "hare" in hay_id or "hare" in hay_name:
+        tags.add("hare")
+    if "scorpion" in hay_id or "scorpion" in hay_name:
+        tags.add("scorpion")
+    if "devourer" in hay_id or "devourer" in hay_name:
+        tags.add("devourer")
+    if "serpent" in hay_id or "serpent" in hay_name:
+        tags.add("serpent")
+    return tags
+
+
+def beast_matches_sect_tag(beast_id: str, tag: str) -> bool:
+    """Whether a defeated hunt target counts toward a sect task beast_tag."""
+    if not tag:
+        return True
+    needle = tag.lower()
+    if needle in beast_id.lower():
+        return True
+    found = find_hunt_beast_by_id(beast_id)
+    if found is None:
+        return False
+    beast, _ = found
+    return needle in _beast_tag_set(beast.beast_id, beast.name, beast.tags)
+
+
+def list_hunt_beasts_for_sect_tag(tag: str) -> list[tuple[str, str, str]]:
+    """(beast_id, beast_name, area_id) entries that satisfy the sect task tag."""
+    needle = tag.lower()
+    matches: list[tuple[str, str, str]] = []
+    for area_id, hunt_def in get_hunt_areas().items():
+        for beast in hunt_def.beasts:
+            if needle in _beast_tag_set(beast.beast_id, beast.name, beast.tags):
+                matches.append((beast.beast_id, beast.name, area_id))
+    return matches
 
 
 
@@ -364,7 +406,7 @@ def start_hunt_combat(
 
     if get_active_combat(session, player.id) is not None:
 
-        return None, "You are already in combat. Finish or flee first."
+        return None, COMBAT_BUSY_MESSAGE
 
 
 
@@ -512,7 +554,9 @@ def finalize_hunt_combat(
 
     if victory:
 
-        drops = _roll_hunt_drops(session, player.id, beast_def, rng, area_id=area_id)
+        drops = _roll_hunt_drops(
+            session, player, beast_def, rng, area_id=area_id, area_min_realm=area.min_realm
+        )
 
         drops = normalize_manual_drops(session, player.id, drops)
         gap = realm_gap(player, area)
@@ -678,7 +722,9 @@ def run_hunt(
 
     if combat.victory:
 
-        drops = _roll_hunt_drops(session, player.id, beast_def, rng, area_id=area_id)
+        drops = _roll_hunt_drops(
+            session, player, beast_def, rng, area_id=area_id, area_min_realm=area.min_realm
+        )
 
         drops = normalize_manual_drops(session, player.id, drops)
         drops = apply_drop_quantity_bonus(drops, gap)

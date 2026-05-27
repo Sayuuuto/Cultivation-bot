@@ -43,8 +43,6 @@ def _novice_player(session, **overrides) -> Player:
         substage=0,
         qi=0,
         spirit_stones=0,
-        stamina=100,
-        stamina_last_updated_at=now,
         last_active_at=now,
     )
     data.update(overrides)
@@ -140,4 +138,32 @@ def test_hunt_victory_advances_trial(session):
     player = _novice_player(session, novice_trial_step=2)
     msgs = on_hunt_victory(player)
     assert player.novice_trial_step == 3
+    assert msgs
+
+
+def test_failed_first_adventure_does_not_block_sage(session):
+    from src.adventure import SEGMENTS_PER_RUN
+    from src.novice_trial import (
+        heal_stuck_novice_adventure,
+        on_adventure_completed,
+        requires_sage_trial,
+    )
+
+    player = _novice_player(session, novice_trial_step=4, adventures_completed=0)
+    on_adventure_completed(session, player, segments_cleared=0)
+    assert player.adventures_completed == 0
+    assert player.novice_trial_step == 4
+    assert requires_sage_trial(player)
+
+    player.adventures_completed = 1
+    assert requires_sage_trial(player)
+    assert heal_stuck_novice_adventure(player)
+    assert player.adventures_completed == 0
+
+    player.novice_trial_step = 4
+    player.adventures_completed = 0
+    msgs, waive = on_adventure_completed(session, player, segments_cleared=SEGMENTS_PER_RUN)
+    assert player.adventures_completed == 1
+    assert player.novice_trial_step == 5
+    assert waive
     assert msgs

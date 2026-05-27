@@ -2,19 +2,49 @@
   "bamboo_grove": {
     "flavor": "You wander the misty bamboo paths, searching for spirit herbs.",
     "nodes": [
-      {"item_id": "green_dew_herb", "weight": 50, "min": 1, "max": 3},
-      {"item_id": "bamboo_resin", "weight": 30, "min": 1, "max": 2},
-      {"item_id": "spirit_iron_shard", "weight": 10, "min": 1, "max": 1},
-      {"item_id": "blank_scroll", "weight": 8, "min": 1, "max": 1},
-      {"item_id": "spirit_ink", "weight": 6, "min": 1, "max": 1}
+      {
+        "item_id": "green_dew_herb",
+        "min": 1,
+        "max": 3,
+        "weight": 50,
+        "rarity": "common"
+      },
+      {
+        "item_id": "bamboo_resin",
+        "min": 1,
+        "max": 2,
+        "weight": 30,
+        "rarity": "uncommon"
+      },
+      {
+        "item_id": "spirit_iron_shard",
+        "min": 1,
+        "max": 1,
+        "weight": 10,
+        "rarity": "rare"
+      },
+      {
+        "item_id": "blank_scroll",
+        "min": 1,
+        "max": 1,
+        "weight": 8,
+        "rarity": "rare"
+      },
+      {
+        "item_id": "spirit_ink",
+        "min": 1,
+        "max": 1,
+        "weight": 6,
+        "rarity": "rare"
+      }
     ],
     "rare_node_chance": 0.06,
     "rare_nodes": [
       {
         "item_id": "moonlotus",
-        "weight": 1,
         "min": 1,
         "max": 1,
+        "rarity": "legendary",
         "message": "Moonlight glints on a hidden **Moonlotus** patch."
       }
     ]
@@ -22,57 +52,135 @@
   "ashen_cliff": {
     "flavor": "You scour scorched cliffside crevices for ore and moss.",
     "nodes": [
-      {"item_id": "ember_moss", "weight": 40, "min": 1, "max": 2},
-      {"item_id": "spirit_iron_shard", "weight": 35, "min": 1, "max": 2},
-      {"item_id": "bandit_token", "weight": 12, "min": 1, "max": 1},
-      {"item_id": "spirit_ink", "weight": 8, "min": 1, "max": 1}
+      {
+        "item_id": "ember_moss",
+        "min": 1,
+        "max": 2,
+        "weight": 40,
+        "rarity": "common"
+      },
+      {
+        "item_id": "spirit_iron_shard",
+        "min": 1,
+        "max": 2,
+        "weight": 35,
+        "rarity": "common"
+      },
+      {
+        "item_id": "bandit_token",
+        "min": 1,
+        "max": 1,
+        "weight": 12,
+        "rarity": "rare"
+      },
+      {
+        "item_id": "spirit_ink",
+        "min": 1,
+        "max": 1,
+        "weight": 8,
+        "rarity": "rare"
+      }
     ],
     "rare_node_chance": 0.05,
     "rare_nodes": [
       {
         "item_id": "refined_beast_core",
-        "weight": 1,
         "min": 1,
         "max": 1,
-        "message": "A vein of spirit ore pulses beneath the ash — **Refined Beast Core** materializes."
+        "rarity": "legendary",
+        "message": "A vein of spirit ore pulses beneath the ash \u2014 **Refined Beast Core** materializes."
       }
     ]
   },
   "moonwell_ruins": {
     "flavor": "You sift through collapsed moonwell stones for ancient reagents.",
     "nodes": [
-      {"item_id": "moonlotus", "weight": 32, "min": 1, "max": 2},
-      {"item_id": "ancient_dust", "weight": 40, "min": 1, "max": 2},
-      {"item_id": "refined_beast_core", "weight": 12, "min": 1, "max": 1},
-      {"item_id": "script_shard", "weight": 10, "min": 1, "max": 1},
-      {"item_id": "blank_scroll", "weight": 6, "min": 1, "max": 1}
+      {
+        "item_id": "moonlotus",
+        "min": 1,
+        "max": 2,
+        "weight": 32,
+        "rarity": "uncommon"
+      },
+      {
+        "item_id": "ancient_dust",
+        "min": 1,
+        "max": 2,
+        "weight": 40,
+        "rarity": "common"
+      },
+      {
+        "item_id": "refined_beast_core",
+        "min": 1,
+        "max": 1,
+        "weight": 12,
+        "rarity": "rare"
+      },
+      {
+        "item_id": "script_shard",
+        "min": 1,
+        "max": 1,
+        "weight": 10,
+        "rarity": "rare"
+      },
+      {
+        "item_id": "blank_scroll",
+        "min": 1,
+        "max": 1,
+        "weight": 6,
+        "rarity": "rare"
+      }
     ],
     "rare_node_chance": 0.08,
     "rare_nodes": [
       {
         "item_id": "affix_stone",
-        "weight": 1,
         "min": 1,
         "max": 1,
-        "message": "An intact inscription stone hums in the ruins — an **Affix Stone**."
+        "rarity": "legendary",
+        "message": "An intact inscription stone hums in the ruins \u2014 an **Affix Stone**."
       }
     ]
   },
   "mistwood_village": {
     "flavor": "You wander the misty lanes between village gardens and spirit herb stalls.",
     "nodes": [
-      {"item_id": "village_herb", "weight": 50, "min": 1, "max": 3},
-      {"item_id": "green_dew_herb", "weight": 30, "min": 1, "max": 2},
-      {"item_id": "blank_scroll", "weight": 10, "min": 1, "max": 1},
-      {"item_id": "spirit_ink", "weight": 8, "min": 1, "max": 1}
+      {
+        "item_id": "village_herb",
+        "min": 1,
+        "max": 3,
+        "weight": 50,
+        "rarity": "common"
+      },
+      {
+        "item_id": "green_dew_herb",
+        "min": 1,
+        "max": 2,
+        "weight": 30,
+        "rarity": "uncommon"
+      },
+      {
+        "item_id": "blank_scroll",
+        "min": 1,
+        "max": 1,
+        "weight": 10,
+        "rarity": "rare"
+      },
+      {
+        "item_id": "spirit_ink",
+        "min": 1,
+        "max": 1,
+        "weight": 8,
+        "rarity": "rare"
+      }
     ],
     "rare_node_chance": 0.05,
     "rare_nodes": [
       {
         "item_id": "minor_beast_core",
-        "weight": 1,
         "min": 1,
         "max": 1,
+        "rarity": "legendary",
         "message": "A merchant's hidden stash yields a **Minor Beast Core**."
       }
     ]
@@ -80,38 +188,86 @@
   "verdant_depths": {
     "flavor": "You push through towering pines where spirit beasts nest in the canopy.",
     "nodes": [
-      {"item_id": "pine_resin", "weight": 45, "min": 1, "max": 2},
-      {"item_id": "spirit_iron_shard", "weight": 30, "min": 1, "max": 2},
-      {"item_id": "refined_beast_core", "weight": 12, "min": 1, "max": 1},
-      {"item_id": "script_shard", "weight": 8, "min": 1, "max": 1}
+      {
+        "item_id": "pine_resin",
+        "min": 1,
+        "max": 2,
+        "weight": 45,
+        "rarity": "common"
+      },
+      {
+        "item_id": "spirit_iron_shard",
+        "min": 1,
+        "max": 2,
+        "weight": 30,
+        "rarity": "uncommon"
+      },
+      {
+        "item_id": "refined_beast_core",
+        "min": 1,
+        "max": 1,
+        "weight": 12,
+        "rarity": "rare"
+      },
+      {
+        "item_id": "script_shard",
+        "min": 1,
+        "max": 1,
+        "weight": 8,
+        "rarity": "rare"
+      }
     ],
     "rare_node_chance": 0.06,
     "rare_nodes": [
       {
         "item_id": "affix_stone",
-        "weight": 1,
         "min": 1,
         "max": 1,
-        "message": "Sunlight catches an inscription stone wedged in an ancient trunk — **Affix Stone**."
+        "rarity": "legendary",
+        "message": "Sunlight catches an inscription stone wedged in an ancient trunk \u2014 **Affix Stone**."
       }
     ]
   },
   "cursed_swamp": {
     "flavor": "You wade through black water where corrupted qi coils beneath the surface.",
     "nodes": [
-      {"item_id": "swamp_moss", "weight": 42, "min": 1, "max": 2},
-      {"item_id": "bog_iron", "weight": 35, "min": 1, "max": 2},
-      {"item_id": "hollow_pearl", "weight": 10, "min": 1, "max": 1},
-      {"item_id": "refined_beast_core", "weight": 8, "min": 1, "max": 1}
+      {
+        "item_id": "swamp_moss",
+        "min": 1,
+        "max": 2,
+        "weight": 42,
+        "rarity": "common"
+      },
+      {
+        "item_id": "bog_iron",
+        "min": 1,
+        "max": 2,
+        "weight": 35,
+        "rarity": "common"
+      },
+      {
+        "item_id": "hollow_pearl",
+        "min": 1,
+        "max": 1,
+        "weight": 10,
+        "rarity": "rare"
+      },
+      {
+        "item_id": "refined_beast_core",
+        "min": 1,
+        "max": 1,
+        "weight": 8,
+        "rarity": "rare"
+      }
     ],
     "rare_node_chance": 0.07,
     "rare_nodes": [
       {
         "item_id": "script_shard",
-        "weight": 1,
         "min": 1,
         "max": 1,
-        "message": "A sunken tablet surfaces — a **Script Shard** etched in forbidden script."
+        "rarity": "legendary",
+        "message": "A sunken tablet surfaces \u2014 a **Script Shard** etched in forbidden script."
       }
     ]
   }

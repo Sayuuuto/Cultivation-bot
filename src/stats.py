@@ -112,8 +112,12 @@ def format_stats_summary(session: Session, player_id: int, player=None, mod=None
         mod = get_character_modifiers(session, player)
 
     total = get_total_equipment_stats(session, player_id)
+    from .foundation import format_foundation_summary
+
     combat = compute_combat_stats(player, session, mod)
     lines = [
+        format_foundation_summary(player),
+        "",
         "**Combat**",
         format_combat_stats_block(combat),
         "",

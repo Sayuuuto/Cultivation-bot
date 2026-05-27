@@ -412,8 +412,10 @@ def record_sect_task_progress(
             return []
 
     if task.task_type == "hunt" and task.beast_tag:
-        if not beast_id or task.beast_tag not in beast_id:
-            return []
+        from .hunt import beast_matches_sect_tag
+
+        if not beast_id or not beast_matches_sect_tag(beast_id, task.beast_tag):
+            return _hunt_task_mismatch_hint(task, beast_id)
 
     if task.task_type == "adventure" and not adventure_success:
         return []
@@ -428,6 +430,64 @@ def record_sect_task_progress(
     return [f"Sect task progress: **{player.sect_daily_task_progress}/{task.count}** ({remaining} left)."]
 
 
+def _area_display_name(area_id: str) -> str:
+    from .content import get_area
+
+    area = get_area(area_id)
+    return area.name if area is not None else area_id.replace("_", " ").title()
+
+
+def format_task_directions(task: SectTaskDef) -> str:
+    """How to complete the daily assignment (player-facing)."""
+    if task.task_type == "cultivate":
+        return "How: **`/cultivate`** or the **Cultivate** button on your profile."
+    if task.task_type == "adventure":
+        return "How: finish a full **`/adventure`** run (both segments)."
+    if task.task_type == "dungeon":
+        return "How: clear any cooperative dungeon with **`/dungeon`** (solo or party)."
+    if task.task_type == "gather":
+        area = _area_display_name(task.area_id) if task.area_id else "the listed area"
+        from .inventory import get_item_name
+
+        item = get_item_name(task.item_id) if task.item_id else "the listed material"
+        return f"How: **`/gather`** in **{area}** for **{item}**."
+    if task.task_type == "hunt" and task.beast_tag:
+        from .hunt import list_hunt_beasts_for_sect_tag
+
+        matches = list_hunt_beasts_for_sect_tag(task.beast_tag)
+        if matches:
+            examples = []
+            for _, beast_name, area_id in matches[:4]:
+                examples.append(f"**{beast_name}** ({_area_display_name(area_id)})")
+            example_text = " · ".join(examples)
+            extra = "" if len(matches) <= 4 else f" · +{len(matches) - 4} more"
+            return f"How: win **`/hunt`** combat vs {example_text}{extra}."
+        return f"How: win **`/hunt`** combat against **{task.beast_tag}**-type beasts."
+    if task.task_type == "hunt":
+        return "How: win any **`/hunt`** combat."
+    return ""
+
+
+def _hunt_task_mismatch_hint(task: SectTaskDef, beast_id: str | None) -> list[str]:
+    from .hunt import find_hunt_beast_by_id, list_hunt_beasts_for_sect_tag
+
+    if task.task_type != "hunt" or not task.beast_tag:
+        return []
+    foe = "that beast"
+    if beast_id:
+        found = find_hunt_beast_by_id(beast_id)
+        if found is not None:
+            foe = f"**{found[0].name}**"
+    matches = list_hunt_beasts_for_sect_tag(task.beast_tag)
+    if not matches:
+        return [f"Sect task unchanged — {foe} does not count toward **{task.beast_tag}**-type hunts."]
+    names = ", ".join(f"**{name}**" for _, name, _ in matches[:3])
+    return [
+        f"Sect task unchanged — {foe} does not count. "
+        f"Slay {names} (see **`/sect-task`**)."
+    ]
+
+
 def format_sect_task_status(player: Player) -> str:
     if player.game_sect_id is None:
         return "Join a martial sect with **`/sect-join`** to receive daily tasks."
@@ -440,10 +500,13 @@ def format_sect_task_status(player: Player) -> str:
         return "Your sect has no daily tasks configured for your realm band yet."
 
     progress = min(status.progress, status.task.count)
-    return (
-        f"**Daily task:** {status.task.label}\n"
-        f"Progress: **{progress}/{status.task.count}** · Reward: **{status.task.merit}** merit"
-    )
+    directions = format_task_directions(status.task)
+    lines = [
+        f"**Daily task:** {status.task.label}",
+        directions,
+        f"Progress: **{progress}/{status.task.count}** · Reward: **{status.task.merit}** merit",
+    ]
+    return "\n".join(line for line in lines if line)
 
 
 def list_sect_shop_entries(player: Player) -> tuple[SectShopDef | None, list[SectShopEntry]]:

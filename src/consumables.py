@@ -4,7 +4,7 @@ import random
 
 from sqlalchemy.orm import Session
 
-from .effects import add_effect, add_haste_effect, HASTE_EFFECTS
+from .effects import add_effect, add_haste_effect, format_haste_use_message, format_pill_use_message, HASTE_EFFECTS
 from .game import SPIRIT_ROOTS
 from .inventory import get_item_def, get_item_name, get_item_quantity, load_item_catalog, remove_item
 from .models import Player
@@ -89,31 +89,19 @@ def use_item(session: Session, player: Player, item_id: str, rng: random.Random 
         if not remove_item(session, player.id, item_id, 1):
             return False, "You do not have that item."
         add_haste_effect(session, player.id, item_id)
+        session.flush()
         meta = HASTE_EFFECTS[item_id]
-        minutes = int(meta["seconds_per_charge"]) // 60
-        charges = int(meta["default_charges"])
         item = get_item_def(item_id)
         name = item.name if item else item_id
-        if charges > 1:
-            return (
-                True,
-                f"You consume **{name}**. Your meridians hum — the next **{charges}** "
-                f"cultivations ignore **{minutes} min** of cooldown each.",
-            )
-        if item_id == "void_pulse_pill":
-            return (
-                True,
-                f"You consume **{name}**. Void qi pulses through every meridian — "
-                "**cultivate, adventure, dungeon, duel, gather, and hunt** cooldowns all shorten on your next use of each.",
-            )
-        activity = {
-            "haste_adventure": "adventure",
-            "haste_cultivate": "cultivation",
-            "haste_dungeon": "dungeon",
-        }.get(str(meta["effect_id"]), "next action")
         return (
             True,
-            f"You consume **{name}**. The {activity} gate feels **{minutes} min** closer.",
+            format_haste_use_message(
+                session,
+                player.id,
+                name,
+                charges_per_pill=int(meta["default_charges"]),
+                seconds_per_charge=int(meta["seconds_per_charge"]),
+            ),
         )
 
     if item_id == "root_reforging_pill":
@@ -142,9 +130,8 @@ def use_item(session: Session, player: Player, item_id: str, rng: random.Random 
         charges=int(charges) if charges is not None else None,
         hours=float(hours) if hours is not None else None,
     )
+    session.flush()
 
     item = get_item_def(item_id)
     name = item.name if item else item_id
-    if charges:
-        return True, f"You consume **{name}**. Its effect lingers for {charges} use(s)."
-    return True, f"You consume **{name}**. Its effect settles within you."
+    return True, format_pill_use_message(session, player.id, effect_id, name)

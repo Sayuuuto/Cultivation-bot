@@ -89,6 +89,10 @@ def compute_combat_stats(
     for key in cfg["base"]:
         stats[key] = _stat_from_realm(key, realm_index, substage, cfg)
 
+    from .foundation import apply_foundation_bonuses
+
+    apply_foundation_bonuses(player, stats)
+
     gear = get_total_equipment_stats(session, player.id)
     _apply_gear(stats, gear, cfg)
     tag_counts = get_technique_tag_counts(session, player.id)

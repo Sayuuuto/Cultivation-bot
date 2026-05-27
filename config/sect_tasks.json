@@ -25,7 +25,7 @@
         "beast_tag": "wolf",
         "count": 2,
         "merit": 30,
-        "label": "Hunt 2 wolf-type spirit beasts"
+        "label": "Slay 2 wolf-type spirit beasts (wolves & hounds)"
       }
     ]
   },
@@ -72,7 +72,7 @@
         "beast_tag": "wolf",
         "count": 1,
         "merit": 14,
-        "label": "Slay a wolf-type beast on the sword path"
+        "label": "Slay a wolf-type beast (wolf or hound)"
       }
     ],
     "earth": [
@@ -81,7 +81,7 @@
         "type": "dungeon",
         "count": 1,
         "merit": 35,
-        "label": "Clear Blackwind Cavern once"
+        "label": "Clear any realm dungeon once"
       }
     ]
   },
@@ -108,7 +108,7 @@
         "type": "dungeon",
         "count": 1,
         "merit": 40,
-        "label": "Survive Blackwind Cavern"
+        "label": "Survive any realm dungeon once"
       }
     ]
   },
@@ -184,7 +184,7 @@
         "type": "dungeon",
         "count": 1,
         "merit": 45,
-        "label": "Secure Blackwind Cavern for the throne"
+        "label": "Secure any realm dungeon for the throne"
       }
     ]
   },
@@ -212,7 +212,7 @@
         "type": "dungeon",
         "count": 1,
         "merit": 42,
-        "label": "Claim spoils from Blackwind Cavern"
+        "label": "Claim spoils from any realm dungeon"
       }
     ]
   }

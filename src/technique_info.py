@@ -60,6 +60,22 @@ def format_technique_combat_summary(tech: TechniqueDef) -> str:
     if tech.status_id and tech.status_chance > 0:
         pct = int(round(tech.status_chance * 100))
         lines.append(f"**{pct}%** chance to inflict **{tech.status_id.title()}** on hit.")
+        from .combat.rules import load_combat_rules
+
+        rule = load_combat_rules().statuses.get(tech.status_id)
+        if tech.status_id == "stun":
+            lines.append("Stunned foes **cannot act** on their turn.")
+        elif rule is not None and rule.skip_turn_chance > 0:
+            pct = int(round(rule.skip_turn_chance * 100))
+            lines.append(
+                f"Each turn, afflicted foes have **{pct}%** chance to lose their action to fear."
+            )
+        elif rule is not None and rule.propagates:
+            spread = int(round(rule.spread_chance * 100))
+            lines.append(f"**Burn** can leap to other foes (**{spread}%** chance per carrier).")
+        elif rule is not None and rule.damage_mult < 1.0:
+            weaken = int(round((1.0 - rule.damage_mult) * 100))
+            lines.append(f"Afflicted foes deal **{weaken}%** less damage.")
 
     if tech.heal_ratio > 0:
         pct = int(round(tech.heal_ratio * 100))
@@ -90,6 +106,56 @@ def format_technique_combat_summary(tech: TechniqueDef) -> str:
         lines.append("Support or trigger effects — read the description above.")
 
     return "\n".join(lines)
+
+
+def format_technique_effect_plain(tech: TechniqueDef) -> str:
+    """Single-block effect text for skill card images (no markdown)."""
+    if tech.slot_type == "passive":
+        trigger_lines: list[str] = []
+        for trig in tech.passive_triggers:
+            if trig.type == "on_hit_bleed_chance":
+                pct = int(float(trig.params.get("chance", 0)) * 100)
+                trigger_lines.append(f"Your attacks have a {pct}% chance to cause bleeding.")
+            elif trig.type == "burn_damage_bonus":
+                pct = int(float(trig.params.get("bonus", 0)) * 100)
+                trigger_lines.append(f"Burn techniques deal +{pct}% damage.")
+            elif trig.type == "poison_damage_bonus":
+                pct = int(float(trig.params.get("bonus", 0)) * 100)
+                trigger_lines.append(f"Poison techniques deal +{pct}% damage.")
+            elif trig.type == "heal_below_threshold":
+                pct = int(float(trig.params.get("heal_pct", 0)) * 100)
+                threshold = int(float(trig.params.get("threshold", 0.3)) * 100)
+                trigger_lines.append(
+                    f"When below {threshold}% HP, heal {pct}% max HP "
+                    f"(cooldown {int(trig.params.get('cooldown', 0))} turns)."
+                )
+            elif trig.type == "cleanse_stun_shield":
+                pct = int(float(trig.params.get("shield_pct", 0)) * 100)
+                trigger_lines.append(
+                    f"When stunned or sealed, gain a shield worth {pct}% of max HP."
+                )
+        if trigger_lines:
+            return " ".join(trigger_lines)
+        desc = (tech.description or "").strip()
+        return desc if desc else "Passive effect while equipped in the passive slot."
+
+    parts: list[str] = []
+    if tech.damage_type and tech.damage_type != "none":
+        stat = _STAT_LABELS.get(tech.scaling_stat, tech.scaling_stat.replace("_", " ").title())
+        parts.append(f"Deals {tech.damage_type} damage scaling with {stat}.")
+    if tech.status_id and tech.status_chance > 0:
+        pct = int(round(tech.status_chance * 100))
+        status = tech.status_id.replace("_", " ")
+        if status == "bleed":
+            status = "bleeding"
+        parts.append(f"{pct}% chance to cause {status}.")
+    if tech.heal_ratio > 0:
+        pct = int(round(tech.heal_ratio * 100))
+        parts.append(f"Can restore {pct}% of damage dealt as HP.")
+    if parts:
+        return " ".join(parts)
+    desc = (tech.description or "").strip()
+    return desc if desc else "Support or trigger effects."
 
 
 def _technique_header_tags(tech: TechniqueDef) -> str:
