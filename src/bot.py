@@ -2212,27 +2212,30 @@ async def profile_cmd(interaction: discord.Interaction):
             content_parts.append(
                 f"While you were away: **+{offline_qi}** passive Qi was added to your pool."
             )
-        try:
-            png_bytes = render_profile_card(card_data, avatar_image)
-            from io import BytesIO
+        from .ui.fonts import card_fonts_available
 
-            file = discord.File(BytesIO(png_bytes), filename="profile.png")
-            embed.set_image(url="attachment://profile.png")
-            await interaction.response.send_message(
-                content="\n".join(content_parts) if content_parts else None,
-                embed=embed,
-                file=file,
-                view=view,
-                ephemeral=False,
-            )
-        except Exception:
-            logger.exception("Profile card render failed for %s; embed only", discord_id)
-            await interaction.response.send_message(
-                content="\n".join(content_parts) if content_parts else None,
-                embed=embed,
-                view=view,
-                ephemeral=False,
-            )
+        show_card_image = os.getenv("PROFILE_CARD_IMAGE", "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+        }
+        file = None
+        if show_card_image and card_fonts_available():
+            try:
+                png_bytes = render_profile_card(card_data, avatar_image)
+                from io import BytesIO
+
+                file = discord.File(BytesIO(png_bytes), filename="profile.png")
+            except Exception:
+                logger.exception("Profile card render failed for %s", discord_id)
+
+        await interaction.response.send_message(
+            content="\n".join(content_parts) if content_parts else None,
+            embed=embed,
+            file=file,
+            view=view,
+            ephemeral=False,
+        )
     finally:
         session.close()
 

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from io import BytesIO
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 from ..combat.catalog import get_technique, load_technique_catalog
+from .fonts import load_card_font
 from ..combat.loadout import ACTIVE_SLOTS, PASSIVE_SLOT, ensure_starter_techniques, get_loadout
 from ..realms import REALMS, SUBSTAGES
 from ..technique_info import format_technique_effect_plain
@@ -53,33 +53,6 @@ class CombatSkillsCardData:
     total: int
     spirit_stones_display: str
     slots: list[SkillSlotView]
-
-
-def _load_font(size: int, *, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    names = (
-        ["segoeuib.ttf", "arialbd.ttf", "DejaVuSans-Bold.ttf"]
-        if bold
-        else ["segoeui.ttf", "arial.ttf", "DejaVuSans.ttf"]
-    )
-    windir = os.environ.get("WINDIR", r"C:\Windows")
-    for directory in (
-        os.path.join(windir, "Fonts"),
-        "/usr/share/fonts/truetype/dejavu",
-        "/System/Library/Fonts/Supplemental",
-    ):
-        for name in names:
-            path = os.path.join(directory, name)
-            if os.path.isfile(path):
-                try:
-                    return ImageFont.truetype(path, size)
-                except OSError:
-                    continue
-    for name in names:
-        try:
-            return ImageFont.truetype(name, size)
-        except OSError:
-            continue
-    return ImageFont.load_default()
 
 
 def _scale(v: int) -> int:
@@ -216,12 +189,12 @@ def render_combat_skills_card(data: CombatSkillsCardData) -> bytes:
     # Accent bar
     draw.rectangle((0, 0, _scale(6), card_h * ss), fill=ACCENT)
 
-    font_title = _load_font(_font_size(28), bold=True)
-    font_section = _load_font(_font_size(13), bold=True)
-    font_name = _load_font(_font_size(17), bold=True)
-    font_body = _load_font(_font_size(13))
-    font_sm = _load_font(_font_size(11))
-    font_stats = _load_font(_font_size(12))
+    font_title = load_card_font(_font_size(28), bold=True)
+    font_section = load_card_font(_font_size(13), bold=True)
+    font_name = load_card_font(_font_size(17), bold=True)
+    font_body = load_card_font(_font_size(13))
+    font_sm = load_card_font(_font_size(11))
+    font_stats = load_card_font(_font_size(12))
 
     y = 20
     draw.text((_scale(MARGIN), _scale(y)), "Combat Skills", font=font_title, fill=CYAN)

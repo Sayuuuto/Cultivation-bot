@@ -22,6 +22,7 @@ from ..models import Player
 from ..realms import get_realm_name
 from ..technique_info import format_technique_effect_plain
 from ..ui.combat_skills_card import build_combat_skills_card_data, render_combat_skills_card
+from ..ui.fonts import card_fonts_available
 
 EMBED_COLOR = 0x5B4B8A
 
@@ -190,13 +191,17 @@ async def _send_skills_hub_message(
     session = get_session()
     try:
         embed = build_combat_skills_hub_embed(session, player)
-        file = _skills_file(session, player)
-        embed.set_image(url="attachment://combat_skills.png")
+        attachments: list[discord.File] = []
+        if card_fonts_available():
+            try:
+                attachments.append(_skills_file(session, player))
+            except Exception:
+                pass
         view = TechniquesHubView(owner_discord_id, player.id)
         kwargs: dict = {
             "content": None,
             "embed": embed,
-            "attachments": [file],
+            "attachments": attachments,
             "view": view,
         }
         if edit:

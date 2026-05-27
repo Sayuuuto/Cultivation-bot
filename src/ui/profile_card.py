@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from io import BytesIO
 from typing import TYPE_CHECKING
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 from ..combat.catalog import get_technique
+from .fonts import load_card_font
 from ..combat.loadout import ACTIVE_SLOTS, PASSIVE_SLOT, ensure_starter_techniques, get_loadout
 from ..effects import EFFECT_LABELS, list_active_player_effects
 from ..equipment import get_player_equipment
@@ -102,34 +102,6 @@ class ProfileCardData:
     trial_line: str | None = None
     passive_qi_line: str | None = None
     active_cultivate_line: str | None = None
-
-
-def _load_font(size: int, *, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    names = (
-        ["segoeuib.ttf", "arialbd.ttf", "DejaVuSans-Bold.ttf"]
-        if bold
-        else ["segoeui.ttf", "arial.ttf", "DejaVuSans.ttf"]
-    )
-    windir = os.environ.get("WINDIR", r"C:\Windows")
-    extra_dirs = [
-        os.path.join(windir, "Fonts"),
-        "/usr/share/fonts/truetype/dejavu",
-        "/System/Library/Fonts/Supplemental",
-    ]
-    for directory in extra_dirs:
-        for name in names:
-            path = os.path.join(directory, name)
-            if os.path.isfile(path):
-                try:
-                    return ImageFont.truetype(path, size)
-                except OSError:
-                    continue
-    for name in names:
-        try:
-            return ImageFont.truetype(name, size)
-        except OSError:
-            continue
-    return ImageFont.load_default()
 
 
 def format_compact_number(value: int) -> str:
@@ -522,15 +494,15 @@ def render_profile_card(data: ProfileCardData, avatar: Image.Image | None = None
     _fill_gradient(img, (0, 0, CARD_W, card_h), BG_TOP, BG_BOTTOM)
     draw = ImageDraw.Draw(img)
 
-    font_xs = _load_font(_font_size(11))
-    font_sm = _load_font(_font_size(13))
-    font_md = _load_font(_font_size(15))
-    font_lg = _load_font(_font_size(20), bold=True)
-    font_xl = _load_font(_font_size(26), bold=True)
-    font_banner = _load_font(_font_size(32), bold=True)
-    font_stones = _load_font(_font_size(30), bold=True)
-    font_stat = _load_font(_font_size(17), bold=True)
-    font_section = _load_font(_font_size(12), bold=True)
+    font_xs = load_card_font(_font_size(11))
+    font_sm = load_card_font(_font_size(13))
+    font_md = load_card_font(_font_size(15))
+    font_lg = load_card_font(_font_size(20), bold=True)
+    font_xl = load_card_font(_font_size(26), bold=True)
+    font_banner = load_card_font(_font_size(32), bold=True)
+    font_stones = load_card_font(_font_size(30), bold=True)
+    font_stat = load_card_font(_font_size(17), bold=True)
+    font_section = load_card_font(_font_size(12), bold=True)
 
     x_inner = MARGIN
 
