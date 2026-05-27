@@ -49,11 +49,33 @@ This repo ships:
 1. Link the repo and deploy (Railpack builder is picked up automatically).
 2. Service ? **Volumes** ? **Add Volume** ? mount path **`/data`** (must match `railway.json`).
 3. Variables ? set `DISCORD_TOKEN`, `GUILD_ID`, and any channel IDs from `.env.example`.
-4. Copy your local SQLite file into the volume (see deploy notes below) ó then redeploy.
+4. Copy your local SQLite file into the volume (see deploy notes below) ù then redeploy.
 
 If a volume is attached, `RAILWAY_VOLUME_MOUNT_PATH` is also honored when `DATABASE_PATH` is unset.
 
-**Import local database:** upload `cultivation_bot.sqlite3` to `/data/cultivation_bot.sqlite3` on the volume (Railway CLI + curl, or dashboard shell). Stop the bot while copying.
+**Your player data is not on GitHub by default.** `.gitignore` excludes `*.sqlite3`, so deploys start with an empty DB unless you seed it.
+
+**Option A ù Seed via Git (recommended for your case)**
+
+```powershell
+.\scripts\publish_database_seed.ps1
+git add deploy/seed/cultivation_bot.sqlite3
+git commit -m "Add database seed for Railway"
+git push
+```
+
+Redeploy on Railway. On every startup, if `/data/cultivation_bot.sqlite3` has **no players**, the bot copies `deploy/seed/cultivation_bot.sqlite3` (or project-root `cultivation_bot.sqlite3` if present). Deploy logs show e.g. `Copied ... -> /data/... (4 players)` or `Database ready: ... (N players, seed skipped)`.
+
+**Option B ù Upload without committing the DB**
+
+```powershell
+railway login
+cd c:\Users\Adnan\Documents\CursorProjects
+railway link
+.\scripts\upload_database_to_railway.ps1
+```
+
+Stop the bot first, then redeploy. Use this if the volume already has an empty database and you do not want to push the file to GitHub.
 
 Set other environment variables in the dashboard (same as `.env`): at minimum `DISCORD_TOKEN`, and usually `GUILD_ID` for guild-scoped slash commands.
 

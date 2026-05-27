@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+import logging
+import shutil
+import sqlite3
+from pathlib import Path
+
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 
-from .config import get_config
+from .config import DEFAULT_DATABASE_FILENAME, get_config
 from .models import Base
+
+logger = logging.getLogger(__name__)
 
 
 _engine = None
@@ -183,7 +190,95 @@ def _migrate_effect_columns(engine) -> None:
     )
 
 
+def _project_root() -> Path:
+    return Path(__file__).resolve().parent.parent
+
+
+def _database_seed_sources() -> list[Path]:
+    """Bundled SQLite files checked in order when the live DB has no players."""
+    root = _project_root()
+    return [
+        root / "deploy" / "seed" / DEFAULT_DATABASE_FILENAME,
+        root / DEFAULT_DATABASE_FILENAME,
+    ]
+
+
+def _local_player_count(db_path: Path) -> int:
+    if not db_path.is_file():
+        return 0
+    try:
+        conn = sqlite3.connect(db_path)
+        try:
+            row = conn.execute("SELECT COUNT(*) FROM players").fetchone()
+            return int(row[0]) if row else 0
+        except sqlite3.OperationalError:
+            return 0
+        finally:
+            conn.close()
+    except sqlite3.Error:
+        return 0
+
+
+def maybe_seed_database_file(database_path: str) -> bool:
+    """
+    On startup, copy cultivation_bot.sqlite3 into DATABASE_PATH when the target
+    has no player rows.
+
+    Sources (first match wins):
+      1. deploy/seed/cultivation_bot.sqlite3  — commit via publish_database_seed.ps1
+      2. ./cultivation_bot.sqlite3 at project root — local dev / manual copy in image
+
+    Never overwrites a database that already has players (Railway volume safety).
+    """
+    target = Path(database_path).resolve()
+    existing = _local_player_count(target)
+    if existing > 0:
+        msg = f"Database ready: {target.as_posix()} ({existing} players, seed skipped)"
+        logger.info(msg)
+        print(msg)
+        return False
+
+    for seed in _database_seed_sources():
+        if not seed.is_file():
+            continue
+        try:
+            if seed.resolve() == target.resolve():
+                msg = f"Database: {target.as_posix()} (using project SQLite file)"
+                logger.info(msg)
+                print(msg)
+                return False
+        except OSError:
+            pass
+
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(seed, target)
+        players = _local_player_count(target)
+        msg = (
+            f"Copied {seed.as_posix()} -> {target.as_posix()} ({players} players)"
+        )
+        logger.info(msg)
+        print(msg)
+        return True
+
+    msg = (
+        f"No seed {DEFAULT_DATABASE_FILENAME} found; "
+        f"creating empty database at {target.as_posix()}"
+    )
+    logger.info(msg)
+    print(msg)
+    return False
+
+
 def init_db() -> None:
+    cfg = get_config()
+    seeded = maybe_seed_database_file(cfg.database_path)
+    if seeded:
+        global _engine, _session_factory
+        if _engine is not None:
+            _engine.dispose()
+            _engine = None
+            _session_factory = None
+
     engine = get_engine()
     Base.metadata.create_all(engine)
     _migrate_clan_rename(engine)

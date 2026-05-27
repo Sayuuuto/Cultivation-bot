@@ -1,5 +1,6 @@
 .env
 *.sqlite3
+!deploy/seed/cultivation_bot.sqlite3
 __pycache__/
 .pytest_cache/
 .ruff_cache/

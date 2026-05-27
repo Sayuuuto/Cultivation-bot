@@ -1751,6 +1751,19 @@ async def on_ready():
 
     cfg = get_config()
     print(f"Logged in as {bot.user} (guild sync: {cfg.guild_id or 'global'})")
+    print(f"Database: {cfg.database_path}")
+    try:
+        session = get_session()
+        try:
+            from sqlalchemy import func, select
+            from .models import Player
+
+            count = session.scalar(select(func.count()).select_from(Player)) or 0
+            print(f"Players in database: {count}")
+        finally:
+            session.close()
+    except Exception as exc:
+        print(f"Could not count players: {exc}")
     # Sync commands only after the bot is ready, otherwise discord.py may not
     # have an application_id yet (causes MissingApplicationID).
     if getattr(bot, "_did_sync_commands", False):
