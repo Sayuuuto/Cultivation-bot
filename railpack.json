@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "packages": {
+    "python": "3.13"
+  },
+  "deploy": {
+    "startCommand": "python -m src.bot",
+    "variables": {
+      "PYTHONUNBUFFERED": "1"
+    }
+  }
+}

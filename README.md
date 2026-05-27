@@ -35,6 +35,16 @@ Most selection commands use **autocomplete** filtered to what you can actually u
 
 Post the server tutorial with **`/post-tutorial`** (or `py -m src.post_tutorial`) and the manual library with **`/post-library`**. Both commands clear old bot posts in the target channel before reposting.
 
+## Deploy (Railpack / Railway)
+
+Railpack does not auto-detect Discord bots. This repo includes `railpack.json` with:
+
+```text
+python -m src.bot
+```
+
+Set environment variables in the host dashboard (same as `.env`): at minimum `DISCORD_TOKEN`, and usually `GUILD_ID` for guild-scoped slash commands. The default database path is a local SQLite file — use a persistent volume or change `DATABASE_PATH` if the platform restarts containers.
+
 ## Notes
 
 - First run creates the SQLite tables automatically (MVP-level).
