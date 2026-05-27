@@ -6,7 +6,8 @@
   "deploy": {
     "startCommand": "python -m src.bot",
     "variables": {
-      "PYTHONUNBUFFERED": "1"
+      "PYTHONUNBUFFERED": "1",
+      "DATABASE_PATH": "/data/cultivation_bot.sqlite3"
     }
   }
 }

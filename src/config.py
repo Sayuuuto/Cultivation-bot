@@ -1,10 +1,33 @@
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 from dotenv import load_dotenv
 
 
 load_dotenv()
+
+DEFAULT_DATABASE_FILENAME = "cultivation_bot.sqlite3"
+
+
+def resolve_database_path() -> str:
+    """
+    SQLite path for player data.
+
+    Priority:
+    1. DATABASE_PATH (local .env or railpack/railway deploy variables)
+    2. RAILWAY_VOLUME_MOUNT_PATH / cultivation_bot.sqlite3 when a Railway volume is attached
+    3. ./cultivation_bot.sqlite3 for local development
+    """
+    explicit = os.getenv("DATABASE_PATH", "").strip()
+    if explicit:
+        return explicit
+
+    volume_mount = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "").strip()
+    if volume_mount:
+        return (Path(volume_mount) / DEFAULT_DATABASE_FILENAME).as_posix()
+
+    return DEFAULT_DATABASE_FILENAME
 
 
 @dataclass(frozen=True)
@@ -41,7 +64,7 @@ def get_config() -> Config:
         raise RuntimeError("Missing DISCORD_TOKEN in environment (.env).")
 
     guild_id = os.getenv("GUILD_ID", "").strip() or None
-    database_path = os.getenv("DATABASE_PATH", "cultivation_bot.sqlite3").strip()
+    database_path = resolve_database_path()
     announce_channel_id = os.getenv("ANNOUNCE_CHANNEL_ID", "").strip() or None
     tutorial_channel_id = os.getenv("TUTORIAL_CHANNEL_ID", "").strip() or None
     library_channel_id = os.getenv("LIBRARY_CHANNEL_ID", "").strip() or None
