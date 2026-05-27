@@ -1443,16 +1443,20 @@ async def _finish_breakthrough_attempt(
             return
 
         old_realm_index = player.realm_index
+        # Fresh RNG per attempt — daily-seeded rng_for() reused the same first roll all day.
+        bt_rng = random.Random()
         res: BreakthroughResult = breakthrough(
             player,
             cfg,
-            rng=rng,
+            rng=bt_rng,
             mod=mod,
             session=session,
             player_id=player.id,
         )
         consume_clarity_for_breakthrough(session, player.id)
-        _, enlighten_msg = roll_breakthrough_enlightenment(session, player, rng, success=res.success)
+        _, enlighten_msg = roll_breakthrough_enlightenment(
+            session, player, random.Random(), success=res.success
+        )
         trial_msgs: list[str] = []
         foundation_msgs: list[str] = []
         if res.success:
@@ -1488,9 +1492,12 @@ async def _finish_breakthrough_attempt(
 
         color = discord.Color.green() if res.success else discord.Color.orange()
         embed = discord.Embed(title="Breakthrough", description=desc, color=color)
+        roll_note = ""
+        if res.roll is not None:
+            roll_note = f" · roll **{int(round(res.roll * 100))}**"
         embed.add_field(
             name="Rolled at",
-            value=f"**{int(round(bt_preview.success_chance * 100))}%** success chance",
+            value=f"**{int(round(res.success_chance * 100))}%** success chance{roll_note}",
             inline=True,
         )
         embed.add_field(name="Qi", value=str(player.qi), inline=True)
@@ -1684,10 +1691,9 @@ async def before_send_due_reminders() -> None:
     await bot.wait_until_ready()
 
 
-def rng_for(guild_id: str, user_id: str) -> random.Random:
-    # Stable per-user/per-guild randomness source is not required; this is only to avoid
-    # extremely similar outcomes during quick retries.
-    seed = hash((guild_id, user_id, datetime.now(timezone.utc).date().isoformat())) & 0xFFFFFFFF
+def rng_for(guild_id: str, user_id: str, *, salt: str = "") -> random.Random:
+    """Per-call RNG for commands. Use *salt* to chain multiple rolls in one interaction."""
+    seed = hash((guild_id, user_id, salt, datetime.now(timezone.utc).timestamp())) & 0xFFFFFFFF
     return random.Random(seed)
 
 

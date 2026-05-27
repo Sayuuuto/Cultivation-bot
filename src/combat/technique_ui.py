@@ -205,17 +205,13 @@ async def _send_skills_hub_message(
                 )
 
         if card_file is not None:
-            kwargs: dict = {
-                "content": None,
-                "embed": None,
-                "attachments": [],
-                "file": card_file,
-                "view": view,
-            }
+            # Do not pass attachments=[] with file= — discord.py raises TypeError.
             if edit:
-                await interaction.response.edit_message(**kwargs)
+                await interaction.response.edit_message(
+                    embed=None, file=card_file, view=view
+                )
             else:
-                await interaction.response.send_message(**kwargs)
+                await interaction.response.send_message(file=card_file, view=view)
             return
 
         embed = build_combat_skills_hub_embed(session, player)

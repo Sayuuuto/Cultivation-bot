@@ -92,6 +92,42 @@ def test_breakthrough_succeeds_when_qi_far_above_cap(player: Player, cfg: Config
     assert player.substage == 1
 
 
+def test_breakthrough_chance_is_fraction_not_percent(player: Player, cfg: Config):
+    """96% display means success_chance=0.96; roll 0.95 should succeed, 0.97 should fail."""
+    from src.modifiers import CharacterModifiers
+
+    cap = qi_cap(player.realm_index, player.substage, player)
+    player.qi = cap
+    mod = CharacterModifiers(breakthrough_stability=0.06)
+    preview = compute_breakthrough_preview(player, mod)
+    assert preview.success_chance == pytest.approx(0.96, abs=0.001)
+    res = breakthrough(player, cfg, rng=FixedRoll(0.95), mod=mod)
+    assert res.success is True
+    assert res.roll == pytest.approx(0.95)
+
+    player.substage = 0
+    player.qi = cap
+    res_fail = breakthrough(player, cfg, rng=FixedRoll(0.97), mod=mod)
+    assert res_fail.success is False
+    assert res_fail.roll == pytest.approx(0.97)
+
+
+def test_breakthrough_daily_seeded_rng_repeats_first_roll():
+    """Document the old bug: same guild+user+date always produced identical roll 1."""
+    from datetime import date
+
+    day = date(2026, 5, 27).isoformat()
+    seed = hash(("guild", "user", day)) & 0xFFFFFFFF
+    assert random.Random(seed).random() == random.Random(seed).random()
+
+
+def test_rng_for_differs_between_calls():
+    from src.bot import rng_for
+
+    rolls = [rng_for("g1", "u1").random() for _ in range(8)]
+    assert len(set(rolls)) > 1
+
+
 def test_breakthrough_roll_includes_clarity_pills(session, player: Player, cfg: Config):
     cap = qi_cap(player.realm_index, player.substage, player)
     player.qi = cap

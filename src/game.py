@@ -281,6 +281,7 @@ class BreakthroughResult:
     new_substage: int
     message: str
     success_chance: float = 0.0
+    roll: float | None = None
 
 
 BREAKTHROUGH_SUCCESS_CAP = 0.99
@@ -391,6 +392,8 @@ def breakthrough(
     fail_setback_mult = preview.fail_setback_multiplier
 
     roll = rng.random()
+    roll_pct = int(round(roll * 100))
+    chance_pct = int(round(success_chance * 100))
     if roll <= success_chance:
         # Success: advance substage; late->next realm.
         old_realm, old_substage = player.realm_index, player.substage
@@ -409,10 +412,11 @@ def breakthrough(
             new_realm_index=player.realm_index,
             new_substage=player.substage,
             success_chance=success_chance,
+            roll=roll,
             message=(
                 f"Breakthrough successful. ({REALMS[old_realm]} / {SUBSTAGES[old_substage]} -> "
                 f"{REALMS[player.realm_index]} / {SUBSTAGES[player.substage]}) "
-                "The world grows slightly quieter."
+                f"Gate roll **{roll_pct}** — within your **{chance_pct}%** window."
             ),
         )
 
@@ -427,7 +431,12 @@ def breakthrough(
         new_realm_index=player.realm_index,
         new_substage=player.substage,
         success_chance=success_chance,
-        message=karma_breakthrough_setback_text(player.karma) + f" You lose {setback} qi.",
+        roll=roll,
+        message=(
+            karma_breakthrough_setback_text(player.karma)
+            + f" Gate roll **{roll_pct}** — above your **{chance_pct}%** window this attempt. "
+            f"You lose {setback} qi."
+        ),
     )
 
 
