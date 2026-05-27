@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import discord
 
 from .content import get_spirit_root_modifiers, load_all_content
+from .discord_format import quote
 
 DISCORD_FIELD_CHAR_LIMIT = 1024
 FIELD_CHUNK_BUDGET = 980
@@ -23,7 +24,7 @@ STAT_DISPLAY: dict[str, tuple[str, str]] = {
     "pvp_power": ("PvP power", "add_pct"),
     "pvp_stones_mult": ("Duel stone winnings", "mult"),
     "stamina_efficiency": ("Stamina efficiency", "mult"),
-    "sect_contribution_mult": ("Sect qi contribution", "mult"),
+    "clan_contribution_mult": ("Clan qi contribution", "mult"),
 }
 
 
@@ -83,8 +84,8 @@ ROOT_TIERS: dict[str, RootTierEntry] = {
         early_tier="C",
         late_tier="A",
         early_summary="Weakest solo root; lower duel stone winnings.",
-        late_summary="×1.15 sect contribution shines in active sects.",
-        best_for="Sect players · support dao · group-minded cultivators",
+        late_summary="×1.15 clan contribution shines in active clans.",
+        best_for="Clan players · support dao · group-minded cultivators",
     ),
 }
 
@@ -241,19 +242,23 @@ def build_roots_tutorial_pages() -> list[discord.Embed]:
     """Two tutorial embeds for spirit roots."""
     pages: list[discord.Embed] = []
 
-    pages.append(build_roots_embed(root_name=None))
+    tier_list = build_roots_embed(root_name=None)
+    tier_list.title = "2 · Spirit Roots — Tier List"
+    tier_list.set_author(name="Chapter 2 · Spirit Roots")
+    pages.append(tier_list)
 
     detail = discord.Embed(
-        title="Spirit Roots — Stat Reference",
+        title="3 · Spirit Roots — Stat Reference",
         description=(
             "How roots affect gameplay:\n"
-            "• **Additive %** (e.g. +6% adventure success) — added to your success/defense/luck bonuses\n"
-            "• **Multipliers** (e.g. ×1.03 cultivate qi) — multiply that system's gains or costs\n"
+            "• **Additive %** — added to success/defense/luck bonuses\n"
+            "• **Multipliers** — multiply gains or costs for that system\n"
             "• Roots stack with **origin**, **gear**, **affixes**, and **pills**\n\n"
-            "Use **`/roots`** anytime for this chart. **`/reroll_root`** — 1 free, then 50 stones + 7-day wait."
+            f"{quote('Use `/roots` anytime for this chart · `/reroll_root` — 1 free, then 50 stones + 7-day wait.')}"
         ),
         color=discord.Color.purple(),
     )
+    detail.set_author(name="Chapter 3 · Spirit Roots")
     _add_chunked_field(detail, "Every root", _format_all_root_details())
     pages.append(detail)
 

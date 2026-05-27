@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .inventory import get_item_name
-from .models import PlayerEquipment
+from .models import Player, PlayerEquipment
 
 
 @dataclass
@@ -90,9 +90,24 @@ def format_equipment_slot_line(eq: PlayerEquipment) -> str:
     return f"**{eq.slot.title()}** — {name} ({stat_text}){affix_text}"
 
 
-def format_stats_summary(session: Session, player_id: int) -> str:
+def format_stats_summary(session: Session, player_id: int, player=None, mod=None) -> str:
+    from .character import get_character_modifiers
+    from .combat_stats import compute_combat_stats, format_combat_stats_block
+    from .models import Player
+
+    if player is None or mod is None:
+        player = session.get(Player, player_id)
+        if player is None:
+            return "No cultivator found."
+        mod = get_character_modifiers(session, player)
+
     total = get_total_equipment_stats(session, player_id)
+    combat = compute_combat_stats(player, session, mod)
     lines = [
+        "**Combat**",
+        format_combat_stats_block(combat),
+        "",
+        "**Gear totals**",
         format_stat_line("Power", total.power),
         format_stat_line("Defense", total.defense),
         format_stat_line("Fortune", total.fortune),
@@ -100,7 +115,7 @@ def format_stats_summary(session: Session, player_id: int) -> str:
     ]
     lines.append("")
     lines.append(
-        "_Power & Defense help adventures and duels. Fortune improves loot rolls. "
-        "Insight raises rare encounter odds._"
+        "_Gear Power splits into internal & external strength. Fortune → Luck. "
+        "Insight → Spirit Sense & Comprehension._"
     )
     return "\n".join(lines)

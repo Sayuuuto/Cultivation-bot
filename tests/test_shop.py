@@ -16,6 +16,7 @@ def cfg() -> Config:
         database_path=":memory:",
         announce_channel_id=None,
         tutorial_channel_id=None,
+        library_channel_id=None,
     )
 
 

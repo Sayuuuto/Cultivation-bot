@@ -1,0 +1,56 @@
+{
+  "bamboo_specter": {
+    "name": "Bamboo Specter",
+    "hp": 42,
+    "attack": 9,
+    "defense": 3,
+    "speed": 10,
+    "areas": ["bamboo_grove"],
+    "traits": ["cleanse_every_3_turns"]
+  },
+  "grove_stalker": {
+    "name": "Grove Stalker",
+    "hp": 58,
+    "attack": 13,
+    "defense": 5,
+    "speed": 12,
+    "areas": ["bamboo_grove"],
+    "traits": ["bleed_immune"]
+  },
+  "cliff_raider": {
+    "name": "Cliff Raider",
+    "hp": 75,
+    "attack": 16,
+    "defense": 6,
+    "speed": 11,
+    "areas": ["ashen_cliff"],
+    "traits": ["seal_on_hit"]
+  },
+  "ash_wraith": {
+    "name": "Ash Wraith",
+    "hp": 88,
+    "attack": 19,
+    "defense": 7,
+    "speed": 13,
+    "areas": ["ashen_cliff"],
+    "traits": ["high_stun_chance"]
+  },
+  "moonwell_phantom": {
+    "name": "Moonwell Phantom",
+    "hp": 105,
+    "attack": 22,
+    "defense": 9,
+    "speed": 14,
+    "areas": ["moonwell_ruins"],
+    "traits": ["cleanse_every_3_turns", "bleed_immune"]
+  },
+  "ruin_sentinel": {
+    "name": "Ruin Sentinel",
+    "hp": 130,
+    "attack": 26,
+    "defense": 11,
+    "speed": 10,
+    "areas": ["moonwell_ruins"],
+    "traits": ["seal_on_hit", "high_stun_chance"]
+  }
+}

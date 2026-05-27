@@ -18,6 +18,7 @@ def cfg() -> Config:
         database_path=":memory:",
         announce_channel_id=None,
         tutorial_channel_id=None,
+        library_channel_id=None,
     )
 
 
@@ -49,6 +50,8 @@ def player(session: Session) -> Player:
         origin="Mountain Rises",
         spirit_root="Pure Jade Root",
         moral_path="neutral",
+        novice_trial_step=6,
+        adventures_completed=1,
         realm_index=0,
         substage=0,
         qi=0,
@@ -74,6 +77,8 @@ def player_two(session: Session) -> Player:
         origin="River Dragon's Gift",
         spirit_root="Scarlet Flame Root",
         moral_path="demonic",
+        novice_trial_step=6,
+        adventures_completed=1,
         realm_index=1,
         substage=0,
         qi=50,

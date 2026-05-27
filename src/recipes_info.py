@@ -7,6 +7,7 @@ from .content import RecipeDef, get_recipes
 from .effects import EFFECT_DESCRIPTIONS, HASTE_EFFECTS
 from .forge import get_forge_recipes
 from .inventory import get_item_name
+from .manuals import MANUAL_CRAFT_INPUTS
 
 DISCORD_FIELD_CHAR_LIMIT = 1024
 # Leave room for formatting; chunk well under the hard limit.
@@ -122,5 +123,18 @@ def build_recipes_embed(recipe_type: str | None = None) -> discord.Embed:
             )
         _add_chunked_fields(embed, "Equipment forging (`/forge`)", forge_lines)
 
-    embed.set_footer(text="Craft with /craft pill or /craft key · Forge gear with /forge")
+    if recipe_type is None:
+        manual_inputs = _format_inputs(MANUAL_CRAFT_INPUTS)
+        embed.add_field(
+            name="Technique manual binding (`/craft manual`)",
+            value=(
+                f"In: {manual_inputs}\n"
+                "Out: random technique manual (realm-weighted pool)\n"
+                "Fragments drop from **`/cultivate`**, **`/hunt`**, and **`/adventure`**. "
+                "Scroll and ink from **`/gather`**."
+            ),
+            inline=False,
+        )
+
+    embed.set_footer(text="Craft with /craft pill · /craft key · /craft manual · Forge with /forge")
     return embed

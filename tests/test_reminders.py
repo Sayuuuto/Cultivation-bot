@@ -25,6 +25,7 @@ def cfg() -> Config:
         database_path=":memory:",
         announce_channel_id=None,
         tutorial_channel_id=None,
+        library_channel_id=None,
     )
 
 
@@ -116,4 +117,4 @@ def test_disable_clears_schedule(session, player, cfg, now):
 
 
 def test_all_activities_have_labels():
-    assert set(REMINDER_ACTIVITIES) == {"cultivate", "adventure", "dungeon", "duel", "daily"}
+    assert set(REMINDER_ACTIVITIES) == {"cultivate", "adventure", "dungeon", "duel", "daily", "gather", "hunt"}

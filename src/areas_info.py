@@ -87,7 +87,7 @@ def build_areas_embed(player: Player | None, area_id: str | None = None) -> disc
             inline=False,
         )
         embed.add_field(name="Stances", value=_format_stances(), inline=False)
-        embed.set_footer(text="Run `/adventure` when ready · choices affect loot and risk · 20 min cooldown")
+        embed.set_footer(text="Run `/gather` or `/hunt` (5 min) · `/adventure` for story runs · `/areas` for details")
         return embed
 
     embed = discord.Embed(
@@ -110,7 +110,7 @@ def build_areas_embed(player: Player | None, area_id: str | None = None) -> disc
     embed.add_field(
         name="Quick crafting guide",
         value=(
-            "**Bamboo Grove** → Qi Gathering & Tempering pills (starter alchemy)\n"
+            "**Bamboo Grove** → **Qi Gathering** (3 herbs from `/gather`) · **Tempering** (2 cores from `/hunt`)\n"
             "**Ashen Cliff** → Swiftwind & Blood Ember pills; iron for keys\n"
             "**Moonwell Ruins** → Clarity, Moonwell Tonic, Root Reforging pill"
         ),

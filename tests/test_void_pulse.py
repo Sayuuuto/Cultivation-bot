@@ -15,6 +15,7 @@ def cfg() -> Config:
         database_path=":memory:",
         announce_channel_id=None,
         tutorial_channel_id=None,
+        library_channel_id=None,
     )
 
 
@@ -26,3 +27,5 @@ def test_void_pulse_applies_all_haste(session, player, cfg):
     assert get_haste_reduction_seconds(session, player.id, "adventure") == 600
     assert get_haste_reduction_seconds(session, player.id, "dungeon") == 1800
     assert get_haste_reduction_seconds(session, player.id, "duel") == 3600
+    assert get_haste_reduction_seconds(session, player.id, "gather") == 180
+    assert get_haste_reduction_seconds(session, player.id, "hunt") == 180

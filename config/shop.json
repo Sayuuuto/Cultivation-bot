@@ -118,5 +118,32 @@
     "slot": "talisman",
     "item_id": "moonwell_pendant",
     "stats": {"power": 2, "defense": 2, "fortune": 3, "insight": 5}
+  },
+  "shop_manual_swift_slash": {
+    "type": "item",
+    "name": "Technique Pamphlet: Swift Slash",
+    "category": "manual",
+    "price": 45,
+    "description": "A basic sword manual sold at frontier markets.",
+    "item_id": "manual_swift_slash",
+    "quantity": 1
+  },
+  "shop_manual_ember_palm": {
+    "type": "item",
+    "name": "Technique Pamphlet: Ember Palm",
+    "category": "manual",
+    "price": 45,
+    "description": "A common fire palm manual for new cultivators.",
+    "item_id": "manual_ember_palm",
+    "quantity": 1
+  },
+  "shop_unidentified_scroll": {
+    "type": "manual_gamble",
+    "name": "Unidentified Scroll",
+    "category": "manual",
+    "price": 75,
+    "description": "A sealed scroll — reveals a random technique manual on purchase.",
+    "item_id": null,
+    "quantity": 1
   }
 }

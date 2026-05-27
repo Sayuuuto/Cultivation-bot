@@ -10,6 +10,7 @@ from .character import get_character_modifiers
 from .content import DropEntry, get_dungeon
 from .effects import consume_effect_charge
 from .inventory import add_item, get_item_name, get_item_quantity, remove_item
+from .manuals import normalize_manual_drops, roll_weekly_dungeon_manual
 from .models import DungeonRun, Player
 
 
@@ -103,6 +104,7 @@ def run_dungeon(
     boss_chance -= mod.dungeon_risk
     boss_chance = max(0.10, min(0.85, boss_chance))
     boss_win = rng.random() <= boss_chance
+    weekly_manual_id: str | None = None
 
     if boss_win:
         messages.append("The cavern boss falls. The path opens.")
@@ -114,6 +116,11 @@ def run_dungeon(
             if rolled:
                 item_id, qty = rolled
                 drops[item_id] = drops.get(item_id, 0) + qty
+        weekly_manual_id, weekly_note = roll_weekly_dungeon_manual(
+            session, player, dungeon_id, rng, drops
+        )
+        if weekly_note:
+            messages.append(weekly_note)
         outcome = "success"
     else:
         outcome = "fail"
@@ -126,12 +133,21 @@ def run_dungeon(
     consume_effect_charge(session, player.id, "blood_ember")
     consume_effect_charge(session, player.id, "tempering")
 
+    drops = normalize_manual_drops(session, player.id, drops)
+
     for item_id, qty in drops.items():
         add_item(session, player.id, item_id, qty)
 
     player.qi = max(0, player.qi - qi_penalty)
 
-    rewards_json = json.dumps({"drops": drops, "qi_penalty": qi_penalty, "boss_win": boss_win})
+    rewards_json = json.dumps(
+        {
+            "drops": drops,
+            "qi_penalty": qi_penalty,
+            "boss_win": boss_win,
+            "weekly_manual": weekly_manual_id if boss_win else None,
+        }
+    )
     session.add(
         DungeonRun(
             player_id=player.id,

@@ -1,0 +1,833 @@
+{
+  "basic_strike": {
+    "name": "Basic Strike",
+    "category": "sword",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "active",
+    "damage_type": "physical",
+    "base_damage": 4,
+    "scaling_stat": "external_strength",
+    "scaling_ratio": 0.28,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "neutral",
+    "role": "finisher",
+    "description": "The simplest blow every disciple learns. Weak, but still works when your meridians are sealed.",
+    "synergy_hint": "Fallback when sealed — your other arts won't respond.",
+    "manual_item_id": null,
+    "rarity": "common"
+  },
+  "swift_slash": {
+    "name": "Swift Slash",
+    "category": "sword",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "active",
+    "damage_type": "physical",
+    "base_damage": 10,
+    "scaling_stat": "external_strength",
+    "scaling_ratio": 0.45,
+    "cooldown": 1,
+    "status_id": "bleed",
+    "status_chance": 0.35,
+    "alignment": "neutral",
+    "role": "applier",
+    "description": "A quick cut that may cause bleeding.",
+    "synergy_hint": "Pairs with bleed passives and Sanguine Drain.",
+    "manual_item_id": "manual_swift_slash",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "damage"
+      },
+      {
+        "trigger": "on_use",
+        "type": "apply_status",
+        "status": "bleed",
+        "chance": 0.35
+      }
+    ],
+    "rarity": "common"
+  },
+  "iron_cleave": {
+    "name": "Iron Cleave",
+    "category": "sword",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "active",
+    "damage_type": "physical",
+    "base_damage": 18,
+    "scaling_stat": "external_strength",
+    "scaling_ratio": 0.55,
+    "cooldown": 2,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "neutral",
+    "role": "finisher",
+    "description": "A heavy cleaving strike. Extra damage vs bleeding foes.",
+    "synergy_hint": "Finisher after bleed setup.",
+    "manual_item_id": "manual_iron_cleave",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "damage",
+        "requires_bleeding": true,
+        "bonus_ratio": 0.25
+      }
+    ],
+    "rarity": "rare"
+  },
+  "sanguine_drain": {
+    "name": "Sanguine Drain",
+    "category": "sword",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "active",
+    "damage_type": "physical",
+    "base_damage": 11,
+    "scaling_stat": "external_strength",
+    "scaling_ratio": 0.4,
+    "cooldown": 2,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "demonic",
+    "role": "payoff",
+    "description": "External strike that steals life from bleeding prey.",
+    "synergy_hint": "Requires bleed — Hemorrhage Art helps apply it.",
+    "manual_item_id": "manual_sanguine_drain",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "lifesteal",
+        "ratio": 0.25,
+        "requires_status": "bleed"
+      }
+    ],
+    "rarity": "uncommon"
+  },
+  "rending_flurry": {
+    "name": "Rending Flurry",
+    "category": "sword",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "active",
+    "damage_type": "physical",
+    "base_damage": 8,
+    "scaling_stat": "external_strength",
+    "scaling_ratio": 0.4,
+    "cooldown": 2,
+    "status_id": "bleed",
+    "status_chance": 0.2,
+    "alignment": "demonic",
+    "role": "applier",
+    "description": "Twin slashes that rend flesh and build tempo.",
+    "synergy_hint": "Multi-hit bleed with Rising Tempo.",
+    "manual_item_id": "manual_rending_flurry",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "multi_hit",
+        "hits": 2,
+        "hit_ratio": 0.55,
+        "bleed_chance": 0.2
+      }
+    ],
+    "rarity": "rare"
+  },
+  "ember_palm": {
+    "name": "Ember Palm",
+    "category": "fire",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "active",
+    "damage_type": "internal",
+    "base_damage": 8,
+    "scaling_stat": "internal_strength",
+    "scaling_ratio": 0.4,
+    "cooldown": 1,
+    "status_id": "burn",
+    "status_chance": 0.5,
+    "alignment": "neutral",
+    "role": "applier",
+    "description": "Palm strike wreathed in ember qi.",
+    "synergy_hint": "Apply burn for Cinder Lance payoff.",
+    "manual_item_id": "manual_ember_palm",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "damage"
+      },
+      {
+        "trigger": "on_use",
+        "type": "apply_status",
+        "status": "burn",
+        "chance": 0.5
+      }
+    ],
+    "rarity": "common"
+  },
+  "flame_burst": {
+    "name": "Flame Burst",
+    "category": "fire",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "active",
+    "damage_type": "internal",
+    "base_damage": 16,
+    "scaling_stat": "internal_strength",
+    "scaling_ratio": 0.5,
+    "cooldown": 2,
+    "status_id": "burn",
+    "status_chance": 0.65,
+    "alignment": "neutral",
+    "role": "finisher",
+    "description": "Releases a burst of scorching qi.",
+    "synergy_hint": "Strong burn applier with Ember Heart.",
+    "manual_item_id": "manual_flame_burst",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "damage"
+      },
+      {
+        "trigger": "on_use",
+        "type": "apply_status",
+        "status": "burn",
+        "chance": 0.65
+      }
+    ],
+    "rarity": "rare"
+  },
+  "cinder_lance": {
+    "name": "Cinder Lance",
+    "category": "fire",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "active",
+    "damage_type": "internal",
+    "base_damage": 14,
+    "scaling_stat": "internal_strength",
+    "scaling_ratio": 0.48,
+    "cooldown": 2,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "neutral",
+    "role": "payoff",
+    "description": "Piercing lance that detonates existing burns.",
+    "synergy_hint": "Use after Ember Palm or Flame Burst.",
+    "manual_item_id": "manual_cinder_lance",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "damage",
+        "requires_burning": true,
+        "bonus_ratio": 0.4
+      }
+    ],
+    "rarity": "rare"
+  },
+  "iron_body": {
+    "name": "Iron Body Blow",
+    "category": "body",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "active",
+    "damage_type": "physical",
+    "base_damage": 12,
+    "scaling_stat": "defense",
+    "scaling_ratio": 0.5,
+    "cooldown": 2,
+    "status_id": "stun",
+    "status_chance": 0.25,
+    "alignment": "righteous",
+    "role": "control",
+    "description": "A body-forged strike that may stun.",
+    "synergy_hint": "Control — countered by Iron Will.",
+    "manual_item_id": "manual_iron_body",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "damage"
+      },
+      {
+        "trigger": "on_use",
+        "type": "apply_status",
+        "status": "stun",
+        "chance": 0.25
+      }
+    ],
+    "rarity": "common"
+  },
+  "meridian_strike": {
+    "name": "Meridian Strike",
+    "category": "body",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "active",
+    "damage_type": "physical",
+    "base_damage": 14,
+    "scaling_stat": "internal_strength",
+    "scaling_ratio": 0.35,
+    "cooldown": 2,
+    "status_id": "seal",
+    "status_chance": 0.3,
+    "alignment": "neutral",
+    "role": "control",
+    "description": "Targets meridians to seal techniques.",
+    "synergy_hint": "Forces foes to Basic Strike.",
+    "manual_item_id": "manual_meridian_strike",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "damage"
+      },
+      {
+        "trigger": "on_use",
+        "type": "apply_status",
+        "status": "seal",
+        "chance": 0.3
+      }
+    ],
+    "rarity": "rare"
+  },
+  "mountain_guard": {
+    "name": "Mountain Guard",
+    "category": "body",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "active",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "defense",
+    "scaling_ratio": 0.0,
+    "cooldown": 3,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "righteous",
+    "role": "sustain",
+    "description": "Root yourself and raise a qi shield.",
+    "synergy_hint": "Survive burst — pairs with Lotus Guardian builds.",
+    "manual_item_id": "manual_mountain_guard",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "shield",
+        "shield_pct": 0.12,
+        "turns": 2
+      }
+    ],
+    "rarity": "uncommon"
+  },
+  "soul_needle": {
+    "name": "Soul Needle",
+    "category": "soul",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "active",
+    "damage_type": "internal",
+    "base_damage": 9,
+    "scaling_stat": "spiritual_sense",
+    "scaling_ratio": 0.45,
+    "cooldown": 1,
+    "status_id": "fear",
+    "status_chance": 0.4,
+    "alignment": "demonic",
+    "role": "control",
+    "description": "A needle of soul qi that unsettles foes.",
+    "synergy_hint": "Softens enemy damage output.",
+    "manual_item_id": "manual_soul_needle",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "damage"
+      },
+      {
+        "trigger": "on_use",
+        "type": "apply_status",
+        "status": "fear",
+        "chance": 0.4
+      }
+    ],
+    "rarity": "common"
+  },
+  "void_pulse": {
+    "name": "Void Pulse",
+    "category": "soul",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "active",
+    "damage_type": "internal",
+    "base_damage": 15,
+    "scaling_stat": "spiritual_sense",
+    "scaling_ratio": 0.55,
+    "cooldown": 2,
+    "status_id": "poison",
+    "status_chance": 0.45,
+    "alignment": "demonic",
+    "role": "applier",
+    "description": "Corrupting pulse that poisons the target.",
+    "synergy_hint": "Setup for Soul Siphon.",
+    "manual_item_id": "manual_void_pulse",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "damage"
+      },
+      {
+        "trigger": "on_use",
+        "type": "apply_status",
+        "status": "poison",
+        "chance": 0.45
+      }
+    ],
+    "rarity": "rare"
+  },
+  "soul_siphon": {
+    "name": "Soul Siphon",
+    "category": "soul",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "active",
+    "damage_type": "internal",
+    "base_damage": 13,
+    "scaling_stat": "spiritual_sense",
+    "scaling_ratio": 0.5,
+    "cooldown": 2,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "demonic",
+    "role": "payoff",
+    "description": "Rips qi from poisoned meridians.",
+    "synergy_hint": "Requires poison stacks from Void Pulse.",
+    "manual_item_id": "manual_soul_siphon",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "steal_stack_if_status",
+        "requires_status": "poison",
+        "bonus_ratio": 0.2
+      }
+    ],
+    "rarity": "rare"
+  },
+  "qi_barrier": {
+    "name": "Qi Barrier",
+    "category": "utility",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "active",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "defense",
+    "scaling_ratio": 0.0,
+    "cooldown": 3,
+    "status_id": null,
+    "status_chance": 0.0,
+    "heal_ratio": 0.08,
+    "alignment": "righteous",
+    "role": "sustain",
+    "description": "Brief barrier that restores vitality.",
+    "synergy_hint": "Emergency sustain in long fights.",
+    "manual_item_id": "manual_qi_barrier",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "heal",
+        "ratio": 0.08
+      }
+    ],
+    "rarity": "common"
+  },
+  "mist_step": {
+    "name": "Mist Step",
+    "category": "utility",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "active",
+    "damage_type": "physical",
+    "base_damage": 7,
+    "scaling_stat": "agility",
+    "scaling_ratio": 0.5,
+    "cooldown": 1,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "neutral",
+    "role": "utility",
+    "description": "Strike from mist with heightened dodge next turn.",
+    "synergy_hint": "Dodge setup for tempo builds.",
+    "manual_item_id": "manual_mist_step",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "dodge_next"
+      }
+    ],
+    "rarity": "uncommon"
+  },
+  "purifying_breath": {
+    "name": "Purifying Breath",
+    "category": "utility",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "active",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "defense",
+    "scaling_ratio": 0.0,
+    "cooldown": 3,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "righteous",
+    "role": "utility",
+    "description": "Exhale corrupt qi and cleanse one debuff.",
+    "synergy_hint": "Hard counter to DoT and control.",
+    "manual_item_id": "manual_purifying_breath",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "cleanse",
+        "count": 1,
+        "heal_ratio": 0.04
+      }
+    ],
+    "rarity": "uncommon"
+  },
+  "blood_feast": {
+    "name": "Blood Feast",
+    "category": "passive",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "passive",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "external_strength",
+    "scaling_ratio": 0.0,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "demonic",
+    "role": "sustain",
+    "description": "Heal slightly when the foe bleeds.",
+    "synergy_hint": "Bleed sustain — Blood Predator core.",
+    "manual_item_id": "manual_blood_feast",
+    "passive_on_bleed": {
+      "heal_pct": 0.05
+    },
+    "passive_triggers": [
+      {
+        "event": "on_turn_end",
+        "type": "heal_if_foe_status",
+        "status": "bleed",
+        "heal_pct": 0.05
+      }
+    ],
+    "rarity": "uncommon"
+  },
+  "ember_heart": {
+    "name": "Ember Heart",
+    "category": "passive",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "passive",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "internal_strength",
+    "scaling_ratio": 0.0,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "passive_burn_bonus": 0.15,
+    "alignment": "neutral",
+    "role": "payoff",
+    "description": "Burn techniques deal stronger initial hits.",
+    "synergy_hint": "Amplifies Ember Palm and Flame Burst.",
+    "manual_item_id": "manual_ember_heart",
+    "passive_triggers": [
+      {
+        "event": "on_use",
+        "type": "burn_damage_bonus",
+        "bonus": 0.15
+      }
+    ],
+    "rarity": "common"
+  },
+  "keen_focus": {
+    "name": "Keen Focus",
+    "category": "passive",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "passive",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "spiritual_sense",
+    "scaling_ratio": 0.0,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "passive_crit_bonus": 0.05,
+    "alignment": "neutral",
+    "role": "payoff",
+    "description": "Sharpened focus improves critical strikes.",
+    "synergy_hint": "Crit chains with Mirror Nimbus.",
+    "manual_item_id": "manual_keen_focus",
+    "passive_triggers": [
+      {
+        "event": "passive",
+        "type": "crit_bonus",
+        "bonus": 0.05
+      }
+    ],
+    "rarity": "common"
+  },
+  "hemorrhage_art": {
+    "name": "Hemorrhage Art",
+    "category": "passive",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "passive",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "external_strength",
+    "scaling_ratio": 0.0,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "demonic",
+    "role": "applier",
+    "description": "All attacks gain a chance to cause bleeding.",
+    "synergy_hint": "Enables Sanguine Drain without dedicated bleed slots.",
+    "manual_item_id": "manual_hemorrhage_art",
+    "passive_triggers": [
+      {
+        "event": "on_hit",
+        "type": "on_hit_bleed_chance",
+        "chance": 0.15
+      }
+    ],
+    "rarity": "uncommon"
+  },
+  "mirror_nimbus": {
+    "name": "Mirror Nimbus",
+    "category": "passive",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "passive",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "spiritual_sense",
+    "scaling_ratio": 0.0,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "righteous",
+    "role": "payoff",
+    "description": "Critical strikes reflect part of the damage back.",
+    "synergy_hint": "Crit reflect — pair with Keen Focus.",
+    "manual_item_id": "manual_mirror_nimbus",
+    "passive_triggers": [
+      {
+        "event": "on_crit",
+        "type": "on_crit_reflect",
+        "ratio": 0.3
+      }
+    ],
+    "rarity": "rare"
+  },
+  "rising_tempo": {
+    "name": "Rising Tempo",
+    "category": "passive",
+    "tier": "mortal",
+    "min_realm": 0,
+    "slot_type": "passive",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "agility",
+    "scaling_ratio": 0.0,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "neutral",
+    "role": "payoff",
+    "description": "Each consecutive damaging hit increases damage. Resets on miss.",
+    "synergy_hint": "Tempo chains with Rending Flurry.",
+    "manual_item_id": "manual_rising_tempo",
+    "passive_triggers": [
+      {
+        "event": "on_hit",
+        "type": "consecutive_hit_bonus",
+        "bonus_per_hit": 0.05
+      }
+    ],
+    "rarity": "common"
+  },
+  "merciful_edge": {
+    "name": "Merciful Edge",
+    "category": "passive",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "passive",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "spiritual_sense",
+    "scaling_ratio": 0.0,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "righteous",
+    "role": "finisher",
+    "description": "Critical chance surges against wounded foes.",
+    "synergy_hint": "Execute low-HP targets after setup.",
+    "manual_item_id": "manual_merciful_edge",
+    "passive_triggers": [
+      {
+        "event": "on_use",
+        "type": "low_hp_crit_bonus",
+        "threshold": 0.3,
+        "bonus": 0.12
+      }
+    ],
+    "rarity": "rare"
+  },
+  "undying_vow": {
+    "name": "Undying Vow",
+    "category": "passive",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "passive",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "external_strength",
+    "scaling_ratio": 0.0,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "demonic",
+    "role": "sustain",
+    "description": "Once per fight, survive fatal damage with a surge of power.",
+    "synergy_hint": "Clutch comeback — once per fight.",
+    "manual_item_id": "manual_undying_vow",
+    "passive_triggers": [
+      {
+        "event": "on_fatal",
+        "type": "fatal_survive",
+        "damage_boost": 0.4,
+        "boost_turns": 2
+      }
+    ],
+    "rarity": "legendary"
+  },
+  "iron_will": {
+    "name": "Iron Will",
+    "category": "passive",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "passive",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "defense",
+    "scaling_ratio": 0.0,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "righteous",
+    "role": "utility",
+    "description": "When stunned, cleanse and raise a shield. 5 turn cooldown.",
+    "synergy_hint": "Anti-stun — counters Iron Body users.",
+    "manual_item_id": "manual_iron_will",
+    "passive_triggers": [
+      {
+        "event": "on_cc_received",
+        "type": "cleanse_stun_shield",
+        "shield_pct": 0.15,
+        "cooldown": 5
+      }
+    ],
+    "rarity": "legendary"
+  },
+  "lotus_revival": {
+    "name": "Lotus Revival",
+    "category": "passive",
+    "tier": "earth",
+    "min_realm": 1,
+    "slot_type": "passive",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "defense",
+    "scaling_ratio": 0.0,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "righteous",
+    "role": "sustain",
+    "description": "When HP drops below 30%, heal 30% max HP. 10 turn cooldown.",
+    "synergy_hint": "Emergency heal — Lotus Guardian core.",
+    "manual_item_id": "manual_lotus_revival",
+    "passive_triggers": [
+      {
+        "event": "on_hp_threshold",
+        "type": "heal_below_threshold",
+        "threshold": 0.3,
+        "heal_pct": 0.3,
+        "cooldown": 10
+      }
+    ],
+    "rarity": "legendary"
+  },
+  "venom_weave": {
+    "name": "Venom Weave",
+    "category": "passive",
+    "tier": "earth",
+    "rarity": "rare",
+    "min_realm": 1,
+    "slot_type": "passive",
+    "damage_type": "none",
+    "base_damage": 0,
+    "scaling_stat": "spiritual_sense",
+    "scaling_ratio": 0.0,
+    "cooldown": 0,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "demonic",
+    "role": "payoff",
+    "description": "Your poison arts bite deeper, weaving corruption through meridians.",
+    "synergy_hint": "Amplifies Void Pulse and Soul Siphon — soul attrition core.",
+    "manual_item_id": "manual_venom_weave",
+    "passive_triggers": [
+      {
+        "event": "on_use",
+        "type": "poison_damage_bonus",
+        "bonus": 0.12
+      }
+    ]
+  },
+  "heavens_cleave": {
+    "name": "Heaven's Cleave",
+    "category": "sword",
+    "tier": "earth",
+    "rarity": "legendary",
+    "min_realm": 1,
+    "slot_type": "active",
+    "damage_type": "physical",
+    "base_damage": 24,
+    "scaling_stat": "external_strength",
+    "scaling_ratio": 0.62,
+    "cooldown": 3,
+    "status_id": null,
+    "status_chance": 0.0,
+    "alignment": "demonic",
+    "role": "finisher",
+    "description": "A heaven-splitting cleave that detonates every wound on the foe.",
+    "synergy_hint": "Ultimate bleed finisher — Hemorrhage Art + Sanguine Drain setup.",
+    "manual_item_id": "manual_heavens_cleave",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "damage",
+        "requires_bleeding": true,
+        "bonus_ratio": 0.5
+      }
+    ]
+  }
+}

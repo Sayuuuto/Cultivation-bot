@@ -12,11 +12,12 @@ Ship ASAP a serious xianxia-themed cultivation game bot with casual pacing: play
 6. `/daily` once per UTC day for spirit stones (with streak bonuses)
 7. `/leaderboard` (server-only) for realm/Qi
 8. Early PvP: `/duel` with basic matchmaking rules + a cooldown
-9. Minimal sect system:
-   - `/sect-create`
-   - `/sect-join`
-   - `/sect-leave`
-   - `/sect` to view sect info
+9. Minimal **clan** system (player guilds):
+   - `/clan-create`
+   - `/clan-join`
+   - `/clan-leave`
+   - `/clan` to view clan info
+10. **Martial sects** (fixed in-world factions): `/sect-list`, `/sect-join`, `/sect-leave`, `/sect`
 
 ## Non-goals for MVP
 - No shop in MVP.
@@ -37,12 +38,12 @@ Ship ASAP a serious xianxia-themed cultivation game bot with casual pacing: play
 ## Design decisions (your chosen items)
 - Player fantasy: cultivate to be immortal.
 - Server target: friends-sized but scalable.
-- Growth focus: personal progression + sect world system.
+- Growth focus: personal progression + clans + martial sects.
 - PvP: early PvP elements; expanded later.
 - Narrative voice: second person.
 - Realm tiers: standard novel tiers (see `REALMS` below).
 - Fail states: setbacks only (no deaths/permadeath).
-- Moral paths: all three moral paths available (Righteous / Demonic / Neutral).
+- Moral alignment: **karma** (−100…+100), earned through adventure choices — not chosen at `/start`.
 - Spirit root/aptitude: rerollable.
 - Character reset: allowed.
 - Inactive players: frozen forever (no offline progression beyond partial cap).
@@ -94,12 +95,13 @@ Realms (index 0..9):
 
 Sub-stages: `early`, `mid`, `late`.
 
-## Moral paths (affect mechanics modestly)
-- Righteous:
+## Karma (affects breakthrough modestly)
+- Earned through **`/adventure`** moral choices (−100…+100), not chosen at `/start`.
+- High karma (Righteous tier):
   - Slightly higher breakthrough success, smaller setback.
-- Demonic:
+- Low karma (Demonic tier):
   - Slightly higher breakthrough success, larger setback (more risk/reward).
-- Neutral:
+- Neutral karma (~0):
   - Baseline success and setback.
 
 ## Stamina and offline defaults (MVP constants)
@@ -122,11 +124,16 @@ Sub-stages: `early`, `mid`, `late`.
   - Forgiving outcome: reward/loss is primarily spirit stones and a small Qi transfer.
 - PvP cooldown: separate from cultivate cooldown.
 
-## Sect system defaults (MVP)
-- A sect is a named group owned/managed by members.
-- Players can create/join/leave a sect.
-- Sect stats are derived from membership and accumulated contribution.
+## Clan system defaults (MVP)
+- A **clan** is a player-created guild scoped to one Discord server.
+- Players can create/join/leave a clan.
+- Clan stats are derived from membership and accumulated contribution.
 - Contribution increases when members cultivate (percentage of Qi gain).
+
+## Martial sect system (scaffold)
+- **Sects** are fixed in-world orders (Wudang, Shaolin, etc.) in `config/sects.json`.
+- Join requirements: karma tier, realm, and invitations for secret sects.
+- Sect merit, daily tasks, and sect shop scaffolded for upcoming phases.
 
 ## i18n approach
 - Use message keys internally (e.g. `msg.profile.title`).

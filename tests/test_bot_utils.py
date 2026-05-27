@@ -2,7 +2,17 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from src.bot import cooldown_remaining, format_seconds, to_utc
+from src.bot import bot, cooldown_remaining, format_seconds, to_utc
+
+
+def test_start_tree_command_has_no_moral_parameter():
+    cmd = bot.tree.get_command("start")
+    assert cmd is not None
+    param_names = {p.name for p in cmd.parameters}
+    assert "moral_path" not in param_names
+    assert "moral" not in param_names
+    assert "dao_name" in param_names
+    assert "origin" in param_names
 
 
 def test_cooldown_remaining_none():

@@ -12,7 +12,7 @@ from .game import to_utc, utcnow
 from .guidance import _daily_claimed_today
 from .models import Player, PlayerReminder
 
-REMINDER_ACTIVITIES = ("cultivate", "adventure", "dungeon", "duel", "daily")
+REMINDER_ACTIVITIES = ("cultivate", "adventure", "dungeon", "duel", "daily", "gather", "hunt")
 
 ACTIVITY_LABELS: dict[str, str] = {
     "cultivate": "/cultivate",
@@ -20,6 +20,8 @@ ACTIVITY_LABELS: dict[str, str] = {
     "dungeon": "/dungeon",
     "duel": "/duel",
     "daily": "/daily",
+    "gather": "/gather",
+    "hunt": "/hunt",
 }
 
 ACTIVITY_COOLDOWN_ATTR: dict[str, str] = {
@@ -27,9 +29,11 @@ ACTIVITY_COOLDOWN_ATTR: dict[str, str] = {
     "adventure": "adventure_cooldown_seconds",
     "dungeon": "dungeon_cooldown_seconds",
     "duel": "pvp_cooldown_seconds",
+    "gather": "gather_cooldown_seconds",
+    "hunt": "hunt_cooldown_seconds",
 }
 
-HASTE_ACTIVITIES = frozenset({"cultivate", "adventure", "dungeon"})
+HASTE_ACTIVITIES = frozenset({"cultivate", "adventure", "dungeon", "gather", "hunt"})
 
 LAST_ACTIVITY_ATTR: dict[str, str] = {
     "cultivate": "last_cultivate_at",
@@ -37,6 +41,8 @@ LAST_ACTIVITY_ATTR: dict[str, str] = {
     "dungeon": "last_dungeon_at",
     "duel": "last_pvp_at",
     "daily": "last_daily_at",
+    "gather": "last_gather_at",
+    "hunt": "last_hunt_at",
 }
 
 REMINDER_MESSAGES: dict[str, str] = {
@@ -45,6 +51,8 @@ REMINDER_MESSAGES: dict[str, str] = {
     "dungeon": "The dungeon gate stirs — **`/dungeon`** is ready.",
     "duel": "Your dao steadies — you may **`/duel`** again.",
     "daily": "A new UTC day begins — your **`/daily`** stipend is ready.",
+    "gather": "The wilds whisper — **`/gather`** is ready.",
+    "hunt": "Prey stirs nearby — **`/hunt`** is ready.",
 }
 
 

@@ -8,7 +8,8 @@
     "drops": [
       {"item_id": "green_dew_herb", "weight": 45, "min": 1, "max": 3},
       {"item_id": "bamboo_resin", "weight": 30, "min": 1, "max": 2},
-      {"item_id": "minor_beast_core", "weight": 15, "min": 1, "max": 1}
+      {"item_id": "minor_beast_core", "weight": 15, "min": 1, "max": 1},
+      {"item_id": "technique_fragment", "weight": 5, "min": 1, "max": 1}
     ],
     "rare_event_chance": 0.10,
     "rare_events": [
@@ -26,7 +27,8 @@
     "drops": [
       {"item_id": "ember_moss", "weight": 40, "min": 1, "max": 2},
       {"item_id": "spirit_iron_shard", "weight": 35, "min": 1, "max": 2},
-      {"item_id": "bandit_token", "weight": 20, "min": 1, "max": 1}
+      {"item_id": "bandit_token", "weight": 20, "min": 1, "max": 1},
+      {"item_id": "technique_fragment", "weight": 4, "min": 1, "max": 1}
     ],
     "rare_event_chance": 0.08,
     "rare_events": [
@@ -44,7 +46,8 @@
     "drops": [
       {"item_id": "moonlotus", "weight": 35, "min": 1, "max": 2},
       {"item_id": "ancient_dust", "weight": 40, "min": 1, "max": 2},
-      {"item_id": "refined_beast_core", "weight": 15, "min": 1, "max": 1}
+      {"item_id": "refined_beast_core", "weight": 15, "min": 1, "max": 1},
+      {"item_id": "script_shard", "weight": 5, "min": 1, "max": 1}
     ],
     "rare_event_chance": 0.12,
     "rare_events": [

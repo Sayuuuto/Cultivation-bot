@@ -39,14 +39,14 @@ def test_adventure_success_grants_drops(session, player):
 
 
 def test_craft_pill_consumes_materials(session, player):
-    add_item(session, player.id, "green_dew_herb", 4)
-    add_item(session, player.id, "bamboo_resin", 2)
+    add_item(session, player.id, "green_dew_herb", 3)
     session.commit()
 
     res = craft_recipe(session, player, "qi_gathering_pill", amount=1, rng=random.Random(0))
     session.commit()
     assert res.success is True
     assert get_item_quantity(session, player.id, "qi_gathering_pill") >= 1
+    assert get_item_quantity(session, player.id, "green_dew_herb") == 0
 
 
 def test_dungeon_requires_key(session, player):
@@ -104,9 +104,10 @@ def test_wandering_elder_rare_event_applies_effect_not_item(session, player):
     drops: dict[str, int] = {}
     messages: list[str] = []
 
-    _apply_rare_event(session, player, event, area, drops, messages)
+    _apply_rare_event(session, player, event, area, drops, messages, rng=random.Random(1))
     session.commit()
 
     assert "charges" not in drops
     mod = get_character_modifiers(session, player)
     assert "qi_gathering" in mod.active_effects
+    assert any(k.startswith("manual_") for k in drops)

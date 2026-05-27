@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from .config import Config
-from .models import Player, Sect
+from .models import Clan, Player
 
 
 REALMS = [
@@ -73,32 +73,24 @@ def substage_range(substage: int) -> bool:
     return 0 <= substage < len(SUBSTAGES)
 
 
-def qi_cap(realm_index: int, substage: int) -> int:
+def qi_cap(realm_index: int, substage: int, player: Player | None = None) -> int:
     realm_index = max(0, min(realm_index, len(REALMS) - 1))
     substage = max(0, min(substage, len(SUBSTAGES) - 1))
-    return int(REALM_BASE_QI_CAP[realm_index] * SUBSTAGE_MULTIPLIER[substage])
+    cap = int(REALM_BASE_QI_CAP[realm_index] * SUBSTAGE_MULTIPLIER[substage])
+    if player is not None:
+        from .novice_trial import NOVICE_MORTAL_EARLY_CAP, novice_breakthrough_pace
+
+        if novice_breakthrough_pace(player):
+            cap = min(cap, NOVICE_MORTAL_EARLY_CAP)
+    return cap
 
 
-def moral_breakthrough_modifiers(moral_path: str) -> tuple[float, float]:
-    """
-    Returns (success_bonus, fail_setback_multiplier).
-    success_bonus is added to base success chance.
-    """
-    moral_path = (moral_path or "neutral").lower()
-    if moral_path == "righteous":
-        return (0.05, 0.85)
-    if moral_path == "demonic":
-        return (0.04, 1.25)
-    return (0.0, 1.0)
-
-
-def moral_breakthrough_setback_text(moral_path: str) -> str:
-    moral_path = (moral_path or "neutral").lower()
-    if moral_path == "righteous":
-        return "Your dao remains steady despite the backlash."
-    if moral_path == "demonic":
-        return "The backlash bites deeper, as if the heavens themselves refuse you."
-    return "A subtle pain spreads through your dantian."
+from .karma import (
+    clamp_karma,
+    karma_breakthrough_modifiers,
+    karma_breakthrough_setback_text,
+    karma_cultivation_text,
+)
 
 
 def stamina_regen_per_hour() -> int:
@@ -187,27 +179,33 @@ class CultivateResult:
     new_realm_index: int
     new_substage: int
     message: str
+    event_id: str | None = None
+    event_title: str = ""
+    event_emoji: str = ""
+    event_message: str = ""
+    event_qi_mult: float = 1.0
+    bonus_drops: dict[str, int] | None = None
 
 
-def moral_cultivation_text(moral_path: str) -> str:
-    moral_path = (moral_path or "neutral").lower()
-    if moral_path == "righteous":
-        return "You draw the spirit with a clean will."
-    if moral_path == "demonic":
-        return "You pull the spirit with restraint only where necessary."
-    return "You draw the qi as if it were always yours."
-
-
-def cultivate(player: Player, sect: Sect | None, cfg: Config, rng: random.Random | None = None, mod=None) -> CultivateResult:
+def cultivate(
+    player: Player,
+    clan: Clan | None,
+    cfg: Config,
+    rng: random.Random | None = None,
+    mod=None,
+    *,
+    session=None,
+    player_id: int | None = None,
+) -> CultivateResult:
     """
-    Mutates `player` (and `sect` if provided), but returns a rich result for UI.
+    Mutates `player` (and `clan` if provided), but returns a rich result for UI.
     """
     rng = rng or random.Random()
     now = utcnow()
     qi_mult = 1.0 if mod is None else getattr(mod, "cultivate_qi_mult", 1.0) * getattr(mod, "qi_gathering_mult", 1.0)
     stamina_eff = 1.0 if mod is None else getattr(mod, "stamina_efficiency", 1.0)
     offline_mult = 1.0 if mod is None else getattr(mod, "offline_cap_mult", 1.0)
-    sect_mult = 1.0 if mod is None else getattr(mod, "sect_contribution_mult", 1.0)
+    clan_mult = 1.0 if mod is None else getattr(mod, "clan_contribution_mult", 1.0)
 
     apply_stamina_regen(player, now)
 
@@ -228,37 +226,75 @@ def cultivate(player: Player, sect: Sect | None, cfg: Config, rng: random.Random
     base = cultivate_base_qi_gain(player.realm_index)
     # Luck makes it feel less robotic without becoming pay-to-win.
     luck_roll = rng.uniform(0.85, 1.15)
+    from .cultivate_events import roll_cultivate_event
+    from .novice_trial import apply_novice_cultivate_boost, on_cultivated, should_force_first_cultivate_event
+
     qi_gain = int(base * stamina_multiplier * luck_roll * qi_mult) + offline_qi
-    qi_gain = max(0, qi_gain)
+    qi_gain = apply_novice_cultivate_boost(player, max(0, qi_gain))
+
+    event = roll_cultivate_event(
+        rng,
+        player_id=player_id,
+        session=session,
+        karma=player.karma,
+        force_event_id="meridian_awakening" if should_force_first_cultivate_event(player) else None,
+    )
+    event_id: str | None = None
+    event_title = ""
+    event_emoji = ""
+    event_message = ""
+    event_qi_mult = 1.0
+    bonus_drops: dict[str, int] = {}
+
+    if event is not None:
+        event_id = event.event_id
+        event_title = event.title
+        event_emoji = event.emoji
+        event_message = event.message
+        event_qi_mult = event.qi_mult
+        qi_gain = max(0, int(qi_gain * event.qi_mult) + event.bonus_qi)
+        bonus_drops = dict(event.drops)
+        if event.stamina_restore > 0:
+            player.stamina = min(100, player.stamina + event.stamina_restore)
 
     player.qi += qi_gain
 
-    # Small chance for spirit stones.
+    # Small chance for spirit stones (skipped when a rare event already paid out).
     stones_gain = 0
-    if rng.random() < cultivate_stone_chance(player.realm_index):
+    if event is not None and event.bonus_stones > 0:
+        stones_gain = event.bonus_stones
+        player.spirit_stones += stones_gain
+    elif rng.random() < cultivate_stone_chance(player.realm_index):
         stones_gain = rng.randint(1, 3)
         player.spirit_stones += stones_gain
 
-    # Sect contribution: a small percent of gained Qi.
+    # Clan contribution: a small percent of gained Qi.
     leveled_up = False
     new_realm_index = player.realm_index
     new_substage = player.substage
-    if sect is not None and qi_gain > 0:
-        contribution = int(qi_gain * 0.08 * sect_mult)
+    if clan is not None and qi_gain > 0:
+        contribution = int(qi_gain * 0.08 * clan_mult)
         if contribution > 0:
-            sect.sect_qi_contributed += contribution
-            player.sect_contribution_qi_total += contribution
+            clan.clan_qi_contributed += contribution
+            player.clan_contribution_qi_total += contribution
         # No member_count update here; handled by join/leave.
 
     # Leveling is achieved via breakthrough, not auto-realm change in MVP.
     # So leveled_up stays false.
 
-    msg = (
-        f"{moral_cultivation_text(player.moral_path)} "
-        f"You harvest {qi_gain} qi and refine it into calm power."
-    )
+    if event is not None:
+        msg = f"{event.emoji} **{event.title}** — {event.message}"
+    else:
+        msg = (
+            f"{karma_cultivation_text(player.karma)} "
+            f"You harvest {qi_gain} qi and refine it into calm power."
+        )
     if stones_gain:
-        msg += f" A trace of spirit stones answers your call (+{stones_gain})."
+        msg += f" 💎 **+{stones_gain}** spirit stones answer your call."
+
+    trial_msgs = on_cultivated(player)
+    if trial_msgs:
+        msg += "\n" + "\n".join(trial_msgs)
 
     return CultivateResult(
         qi_gain=qi_gain,
@@ -270,6 +306,12 @@ def cultivate(player: Player, sect: Sect | None, cfg: Config, rng: random.Random
         new_realm_index=new_realm_index,
         new_substage=new_substage,
         message=msg,
+        event_id=event_id,
+        event_title=event_title,
+        event_emoji=event_emoji,
+        event_message=event_message,
+        event_qi_mult=event_qi_mult,
+        bonus_drops=bonus_drops or None,
     )
 
 
@@ -291,17 +333,17 @@ class BreakthroughPreview:
     can_attempt: bool
     estimated_fail_setback: int
     base_success: float
-    moral_bonus: float
+    karma_bonus: float
     stability_bonus: float
     clarity_bonus: float
     realm_penalty: float
 
 
 def compute_breakthrough_preview(player: Player, mod=None) -> BreakthroughPreview:
-    cap = qi_cap(player.realm_index, player.substage)
+    cap = qi_cap(player.realm_index, player.substage, player)
     base_success = 0.70
     difficulty_penalty = player.realm_index * 0.015
-    moral_bonus, fail_setback_mult = moral_breakthrough_modifiers(player.moral_path)
+    karma_bonus, fail_setback_mult = karma_breakthrough_modifiers(player.karma)
     stability_bonus = 0.0
     clarity_bonus = 0.0
     if mod is not None:
@@ -309,7 +351,7 @@ def compute_breakthrough_preview(player: Player, mod=None) -> BreakthroughPrevie
         clarity_bonus = getattr(mod, "clarity_breakthrough_bonus", 0.0)
         fail_setback_mult *= getattr(mod, "breakthrough_setback_mult", 1.0)
 
-    total_bonus = moral_bonus + stability_bonus + clarity_bonus
+    total_bonus = karma_bonus + stability_bonus + clarity_bonus
     success_chance = max(0.15, min(0.92, base_success + total_bonus - difficulty_penalty))
     setback_base = player.qi * (0.15 + 0.02 * player.realm_index)
     estimated_setback = int(setback_base * fail_setback_mult)
@@ -321,7 +363,7 @@ def compute_breakthrough_preview(player: Player, mod=None) -> BreakthroughPrevie
         can_attempt=player.qi >= cap,
         estimated_fail_setback=estimated_setback,
         base_success=base_success,
-        moral_bonus=moral_bonus,
+        karma_bonus=karma_bonus,
         stability_bonus=stability_bonus,
         clarity_bonus=clarity_bonus,
         realm_penalty=difficulty_penalty,
@@ -332,7 +374,7 @@ def breakthrough(player: Player, cfg: Config, rng: random.Random | None = None, 
     rng = rng or random.Random()
     now = utcnow()
 
-    cap = qi_cap(player.realm_index, player.substage)
+    cap = qi_cap(player.realm_index, player.substage, player)
     if player.qi < cap:
         preview = compute_breakthrough_preview(player, mod)
         return BreakthroughResult(
@@ -387,12 +429,12 @@ def breakthrough(player: Player, cfg: Config, rng: random.Random | None = None, 
         new_realm_index=player.realm_index,
         new_substage=player.substage,
         success_chance=success_chance,
-        message=moral_breakthrough_setback_text(player.moral_path) + f" You lose {setback} qi.",
+        message=karma_breakthrough_setback_text(player.karma) + f" You lose {setback} qi.",
     )
 
 
 def player_strength_for_pvp(player: Player, mod=None) -> float:
-    cap = qi_cap(player.realm_index, player.substage)
+    cap = qi_cap(player.realm_index, player.substage, player)
     ratio = 0.0 if cap <= 0 else min(1.0, player.qi / cap)
     power = player.realm_index * 100 + player.substage * 40 + ratio * 100
     if mod is not None:

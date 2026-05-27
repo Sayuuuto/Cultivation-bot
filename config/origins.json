@@ -32,7 +32,7 @@
   "Wandering Immortal's Footsteps": {
     "adventure_success": 0.06,
     "drop_luck": 0.05,
-    "sect_contribution_mult": 1.10,
+    "clan_contribution_mult": 1.10,
     "description": "You walk paths many have forgotten."
   }
 }

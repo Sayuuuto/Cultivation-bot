@@ -104,7 +104,7 @@ def use_item(session: Session, player: Player, item_id: str, rng: random.Random 
             return (
                 True,
                 f"You consume **{name}**. Void qi pulses through every meridian — "
-                "**cultivate, adventure, dungeon, and duel** cooldowns all shorten on your next use of each.",
+                "**cultivate, adventure, dungeon, duel, gather, and hunt** cooldowns all shorten on your next use of each.",
             )
         activity = {
             "haste_adventure": "adventure",

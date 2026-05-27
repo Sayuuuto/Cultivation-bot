@@ -36,6 +36,24 @@ def _build_item_sources() -> dict[str, list[DropSource]]:
         for drop in area.drops:
             _add_source(index, drop.item_id, adventure)
 
+    from .gather import get_gather_areas
+    from .hunt import get_hunt_areas
+
+    for area_id, gather_def in get_gather_areas().items():
+        area = get_areas().get(area_id)
+        label = area.name if area is not None else area_id
+        gather = DropSource(label=label, via="`/gather`")
+        for node in gather_def.nodes + gather_def.rare_nodes:
+            _add_source(index, node.item_id, gather)
+
+    for area_id, hunt_def in get_hunt_areas().items():
+        area = get_areas().get(area_id)
+        label = area.name if area is not None else area_id
+        hunt = DropSource(label=label, via="`/hunt`")
+        for beast in hunt_def.beasts:
+            for drop in beast.drops:
+                _add_source(index, drop.item_id, hunt)
+
     from .adventure import RARE_EVENT_REWARDS
 
     for area in get_areas().values():
@@ -63,6 +81,54 @@ def _build_item_sources() -> dict[str, list[DropSource]]:
                 drop.item_id,
                 DropSource(label=f"{dungeon.name} (bonus loot)", via="`/dungeon`"),
             )
+        _add_source(
+            index,
+            "manual_iron_cleave",
+            DropSource(label=f"{dungeon.name} (weekly boss manual)", via="`/dungeon`"),
+        )
+
+    from .shop import load_shop_catalog
+
+    for listing in load_shop_catalog().values():
+        if listing.listing_type in {"item", "manual_gamble"} and listing.item_id:
+            _add_source(
+                index,
+                listing.item_id,
+                DropSource(label="Spirit Stone Shop", via="`/shop buy`"),
+            )
+        elif listing.listing_type == "manual_gamble":
+            for manual_id in _manual_item_ids():
+                _add_source(
+                    index,
+                    manual_id,
+                    DropSource(label="Unidentified Scroll (shop gamble)", via="`/shop buy`"),
+                )
+
+    from .manuals import FRAGMENT_ITEM_ID, MANUAL_CRAFT_INPUTS
+
+    _add_source(
+        index,
+        FRAGMENT_ITEM_ID,
+        DropSource(label="Enlightenment & hunts", via="`/cultivate` · `/hunt` · `/adventure`"),
+    )
+    for item_id in MANUAL_CRAFT_INPUTS:
+        if item_id != FRAGMENT_ITEM_ID:
+            _add_source(
+                index,
+                item_id,
+                DropSource(label="Gathering & rare events", via="`/gather` · `/adventure`"),
+            )
+    _add_source(
+        index,
+        "script_shard",
+        DropSource(label="Moonwell Ruins", via="`/gather` · `/adventure`"),
+    )
+    for manual_id in _manual_item_ids():
+        _add_source(
+            index,
+            manual_id,
+            DropSource(label="Enlightenment", via="`/cultivate` · `/breakthrough`"),
+        )
 
     _add_source(
         index,
@@ -72,6 +138,16 @@ def _build_item_sources() -> dict[str, list[DropSource]]:
 
     _item_sources = index
     return index
+
+
+def _manual_item_ids() -> list[str]:
+    from .combat.catalog import load_technique_catalog
+
+    return [
+        tech.manual_item_id
+        for tech in load_technique_catalog().values()
+        if tech.manual_item_id
+    ]
 
 
 def get_drop_sources(item_id: str) -> list[DropSource]:
@@ -94,26 +170,34 @@ def format_missing_materials_message(
     action: str = "craft",
 ) -> str:
     """Build a player-facing message listing shortages and where to farm."""
-    lines: list[str] = []
+    ready: list[str] = []
+    missing: list[str] = []
     for item_id, need in sorted(inputs.items()):
         have = get_item_quantity(session, player_id, item_id)
-        if have >= need:
-            continue
         name = get_item_name(item_id)
-        lines.append(f"• **{name}** — you have **{have}/{need}**\n  ↳ {format_item_drop_hints(item_id)}")
+        if have >= need:
+            ready.append(f"✓ **{name}** — {have}/{need}")
+            continue
+        missing.append(f"• **{name}** — you have **{have}/{need}**\n  ↳ {format_item_drop_hints(item_id)}")
 
-    if not lines:
+    if not missing:
         return "You are missing materials."
 
     if action == "forge":
         header = "You don't have enough materials to **forge** this piece."
     elif action == "key":
         header = "You don't have enough materials to **craft this key**."
+    elif action == "manual":
+        header = "To **bind a technique manual** (`/craft manual`), you still need:"
     else:
         header = "You don't have enough materials to **craft** this recipe."
 
-    footer = "Use **`/areas`** to compare zones, or **`/recipes`** to plan what to farm."
-    return f"{header}\n\n" + "\n".join(lines) + f"\n\n{footer}"
+    parts = [header]
+    if ready:
+        parts.append("\n**Already have:**\n" + "\n".join(ready))
+    parts.append("\n**Still need:**\n" + "\n".join(missing))
+    parts.append("\nUse **`/item <name>`** for details · **`/gather`** to farm scroll & ink.")
+    return "\n".join(parts)
 
 
 def invalidate_drop_source_cache() -> None:

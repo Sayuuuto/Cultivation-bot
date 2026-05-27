@@ -1,0 +1,91 @@
+{
+  "base_rare_chance": 0.12,
+  "events": [
+    {
+      "id": "spirit_surge",
+      "weight": 22,
+      "emoji": "🌊",
+      "title": "Spirit Surge",
+      "message": "Heaven and earth answer your meditation — qi floods your meridians!",
+      "qi_mult": 2.5,
+      "bonus_qi": 0,
+      "stones_min": 0,
+      "stones_max": 0,
+      "drops": {}
+    },
+    {
+      "id": "dao_inspiration",
+      "weight": 18,
+      "emoji": "✨",
+      "title": "Dao Inspiration",
+      "message": "A flash of enlightenment carries you beyond ordinary cultivation.",
+      "qi_mult": 1.0,
+      "bonus_qi": 35,
+      "stones_min": 0,
+      "stones_max": 0,
+      "drops": {}
+    },
+    {
+      "id": "meridian_awakening",
+      "weight": 15,
+      "emoji": "⚡",
+      "title": "Meridian Awakening",
+      "message": "Hidden meridians crack open; power surges through every channel.",
+      "qi_mult": 2.0,
+      "bonus_qi": 10,
+      "stones_min": 2,
+      "stones_max": 5,
+      "drops": {}
+    },
+    {
+      "id": "scripture_whisper",
+      "weight": 15,
+      "emoji": "📜",
+      "title": "Scripture Whisper",
+      "message": "Ancient script forms in the void before your eyes.",
+      "qi_mult": 1.0,
+      "bonus_qi": 0,
+      "stones_min": 0,
+      "stones_max": 0,
+      "drops": {"technique_fragment": 1}
+    },
+    {
+      "id": "heavenly_glimpse",
+      "weight": 8,
+      "emoji": "🌟",
+      "title": "Heavenly Glimpse",
+      "message": "The heavens part — a complete technique manual imprints upon your soul!",
+      "qi_mult": 1.0,
+      "bonus_qi": 5,
+      "stones_min": 0,
+      "stones_max": 0,
+      "drops": {},
+      "manual_pool": "cultivate_enlightenment"
+    },
+    {
+      "id": "spirit_vein",
+      "weight": 12,
+      "emoji": "💎",
+      "title": "Spirit Vein",
+      "message": "You tap a buried spirit vein beneath your meditation mat.",
+      "qi_mult": 1.15,
+      "bonus_qi": 0,
+      "stones_min": 8,
+      "stones_max": 18,
+      "drops": {}
+    },
+    {
+      "id": "inner_peace",
+      "weight": 10,
+      "emoji": "🧘",
+      "title": "Inner Peace",
+      "message": "Your mind stills like a moonlit lake; body and spirit recover together.",
+      "qi_mult": 1.0,
+      "bonus_qi": 0,
+      "stones_min": 0,
+      "stones_max": 0,
+      "drops": {},
+      "stamina_restore": 12
+    }
+  ]
+}

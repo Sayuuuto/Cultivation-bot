@@ -1,0 +1,67 @@
+{
+  "wudang_tasks": {
+    "mortal": [
+      {
+        "id": "wudang_gather_dew",
+        "type": "gather",
+        "item_id": "green_dew_herb",
+        "count": 3,
+        "area_id": "bamboo_grove",
+        "merit": 15,
+        "label": "Gather 3 Green Dew Herbs in the Bamboo Grove"
+      },
+      {
+        "id": "wudang_meditate",
+        "type": "cultivate",
+        "count": 2,
+        "merit": 12,
+        "label": "Cultivate twice with focused breath"
+      }
+    ],
+    "earth": [
+      {
+        "id": "wudang_hunt_wolf",
+        "type": "hunt",
+        "beast_tag": "wolf",
+        "count": 2,
+        "merit": 30,
+        "label": "Hunt 2 wolf-type spirit beasts"
+      }
+    ]
+  },
+  "shaolin_tasks": {
+    "mortal": [
+      {
+        "id": "shaolin_body_temper",
+        "type": "cultivate",
+        "count": 3,
+        "merit": 15,
+        "label": "Temper the body through 3 cultivation sessions"
+      },
+      {
+        "id": "shaolin_hunt_hare",
+        "type": "hunt",
+        "beast_tag": "hare",
+        "count": 2,
+        "merit": 12,
+        "label": "Hunt 2 hares to train footwork"
+      }
+    ]
+  },
+  "mount_hua_tasks": {
+    "mortal": [
+      {
+        "id": "mount_hua_adventure",
+        "type": "adventure",
+        "count": 1,
+        "merit": 18,
+        "label": "Complete one adventure to prove your resolve"
+      }
+    ]
+  },
+  "kunlun_tasks": {},
+  "tang_tasks": {},
+  "blood_lotus_tasks": {},
+  "imperial_guard_tasks": {},
+  "shadow_pavilion_tasks": {}
+}

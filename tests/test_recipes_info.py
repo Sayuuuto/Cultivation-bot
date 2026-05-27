@@ -38,7 +38,10 @@ def test_build_recipes_embed_pill_category_respects_field_limit():
         assert len(field.value) <= DISCORD_FIELD_CHAR_LIMIT
 
 
-def test_build_recipes_embed_forge_category_includes_forge_only():
+def test_build_recipes_embed_includes_manual_binding():
+    embed = build_recipes_embed(recipe_type=None)
+    names = [f.name for f in embed.fields]
+    assert any("manual binding" in n.lower() for n in names)
     embed = build_recipes_embed(recipe_type="forge")
     names = [f.name for f in embed.fields]
     assert any("forge" in n.lower() for n in names)

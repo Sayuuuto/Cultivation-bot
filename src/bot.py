@@ -25,6 +25,8 @@ from .adventure import (
     PendingAdventure,
     abandon_adventure,
     apply_adventure_choice,
+    apply_adventure_combat_outcome,
+    get_active_adventure,
     resume_adventure_session,
     start_adventure_session,
 )
@@ -35,6 +37,7 @@ from .cooldown_haste import (
 )
 from .forge import forge_equipment
 from .post_tutorial import post_tutorial
+from .post_library import post_library
 from .recipes_info import build_recipes_embed
 from .reminders import (
     ACTIVITY_LABELS,
@@ -48,11 +51,49 @@ from .reminders import (
     set_reminder_enabled,
 )
 from .roots_info import build_roots_embed
+from .gather import run_gather
+from .hunt import finalize_hunt_combat, start_hunt_combat
+from .combat.discord_ui import build_adventure_combat_embed, build_combat_embed, build_hunt_combat_embed
+from .cultivate_events import apply_cultivate_bonus_drops
+from .combat.loadout import ensure_starter_techniques, equip_technique, get_equipped_active_techniques
+from .combat.learn import learn_technique_from_manual
+from .combat.session import process_combat_action
+from .combat_stats import compute_combat_stats, format_combat_stats_block
 from .stats import format_stats_summary
 from .shop import build_shop_embed, buy_from_shop, list_shop_listings, load_shop_catalog, resolve_shop_id
-from .cultivation_preview import add_cultivation_preview_fields, format_breakthrough_chance_line
-from .crafting import craft_recipe, list_pill_recipes
+from src.cultivation_preview import format_breakthrough_chance_line
+from .manuals import (
+    craft_manual_from_fragments,
+    roll_breakthrough_enlightenment,
+)
+from .ui.embeds import (
+    build_adventure_embed_from_pending,
+    build_adventure_embed_from_result,
+    build_cultivate_embed,
+    build_hunt_result_embed,
+)
+from .ui.formatting import technique_button_emoji
+from .command_choices import (
+    TECHNIQUE_SLOT_OPTIONS,
+    can_bind_technique_manual,
+    filter_options,
+    list_affixable_slots,
+    list_affordable_shop_items,
+    list_craftable_recipes,
+    list_enterable_dungeons,
+    list_equippable_techniques,
+    list_forgeable_slots,
+    list_player_manuals,
+    list_technique_equip_options,
+    list_unlocked_areas,
+    list_valid_slots_for_technique,
+    resolve_forge_slot,
+    resolve_technique_id,
+)
+from .crafting import craft_recipe
 from .dungeon import run_dungeon
+from .player_dashboard import build_profile_embed, build_techniques_embed
+from .combat.technique_ui import TechniquesView
 from .duel_challenges import (
     DUEL_CHALLENGE_TIMEOUT_SECONDS,
     ExecutedDuel,
@@ -77,7 +118,6 @@ from .game import (
     ORIGINS,
     REALMS,
     SPIRIT_ROOTS,
-    SPIRIT_ROOTS,
     SUBSTAGES,
     CultivateResult,
     BreakthroughResult,
@@ -90,42 +130,32 @@ from .game import (
     qi_cap,
     utcnow,
     stamina_regen_per_hour,
-    moral_breakthrough_setback_text,
-    moral_breakthrough_modifiers,
     compute_breakthrough_preview,
     player_strength_for_pvp,
 )
-from .models import PendingDuel, Player, Sect
-from .inventory import format_inventory_embed, get_player_inventory, load_item_catalog
+from .models import ActiveAdventure, Clan, PendingDuel, Player
+from .clans import get_clan_by_name, get_clan_top_contributors
+from .game_sects import (
+    format_player_sect_status,
+    format_sect_list_entry,
+    join_game_sect,
+    leave_game_sect,
+    load_game_sects,
+)
+from .inventory import build_inventory_embed, get_player_inventory, load_item_catalog
+from .item_info import build_item_detail_embed, list_inventory_item_options, resolve_inventory_item_id
+from .novice_trial import (
+    apply_origin_starter_gifts,
+    on_breakthrough_success,
+    on_daily_claimed,
+    on_adventure_completed,
+)
 
 load_all_content()
 load_item_catalog()
 load_shop_catalog()
 
-AREA_CHOICES = [
-    app_commands.Choice(name=data.name, value=area_id)
-    for area_id, data in get_areas().items()
-]
 STANCE_CHOICES = [app_commands.Choice(name=s.title(), value=s) for s in STANCES]
-PILL_RECIPE_CHOICES = [
-    app_commands.Choice(name=r.name, value=r.recipe_id)
-    for r in list_pill_recipes()
-]
-DUNGEON_CHOICES = [
-    app_commands.Choice(name=d.name, value=dungeon_id)
-    for dungeon_id, d in get_dungeons().items()
-]
-KEY_RECIPE_CHOICES = [
-    app_commands.Choice(name=r.name, value=r.recipe_id)
-    for r in get_recipes().values()
-    if r.recipe_type == "key"
-]
-EQUIP_SLOT_CHOICES = [
-    app_commands.Choice(name="Weapon", value="weapon"),
-    app_commands.Choice(name="Armor", value="armor"),
-    app_commands.Choice(name="Accessory", value="accessory"),
-    app_commands.Choice(name="Talisman", value="talisman"),
-]
 ROOT_CHOICES = [app_commands.Choice(name=r, value=r) for r in SPIRIT_ROOTS]
 
 REMIND_ACTION_CHOICES = [
@@ -243,36 +273,248 @@ def attach_guidance(
     return embed
 
 
-def build_adventure_embed_from_pending(pending: PendingAdventure) -> discord.Embed:
-    recent = pending.messages[-3:] if pending.messages else []
-    description = "\n".join(recent) if recent else pending.prompt
-    embed = discord.Embed(
-        title=f"Adventure — {pending.area_name}",
-        description=description,
-        color=discord.Color.dark_green(),
-    )
-    embed.add_field(
-        name=f"Segment {pending.segment}/{pending.segments_total}",
-        value=pending.prompt,
-        inline=False,
-    )
-    embed.set_footer(text="Choose wisely — risky options can fail the run or boost loot.")
-    return embed
+class CombatView(discord.ui.View):
+    def __init__(
+        self,
+        owner_discord_id: str,
+        guild_id: str,
+        combat_id: int,
+        context: str,
+        *,
+        area_id: str = "",
+        beast_id: str = "",
+        active_id: int | None = None,
+        area_name: str = "",
+        techniques: list | None = None,
+        technique_cooldowns: dict[str, int] | None = None,
+        player_sealed: bool = False,
+    ):
+        super().__init__(timeout=300)
+        self.owner_discord_id = owner_discord_id
+        self.guild_id = guild_id
+        self.combat_id = combat_id
+        self.context = context
+        self.area_id = area_id
+        self.beast_id = beast_id
+        self.active_id = active_id
+        self.area_name = area_name
+        cds = technique_cooldowns or {}
 
+        for tech in (techniques or [])[:4]:
+            emoji = technique_button_emoji(tech.category)
+            cd = cds.get(tech.technique_id, 0)
+            sealed_blocked = player_sealed and tech.technique_id != "basic_strike"
+            label = f"{emoji} {tech.name}"
+            if cd > 0:
+                label = f"⏳{cd} {label}"
+            elif sealed_blocked:
+                label = f"🔒 {label}"
+            label = label[:80]
+            if tech.technique_id == "basic_strike":
+                style = discord.ButtonStyle.primary
+            elif cd > 0 or sealed_blocked:
+                style = discord.ButtonStyle.secondary
+            else:
+                style = discord.ButtonStyle.danger
+            button = discord.ui.Button(
+                label=label,
+                style=style,
+                custom_id=f"cbt:{combat_id}:tech:{tech.technique_id}",
+                disabled=cd > 0 or sealed_blocked,
+            )
+            button.callback = self._make_technique_callback(tech.technique_id)
+            self.add_item(button)
 
-def build_adventure_embed_from_result(res: AdventureResult, qi: int) -> discord.Embed:
-    color = discord.Color.green() if res.outcome == "success" else discord.Color.orange()
-    if res.failed_run:
-        color = discord.Color.red()
-    embed = discord.Embed(
-        title=f"Adventure — {res.area_name}",
-        description="\n".join(res.messages),
-        color=color,
-    )
-    embed.add_field(name="Outcome", value=res.outcome.title(), inline=True)
-    embed.add_field(name="Segments", value=f"{res.segments_cleared}/{2}", inline=True)
-    embed.add_field(name="Qi", value=str(qi), inline=True)
-    return embed
+        flee_btn = discord.ui.Button(
+            label="🏃 Flee",
+            style=discord.ButtonStyle.secondary,
+            custom_id=f"cbt:{combat_id}:flee",
+        )
+        flee_btn.callback = self._make_action_callback("flee")
+        self.add_item(flee_btn)
+
+        finish_btn = discord.ui.Button(
+            label="✅ Finish",
+            style=discord.ButtonStyle.success,
+            custom_id=f"cbt:{combat_id}:finish",
+        )
+        finish_btn.callback = self._make_action_callback("finish")
+        self.add_item(finish_btn)
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if str(interaction.user.id) != self.owner_discord_id:
+            await interaction.response.send_message(
+                "This fight belongs to another daoist.",
+                ephemeral=True,
+            )
+            return False
+        return True
+
+    def _make_technique_callback(self, technique_id: str):
+        async def callback(interaction: discord.Interaction):
+            await self._handle_action(interaction, "technique", technique_id=technique_id)
+
+        return callback
+
+    def _make_action_callback(self, action: str):
+        async def callback(interaction: discord.Interaction):
+            await self._handle_action(interaction, action)
+
+        return callback
+
+    async def _handle_action(
+        self,
+        interaction: discord.Interaction,
+        action: str,
+        *,
+        technique_id: str | None = None,
+    ) -> None:
+        session = get_session()
+        try:
+            cfg = get_config()
+            discord_id = get_discord_id(interaction.user)
+            player = ensure_player(session, self.guild_id, discord_id)
+            if player is None:
+                await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+                return
+
+            mod = get_character_modifiers(session, player)
+            stats = compute_combat_stats(player, session, mod)
+            rng = rng_for(self.guild_id, discord_id)
+            result, err = process_combat_action(
+                session,
+                player,
+                self.combat_id,
+                action,
+                technique_id=technique_id,
+                stats=stats,
+                mod=mod,
+                rng=rng,
+            )
+            if err:
+                await interaction.response.send_message(err, ephemeral=True)
+                return
+            assert result is not None
+            state = result.state
+            now = utcnow()
+
+            if not state.finished:
+                techniques = get_equipped_active_techniques(session, player.id)
+                if self.context == "hunt":
+                    embed = build_combat_embed(f"Hunt — {self.area_name}", state)
+                else:
+                    pending = PendingAdventure(
+                        active_id=self.active_id or 0,
+                        area_name=self.area_name,
+                        segment=1,
+                        segments_total=2,
+                        prompt="Combat in progress.",
+                        encounter_type="combat",
+                    )
+                    embed = build_adventure_combat_embed(pending, state)
+                view = CombatView(
+                    self.owner_discord_id,
+                    self.guild_id,
+                    self.combat_id,
+                    self.context,
+                    area_id=self.area_id,
+                    beast_id=self.beast_id,
+                    active_id=self.active_id,
+                    area_name=self.area_name,
+                    techniques=techniques,
+                    technique_cooldowns=state.technique_cooldowns,
+                    player_sealed=state.player.sealed,
+                )
+                session.commit()
+                await interaction.response.edit_message(embed=embed, view=view)
+                return
+
+            if self.context == "hunt":
+                hunt_res = finalize_hunt_combat(
+                    session,
+                    player,
+                    self.area_id,
+                    self.beast_id,
+                    state.victory,
+                    rng=rng,
+                )
+                player.last_hunt_at = now
+                player.last_active_at = now
+                consume_haste_for_activity(session, player.id, "hunt")
+                schedule_player_reminders(session, player, cfg, "hunt", now=now)
+                session.add(player)
+                session.commit()
+
+                color = discord.Color.dark_green() if hunt_res.success else discord.Color.dark_red()
+                embed = build_hunt_result_embed(self.area_name or hunt_res.area_name, state, hunt_res)
+                embed.color = color
+                attach_guidance(embed, "hunt", player, session, cfg, now)
+                await interaction.response.edit_message(embed=embed, view=None)
+                return
+
+            assert self.active_id is not None
+            adventure_result, adv_err = apply_adventure_combat_outcome(
+                session,
+                player,
+                self.active_id,
+                victory=state.victory,
+                fled=state.fled,
+                rng=rng,
+            )
+            if adv_err:
+                await interaction.response.send_message(adv_err, ephemeral=True)
+                return
+
+            if isinstance(adventure_result, PendingAdventure):
+                if adventure_result.encounter_type == "combat" and adventure_result.combat_id:
+                    techniques = get_equipped_active_techniques(session, player.id)
+                    from .combat.session import get_active_combat, load_combat_state
+
+                    active_combat = get_active_combat(session, player.id)
+                    combat_state = load_combat_state(active_combat) if active_combat else state
+                    embed = build_adventure_combat_embed(adventure_result, combat_state)
+                    view = CombatView(
+                        self.owner_discord_id,
+                        self.guild_id,
+                        adventure_result.combat_id,
+                        "adventure",
+                        area_id=self.area_id,
+                        active_id=adventure_result.active_id,
+                        area_name=adventure_result.area_name,
+                        techniques=techniques,
+                        technique_cooldowns=combat_state.technique_cooldowns,
+                        player_sealed=combat_state.player.sealed,
+                    )
+                else:
+                    embed = build_adventure_embed_from_pending(adventure_result)
+                    attach_guidance(embed, "adventure", player, session, cfg, now)
+                    view = AdventureChoiceView(
+                        self.owner_discord_id,
+                        self.guild_id,
+                        adventure_result.active_id,
+                        adventure_result.choices,
+                    )
+                session.commit()
+                await interaction.response.edit_message(embed=embed, view=view)
+                return
+
+            assert isinstance(adventure_result, AdventureResult)
+            trial_msgs = _apply_adventure_completion(session, player, adventure_result, now)
+            consume_haste_for_activity(session, player.id, "adventure")
+            schedule_player_reminders(session, player, cfg, "adventure", now=now)
+            session.add(player)
+            session.commit()
+            embed = build_adventure_embed_from_result(adventure_result, player.qi)
+            if trial_msgs:
+                embed.add_field(name="Trial progress", value="\n".join(trial_msgs), inline=False)
+            attach_guidance(embed, "adventure", player, session, cfg, now)
+            await interaction.response.edit_message(embed=embed, view=None)
+        finally:
+            session.close()
+
+    async def on_timeout(self) -> None:
+        for item in self.children:
+            item.disabled = True
 
 
 class AdventureChoiceView(discord.ui.View):
@@ -326,26 +568,55 @@ class AdventureChoiceView(discord.ui.View):
 
                 now = utcnow()
                 if isinstance(result, PendingAdventure):
-                    embed = build_adventure_embed_from_pending(result)
-                    view = AdventureChoiceView(
-                        self.owner_discord_id,
-                        self.guild_id,
-                        result.active_id,
-                        result.choices,
-                    )
+                    if result.encounter_type == "combat" and result.combat_id:
+                        from .combat.session import get_active_combat, load_combat_state
+
+                        ensure_starter_techniques(session, player.id)
+                        techniques = get_equipped_active_techniques(session, player.id)
+                        active_row = session.get(ActiveAdventure, result.active_id)
+                        area_id = active_row.area_id if active_row else ""
+                        active_combat = get_active_combat(session, player.id)
+                        combat_state = load_combat_state(active_combat) if active_combat else None
+                        embed = (
+                            build_adventure_combat_embed(result, combat_state)
+                            if combat_state
+                            else build_adventure_embed_from_pending(result)
+                        )
+                        view = CombatView(
+                            self.owner_discord_id,
+                            self.guild_id,
+                            result.combat_id,
+                            "adventure",
+                            area_id=area_id,
+                            active_id=result.active_id,
+                            area_name=result.area_name,
+                            techniques=techniques,
+                            technique_cooldowns=combat_state.technique_cooldowns if combat_state else {},
+                            player_sealed=combat_state.player.sealed if combat_state else False,
+                        )
+                    else:
+                        embed = build_adventure_embed_from_pending(result)
+                        attach_guidance(embed, "adventure", player, session, cfg, now)
+                        view = AdventureChoiceView(
+                            self.owner_discord_id,
+                            self.guild_id,
+                            result.active_id,
+                            result.choices,
+                        )
                     session.commit()
                     await interaction.response.edit_message(embed=embed, view=view)
                     return
 
                 assert isinstance(result, AdventureResult)
-                player.last_adventure_at = now
-                player.last_active_at = now
+                trial_msgs = _apply_adventure_completion(session, player, result, now)
                 consume_haste_for_activity(session, player.id, "adventure")
                 schedule_player_reminders(session, player, cfg, "adventure", now=now)
                 session.add(player)
                 session.commit()
 
                 embed = build_adventure_embed_from_result(result, player.qi)
+                if trial_msgs:
+                    embed.add_field(name="Trial progress", value="\n".join(trial_msgs), inline=False)
                 attach_guidance(embed, "adventure", player, session, cfg, now)
                 await interaction.response.edit_message(embed=embed, view=None)
             finally:
@@ -382,14 +653,28 @@ def ensure_player(session: Session, guild_id: str, discord_id: str) -> Player | 
     return session.execute(stmt).scalar_one_or_none()
 
 
-def get_or_create_sect(session: Session, guild_id: str, name: str) -> Sect | None:
-    stmt = select(Sect).where(Sect.guild_id == guild_id, Sect.name == name)
-    return session.execute(stmt).scalar_one_or_none()
+def get_clan_by_name_lookup(session: Session, guild_id: str, name: str) -> Clan | None:
+    return get_clan_by_name(session, guild_id, name)
 
 
 def ensure_loaded_player(player: Player) -> None:
     # No-op; placeholder for future initialization.
     _ = player
+
+
+def _apply_adventure_completion(
+    session: Session,
+    player: Player,
+    result: AdventureResult,
+    now: datetime,
+) -> list[str]:
+    trial_msgs, waive_cd = on_adventure_completed(
+        session, player, segments_cleared=result.segments_cleared
+    )
+    if not waive_cd:
+        player.last_adventure_at = now
+    player.last_active_at = now
+    return trial_msgs
 
 
 def build_duel_challenge_embed(challenger: Player, opponent: Player) -> discord.Embed:
@@ -608,7 +893,7 @@ class CultivationButtons(discord.ui.View):
 
 class CultivateButton(discord.ui.Button):
     def __init__(self, cfg, rng: random.Random):
-        super().__init__(label="Cultivate", style=discord.ButtonStyle.primary)
+        super().__init__(label="🧘 Cultivate", style=discord.ButtonStyle.primary)
         self.cfg = cfg
         self.rng = rng
 
@@ -655,11 +940,14 @@ class CultivateButton(discord.ui.Button):
                 player.qi += passive_before
                 player.last_active_at = now
 
-            sect = None
-            if player.sect_id is not None:
-                sect = session.get(Sect, player.sect_id)
+            clan = None
+            if player.clan_id is not None:
+                clan = session.get(Clan, player.clan_id)
 
-            res: CultivateResult = cultivate(player, sect, self.cfg, rng=self.rng, mod=mod)
+            res: CultivateResult = cultivate(
+                player, clan, self.cfg, rng=self.rng, mod=mod, session=session, player_id=player.id
+            )
+            applied_drops = apply_cultivate_bonus_drops(session, player.id, res.bonus_drops or {})
             if "qi_gathering" in mod.active_effects:
                 consume_effect_charge(session, player.id, "qi_gathering")
             consume_haste_for_activity(session, player.id, "cultivate")
@@ -667,8 +955,8 @@ class CultivateButton(discord.ui.Button):
             schedule_player_reminders(session, player, self.cfg, "cultivate", now=now)
 
             session.add(player)
-            if sect is not None:
-                session.add(sect)
+            if clan is not None:
+                session.add(clan)
             session.commit()
             logger.info(
                 "BUTTON Cultivate complete guild=%s user=%s qi_gain=%s stones_gain=%s new_qi=%s new_stamina=%s realm=%s/%s",
@@ -682,21 +970,13 @@ class CultivateButton(discord.ui.Button):
                 player.substage,
             )
 
-            embed = discord.Embed(title="Cultivation Complete", description=res.message, color=discord.Color.green())
-            embed.add_field(name="Qi", value=str(res.new_qi), inline=True)
-            if passive_before > 0:
-                embed.add_field(
-                    name="Qi breakdown",
-                    value=(
-                        f"**+{passive_before + res.qi_gain}** total "
-                        f"(**+{res.qi_gain}** active · **+{passive_before}** passive)"
-                    ),
-                    inline=False,
-                )
-            embed.add_field(name="Spirit Stones", value=str(player.spirit_stones), inline=True)
-            embed.add_field(name="Stamina", value=f"{player.stamina}/100", inline=True)
-            embed.add_field(name="Realm", value=realm_display(player.realm_index, player.substage), inline=False)
-
+            embed = build_cultivate_embed(
+                res,
+                player,
+                realm_display=realm_display(player.realm_index, player.substage),
+                passive_qi=passive_before,
+                applied_drops=applied_drops,
+            )
             attach_guidance(embed, "cultivate", player, session, self.cfg, now)
             await interaction.response.send_message(embed=embed, ephemeral=True)
         finally:
@@ -732,6 +1012,12 @@ class BreakthroughButton(discord.ui.Button):
             mod = get_character_modifiers(session, player)
             bt_preview = compute_breakthrough_preview(player, mod)
             res: BreakthroughResult = breakthrough(player, self.cfg, rng=self.rng, mod=mod)
+            _, enlighten_msg = roll_breakthrough_enlightenment(
+                session, player, self.rng, success=res.success
+            )
+            trial_msgs: list[str] = []
+            if res.success:
+                trial_msgs = on_breakthrough_success(session, player, self.rng)
             if "clarity" in mod.active_effects and res.success:
                 consume_effect_charge(session, player.id, "clarity")
 
@@ -748,7 +1034,12 @@ class BreakthroughButton(discord.ui.Button):
             )
 
             color = discord.Color.green() if res.success else discord.Color.orange()
-            embed = discord.Embed(title="Breakthrough", description=res.message, color=color)
+            desc = res.message
+            if enlighten_msg:
+                desc += f"\n\n{enlighten_msg}"
+            if trial_msgs:
+                desc += "\n\n" + "\n".join(trial_msgs)
+            embed = discord.Embed(title="Breakthrough", description=desc, color=color)
             if bt_preview.can_attempt:
                 embed.add_field(
                     name="Attempted at",
@@ -834,11 +1125,6 @@ def rng_for(guild_id: str, user_id: str) -> random.Random:
 
 # Slash-command choices (must be defined before command decorators).
 ORIGIN_CHOICES = [app_commands.Choice(name=o, value=o) for o in ORIGINS]
-MORAL_CHOICES = [
-    app_commands.Choice(name="Righteous", value="righteous"),
-    app_commands.Choice(name="Demonic", value="demonic"),
-    app_commands.Choice(name="Neutral", value="neutral"),
-]
 
 
 async def upsert_player_if_missing(interaction: discord.Interaction) -> Player | None:
@@ -894,7 +1180,13 @@ async def on_ready():
                 guild = discord.Object(id=int(cfg.guild_id))
                 bot.tree.copy_global_to(guild=guild)
                 synced = await bot.tree.sync(guild=guild)
-                print(f"Slash commands synced to guild ({len(synced)} commands, {command_count} in tree).")
+                # Remove stale global commands (e.g. legacy /start with moral_path).
+                bot.tree.clear_commands(guild=None)
+                await bot.tree.sync()
+                print(
+                    f"Slash commands synced to guild ({len(synced)} commands, "
+                    f"{command_count} in tree); cleared stale global commands."
+                )
             except discord.Forbidden as e:
                 # Common cause: bot isn't invited/authorized for application commands
                 # in that guild, or GUILD_ID isn't the actual server id.
@@ -909,28 +1201,28 @@ async def on_ready():
         print(f"Slash command sync failed: {e!r}")
 
 
-@bot.tree.command(name="start", description="Begin your cultivation path.")
-@app_commands.choices(origin=ORIGIN_CHOICES, moral_path=MORAL_CHOICES)
+@bot.tree.command(
+    name="start",
+    description="Begin your cultivation path (dao name + origin only — karma is earned in adventures).",
+)
+@app_commands.choices(origin=ORIGIN_CHOICES)
 @app_commands.describe(
     dao_name="Your dao name (as you wish the world to remember).",
-    origin="Your origin/background.",
-    moral_path="Your moral path (affects breakthrough outcomes).",
+    origin="Your background — grants starting gifts. Morality is **not** chosen here.",
 )
 async def start_cmd(
     interaction: discord.Interaction,
     dao_name: str,
     origin: app_commands.Choice[str],
-    moral_path: app_commands.Choice[str],
 ):
     cfg = get_config()
     session = get_session()
     try:
         logger.info(
-            "CMD /start begin %s dao=%r origin=%r moral=%r",
+            "CMD /start begin %s dao=%r origin=%r",
             interaction_ctx(interaction),
             dao_name,
             origin.value,
-            moral_path.value,
         )
         # Acknowledge interaction immediately to avoid Discord's "application did not respond" timeout.
         await interaction.response.defer(thinking=True)
@@ -960,7 +1252,8 @@ async def start_cmd(
             dao_name=dao_name,
             origin=origin.value,
             spirit_root=root,
-            moral_path=moral_path.value,
+            moral_path="neutral",
+            karma=0,
             realm_index=0,
             substage=0,
             qi=0,
@@ -973,20 +1266,25 @@ async def start_cmd(
             last_pvp_at=None,
             last_active_at=now,
             daily_streak=0,
-            sect_id=None,
-            sect_role="member",
-            sect_contribution_qi_total=0,
+            clan_id=None,
+            clan_role="member",
+            clan_contribution_qi_total=0,
+            game_sect_id=None,
+            sect_merit=0,
         )
         session.add(player)
+        session.flush()
+        gift_msgs = apply_origin_starter_gifts(session, player)
+        ensure_starter_techniques(session, player.id)
         session.commit()
         logger.debug(
-            "Created player id=%s guild_id=%s discord_id=%s dao=%r root=%r moral=%r",
+            "Created player id=%s guild_id=%s discord_id=%s dao=%r root=%r karma=%s",
             player.id,
             guild_id,
             discord_id,
             dao_name,
             root,
-            player.moral_path,
+            player.karma,
         )
 
         embed = discord.Embed(
@@ -994,8 +1292,8 @@ async def start_cmd(
             description=(
                 f"{get_welcome_intro()}\n\n"
                 f"You name yourself **{dao_name}**. The past recedes: **{origin.value}**.\n"
-                f"Your moral path: **{moral_path.value}**.\n"
-                f"Your spirit root is revealed: **{root}**."
+                f"Your spirit root is revealed: **{root}**.\n"
+                f"Your karma begins at **0** — choices in adventures will shape your dao."
             ),
             color=discord.Color.blurple(),
         )
@@ -1003,6 +1301,13 @@ async def start_cmd(
         embed.add_field(name="Qi", value=str(player.qi), inline=True)
         embed.add_field(name="Spirit Stones", value=str(player.spirit_stones), inline=True)
         embed.add_field(name="Stamina", value=f"{player.stamina}/100", inline=True)
+        if gift_msgs:
+            embed.add_field(name="Origin gifts", value="\n".join(gift_msgs), inline=False)
+        embed.add_field(
+            name="Outer Disciple Trial",
+            value="Begin with **`/daily`**, then follow the trial steps on **`/profile`**.",
+            inline=False,
+        )
         embed.add_field(name="Your first steps", value=get_start_next_steps(), inline=False)
         attach_guidance(embed, "start", player, session, cfg, now)
         await interaction.followup.send(embed=embed, ephemeral=False)
@@ -1080,18 +1385,17 @@ async def reroll_root_cmd(interaction: discord.Interaction):
 
 
 @bot.tree.command(name="reset", description="Reset your character (realm, qi, stones).")
+@app_commands.choices(origin=ORIGIN_CHOICES)
 @app_commands.describe(
     confirm="Set to true to confirm the reset.",
     dao_name="New dao name.",
     origin="New origin/background.",
-    moral_path="New moral path.",
 )
 async def reset_cmd(
     interaction: discord.Interaction,
     confirm: bool,
     dao_name: str,
     origin: app_commands.Choice[str],
-    moral_path: app_commands.Choice[str],
 ):
     if not confirm:
         await interaction.response.send_message("Set `confirm=true` to proceed.", ephemeral=True)
@@ -1101,11 +1405,10 @@ async def reset_cmd(
     session = get_session()
     try:
         logger.info(
-            "CMD /reset begin %s dao=%r origin=%r moral=%r",
+            "CMD /reset begin %s dao=%r origin=%r",
             interaction_ctx(interaction),
             dao_name,
             origin.value,
-            moral_path.value,
         )
         guild_id = get_guild_id(interaction)
         discord_id = get_discord_id(interaction.user)
@@ -1115,20 +1418,27 @@ async def reset_cmd(
             return
 
         now = utcnow()
-        # If in a sect, update counts in MVP minimally (no complex roster rebuild).
-        if player.sect_id is not None:
-            sect = session.get(Sect, player.sect_id)
-            if sect is not None:
-                sect.member_count = max(0, sect.member_count - 1)
-                session.add(sect)
-            player.sect_id = None
-            player.sect_role = "member"
-            player.sect_contribution_qi_total = 0
+        # Leave clan on reset; clear martial sect membership.
+        if player.clan_id is not None:
+            clan = session.get(Clan, player.clan_id)
+            if clan is not None:
+                clan.member_count = max(0, clan.member_count - 1)
+                session.add(clan)
+            player.clan_id = None
+            player.clan_role = "member"
+            player.clan_contribution_qi_total = 0
+
+        player.game_sect_id = None
+        player.sect_merit = 0
+        player.sect_joined_at = None
+        player.last_sect_task_date = None
+        player.sect_leave_cooldown_until = None
 
         # Reset progression.
         player.dao_name = dao_name
         player.origin = origin.value
-        player.moral_path = moral_path.value
+        player.karma = 0
+        player.moral_path = "neutral"
         player.realm_index = 0
         player.substage = 0
         player.qi = 0
@@ -1136,6 +1446,8 @@ async def reset_cmd(
         player.stamina = 100
         player.stamina_last_updated_at = now
         player.last_cultivate_at = None
+        player.last_gather_at = None
+        player.last_hunt_at = None
         player.last_daily_at = None
         player.last_daily_streak_claimed_at = None
         player.last_pvp_at = None
@@ -1144,8 +1456,14 @@ async def reset_cmd(
         player.spirit_root = random.choice(SPIRIT_ROOTS)
         player.spirit_root_reroll_free_used = False
         player.spirit_root_last_reroll_at = None
+        player.novice_trial_step = 0
+        player.novice_cultivates = 0
+        player.adventures_completed = 0
 
         session.add(player)
+        session.flush()
+        apply_origin_starter_gifts(session, player)
+        ensure_starter_techniques(session, player.id)
         session.commit()
         logger.info(
             "Reset complete guild=%s user=%s new_root=%r new_realm=%s/%s qi=%s stones=%s",
@@ -1163,7 +1481,7 @@ async def reset_cmd(
             description=(
                 f"You restart as `{dao_name}` with `{origin.value}`.\n"
                 f"Spirit root: `{player.spirit_root}`.\n"
-                f"Moral path: `{moral_path.value}`."
+                f"Karma reset to **0**."
             ),
             color=discord.Color.gold(),
         )
@@ -1208,20 +1526,16 @@ async def profile_cmd(interaction: discord.Interaction):
         session.commit()
         mod = get_character_modifiers(session, player)
 
-        embed = discord.Embed(title=f"{player.dao_name} - Profile", color=discord.Color.blue())
-        embed.add_field(name="Realm", value=realm_display(player.realm_index, player.substage), inline=False)
-        embed.add_field(name="Spirit Stones", value=str(player.spirit_stones), inline=True)
-        embed.add_field(name="Stamina", value=f"{player.stamina}/100", inline=True)
-        embed.add_field(name="Spirit Root", value=player.spirit_root, inline=False)
-        embed.add_field(name="Moral Path", value=player.moral_path.title(), inline=False)
-        embed.add_field(name="Daily Streak", value=str(player.daily_streak), inline=True)
-        if offline_qi > 0:
-            embed.add_field(
-                name="Applied just now",
-                value=f"**+{offline_qi} passive Qi** was added to your pool from time away.",
-                inline=False,
-            )
-        add_cultivation_preview_fields(embed, player, mod, cfg, now)
+        embed = build_profile_embed(
+            player,
+            session,
+            cfg,
+            now,
+            offline_qi=offline_qi,
+            combat=compute_combat_stats(player, session, mod),
+            realm_display=realm_display(player.realm_index, player.substage),
+            remaining_fn=cooldown_remaining,
+        )
 
         rng = rng_for(guild_id, discord_id)
         view = CultivateView(owner_discord_id=discord_id, cfg=cfg, rng=rng)
@@ -1235,17 +1549,262 @@ async def shop_item_autocomplete(
     interaction: discord.Interaction,
     current: str,
 ) -> list[app_commands.Choice[str]]:
-    listings = list_shop_listings()
-    current_lower = current.lower()
-    choices: list[app_commands.Choice[str]] = []
-    for listing in listings:
-        if current_lower and current_lower not in listing.name.lower() and current_lower not in listing.shop_id.lower():
-            continue
-        label = f"{listing.name} ({listing.price} stones)"
-        choices.append(app_commands.Choice(name=label[:100], value=listing.shop_id))
-        if len(choices) >= 25:
-            break
-    return choices
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is not None:
+            options = list_affordable_shop_items(player)
+        else:
+            options = [
+                (listing.shop_id, f"{listing.name} ({listing.price} stones)")
+                for listing in list_shop_listings()
+            ]
+        return [
+            app_commands.Choice(name=label[:100], value=value)
+            for value, label in filter_options(options, current)
+        ]
+    finally:
+        session.close()
+
+
+def _choices_from_options(options: list[tuple[str, str]], current: str) -> list[app_commands.Choice[str]]:
+    return [
+        app_commands.Choice(name=label[:100], value=value)
+        for value, label in filter_options(options, current)
+    ]
+
+
+async def learn_manual_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        return _choices_from_options(list_player_manuals(session, player.id), current)
+    finally:
+        session.close()
+
+
+async def inventory_item_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        return _choices_from_options(list_inventory_item_options(session, player.id), current)
+    finally:
+        session.close()
+
+
+async def craft_pill_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        return _choices_from_options(list_craftable_recipes(session, player.id, "pill"), current)
+    finally:
+        session.close()
+
+
+async def craft_key_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        return _choices_from_options(list_craftable_recipes(session, player.id, "key"), current)
+    finally:
+        session.close()
+
+
+async def area_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        return _choices_from_options(list_unlocked_areas(player), current)
+    finally:
+        session.close()
+
+
+async def all_areas_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    options = [
+        (area_id, f"{area.name} ({area.recommended_text})")
+        for area_id, area in get_areas().items()
+    ]
+    return _choices_from_options(options, current)
+
+
+async def dungeon_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        return _choices_from_options(list_enterable_dungeons(session, player), current)
+    finally:
+        session.close()
+
+
+async def forge_slot_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        return _choices_from_options(list_forgeable_slots(session, player.id), current)
+    finally:
+        session.close()
+
+
+async def affix_slot_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        return _choices_from_options(list_affixable_slots(session, player.id), current)
+    finally:
+        session.close()
+
+
+async def technique_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        return _choices_from_options(list_equippable_techniques(session, player), current)
+    finally:
+        session.close()
+
+
+async def technique_equip_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        return _choices_from_options(list_technique_equip_options(session, player), current)
+    finally:
+        session.close()
+
+
+async def technique_slot_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    technique_raw = getattr(interaction.namespace, "technique", None)
+    if not technique_raw:
+        options = [(slot, f"Slot {slot}" if slot != "passive" else "Passive") for slot in TECHNIQUE_SLOT_OPTIONS]
+        return _choices_from_options(options, current)
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        technique_id = resolve_technique_id(str(technique_raw))
+        if technique_id is None:
+            return []
+        return _choices_from_options(list_valid_slots_for_technique(session, player, technique_id), current)
+    finally:
+        session.close()
 
 
 @bot.tree.command(name="shop", description="Buy pills, gear, and supplies with spirit stones.")
@@ -1280,7 +1839,8 @@ async def shop_cmd(
             return
 
         shop_id = resolve_shop_id(item) or item
-        ok, message = buy_from_shop(session, player, shop_id, int(quantity))
+        rng = rng_for(guild_id, discord_id)
+        ok, message = buy_from_shop(session, player, shop_id, int(quantity), rng=rng)
         if not ok:
             await interaction.response.send_message(message, ephemeral=True)
             return
@@ -1297,7 +1857,7 @@ async def shop_cmd(
         session.close()
 
 
-@bot.tree.command(name="inventory", description="View your materials, pills, and keys.")
+@bot.tree.command(name="inventory", description="View your storage ring — item names grouped by type.")
 async def inventory_cmd(interaction: discord.Interaction):
     cfg = get_config()
     session = get_session()
@@ -1312,11 +1872,42 @@ async def inventory_cmd(interaction: discord.Interaction):
 
         load_item_catalog()
         stacks = get_player_inventory(session, player.id)
-        title, description = format_inventory_embed(player, stacks)
-
-        embed = discord.Embed(title=title, description=description, color=discord.Color.dark_teal())
-        embed.set_footer(text=f"{len(stacks)} item type(s) in storage")
+        embed = build_inventory_embed(player, stacks)
         attach_guidance(embed, "inventory", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="item", description="Inspect an item — effects, crafting uses, and how to obtain more.")
+@app_commands.describe(name="Item from your inventory (autocomplete).")
+@app_commands.autocomplete(name=inventory_item_autocomplete)
+async def item_cmd(interaction: discord.Interaction, name: str):
+    session = get_session()
+    try:
+        load_item_catalog()
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        item_id = resolve_inventory_item_id(session, player.id, name)
+        if item_id is None:
+            await interaction.response.send_message(
+                "That item is not in your bag. Check **`/inventory`** or pick from autocomplete.",
+                ephemeral=True,
+            )
+            return
+
+        embed = build_item_detail_embed(item_id, session=session, player_id=player.id)
+        if embed is None:
+            await interaction.response.send_message("Unknown item.", ephemeral=True)
+            return
+
+        cfg = get_config()
+        attach_guidance(embed, "item", player, session, cfg, utcnow())
         await interaction.response.send_message(embed=embed, ephemeral=True)
     finally:
         session.close()
@@ -1372,19 +1963,82 @@ async def post_tutorial_cmd(
 
     await interaction.response.defer(ephemeral=True)
     try:
-        count = await post_tutorial(target, pin_intro=pin_intro)
+        result = await post_tutorial(
+            target,
+            pin_intro=pin_intro,
+            clear_existing=True,
+            me=interaction.client.user,
+        )
         await interaction.followup.send(
-            f"Tutorial posted to {target.mention} — **{count}** messages (intro + guide pages).",
+            f"Cleared **{result.deleted}** old message(s) and posted **{result.posted}** new message(s) "
+            f"to {target.mention}.",
             ephemeral=True,
         )
     except discord.Forbidden:
         await interaction.followup.send(
-            f"I can't send messages in {target.mention}. Check **Send Messages**, **Embed Links**, and **Pin Messages**.",
+            f"I can't manage messages in {target.mention}. Check **Read Message History**, "
+            "**Send Messages**, **Embed Links**, and **Pin Messages**.",
             ephemeral=True,
         )
     except Exception as exc:
         logger.exception("post-tutorial failed %s", interaction_ctx(interaction))
         await interaction.followup.send(f"Failed to post tutorial: {exc}", ephemeral=True)
+
+
+@bot.tree.command(name="post-library", description="Post the technique manual library to a channel (admin).")
+@app_commands.default_permissions(manage_guild=True)
+@app_commands.describe(
+    channel="Where to post (defaults to LIBRARY_CHANNEL_ID in .env)",
+    pin_intro="Pin the intro message at the top",
+)
+async def post_library_cmd(
+    interaction: discord.Interaction,
+    channel: discord.TextChannel | None = None,
+    pin_intro: bool = True,
+):
+    cfg = get_config()
+    if interaction.guild is None:
+        await interaction.response.send_message("This command only works in a server.", ephemeral=True)
+        return
+
+    target = channel
+    if target is None and cfg.library_channel_id:
+        target = interaction.guild.get_channel(int(cfg.library_channel_id))
+        if target is None:
+            try:
+                target = await interaction.client.fetch_channel(int(cfg.library_channel_id))
+            except (discord.NotFound, discord.Forbidden, ValueError):
+                target = None
+
+    if target is None:
+        await interaction.response.send_message(
+            "Pick a **channel**, or set `LIBRARY_CHANNEL_ID` in the bot `.env`.",
+            ephemeral=True,
+        )
+        return
+
+    await interaction.response.defer(ephemeral=True)
+    try:
+        result = await post_library(
+            target,
+            pin_intro=pin_intro,
+            clear_existing=True,
+            me=interaction.client.user,
+        )
+        await interaction.followup.send(
+            f"Cleared **{result.deleted}** old message(s) and posted **{result.posted}** new message(s) "
+            f"to {target.mention}.",
+            ephemeral=True,
+        )
+    except discord.Forbidden:
+        await interaction.followup.send(
+            f"I can't manage messages in {target.mention}. Check **Read Message History**, "
+            "**Send Messages**, **Embed Links**, and **Pin Messages**.",
+            ephemeral=True,
+        )
+    except Exception as exc:
+        logger.exception("post-library failed %s", interaction_ctx(interaction))
+        await interaction.followup.send(f"Failed to post library: {exc}", ephemeral=True)
 
 
 @bot.tree.command(name="cooldown", description="See which commands are ready and which are on timer.")
@@ -1534,12 +2188,15 @@ async def cultivate_cmd(interaction: discord.Interaction):
             player.qi += passive_before
             player.last_active_at = now
 
-        sect = None
-        if player.sect_id is not None:
-            sect = session.get(Sect, player.sect_id)
+        clan = None
+        if player.clan_id is not None:
+            clan = session.get(Clan, player.clan_id)
 
         rng = rng_for(guild_id, discord_id)
-        res: CultivateResult = cultivate(player, sect, cfg, rng=rng, mod=mod)
+        res: CultivateResult = cultivate(
+            player, clan, cfg, rng=rng, mod=mod, session=session, player_id=player.id
+        )
+        applied_drops = apply_cultivate_bonus_drops(session, player.id, res.bonus_drops or {})
         if "qi_gathering" in mod.active_effects:
             consume_effect_charge(session, player.id, "qi_gathering")
         consume_haste_for_activity(session, player.id, "cultivate")
@@ -1547,8 +2204,8 @@ async def cultivate_cmd(interaction: discord.Interaction):
         schedule_player_reminders(session, player, cfg, "cultivate", now=now)
 
         session.add(player)
-        if sect is not None:
-            session.add(sect)
+        if clan is not None:
+            session.add(clan)
         session.commit()
 
         logger.info(
@@ -1563,21 +2220,13 @@ async def cultivate_cmd(interaction: discord.Interaction):
             player.substage,
         )
 
-        embed = discord.Embed(title="Cultivation Complete", description=res.message, color=discord.Color.green())
-        embed.add_field(name="Qi", value=str(player.qi), inline=True)
-        if passive_before > 0:
-            embed.add_field(
-                name="Qi breakdown",
-                value=(
-                    f"**+{passive_before + res.qi_gain}** total "
-                    f"(**+{res.qi_gain}** active · **+{passive_before}** passive)"
-                ),
-                inline=False,
-            )
-        embed.add_field(name="Spirit Stones", value=str(player.spirit_stones), inline=True)
-        embed.add_field(name="Stamina", value=f"{player.stamina}/100", inline=True)
-        embed.add_field(name="Realm", value=realm_display(player.realm_index, player.substage), inline=False)
-
+        embed = build_cultivate_embed(
+            res,
+            player,
+            realm_display=realm_display(player.realm_index, player.substage),
+            passive_qi=passive_before,
+            applied_drops=applied_drops,
+        )
         attach_guidance(embed, "cultivate", player, session, cfg, now)
         await interaction.response.send_message(embed=embed, ephemeral=True)
     finally:
@@ -1616,6 +2265,12 @@ async def breakthrough_cmd(interaction: discord.Interaction):
         bt_preview = compute_breakthrough_preview(player, mod)
         rng = rng_for(guild_id, discord_id)
         res: BreakthroughResult = breakthrough(player, cfg, rng=rng, mod=mod)
+        _, enlighten_msg = roll_breakthrough_enlightenment(
+            session, player, rng, success=res.success
+        )
+        trial_msgs: list[str] = []
+        if res.success:
+            trial_msgs = on_breakthrough_success(session, player, rng)
         if "clarity" in mod.active_effects and res.success:
             consume_effect_charge(session, player.id, "clarity")
 
@@ -1633,7 +2288,12 @@ async def breakthrough_cmd(interaction: discord.Interaction):
         )
 
         color = discord.Color.green() if res.success else discord.Color.orange()
-        embed = discord.Embed(title="Breakthrough", description=res.message, color=color)
+        desc = res.message
+        if enlighten_msg:
+            desc += f"\n\n{enlighten_msg}"
+        if trial_msgs:
+            desc += "\n\n" + "\n".join(trial_msgs)
+        embed = discord.Embed(title="Breakthrough", description=desc, color=color)
         if bt_preview.can_attempt:
             embed.add_field(
                 name="Attempted at",
@@ -1648,6 +2308,8 @@ async def breakthrough_cmd(interaction: discord.Interaction):
             )
         embed.add_field(name="Qi", value=str(player.qi), inline=True)
         embed.add_field(name="Realm", value=realm_display(player.realm_index, player.substage), inline=False)
+        if enlighten_msg:
+            embed.add_field(name="Enlightenment", value=enlighten_msg, inline=False)
         attach_guidance(embed, "breakthrough", player, session, cfg, now)
         await interaction.response.send_message(embed=embed, ephemeral=True)
     finally:
@@ -1724,6 +2386,7 @@ async def daily_cmd(interaction: discord.Interaction):
         player.qi += qi
         player.last_daily_at = now
         player.last_active_at = now
+        trial_msgs = on_daily_claimed(player)
         schedule_player_reminders(session, player, cfg, "daily", now=now)
 
         session.add(player)
@@ -1734,6 +2397,7 @@ async def daily_cmd(interaction: discord.Interaction):
             description=(
                 f"You accept the day's offerings.\n"
                 f"+{stones} spirit stones, +{qi} qi."
+                + (f"\n\n" + "\n".join(trial_msgs) if trial_msgs else "")
             ),
             color=discord.Color.purple(),
         )
@@ -1865,10 +2529,10 @@ def duel_from_players(
 
 @bot.tree.command(name="areas", description="Compare adventure zones, loot, and realm requirements.")
 @app_commands.describe(area="Optional: details for one area including rare events.")
-@app_commands.choices(area=AREA_CHOICES)
+@app_commands.autocomplete(area=all_areas_autocomplete)
 async def areas_cmd(
     interaction: discord.Interaction,
-    area: app_commands.Choice[str] | None = None,
+    area: str | None = None,
 ):
     cfg = get_config()
     session = get_session()
@@ -1877,7 +2541,7 @@ async def areas_cmd(
         discord_id = get_discord_id(interaction.user)
         player = ensure_player(session, guild_id, discord_id)
 
-        area_id = area.value if area is not None else None
+        area_id = area if area in get_areas() else None
         embed = build_areas_embed(player, area_id=area_id)
         if player is not None:
             attach_guidance(embed, "areas", player, session, cfg, utcnow())
@@ -1915,15 +2579,245 @@ async def roots_cmd(
         session.close()
 
 
+@bot.tree.command(name="gather", description="Harvest herbs and ore from a region (5 min cooldown).")
+@app_commands.describe(area="Where to gather materials.")
+@app_commands.autocomplete(area=area_autocomplete)
+async def gather_cmd(interaction: discord.Interaction, area: str):
+    cfg = get_config()
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        now = utcnow()
+        remaining = activity_cooldown_remaining(
+            session,
+            player,
+            now,
+            "gather",
+            player.last_gather_at,
+            cfg.gather_cooldown_seconds,
+        )
+        if remaining > 0:
+            haste = get_haste_reduction_seconds(session, player.id, "gather")
+            extra = f" (pill haste: −{format_seconds(haste)})" if haste > 0 else ""
+            await interaction.response.send_message(
+                f"The soil needs time to recover. Wait {format_seconds(remaining)}.{extra}",
+                ephemeral=True,
+            )
+            return
+
+        rng = rng_for(guild_id, discord_id)
+        res = run_gather(session, player, area, rng=rng)
+        if not res.success:
+            await interaction.response.send_message(res.messages[0], ephemeral=True)
+            return
+
+        player.last_gather_at = now
+        player.last_active_at = now
+        consume_haste_for_activity(session, player.id, "gather")
+        schedule_player_reminders(session, player, cfg, "gather", now=now)
+        session.add(player)
+        session.commit()
+
+        from .inventory import get_item_name
+
+        drop_lines = [f"**{get_item_name(item_id)}** ×{qty}" for item_id, qty in res.drops.items()]
+        embed = discord.Embed(
+            title=f"Gather — {res.area_name}",
+            description="\n".join(res.messages),
+            color=discord.Color.green(),
+        )
+        if drop_lines:
+            embed.add_field(name="Collected", value="\n".join(drop_lines), inline=False)
+        attach_guidance(embed, "gather", player, session, cfg, now)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="hunt", description="Track and fight spirit beasts for cores and parts (5 min cooldown).")
+@app_commands.describe(area="Where to hunt beasts.")
+@app_commands.autocomplete(area=area_autocomplete)
+async def hunt_cmd(interaction: discord.Interaction, area: str):
+    cfg = get_config()
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        now = utcnow()
+        remaining = activity_cooldown_remaining(
+            session,
+            player,
+            now,
+            "hunt",
+            player.last_hunt_at,
+            cfg.hunt_cooldown_seconds,
+        )
+        if remaining > 0:
+            haste = get_haste_reduction_seconds(session, player.id, "hunt")
+            extra = f" (pill haste: −{format_seconds(haste)})" if haste > 0 else ""
+            await interaction.response.send_message(
+                f"You must recover before hunting again. Wait {format_seconds(remaining)}.{extra}",
+                ephemeral=True,
+            )
+            return
+
+        rng = rng_for(guild_id, discord_id)
+        start, err = start_hunt_combat(session, player, area, rng=rng)
+        if err:
+            await interaction.response.send_message(err, ephemeral=True)
+            return
+
+        assert start is not None
+        ensure_starter_techniques(session, player.id)
+        techniques = get_equipped_active_techniques(session, player.id)
+        session.commit()
+
+        embed = build_hunt_combat_embed(start)
+        view = CombatView(
+            discord_id,
+            guild_id,
+            start.combat_id,
+            "hunt",
+            area_id=start.area_id,
+            beast_id=start.beast_id,
+            area_name=start.area_name,
+            techniques=techniques,
+            technique_cooldowns={},
+        )
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="techniques", description="View your martial build and manage manuals & loadout.")
+async def techniques_cmd(interaction: discord.Interaction):
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        ensure_starter_techniques(session, player.id)
+        session.commit()
+        embed = build_techniques_embed(session, player)
+        view = TechniquesView(str(interaction.user.id), session, player)
+        attach_guidance(embed, "techniques", player, session, get_config(), utcnow())
+        await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="equip-technique", description="Equip a learned technique to an active or passive slot.")
+@app_commands.describe(
+    setup="Pick technique + slot from the list (recommended).",
+    technique="Or pick a technique, then a slot.",
+    slot="Slot 1–4 for actives, or passive.",
+)
+@app_commands.autocomplete(setup=technique_equip_autocomplete, technique=technique_autocomplete, slot=technique_slot_autocomplete)
+async def equip_technique_cmd(
+    interaction: discord.Interaction,
+    setup: str | None = None,
+    technique: str | None = None,
+    slot: str | None = None,
+):
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        technique_id: str | None = None
+        slot_value: str | None = None
+
+        if setup:
+            if "|" not in setup:
+                await interaction.response.send_message(
+                    "Pick a full loadout option from the **`setup`** list.",
+                    ephemeral=True,
+                )
+                return
+            technique_id, slot_value = setup.split("|", 1)
+        elif technique and slot:
+            technique_id = resolve_technique_id(technique)
+            slot_value = slot.lower()
+        else:
+            await interaction.response.send_message(
+                "Use **`setup`** (recommended) or provide both **`technique`** and **`slot`**.",
+                ephemeral=True,
+            )
+            return
+
+        if technique_id is None:
+            await interaction.response.send_message(
+                "Pick a technique from the **`/equip-technique`** list.",
+                ephemeral=True,
+            )
+            return
+
+        if slot_value not in TECHNIQUE_SLOT_OPTIONS:
+            await interaction.response.send_message("Slot must be 1–4 or passive.", ephemeral=True)
+            return
+
+        ok, message = equip_technique(session, player, technique_id, slot_value)
+        if not ok:
+            await interaction.response.send_message(message, ephemeral=True)
+            return
+        session.commit()
+        await interaction.response.send_message(message, ephemeral=True)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="learn", description="Study a technique manual from your inventory.")
+@app_commands.describe(manual="Pick a manual you carry.")
+@app_commands.autocomplete(manual=learn_manual_autocomplete)
+async def learn_cmd(interaction: discord.Interaction, manual: str):
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        ok, message = learn_technique_from_manual(session, player.id, manual)
+        if not ok:
+            await interaction.response.send_message(message, ephemeral=True)
+            return
+        session.commit()
+        await interaction.response.send_message(message, ephemeral=True)
+    finally:
+        session.close()
+
+
 @bot.tree.command(name="adventure", description="Start an interactive adventure with choices.")
-@app_commands.choices(area=AREA_CHOICES, stance=STANCE_CHOICES)
+@app_commands.choices(stance=STANCE_CHOICES)
 @app_commands.describe(
     area="Where to explore.",
     stance="How boldly you press forward. Risky choices can boost loot or fail the run.",
 )
+@app_commands.autocomplete(area=area_autocomplete)
 async def adventure_cmd(
     interaction: discord.Interaction,
-    area: app_commands.Choice[str],
+    area: str,
     stance: app_commands.Choice[str],
 ):
     cfg = get_config()
@@ -1955,7 +2849,7 @@ async def adventure_cmd(
             return
 
         rng = rng_for(guild_id, discord_id)
-        pending, err = start_adventure_session(session, player, area.value, stance.value, rng=rng)
+        pending, err = start_adventure_session(session, player, area, stance.value, rng=rng)
         if err:
             await interaction.response.send_message(err, ephemeral=True)
             return
@@ -1963,8 +2857,33 @@ async def adventure_cmd(
         assert pending is not None
         session.commit()
 
-        embed = build_adventure_embed_from_pending(pending)
-        view = AdventureChoiceView(discord_id, guild_id, pending.active_id, pending.choices)
+        if pending.encounter_type == "combat" and pending.combat_id:
+            from .combat.session import get_active_combat, load_combat_state
+
+            ensure_starter_techniques(session, player.id)
+            techniques = get_equipped_active_techniques(session, player.id)
+            active_combat = get_active_combat(session, player.id)
+            combat_state = load_combat_state(active_combat) if active_combat else None
+            embed = (
+                build_adventure_combat_embed(pending, combat_state)
+                if combat_state
+                else build_adventure_embed_from_pending(pending)
+            )
+            view = CombatView(
+                discord_id,
+                guild_id,
+                pending.combat_id,
+                "adventure",
+                area_id=area,
+                active_id=pending.active_id,
+                area_name=pending.area_name,
+                techniques=techniques,
+                technique_cooldowns=combat_state.technique_cooldowns if combat_state else {},
+                player_sealed=combat_state.player.sealed if combat_state else False,
+            )
+        else:
+            embed = build_adventure_embed_from_pending(pending)
+            view = AdventureChoiceView(discord_id, guild_id, pending.active_id, pending.choices)
         attach_guidance(embed, "adventure", player, session, cfg, now)
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
     finally:
@@ -1989,8 +2908,35 @@ async def adventure_continue_cmd(interaction: discord.Interaction):
             return
 
         assert pending is not None
-        embed = build_adventure_embed_from_pending(pending)
-        view = AdventureChoiceView(discord_id, guild_id, pending.active_id, pending.choices)
+        if pending.encounter_type == "combat" and pending.combat_id:
+            from .combat.session import get_active_combat, load_combat_state
+
+            ensure_starter_techniques(session, player.id)
+            techniques = get_equipped_active_techniques(session, player.id)
+            active_row = get_active_adventure(session, player.id)
+            area_id = active_row.area_id if active_row else ""
+            active_combat = get_active_combat(session, player.id)
+            combat_state = load_combat_state(active_combat) if active_combat else None
+            embed = (
+                build_adventure_combat_embed(pending, combat_state)
+                if combat_state
+                else build_adventure_embed_from_pending(pending)
+            )
+            view = CombatView(
+                discord_id,
+                guild_id,
+                pending.combat_id,
+                "adventure",
+                area_id=area_id,
+                active_id=pending.active_id,
+                area_name=pending.area_name,
+                techniques=techniques,
+                technique_cooldowns=combat_state.technique_cooldowns if combat_state else {},
+                player_sealed=combat_state.player.sealed if combat_state else False,
+            )
+        else:
+            embed = build_adventure_embed_from_pending(pending)
+            view = AdventureChoiceView(discord_id, guild_id, pending.active_id, pending.choices)
         attach_guidance(embed, "adventure", player, session, cfg, utcnow())
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
     finally:
@@ -2051,8 +2997,9 @@ async def recipes_cmd(
 
 
 @bot.tree.command(name="forge", description="Forge equipment for a slot using adventure materials.")
-@app_commands.choices(slot=EQUIP_SLOT_CHOICES)
-async def forge_cmd(interaction: discord.Interaction, slot: app_commands.Choice[str]):
+@app_commands.describe(slot="Pick a slot you can forge right now.")
+@app_commands.autocomplete(slot=forge_slot_autocomplete)
+async def forge_cmd(interaction: discord.Interaction, slot: str):
     session = get_session()
     try:
         guild_id = get_guild_id(interaction)
@@ -2062,8 +3009,16 @@ async def forge_cmd(interaction: discord.Interaction, slot: app_commands.Choice[
             await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
             return
 
+        resolved_slot = resolve_forge_slot(slot)
+        if resolved_slot is None:
+            await interaction.response.send_message(
+                "Pick a forge option from the **`/forge`** list — you need the listed materials.",
+                ephemeral=True,
+            )
+            return
+
         rng = rng_for(guild_id, discord_id)
-        res = forge_equipment(session, player.id, slot.value, rng=rng)
+        res = forge_equipment(session, player.id, resolved_slot, rng=rng)
         if not res.success:
             await interaction.response.send_message(res.message, ephemeral=True)
             return
@@ -2088,7 +3043,7 @@ async def stats_cmd(interaction: discord.Interaction):
             return
 
         mod = get_character_modifiers(session, player)
-        summary = format_stats_summary(session, player.id)
+        summary = format_stats_summary(session, player.id, player=player, mod=mod)
         embed = discord.Embed(
             title=f"{player.dao_name} — Stats",
             description=summary,
@@ -2106,15 +3061,15 @@ async def stats_cmd(interaction: discord.Interaction):
         session.close()
 
 
-craft_group = app_commands.Group(name="craft", description="Craft pills and dungeon keys.")
+craft_group = app_commands.Group(name="craft", description="Craft pills, keys, and technique manuals.")
 
 
 @craft_group.command(name="pill", description="Craft a pill from materials.")
-@app_commands.choices(recipe=PILL_RECIPE_CHOICES)
-@app_commands.describe(recipe="Which pill to brew.", amount="How many to attempt (1-10).")
+@app_commands.describe(recipe="Pick a recipe you can brew now.", amount="How many to attempt (1-10).")
+@app_commands.autocomplete(recipe=craft_pill_autocomplete)
 async def craft_pill_cmd(
     interaction: discord.Interaction,
-    recipe: app_commands.Choice[str],
+    recipe: str,
     amount: app_commands.Range[int, 1, 10] = 1,
 ):
     session = get_session()
@@ -2126,8 +3081,15 @@ async def craft_pill_cmd(
             await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
             return
 
+        if get_recipes().get(recipe) is None:
+            await interaction.response.send_message(
+                "Pick a pill recipe from the **`/craft pill`** list.",
+                ephemeral=True,
+            )
+            return
+
         rng = rng_for(guild_id, discord_id)
-        res = craft_recipe(session, player, recipe.value, amount=amount, rng=rng)
+        res = craft_recipe(session, player, recipe, amount=amount, rng=rng)
         session.add(player)
         session.commit()
 
@@ -2145,8 +3107,9 @@ async def craft_pill_cmd(
 
 
 @craft_group.command(name="key", description="Craft a dungeon key.")
-@app_commands.choices(recipe=KEY_RECIPE_CHOICES)
-async def craft_key_cmd(interaction: discord.Interaction, recipe: app_commands.Choice[str]):
+@app_commands.describe(recipe="Pick a key recipe you can forge now.")
+@app_commands.autocomplete(recipe=craft_key_autocomplete)
+async def craft_key_cmd(interaction: discord.Interaction, recipe: str):
     session = get_session()
     try:
         guild_id = get_guild_id(interaction)
@@ -2156,8 +3119,15 @@ async def craft_key_cmd(interaction: discord.Interaction, recipe: app_commands.C
             await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
             return
 
+        if get_recipes().get(recipe) is None:
+            await interaction.response.send_message(
+                "Pick a key recipe from the **`/craft key`** list.",
+                ephemeral=True,
+            )
+            return
+
         rng = rng_for(guild_id, discord_id)
-        res = craft_recipe(session, player, recipe.value, amount=1, rng=rng)
+        res = craft_recipe(session, player, recipe, amount=1, rng=rng)
         session.add(player)
         session.commit()
 
@@ -2169,15 +3139,54 @@ async def craft_key_cmd(interaction: discord.Interaction, recipe: app_commands.C
         session.close()
 
 
+@craft_group.command(name="manual", description="Bind technique fragments into a manual.")
+async def craft_manual_cmd(interaction: discord.Interaction):
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        if not can_bind_technique_manual(session, player.id):
+            from .manuals import MANUAL_CRAFT_INPUTS
+            from .drop_sources import format_missing_materials_message
+
+            await interaction.response.send_message(
+                format_missing_materials_message(session, player.id, MANUAL_CRAFT_INPUTS, action="manual"),
+                ephemeral=True,
+            )
+            return
+
+        rng = rng_for(guild_id, discord_id)
+        res = craft_manual_from_fragments(session, player, rng=rng)
+        session.add(player)
+        session.commit()
+
+        color = discord.Color.green() if res.success else discord.Color.orange()
+        embed = discord.Embed(title="Manual Binding", description=res.message, color=color)
+        if res.crafted:
+            from .inventory import get_item_name
+
+            lines = [f"{get_item_name(k)} ×{v}" for k, v in res.crafted.items()]
+            embed.add_field(name="Bound", value="\n".join(lines), inline=False)
+        attach_guidance(embed, "craft_manual", player, session, get_config(), utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    finally:
+        session.close()
+
+
 bot.tree.add_command(craft_group)
 
 
 @bot.tree.command(name="dungeon", description="Enter a key-gated dungeon.")
-@app_commands.describe(name="Which dungeon to enter.", mode="Solo for now.")
-@app_commands.choices(name=DUNGEON_CHOICES)
+@app_commands.describe(name="Pick a dungeon you can enter now.", mode="Solo for now.")
+@app_commands.autocomplete(name=dungeon_autocomplete)
 async def dungeon_cmd(
     interaction: discord.Interaction,
-    name: app_commands.Choice[str],
+    name: str,
     mode: str = "solo",
 ):
     cfg = get_config()
@@ -2207,7 +3216,7 @@ async def dungeon_cmd(
             return
 
         rng = rng_for(guild_id, discord_id)
-        res = run_dungeon(session, player, name.value, mode=mode, rng=rng)
+        res = run_dungeon(session, player, name, mode=mode, rng=rng)
         if res.outcome in {"invalid", "underleveled", "no_key"}:
             await interaction.response.send_message(res.messages[0], ephemeral=True)
             return
@@ -2234,8 +3243,9 @@ async def dungeon_cmd(
 
 
 @bot.tree.command(name="equip", description="Apply an Affix Stone to an equipment slot.")
-@app_commands.choices(slot=EQUIP_SLOT_CHOICES)
-async def equip_cmd(interaction: discord.Interaction, slot: app_commands.Choice[str]):
+@app_commands.describe(slot="Pick equipped gear with an Affix Stone ready.")
+@app_commands.autocomplete(slot=affix_slot_autocomplete)
+async def equip_cmd(interaction: discord.Interaction, slot: str):
     session = get_session()
     try:
         guild_id = get_guild_id(interaction)
@@ -2245,8 +3255,16 @@ async def equip_cmd(interaction: discord.Interaction, slot: app_commands.Choice[
             await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
             return
 
+        slot = slot.lower()
+        if slot not in {"weapon", "armor", "accessory", "talisman"}:
+            await interaction.response.send_message(
+                "Pick a slot from the **`/equip`** list.",
+                ephemeral=True,
+            )
+            return
+
         rng = rng_for(guild_id, discord_id)
-        ok, message, _affix = apply_affix_stone(session, player.id, slot.value, rng=rng)
+        ok, message, _affix = apply_affix_stone(session, player.id, slot, rng=rng)
         if not ok:
             await interaction.response.send_message(message, ephemeral=True)
             return
@@ -2347,14 +3365,14 @@ async def use_item_autocomplete(interaction: discord.Interaction, current: str) 
         session.close()
 
 
-# Sect commands (minimal MVP)
+# Clan commands (player guilds)
 
 
-@bot.tree.command(name="sect-create", description="Create a sect (MVP).")
-async def sect_create_cmd(interaction: discord.Interaction, name: str):
+@bot.tree.command(name="clan-create", description="Create a player clan in this server.")
+async def clan_create_cmd(interaction: discord.Interaction, name: str):
     session = get_session()
     try:
-        logger.info("CMD /sect-create begin %s name=%r", interaction_ctx(interaction), name)
+        logger.info("CMD /clan-create begin %s name=%r", interaction_ctx(interaction), name)
         if interaction.guild is None:
             await interaction.response.send_message("This bot works inside a server.", ephemeral=True)
             return
@@ -2367,60 +3385,62 @@ async def sect_create_cmd(interaction: discord.Interaction, name: str):
             await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
             return
 
-        if player.sect_id is not None:
-            await interaction.response.send_message("You are already in a sect. Use `/sect-leave` first.", ephemeral=True)
+        if player.clan_id is not None:
+            await interaction.response.send_message(
+                "You are already in a clan. Use `/clan-leave` first.", ephemeral=True
+            )
             return
 
         name = name.strip()
         if not name:
-            await interaction.response.send_message("Sect name cannot be empty.", ephemeral=True)
+            await interaction.response.send_message("Clan name cannot be empty.", ephemeral=True)
             return
 
-        existing = get_or_create_sect(session, guild_id, name)
+        existing = get_clan_by_name_lookup(session, guild_id, name)
         if existing is not None:
-            await interaction.response.send_message("A sect with that name already exists.", ephemeral=True)
+            await interaction.response.send_message("A clan with that name already exists.", ephemeral=True)
             return
 
-        sect = Sect(
+        clan = Clan(
             guild_id=guild_id,
             name=name,
             created_by_discord_id=discord_id,
-            sect_qi_contributed=0,
+            clan_qi_contributed=0,
             member_count=1,
         )
-        session.add(sect)
-        session.flush()  # get sect.id
+        session.add(clan)
+        session.flush()
 
-        player.sect_id = sect.id
-        player.sect_role = "founder"
-        player.sect_contribution_qi_total = 0
+        player.clan_id = clan.id
+        player.clan_role = "founder"
+        player.clan_contribution_qi_total = 0
         session.add(player)
         session.commit()
         logger.info(
-            "Sect created guild=%s founder=%s sect_id=%s sect_name=%r member_count=%s",
+            "Clan created guild=%s founder=%s clan_id=%s clan_name=%r member_count=%s",
             guild_id,
             discord_id,
-            sect.id,
+            clan.id,
             name,
-            sect.member_count,
+            clan.member_count,
         )
 
         embed = discord.Embed(
-            title="New Sect Formed",
-            description=f"The sect `{name}` opens its gate. You become its founder.",
+            title="New Clan Formed",
+            description=f"The clan `{name}` opens its banner. You become its founder.",
             color=discord.Color.dark_gold(),
         )
-        attach_guidance(embed, "sect-create", player, session, cfg, utcnow())
+        attach_guidance(embed, "clan-create", player, session, cfg, utcnow())
         await interaction.response.send_message(embed=embed, ephemeral=False)
     finally:
         session.close()
 
 
-@bot.tree.command(name="sect-join", description="Join an existing sect (MVP).")
-async def sect_join_cmd(interaction: discord.Interaction, name: str):
+@bot.tree.command(name="clan-join", description="Join an existing player clan by name.")
+async def clan_join_cmd(interaction: discord.Interaction, name: str):
     session = get_session()
     try:
-        logger.info("CMD /sect-join begin %s name=%r", interaction_ctx(interaction), name)
+        logger.info("CMD /clan-join begin %s name=%r", interaction_ctx(interaction), name)
         if interaction.guild is None:
             await interaction.response.send_message("This bot works inside a server.", ephemeral=True)
             return
@@ -2433,41 +3453,238 @@ async def sect_join_cmd(interaction: discord.Interaction, name: str):
             await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
             return
 
-        if player.sect_id is not None:
-            await interaction.response.send_message("You are already in a sect. Use `/sect-leave` first.", ephemeral=True)
+        if player.clan_id is not None:
+            await interaction.response.send_message(
+                "You are already in a clan. Use `/clan-leave` first.", ephemeral=True
+            )
             return
 
         name = name.strip()
         if not name:
-            await interaction.response.send_message("Sect name cannot be empty.", ephemeral=True)
+            await interaction.response.send_message("Clan name cannot be empty.", ephemeral=True)
             return
 
-        sect = get_or_create_sect(session, guild_id, name)
-        if sect is None:
-            await interaction.response.send_message("That sect does not exist.", ephemeral=True)
+        clan = get_clan_by_name_lookup(session, guild_id, name)
+        if clan is None:
+            await interaction.response.send_message("That clan does not exist.", ephemeral=True)
             return
 
-        # Set membership.
-        player.sect_id = sect.id
-        player.sect_role = "member"
-        player.sect_contribution_qi_total = 0
-        sect.member_count += 1
+        player.clan_id = clan.id
+        player.clan_role = "member"
+        player.clan_contribution_qi_total = 0
+        clan.member_count += 1
 
         session.add(player)
-        session.add(sect)
+        session.add(clan)
         session.commit()
         logger.info(
-            "Sect joined guild=%s user=%s sect_id=%s sect_name=%r new_member_count=%s",
+            "Clan joined guild=%s user=%s clan_id=%s clan_name=%r new_member_count=%s",
             guild_id,
             discord_id,
-            sect.id,
-            sect.name,
-            sect.member_count,
+            clan.id,
+            clan.name,
+            clan.member_count,
         )
 
         embed = discord.Embed(
-            title="You Join a Sect",
-            description=f"You enter `{sect.name}`. Your cultivation will contribute to the sect’s qi.",
+            title="You Join a Clan",
+            description=(
+                f"You rally under `{clan.name}`. "
+                "Your cultivation will contribute qi to the clan total."
+            ),
+            color=discord.Color.green(),
+        )
+        attach_guidance(embed, "clan-join", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="clan-leave", description="Leave your current player clan.")
+async def clan_leave_cmd(interaction: discord.Interaction):
+    session = get_session()
+    try:
+        logger.info("CMD /clan-leave begin %s", interaction_ctx(interaction))
+        if interaction.guild is None:
+            await interaction.response.send_message("This bot works inside a server.", ephemeral=True)
+            return
+
+        cfg = get_config()
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        if player.clan_id is None:
+            await interaction.response.send_message("You are not in a clan.", ephemeral=True)
+            return
+
+        clan = session.get(Clan, player.clan_id)
+        if clan is not None:
+            clan.member_count = max(0, clan.member_count - 1)
+            session.add(clan)
+
+        player.clan_id = None
+        player.clan_role = "member"
+        player.clan_contribution_qi_total = 0
+
+        session.add(player)
+        session.commit()
+        logger.info("Clan left guild=%s user=%s", guild_id, discord_id)
+
+        embed = discord.Embed(
+            title="You Leave the Clan",
+            description="You lower the banner. The path ahead is yours alone.",
+            color=discord.Color.orange(),
+        )
+        attach_guidance(embed, "clan-leave", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="clan", description="View your player clan details.")
+async def clan_cmd(interaction: discord.Interaction):
+    cfg = get_config()
+    session = get_session()
+    try:
+        logger.info("CMD /clan begin %s", interaction_ctx(interaction))
+        if interaction.guild is None:
+            await interaction.response.send_message("This bot works inside a server.", ephemeral=True)
+            return
+
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        if player.clan_id is None:
+            await interaction.response.send_message(
+                "You are not in a clan. Use `/clan-create` or `/clan-join`.", ephemeral=True
+            )
+            return
+
+        clan = session.get(Clan, player.clan_id)
+        if clan is None:
+            await interaction.response.send_message("Your clan record was not found.", ephemeral=True)
+            return
+
+        members = get_clan_top_contributors(session, guild_id, clan.id)
+        lines = [f"{p.dao_name}: {p.clan_contribution_qi_total} qi" for p in members]
+
+        embed = discord.Embed(
+            title=f"Clan: {clan.name}",
+            description=(
+                f"Members: {clan.member_count}\n"
+                f"Total contributed qi: {clan.clan_qi_contributed}"
+            ),
+            color=discord.Color.blue(),
+        )
+        embed.add_field(name="Top Contributors", value="\n".join(lines) if lines else "None yet.", inline=False)
+        attach_guidance(embed, "clan", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+    finally:
+        session.close()
+
+
+# Martial sect commands (fixed in-world factions)
+
+
+async def game_sect_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    current = (current or "").lower()
+    choices: list[app_commands.Choice[str]] = []
+    for sect_id, sect in load_game_sects().items():
+        if current and current not in sect_id and current not in sect.name.lower():
+            continue
+        choices.append(app_commands.Choice(name=sect.name, value=sect_id))
+    return choices[:25]
+
+
+@bot.tree.command(name="sect-list", description="View martial sects you may join.")
+async def sect_list_cmd(interaction: discord.Interaction):
+    session = get_session()
+    try:
+        cfg = get_config()
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        entries = [
+            format_sect_list_entry(session, player, sect)
+            for sect in load_game_sects().values()
+        ]
+        embed = discord.Embed(
+            title="Martial Sects of the Realm",
+            description=(
+                "Clans (`/clan`) are player guilds. **Sects** are fixed orders — "
+                "join with **`/sect-join`** when you meet their requirements.\n\n"
+                + "\n\n".join(entries)
+            ),
+            color=discord.Color.dark_teal(),
+        )
+        attach_guidance(embed, "sect-list", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="sect", description="View your martial sect membership.")
+async def sect_cmd(interaction: discord.Interaction):
+    session = get_session()
+    try:
+        cfg = get_config()
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        embed = discord.Embed(
+            title="Your Martial Sect",
+            description=format_player_sect_status(player),
+            color=discord.Color.dark_teal(),
+        )
+        attach_guidance(embed, "sect", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="sect-join", description="Join a martial sect (Wudang, Shaolin, Tang, etc.).")
+@app_commands.describe(sect="Sect id from /sect-list (e.g. wudang, shaolin)")
+@app_commands.autocomplete(sect=game_sect_autocomplete)
+async def game_sect_join_cmd(interaction: discord.Interaction, sect: str):
+    session = get_session()
+    try:
+        cfg = get_config()
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        sect_id = sect.strip().lower()
+        ok, msg = join_game_sect(session, player, sect_id)
+        if not ok:
+            await interaction.response.send_message(msg, ephemeral=True)
+            return
+
+        session.commit()
+        embed = discord.Embed(
+            title="Accepted as a Disciple",
+            description=msg,
             color=discord.Color.green(),
         )
         attach_guidance(embed, "sect-join", player, session, cfg, utcnow())
@@ -2476,15 +3693,10 @@ async def sect_join_cmd(interaction: discord.Interaction, name: str):
         session.close()
 
 
-@bot.tree.command(name="sect-leave", description="Leave your current sect (MVP).")
-async def sect_leave_cmd(interaction: discord.Interaction):
+@bot.tree.command(name="sect-leave", description="Leave your martial sect.")
+async def game_sect_leave_cmd(interaction: discord.Interaction):
     session = get_session()
     try:
-        logger.info("CMD /sect-leave begin %s", interaction_ctx(interaction))
-        if interaction.guild is None:
-            await interaction.response.send_message("This bot works inside a server.", ephemeral=True)
-            return
-
         cfg = get_config()
         guild_id = get_guild_id(interaction)
         discord_id = get_discord_id(interaction.user)
@@ -2493,26 +3705,15 @@ async def sect_leave_cmd(interaction: discord.Interaction):
             await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
             return
 
-        if player.sect_id is None:
-            await interaction.response.send_message("You are not in a sect.", ephemeral=True)
+        ok, msg, _ = leave_game_sect(session, player)
+        if not ok:
+            await interaction.response.send_message(msg, ephemeral=True)
             return
 
-        sect = session.get(Sect, player.sect_id)
-        if sect is not None:
-            sect.member_count = max(0, sect.member_count - 1)
-            session.add(sect)
-
-        player.sect_id = None
-        player.sect_role = "member"
-        player.sect_contribution_qi_total = 0
-
-        session.add(player)
         session.commit()
-        logger.info("Sect left guild=%s user=%s", guild_id, discord_id)
-
         embed = discord.Embed(
-            title="You Leave the Sect",
-            description="You close the gate behind you. The world does not wait.",
+            title="You Leave the Martial Sect",
+            description=msg,
             color=discord.Color.orange(),
         )
         attach_guidance(embed, "sect-leave", player, session, cfg, utcnow())
@@ -2521,70 +3722,16 @@ async def sect_leave_cmd(interaction: discord.Interaction):
         session.close()
 
 
-@bot.tree.command(name="sect", description="View sect details (MVP).")
-async def sect_cmd(interaction: discord.Interaction):
-    cfg = get_config()
-    session = get_session()
-    try:
-        logger.info("CMD /sect begin %s", interaction_ctx(interaction))
-        if interaction.guild is None:
-            await interaction.response.send_message("This bot works inside a server.", ephemeral=True)
-            return
-
-        guild_id = get_guild_id(interaction)
-        discord_id = get_discord_id(interaction.user)
-        player = ensure_player(session, guild_id, discord_id)
-        if player is None:
-            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
-            return
-
-        if player.sect_id is None:
-            await interaction.response.send_message("You are not in a sect. Use `/sect-create` or `/sect-join`.", ephemeral=True)
-            return
-
-        sect = session.get(Sect, player.sect_id)
-        if sect is None:
-            await interaction.response.send_message("Your sect record was not found. This is an error.", ephemeral=True)
-            return
-
-        # Top contributors (cheap query for MVP).
-        stmt = (
-            select(Player)
-            .where(Player.guild_id == guild_id, Player.sect_id == sect.id)
-            .order_by(Player.sect_contribution_qi_total.desc())
-            .limit(5)
-        )
-        members = list(session.execute(stmt).scalars().all())
-        lines = [f"{p.dao_name}: {p.sect_contribution_qi_total} qi" for p in members]
-
-        embed = discord.Embed(
-            title=f"Sect: {sect.name}",
-            description=f"Members: {sect.member_count}\nTotal contributed Qi: {sect.sect_qi_contributed}",
-            color=discord.Color.blue(),
-        )
-        embed.add_field(name="Top Contributors", value="\n".join(lines) if lines else "None yet.", inline=False)
-        attach_guidance(embed, "sect", player, session, cfg, utcnow())
-        await interaction.response.send_message(embed=embed, ephemeral=False)
-    finally:
-        session.close()
-
-
 async def sync_commands() -> None:
     cfg = get_config()
-    # Syncing is guild-scoped for fast iteration.
     if cfg.guild_id:
-        await bot.tree.sync(guild=discord.Object(id=int(cfg.guild_id)))
+        guild = discord.Object(id=int(cfg.guild_id))
+        bot.tree.copy_global_to(guild=guild)
+        await bot.tree.sync(guild=guild)
+        bot.tree.clear_commands(guild=None)
+        await bot.tree.sync()
     else:
         await bot.tree.sync()
-
-
-def make_origin_choice() -> list[app_commands.Choice[str]]:
-    return [app_commands.Choice(name=o, value=o) for o in ORIGINS]
-
-
-def make_moral_choice() -> list[app_commands.Choice[str]]:
-    morals = [("righteous", "righteous"), ("demonic", "demonic"), ("neutral", "neutral")]
-    return [app_commands.Choice(name=label.title(), value=val) for label, val in morals]
 
 
 async def main():

@@ -1,0 +1,90 @@
+{
+  "wudang": {
+    "name": "Wudang Sect",
+    "tagline": "Internal harmony — soft overcomes hard.",
+    "join_type": "open",
+    "karma_requirement": ["neutral", "righteous"],
+    "min_realm_index": 0,
+    "theme": "internal",
+    "description": "Taoist sword and internal arts on mist-wrapped peaks. Disciples meditate before they strike.",
+    "shop_id": "wudang_shop",
+    "task_pool_id": "wudang_tasks"
+  },
+  "shaolin": {
+    "name": "Shaolin Temple",
+    "tagline": "The body is the first scripture.",
+    "join_type": "open",
+    "karma_requirement": ["neutral", "righteous"],
+    "min_realm_index": 0,
+    "theme": "body",
+    "description": "Monks temper flesh and will. External strength and iron discipline define the path.",
+    "shop_id": "shaolin_shop",
+    "task_pool_id": "shaolin_tasks"
+  },
+  "mount_hua": {
+    "name": "Mount Hua Sect",
+    "tagline": "One sword, one breath, one peak.",
+    "join_type": "open",
+    "karma_requirement": ["neutral", "righteous"],
+    "min_realm_index": 0,
+    "theme": "sword",
+    "description": "Austere sword cultivators who value precision, honor, and the long climb.",
+    "shop_id": "mount_hua_shop",
+    "task_pool_id": "mount_hua_tasks"
+  },
+  "kunlun": {
+    "name": "Kunlun Sect",
+    "tagline": "Between righteousness and demonic fire, the peak stays neutral.",
+    "join_type": "open",
+    "karma_requirement": ["neutral"],
+    "min_realm_index": 1,
+    "theme": "mystic",
+    "description": "Ancient mystics who accept only cultivators walking the middle path.",
+    "shop_id": "kunlun_shop",
+    "task_pool_id": "kunlun_tasks"
+  },
+  "tang": {
+    "name": "Tang Sect",
+    "tagline": "Hidden weapons, hidden hearts.",
+    "join_type": "open",
+    "karma_requirement": ["neutral", "demonic"],
+    "min_realm_index": 0,
+    "theme": "poison",
+    "description": "Artificers of poison and concealed steel. Reputation matters less than results.",
+    "shop_id": "tang_shop",
+    "task_pool_id": "tang_tasks"
+  },
+  "blood_lotus": {
+    "name": "Blood Lotus Cult",
+    "tagline": "Power drawn from sacrifice and hunger.",
+    "join_type": "open",
+    "karma_requirement": ["demonic"],
+    "min_realm_index": 0,
+    "theme": "demonic",
+    "description": "A demonic order that trades mercy for strength. Only the ruthless are welcome.",
+    "shop_id": "blood_lotus_shop",
+    "task_pool_id": "blood_lotus_tasks"
+  },
+  "imperial_guard": {
+    "name": "Imperial Guard",
+    "tagline": "Serve the throne. Guard the realm.",
+    "join_type": "secret",
+    "karma_requirement": ["righteous"],
+    "min_realm_index": 3,
+    "theme": "order",
+    "description": "The emperor's hidden cultivators. Recruitment is by edict alone — no wanderer may petition entry.",
+    "shop_id": "imperial_guard_shop",
+    "task_pool_id": "imperial_guard_tasks"
+  },
+  "shadow_pavilion": {
+    "name": "Shadow Pavilion",
+    "tagline": "What the light rejects, we refine.",
+    "join_type": "secret",
+    "karma_requirement": ["demonic"],
+    "min_realm_index": 1,
+    "theme": "shadow",
+    "description": "A demonic society that recruits only those who prove themselves in ruin and blood.",
+    "shop_id": "shadow_pavilion_shop",
+    "task_pool_id": "shadow_pavilion_tasks"
+  }
+}

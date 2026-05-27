@@ -9,14 +9,16 @@ from sqlalchemy.orm import Session
 
 from .equipment import get_or_create_slot
 from .inventory import add_item, get_item_name
+from .manuals import roll_shop_unidentified_manual
 from .models import Player
 
 SHOP_PATH = Path(__file__).resolve().parent.parent / "config" / "shop.json"
 
-CATEGORY_ORDER = ("pill", "supply", "equipment")
+CATEGORY_ORDER = ("pill", "supply", "manual", "equipment")
 CATEGORY_TITLES = {
     "pill": "Pills & elixirs",
     "supply": "Supplies",
+    "manual": "Technique manuals",
     "equipment": "Forged gear (fixed stats)",
 }
 
@@ -121,7 +123,11 @@ def buy_from_shop(
     player: Player,
     shop_id: str,
     quantity: int = 1,
+    rng: random.Random | None = None,
 ) -> tuple[bool, str]:
+    import random as random_module
+
+    rng = rng or random_module.Random()
     listing = get_shop_listing(shop_id)
     if listing is None:
         return False, "That item is not sold here."
@@ -154,6 +160,15 @@ def buy_from_shop(
         return True, (
             f"You purchase **{listing.name}** for **{total_cost}** spirit stones. "
             f"It is equipped in your **{listing.slot}** slot ({stats_text}). "
+            f"Balance: **{player.spirit_stones}** stones."
+        )
+
+    if listing.listing_type == "manual_gamble":
+        player.spirit_stones -= total_cost
+        session.add(player)
+        _, message = roll_shop_unidentified_manual(session, player, rng)
+        return True, (
+            f"You purchase **{listing.name}** for **{total_cost}** spirit stones. {message} "
             f"Balance: **{player.spirit_stones}** stones."
         )
 

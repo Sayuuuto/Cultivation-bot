@@ -14,8 +14,8 @@ def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
 
-class Sect(Base):
-    __tablename__ = "sects"
+class Clan(Base):
+    __tablename__ = "clans"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     guild_id: Mapped[str] = mapped_column(String(32), index=True)
@@ -23,14 +23,14 @@ class Sect(Base):
     created_by_discord_id: Mapped[str] = mapped_column(String(32))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
-    # Aggregated for MVP (avoids expensive SUM queries).
-    sect_qi_contributed: Mapped[int] = mapped_column(Integer, default=0)
+    clan_qi_contributed: Mapped[int] = mapped_column(Integer, default=0)
     member_count: Mapped[int] = mapped_column(Integer, default=0)
+    invite_only: Mapped[bool] = mapped_column(default=False)
 
-    members: Mapped[list["Player"]] = relationship(back_populates="sect")
+    members: Mapped[list["Player"]] = relationship(back_populates="clan")
 
     __table_args__ = (
-        UniqueConstraint("guild_id", "name", name="uq_sect_guild_name"),
+        UniqueConstraint("guild_id", "name", name="uq_clan_guild_name"),
     )
 
 
@@ -47,7 +47,11 @@ class Player(Base):
     dao_name: Mapped[str] = mapped_column(String(64), default="")
     origin: Mapped[str] = mapped_column(String(64), default="")
     spirit_root: Mapped[str] = mapped_column(String(64), default="")
-    moral_path: Mapped[str] = mapped_column(String(16), default="neutral")
+    moral_path: Mapped[str] = mapped_column(String(16), default="neutral")  # legacy; karma is authoritative
+    karma: Mapped[int] = mapped_column(Integer, default=0)
+    novice_trial_step: Mapped[int] = mapped_column(Integer, default=0)
+    novice_cultivates: Mapped[int] = mapped_column(Integer, default=0)
+    adventures_completed: Mapped[int] = mapped_column(Integer, default=0)
     # Aptitude rerolls (MVP: 1 free reroll on first creation, then gated by time + stones).
     spirit_root_reroll_free_used: Mapped[bool] = mapped_column(default=False)
     spirit_root_last_reroll_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -68,6 +72,8 @@ class Player(Base):
     last_pvp_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     last_adventure_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     last_dungeon_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_gather_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_hunt_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     last_active_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     daily_streak: Mapped[int] = mapped_column(Integer, default=0)
@@ -78,12 +84,22 @@ class Player(Base):
 
     remind_dms_blocked: Mapped[bool] = mapped_column(default=False)
 
-    # Sect (minimal MVP)
-    sect_id: Mapped[int | None] = mapped_column(ForeignKey("sects.id"), nullable=True)
-    sect_role: Mapped[str] = mapped_column(String(16), default="member")  # founder/member/elder later
-    sect_contribution_qi_total: Mapped[int] = mapped_column(Integer, default=0)
+    # Player clan (Discord-server guild group).
+    clan_id: Mapped[int | None] = mapped_column(ForeignKey("clans.id"), nullable=True)
+    clan_role: Mapped[str] = mapped_column(String(16), default="member")  # founder/member/officer later
+    clan_contribution_qi_total: Mapped[int] = mapped_column(Integer, default=0)
 
-    sect: Mapped[Sect | None] = relationship(back_populates="members")
+    # In-world martial sect (fixed factions; see config/sects.json).
+    game_sect_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    sect_merit: Mapped[int] = mapped_column(Integer, default=0)
+    last_sect_task_date: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    sect_daily_task_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    sect_daily_task_progress: Mapped[int] = mapped_column(Integer, default=0)
+    sect_daily_task_date: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    sect_joined_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    sect_leave_cooldown_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    clan: Mapped[Clan | None] = relationship(back_populates="members")
     inventory_items: Mapped[list["InventoryItem"]] = relationship(back_populates="player")
     equipment: Mapped[list["PlayerEquipment"]] = relationship(back_populates="player")
     effects: Mapped[list["PlayerEffect"]] = relationship(back_populates="player")
@@ -199,6 +215,45 @@ class PendingDuel(Base):
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
+class ActiveCombat(Base):
+    __tablename__ = "active_combats"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True, unique=True)
+    context: Mapped[str] = mapped_column(String(16), default="hunt")
+    context_key: Mapped[str] = mapped_column(String(64), default="")
+    state_json: Mapped[str] = mapped_column(String(8192), default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class PlayerTechnique(Base):
+    __tablename__ = "player_techniques"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    technique_id: Mapped[str] = mapped_column(String(64))
+    learned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("player_id", "technique_id", name="uq_player_technique"),
+    )
+
+
+class TechniqueLoadout(Base):
+    __tablename__ = "technique_loadout"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    slot: Mapped[str] = mapped_column(String(16))
+    technique_id: Mapped[str] = mapped_column(String(64))
+
+    __table_args__ = (
+        UniqueConstraint("player_id", "slot", name="uq_technique_loadout_slot"),
+    )
+
+
 class PlayerReminder(Base):
     __tablename__ = "player_reminders"
 
@@ -211,5 +266,34 @@ class PlayerReminder(Base):
 
     __table_args__ = (
         UniqueConstraint("player_id", "activity", name="uq_reminder_player_activity"),
+    )
+
+
+class ClanInvitation(Base):
+    __tablename__ = "clan_invitations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    clan_id: Mapped[int] = mapped_column(ForeignKey("clans.id"), index=True)
+    guild_id: Mapped[str] = mapped_column(String(32), index=True)
+    invitee_discord_id: Mapped[str] = mapped_column(String(32), index=True)
+    invited_by_discord_id: Mapped[str] = mapped_column(String(32))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("guild_id", "invitee_discord_id", "clan_id", name="uq_clan_invite"),
+    )
+
+
+class PlayerSectInvitation(Base):
+    __tablename__ = "player_sect_invitations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    sect_id: Mapped[str] = mapped_column(String(32))
+    granted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    source: Mapped[str] = mapped_column(String(64), default="adventure")
+
+    __table_args__ = (
+        UniqueConstraint("player_id", "sect_id", name="uq_player_sect_invitation"),
     )
 

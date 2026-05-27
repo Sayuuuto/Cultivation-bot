@@ -1,0 +1,47 @@
+{
+  "base": {
+    "hp": 100,
+    "internal_strength": 10,
+    "external_strength": 10,
+    "agility": 8,
+    "spiritual_sense": 5,
+    "defense": 5,
+    "comprehension": 5,
+    "luck": 5
+  },
+  "per_realm": {
+    "hp": 80,
+    "internal_strength": 8,
+    "external_strength": 7,
+    "agility": 5,
+    "spiritual_sense": 4,
+    "defense": 6,
+    "comprehension": 3,
+    "luck": 2
+  },
+  "per_substage": {
+    "hp": 25,
+    "internal_strength": 3,
+    "external_strength": 3,
+    "agility": 2,
+    "spiritual_sense": 2,
+    "defense": 2,
+    "comprehension": 1,
+    "luck": 1
+  },
+  "gear_mapping": {
+    "power_internal_ratio": 0.5,
+    "power_external_ratio": 0.5,
+    "defense_per_point": 1,
+    "fortune_luck_ratio": 1,
+    "insight_spiritual_sense_ratio": 0.6,
+    "insight_comprehension_ratio": 0.4
+  },
+  "derived": {
+    "crit_per_spiritual_sense": 0.002,
+    "crit_per_luck": 0.001,
+    "dodge_per_agility": 0.003,
+    "comprehension_gather_bonus_per_10": 0.05,
+    "luck_rare_bonus_per_10": 0.01
+  }
+}

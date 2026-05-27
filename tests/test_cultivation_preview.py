@@ -8,7 +8,8 @@ from src.character import get_character_modifiers
 from src.config import Config
 from src.cultivation_preview import preview_cultivate_qi, preview_passive_qi
 from src.effects import add_effect
-from src.game import compute_breakthrough_preview, moral_breakthrough_modifiers, qi_cap
+from src.game import compute_breakthrough_preview, qi_cap
+from src.karma import karma_breakthrough_modifiers
 from src.models import Player
 
 
@@ -20,6 +21,7 @@ def cfg() -> Config:
         database_path=":memory:",
         announce_channel_id=None,
         tutorial_channel_id=None,
+        library_channel_id=None,
     )
 
 
@@ -49,15 +51,15 @@ def test_preview_cultivate_qi_range(session, player, cfg, now):
 
 
 def test_breakthrough_chance_righteous_higher_than_neutral(session, player, cfg):
-    player.moral_path = "neutral"
+    player.karma = 0
     player.qi = qi_cap(player.realm_index, player.substage)
     neutral = compute_breakthrough_preview(player, get_character_modifiers(session, player))
 
-    player.moral_path = "righteous"
+    player.karma = 40
     righteous = compute_breakthrough_preview(player, get_character_modifiers(session, player))
 
     assert righteous.success_chance > neutral.success_chance
-    assert righteous.moral_bonus == moral_breakthrough_modifiers("righteous")[0]
+    assert righteous.karma_bonus == karma_breakthrough_modifiers(40)[0]
 
 
 def test_breakthrough_clarity_pill_increases_chance(session, player, cfg):

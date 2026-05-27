@@ -6,7 +6,7 @@ from .content import get_origin_modifiers, get_spirit_root_modifiers
 from .effects import apply_effects_from_db
 from .equipment import get_player_affix_modifiers
 from .stats import equipment_stats_to_modifiers, get_total_equipment_stats
-from .game import moral_breakthrough_modifiers
+from .karma import karma_breakthrough_modifiers
 from .models import Player
 from .modifiers import CharacterModifiers
 
@@ -33,7 +33,7 @@ def get_character_modifiers(session: Session, player: Player) -> CharacterModifi
     if root:
         _apply_additive(mod, root.values)
 
-    _, setback_mult = moral_breakthrough_modifiers(player.moral_path)
+    _, setback_mult = karma_breakthrough_modifiers(player.karma)
     mod.breakthrough_setback_mult *= setback_mult
 
     affix_vals = get_player_affix_modifiers(session, player.id)

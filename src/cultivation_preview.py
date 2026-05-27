@@ -108,7 +108,7 @@ def preview_cultivate_qi(
         stamina_multiplier=mult_current,
         qi_mult=qi_mult,
         stamina_cost=stamina_cost,
-        qi_cap=qi_cap(player.realm_index, player.substage),
+        qi_cap=qi_cap(player.realm_index, player.substage, player),
     )
 
 
@@ -160,8 +160,8 @@ def format_total_cultivate_line(preview: CultivatePreview) -> str:
 
 def format_breakthrough_chance_line(preview: BreakthroughPreview, player: Player) -> str:
     parts = [_pct(preview.success_chance)]
-    if preview.moral_bonus:
-        parts.append(f"{player.moral_path.title()} {_signed_pct(preview.moral_bonus)}")
+    if preview.karma_bonus:
+        parts.append(f"{karma_tier_label(player.karma).split('(')[0].strip()} {_signed_pct(preview.karma_bonus)}")
     if preview.stability_bonus > 0.001:
         parts.append(f"gear/affix {_signed_pct(preview.stability_bonus)}")
     if preview.clarity_bonus > 0.001:

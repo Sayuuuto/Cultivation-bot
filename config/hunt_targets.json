@@ -1,0 +1,143 @@
+{
+  "bamboo_grove": {
+    "flavor": "You track spirit beasts through the bamboo thicket.",
+    "beasts": [
+      {
+        "beast_id": "spirit_hare",
+        "name": "Spirit Hare",
+        "weight": 45,
+        "hp": 35,
+        "attack": 7,
+        "defense": 2,
+        "drops": [
+          {"item_id": "minor_beast_core", "weight": 60, "min": 1, "max": 1},
+          {"item_id": "green_dew_herb", "weight": 30, "min": 1, "max": 2},
+          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "bamboo_serpent",
+        "name": "Bamboo Serpent",
+        "weight": 35,
+        "hp": 55,
+        "attack": 12,
+        "defense": 4,
+        "traits": ["bleed_immune"],
+        "drops": [
+          {"item_id": "minor_beast_core", "weight": 70, "min": 1, "max": 2},
+          {"item_id": "bamboo_resin", "weight": 25, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "mist_fang_wolf",
+        "name": "Mist Fang Wolf",
+        "weight": 20,
+        "hp": 80,
+        "attack": 16,
+        "defense": 6,
+        "traits": ["seal_on_hit"],
+        "drops": [
+          {"item_id": "minor_beast_core", "weight": 50, "min": 1, "max": 2},
+          {"item_id": "spirit_iron_shard", "weight": 35, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1},
+          {"item_id": "manual_swift_slash", "weight": 6, "min": 1, "max": 1},
+          {"item_id": "manual_keen_focus", "weight": 4, "min": 1, "max": 1}
+        ]
+      }
+    ]
+  },
+  "ashen_cliff": {
+    "flavor": "Ember-scarred predators stalk the cliff pass.",
+    "beasts": [
+      {
+        "beast_id": "ash_scorpion",
+        "name": "Ash Scorpion",
+        "weight": 40,
+        "hp": 70,
+        "attack": 14,
+        "defense": 5,
+        "drops": [
+          {"item_id": "ember_moss", "weight": 40, "min": 1, "max": 2},
+          {"item_id": "minor_beast_core", "weight": 45, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "cliff_bandit_beast",
+        "name": "Bandit War Hound",
+        "weight": 35,
+        "hp": 95,
+        "attack": 18,
+        "defense": 7,
+        "drops": [
+          {"item_id": "bandit_token", "weight": 35, "min": 1, "max": 1},
+          {"item_id": "refined_beast_core", "weight": 25, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "fire_mantis",
+        "name": "Fire Mantis",
+        "weight": 25,
+        "hp": 110,
+        "attack": 22,
+        "defense": 8,
+        "drops": [
+          {"item_id": "refined_beast_core", "weight": 55, "min": 1, "max": 1},
+          {"item_id": "spirit_iron_shard", "weight": 30, "min": 1, "max": 2},
+          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1},
+          {"item_id": "manual_flame_burst", "weight": 5, "min": 1, "max": 1},
+          {"item_id": "manual_iron_cleave", "weight": 5, "min": 1, "max": 1}
+        ]
+      }
+    ]
+  },
+  "moonwell_ruins": {
+    "flavor": "Cursed constructs and moonlit predators haunt the ruins.",
+    "beasts": [
+      {
+        "beast_id": "moonwell_shade",
+        "name": "Moonwell Shade",
+        "weight": 40,
+        "hp": 120,
+        "attack": 20,
+        "defense": 10,
+        "drops": [
+          {"item_id": "ancient_dust", "weight": 45, "min": 1, "max": 2},
+          {"item_id": "refined_beast_core", "weight": 40, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "lotus_guardian",
+        "name": "Lotus Guardian",
+        "weight": 35,
+        "hp": 150,
+        "attack": 24,
+        "defense": 12,
+        "drops": [
+          {"item_id": "moonlotus", "weight": 40, "min": 1, "max": 2},
+          {"item_id": "refined_beast_core", "weight": 45, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "ruin_devourer",
+        "name": "Ruin Devourer",
+        "weight": 25,
+        "hp": 200,
+        "attack": 30,
+        "defense": 14,
+        "drops": [
+          {"item_id": "refined_beast_core", "weight": 60, "min": 1, "max": 2},
+          {"item_id": "ancient_dust", "weight": 30, "min": 1, "max": 2},
+          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1},
+          {"item_id": "manual_void_pulse", "weight": 5, "min": 1, "max": 1},
+          {"item_id": "manual_venom_weave", "weight": 4, "min": 1, "max": 1},
+          {"item_id": "manual_blood_feast", "weight": 3, "min": 1, "max": 1}
+        ]
+      }
+    ]
+  }
+}

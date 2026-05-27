@@ -10,6 +10,8 @@ HASTE_BY_ACTIVITY = {
     "cultivate": "haste_cultivate",
     "dungeon": "haste_dungeon",
     "duel": "haste_duel",
+    "gather": "haste_gather",
+    "hunt": "haste_hunt",
 }
 
 HASTE_EFFECT_IDS = tuple(HASTE_BY_ACTIVITY.values())

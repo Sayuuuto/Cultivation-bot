@@ -1,0 +1,61 @@
+{
+  "Mountain Rises": {
+    "spirit_stones": 3,
+    "starting_qi": 5,
+    "items": {
+      "technique_fragment": 1,
+      "qi_gathering_pill": 1
+    },
+    "manual_item_id": "manual_iron_body",
+    "ceremony": "Stone roots run through your meridians — the mountain's unyielding dao is yours to carry.",
+    "stat_note": "Foundation hardened: +breakthrough stability from your origin."
+  },
+  "Waterside Vow": {
+    "spirit_stones": 5,
+    "starting_qi": 10,
+    "items": {
+      "green_dew_herb": 2
+    },
+    "manual_item_id": "manual_qi_barrier",
+    "ceremony": "River mist clings to your skin; qi flows easier, as if water remembers your vow.",
+    "stat_note": "Flowing dao: +5% cultivate qi from your origin."
+  },
+  "Ancient Tomb Awakened": {
+    "spirit_stones": 2,
+    "starting_qi": 0,
+    "items": {
+      "technique_fragment": 2
+    },
+    "manual_item_id": "manual_soul_needle",
+    "ceremony": "Dust of forgotten dynasties swirls — a sliver of forbidden soul art awakens in your grasp.",
+    "stat_note": "Tomb-touched fate: +rare event chance from your origin."
+  },
+  "River Dragon\u2019s Gift": {
+    "spirit_stones": 8,
+    "starting_qi": 0,
+    "items": {},
+    "manual_item_id": "manual_ember_palm",
+    "ceremony": "A scale of fortune glints in your palm — the river dragon's blessing follows you.",
+    "stat_note": "Dragon's favor: +drop luck from your origin."
+  },
+  "Starfall Seclusion": {
+    "spirit_stones": 3,
+    "starting_qi": 15,
+    "items": {
+      "technique_fragment": 1
+    },
+    "manual_item_id": "manual_keen_focus",
+    "ceremony": "Starlight still lingers in your eyes from nights spent cultivating beneath falling heavens.",
+    "stat_note": "Star-touched qi: +8% cultivate qi and longer offline gains."
+  },
+  "Wandering Immortal\u2019s Footsteps": {
+    "spirit_stones": 5,
+    "starting_qi": 5,
+    "items": {
+      "technique_fragment": 1
+    },
+    "manual_item_id": "manual_swift_slash",
+    "ceremony": "Footprints of a long-dead immortal fade behind you — a sword manual appears as if left on purpose.",
+    "stat_note": "Wanderer's eye: +adventure success from your origin."
+  }
+}

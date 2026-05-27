@@ -1,7 +1,28 @@
 {
   "bamboo_grove": [
     {
+      "id": "injured_elder",
+      "type": "choice",
+      "prompt": "An injured elder cultivator slumps against a bamboo root, clutching a storage ring.",
+      "choices": [
+        {"id": "help", "label": "Treat his wounds and share qi", "karma_delta": 15, "success_bonus": 0.05, "drop_mult": 0.9, "fail_chance": 0.08, "manual_pool": "righteous_elder", "manual_chance": 0.85},
+        {"id": "rob", "label": "Take his storage ring", "karma_delta": -20, "success_bonus": -0.05, "drop_mult": 1.4, "fail_chance": 0.18, "spirit_stones": 12, "manual_pool": "demonic_elder", "manual_chance": 0.5},
+        {"id": "ignore", "label": "Walk past silently", "karma_delta": 0, "success_bonus": 0.0, "drop_mult": 1.0, "fail_chance": 0.05}
+      ]
+    },
+    {
+      "id": "trapped_beast",
+      "type": "choice",
+      "prompt": "A spirit beast is trapped in a hunter's snare, eyes wide with pain.",
+      "choices": [
+        {"id": "free", "label": "Cut the snare and free it", "karma_delta": 8, "success_bonus": 0.04, "drop_mult": 0.85, "fail_chance": 0.1, "manual_pool": "righteous_elder", "manual_chance": 0.4},
+        {"id": "harvest", "label": "Harvest its core while trapped", "karma_delta": -12, "success_bonus": -0.04, "drop_mult": 1.5, "fail_chance": 0.2},
+        {"id": "leave", "label": "Leave it to fate", "karma_delta": 0, "success_bonus": 0.0, "drop_mult": 0.9, "fail_chance": 0.04}
+      ]
+    },
+    {
       "id": "beast_on_path",
+      "type": "choice",
       "prompt": "A low spirit beast blocks the bamboo path, growling softly.",
       "choices": [
         {"id": "fight", "label": "Fight head-on", "success_bonus": 0.0, "drop_mult": 1.2, "fail_chance": 0.14},
@@ -11,17 +32,51 @@
     },
     {
       "id": "mist_crossroads",
+      "type": "choice",
       "prompt": "Mist hides a crossroads. One trail smells of resin, another of cold metal.",
       "choices": [
         {"id": "resin_trail", "label": "Follow the resin scent", "success_bonus": 0.05, "drop_mult": 1.1, "fail_chance": 0.08},
         {"id": "metal_trail", "label": "Follow the metal chill", "success_bonus": -0.02, "drop_mult": 1.25, "fail_chance": 0.12},
         {"id": "wait", "label": "Wait for the mist to clear", "success_bonus": 0.12, "drop_mult": 0.75, "fail_chance": 0.04}
       ]
+    },
+    {
+      "id": "bamboo_specter_fight",
+      "type": "combat",
+      "prompt": "A translucent specter drifts between the bamboo stalks — it lunges!",
+      "monster_id": "bamboo_specter"
+    },
+    {
+      "id": "grove_stalker_fight",
+      "type": "combat",
+      "prompt": "Leaves rustle overhead as a grove stalker drops into your path.",
+      "monster_id": "grove_stalker"
     }
   ],
   "ashen_cliff": [
     {
+      "id": "wounded_rival",
+      "type": "choice",
+      "prompt": "A rival cultivator from another sect lies wounded after a beast attack.",
+      "choices": [
+        {"id": "share_pill", "label": "Share a healing pill", "karma_delta": 10, "success_bonus": 0.06, "drop_mult": 0.85, "fail_chance": 0.08, "manual_pool": "righteous_elder", "manual_chance": 0.45},
+        {"id": "finish", "label": "Finish them and loot the body", "karma_delta": -15, "success_bonus": -0.06, "drop_mult": 1.45, "fail_chance": 0.2, "manual_pool": "demonic_elder", "manual_chance": 0.55},
+        {"id": "bind", "label": "Bind their wound, take a token", "karma_delta": 0, "success_bonus": 0.02, "drop_mult": 1.05, "fail_chance": 0.1}
+      ]
+    },
+    {
+      "id": "corrupt_disciple",
+      "type": "choice",
+      "prompt": "A disciple in torn robes offers you a dark manual in exchange for silence.",
+      "choices": [
+        {"id": "report", "label": "Report them to the nearest sect", "karma_delta": 12, "success_bonus": 0.04, "drop_mult": 0.8, "fail_chance": 0.12},
+        {"id": "accept", "label": "Accept the dark offer", "karma_delta": -18, "success_bonus": -0.04, "drop_mult": 1.2, "fail_chance": 0.16, "manual_pool": "demonic_elder", "manual_chance": 0.9},
+        {"id": "trade", "label": "Trade information only", "karma_delta": 0, "success_bonus": 0.0, "drop_mult": 1.0, "fail_chance": 0.1, "manual_pool": "neutral_wanderer", "manual_chance": 0.35}
+      ]
+    },
+    {
       "id": "bandit_ambush",
+      "type": "choice",
       "prompt": "Bandits emerge from cliffside smoke, demanding your spirit stones.",
       "choices": [
         {"id": "stand", "label": "Stand your ground", "success_bonus": 0.0, "drop_mult": 1.15, "fail_chance": 0.16},
@@ -31,17 +86,51 @@
     },
     {
       "id": "collapsed_mine",
+      "type": "choice",
       "prompt": "A collapsed mine shaft glitters with ore — but the ground trembles.",
       "choices": [
         {"id": "quick_grab", "label": "Grab what you can quickly", "success_bonus": -0.03, "drop_mult": 1.3, "fail_chance": 0.18},
         {"id": "brace", "label": "Brace the entrance and dig carefully", "success_bonus": 0.06, "drop_mult": 0.95, "fail_chance": 0.09},
         {"id": "leave", "label": "Leave before it collapses", "success_bonus": 0.15, "drop_mult": 0.6, "fail_chance": 0.02}
       ]
+    },
+    {
+      "id": "cliff_raider_fight",
+      "type": "combat",
+      "prompt": "A cliff raider blocks the narrow pass, blade drawn.",
+      "monster_id": "cliff_raider"
+    },
+    {
+      "id": "ash_wraith_fight",
+      "type": "combat",
+      "prompt": "Ash swirls into a wraith that shrieks down the cliff face.",
+      "monster_id": "ash_wraith"
     }
   ],
   "moonwell_ruins": [
     {
+      "id": "injured_elder_ruins",
+      "type": "choice",
+      "prompt": "Beneath a fallen pillar, an elder gasps for breath — a jade manual case at his side.",
+      "choices": [
+        {"id": "help", "label": "Stabilize him with your qi", "karma_delta": 15, "success_bonus": 0.05, "drop_mult": 0.88, "fail_chance": 0.09, "manual_pool": "righteous_elder", "manual_chance": 0.9},
+        {"id": "rob", "label": "Take the manual case", "karma_delta": -20, "success_bonus": -0.06, "drop_mult": 1.5, "fail_chance": 0.22, "manual_pool": "demonic_elder", "manual_chance": 0.75},
+        {"id": "ignore", "label": "Slip away unnoticed", "karma_delta": 0, "success_bonus": 0.0, "drop_mult": 0.95, "fail_chance": 0.06}
+      ]
+    },
+    {
+      "id": "trapped_spirit_beast",
+      "type": "choice",
+      "prompt": "A young moonwell beast is caught in ancient chains that pulse with corrupt qi.",
+      "choices": [
+        {"id": "free", "label": "Break the chains and free it", "karma_delta": 8, "success_bonus": 0.03, "drop_mult": 0.9, "fail_chance": 0.11, "manual_pool": "righteous_elder", "manual_chance": 0.5},
+        {"id": "harvest", "label": "Harvest its spirit core", "karma_delta": -12, "success_bonus": -0.05, "drop_mult": 1.55, "fail_chance": 0.22},
+        {"id": "leave", "label": "Leave the ruins undisturbed", "karma_delta": 0, "success_bonus": 0.05, "drop_mult": 0.75, "fail_chance": 0.04}
+      ]
+    },
+    {
       "id": "guardian_statue",
+      "type": "choice",
       "prompt": "A cracked guardian statue turns its head toward you.",
       "choices": [
         {"id": "bow", "label": "Bow and offer qi", "success_bonus": 0.08, "drop_mult": 0.9, "fail_chance": 0.07},
@@ -51,12 +140,25 @@
     },
     {
       "id": "moonwell_pool",
+      "type": "choice",
       "prompt": "Moonlight reveals a hidden pool. Something stirs beneath the surface.",
       "choices": [
         {"id": "drink", "label": "Drink from the pool", "success_bonus": 0.0, "drop_mult": 1.2, "fail_chance": 0.15},
         {"id": "skim", "label": "Skim lotus from the edge", "success_bonus": 0.05, "drop_mult": 1.0, "fail_chance": 0.1},
         {"id": "probe", "label": "Probe the depths with qi", "success_bonus": -0.05, "drop_mult": 1.35, "fail_chance": 0.2}
       ]
+    },
+    {
+      "id": "moonwell_phantom_fight",
+      "type": "combat",
+      "prompt": "Moonlight coalesces into a phantom that strikes without warning.",
+      "monster_id": "moonwell_phantom"
+    },
+    {
+      "id": "ruin_sentinel_fight",
+      "type": "combat",
+      "prompt": "A ruin sentinel awakens, stone fists grinding to life.",
+      "monster_id": "ruin_sentinel"
     }
   ]
 }

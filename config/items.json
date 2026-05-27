@@ -133,5 +133,165 @@
     "name": "Moonwell Pendant",
     "category": "equipment",
     "description": "Lotus and ancient dust sealed in a spirit focus."
+  },
+  "manual_swift_slash": {
+    "name": "Manual: Swift Slash",
+    "category": "manual",
+    "description": "Teaches the Swift Slash sword technique."
+  },
+  "manual_ember_palm": {
+    "name": "Manual: Ember Palm",
+    "category": "manual",
+    "description": "Teaches the Ember Palm fire technique."
+  },
+  "manual_soul_needle": {
+    "name": "Manual: Soul Needle",
+    "category": "manual",
+    "description": "Teaches the Soul Needle technique."
+  },
+  "manual_iron_cleave": {
+    "name": "Manual: Iron Cleave",
+    "category": "manual",
+    "description": "Teaches the Iron Cleave sword technique."
+  },
+  "manual_flame_burst": {
+    "name": "Manual: Flame Burst",
+    "category": "manual",
+    "description": "Teaches the Flame Burst fire technique."
+  },
+  "manual_iron_body": {
+    "name": "Manual: Iron Body Blow",
+    "category": "manual",
+    "description": "Teaches the Iron Body Blow technique."
+  },
+  "manual_meridian_strike": {
+    "name": "Manual: Meridian Strike",
+    "category": "manual",
+    "description": "Teaches the Meridian Strike body technique."
+  },
+  "manual_void_pulse": {
+    "name": "Manual: Void Pulse",
+    "category": "manual",
+    "description": "Teaches the Void Pulse soul technique."
+  },
+  "manual_qi_barrier": {
+    "name": "Manual: Qi Barrier",
+    "category": "manual",
+    "description": "Teaches the Qi Barrier utility technique."
+  },
+  "manual_mist_step": {
+    "name": "Manual: Mist Step",
+    "category": "manual",
+    "description": "Teaches the Mist Step utility technique."
+  },
+  "manual_blood_feast": {
+    "name": "Manual: Blood Feast",
+    "category": "manual",
+    "description": "Teaches the Blood Feast passive technique."
+  },
+  "manual_ember_heart": {
+    "name": "Manual: Ember Heart",
+    "category": "manual",
+    "description": "Teaches the Ember Heart passive technique."
+  },
+  "manual_keen_focus": {
+    "name": "Manual: Keen Focus",
+    "category": "manual",
+    "description": "Teaches the Keen Focus passive technique."
+  },
+  "manual_sanguine_drain": {
+    "name": "Manual: Sanguine Drain",
+    "category": "manual",
+    "description": "Teaches the Sanguine Drain sword technique."
+  },
+  "manual_rending_flurry": {
+    "name": "Manual: Rending Flurry",
+    "category": "manual",
+    "description": "Teaches the Rending Flurry sword technique."
+  },
+  "manual_cinder_lance": {
+    "name": "Manual: Cinder Lance",
+    "category": "manual",
+    "description": "Teaches the Cinder Lance fire technique."
+  },
+  "manual_mountain_guard": {
+    "name": "Manual: Mountain Guard",
+    "category": "manual",
+    "description": "Teaches the Mountain Guard body technique."
+  },
+  "manual_soul_siphon": {
+    "name": "Manual: Soul Siphon",
+    "category": "manual",
+    "description": "Teaches the Soul Siphon soul technique."
+  },
+  "manual_purifying_breath": {
+    "name": "Manual: Purifying Breath",
+    "category": "manual",
+    "description": "Teaches the Purifying Breath utility technique."
+  },
+  "manual_hemorrhage_art": {
+    "name": "Manual: Hemorrhage Art",
+    "category": "manual",
+    "description": "Teaches the Hemorrhage Art passive."
+  },
+  "manual_mirror_nimbus": {
+    "name": "Manual: Mirror Nimbus",
+    "category": "manual",
+    "description": "Teaches the Mirror Nimbus passive."
+  },
+  "manual_rising_tempo": {
+    "name": "Manual: Rising Tempo",
+    "category": "manual",
+    "description": "Teaches the Rising Tempo passive."
+  },
+  "manual_merciful_edge": {
+    "name": "Manual: Merciful Edge",
+    "category": "manual",
+    "description": "Teaches the Merciful Edge passive."
+  },
+  "manual_undying_vow": {
+    "name": "Manual: Undying Vow",
+    "category": "manual",
+    "description": "Teaches the Undying Vow passive."
+  },
+  "manual_iron_will": {
+    "name": "Manual: Iron Will",
+    "category": "manual",
+    "description": "Teaches the Iron Will passive."
+  },
+  "manual_lotus_revival": {
+    "name": "Manual: Lotus Revival",
+    "category": "manual",
+    "description": "Teaches the Lotus Revival passive (Legendary)."
+  },
+  "manual_venom_weave": {
+    "name": "Manual: Venom Weave",
+    "category": "manual",
+    "description": "Teaches the Venom Weave passive (Rare)."
+  },
+  "manual_heavens_cleave": {
+    "name": "Manual: Heaven's Cleave",
+    "category": "manual",
+    "description": "Teaches the Heaven's Cleave technique (Legendary)."
+  },
+  "technique_fragment": {
+    "name": "Technique Fragment",
+    "category": "material",
+    "description": "Imprinted qi from a fallen art. You need 3 fragments + 1 Blank Scroll + 1 Spirit Ink to bind a random manual with /craft manual. Farm scroll and ink from /gather in the Bamboo Grove."
+  },
+  "blank_scroll": {
+    "name": "Blank Scroll",
+    "category": "material",
+    "description": "Unmarked parchment for inscribing techniques. Required for /craft manual (with 3 fragments and spirit ink). Common drop from /gather."
+  },
+  "spirit_ink": {
+    "name": "Spirit Ink",
+    "category": "material",
+    "description": "Ink that holds qi script without fading. Required for /craft manual. Gather from Bamboo Grove or Ashen Cliff Pass."
+  },
+  "script_shard": {
+    "name": "Script Shard",
+    "category": "material",
+    "description": "A shard of ancient inscription from ruined sect vaults."
   }
 }

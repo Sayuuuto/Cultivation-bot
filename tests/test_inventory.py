@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.inventory import (
     add_item,
+    build_inventory_embed,
     format_inventory_embed,
     get_item_def,
     get_item_quantity,
@@ -84,24 +85,34 @@ def test_add_unknown_item_raises(session: Session, player: Player):
         add_item(session, player.id, "not_a_real_item", 1)
 
 
-def test_format_inventory_empty(player: Player):
-    title, description = format_inventory_embed(player, [])
-    assert "TestDao" in title
-    assert "empty" in description.lower()
+def test_build_inventory_empty(player: Player):
+    embed = build_inventory_embed(player, [])
+    assert "Storage Ring" in embed.title
+    assert "empty" in (embed.description or "").lower()
 
 
-def test_format_inventory_grouped(session: Session, player: Player):
+def test_build_inventory_names_only_grouped(session: Session, player: Player):
     add_item(session, player.id, "green_dew_herb", 3)
     add_item(session, player.id, "qi_gathering_pill", 1)
     add_item(session, player.id, "blackwind_key", 2)
     session.commit()
 
     stacks = get_player_inventory(session, player.id)
-    title, description = format_inventory_embed(player, stacks)
+    embed = build_inventory_embed(player, stacks)
+    field_text = "\n".join(f.value for f in embed.fields)
 
-    assert "**Materials**" in description
-    assert "**Pills**" in description
-    assert "**Keys**" in description
-    assert "Green Dew Herb ×3" in description
-    assert "Qi Gathering Pill ×1" in description
-    assert "Blackwind Key ×2" in description
+    assert any("Materials" in f.name for f in embed.fields)
+    assert any("Pills" in f.name for f in embed.fields)
+    assert any("Keys" in f.name for f in embed.fields)
+    assert "Green Dew Herb" in field_text
+    assert "×3" in field_text
+    assert "Qi Gathering Pill" in field_text
+    assert "Blackwind Key" in field_text
+    assert "Manual binding" not in field_text
+    assert "/craft" not in field_text
+
+
+def test_format_inventory_embed_legacy(player: Player):
+    title, description = format_inventory_embed(player, [])
+    assert "TestDao" in title or "Storage Ring" in title
+    assert "empty" in description.lower()

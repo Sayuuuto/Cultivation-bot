@@ -1,0 +1,61 @@
+{
+  "bamboo_grove": {
+    "flavor": "You wander the misty bamboo paths, searching for spirit herbs.",
+    "nodes": [
+      {"item_id": "green_dew_herb", "weight": 50, "min": 1, "max": 3},
+      {"item_id": "bamboo_resin", "weight": 30, "min": 1, "max": 2},
+      {"item_id": "spirit_iron_shard", "weight": 10, "min": 1, "max": 1},
+      {"item_id": "blank_scroll", "weight": 8, "min": 1, "max": 1},
+      {"item_id": "spirit_ink", "weight": 6, "min": 1, "max": 1}
+    ],
+    "rare_node_chance": 0.06,
+    "rare_nodes": [
+      {
+        "item_id": "moonlotus",
+        "weight": 1,
+        "min": 1,
+        "max": 1,
+        "message": "Moonlight glints on a hidden **Moonlotus** patch."
+      }
+    ]
+  },
+  "ashen_cliff": {
+    "flavor": "You scour scorched cliffside crevices for ore and moss.",
+    "nodes": [
+      {"item_id": "ember_moss", "weight": 40, "min": 1, "max": 2},
+      {"item_id": "spirit_iron_shard", "weight": 35, "min": 1, "max": 2},
+      {"item_id": "bandit_token", "weight": 12, "min": 1, "max": 1},
+      {"item_id": "spirit_ink", "weight": 8, "min": 1, "max": 1}
+    ],
+    "rare_node_chance": 0.05,
+    "rare_nodes": [
+      {
+        "item_id": "refined_beast_core",
+        "weight": 1,
+        "min": 1,
+        "max": 1,
+        "message": "A vein of spirit ore pulses beneath the ash — **Refined Beast Core** materializes."
+      }
+    ]
+  },
+  "moonwell_ruins": {
+    "flavor": "You sift through collapsed moonwell stones for ancient reagents.",
+    "nodes": [
+      {"item_id": "moonlotus", "weight": 32, "min": 1, "max": 2},
+      {"item_id": "ancient_dust", "weight": 40, "min": 1, "max": 2},
+      {"item_id": "refined_beast_core", "weight": 12, "min": 1, "max": 1},
+      {"item_id": "script_shard", "weight": 10, "min": 1, "max": 1},
+      {"item_id": "blank_scroll", "weight": 6, "min": 1, "max": 1}
+    ],
+    "rare_node_chance": 0.08,
+    "rare_nodes": [
+      {
+        "item_id": "affix_stone",
+        "weight": 1,
+        "min": 1,
+        "max": 1,
+        "message": "An intact inscription stone hums in the ruins — an **Affix Stone**."
+      }
+    ]
+  }
+}

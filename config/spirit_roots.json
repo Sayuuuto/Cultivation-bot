@@ -35,9 +35,9 @@
     "description": "Precision under moonlight; thrives in ruins."
   },
   "Mercy Lotus Root": {
-    "sect_contribution_mult": 1.15,
+    "clan_contribution_mult": 1.15,
     "adventure_defense": 0.06,
     "pvp_stones_mult": 0.90,
-    "description": "Gentle dao that supports allies and sects."
+    "description": "Gentle dao that supports allies and clans."
   }
 }

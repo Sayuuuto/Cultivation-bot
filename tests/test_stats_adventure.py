@@ -41,11 +41,16 @@ def test_flow_pill_grants_adventure_haste(session, player):
 
 
 def test_interactive_adventure_choice_flow(session, player):
-    rng = random.Random(99)
+    from src.adventure import get_encounters_for_area
+    from tests.rng_helpers import ScriptedRNG
+
+    choice_encounters = [e for e in get_encounters_for_area("bamboo_grove") if e.encounter_type == "choice"]
+    rng = ScriptedRNG(encounter_queue=[choice_encounters[0], choice_encounters[0]])
     pending, err = start_adventure_session(session, player, "bamboo_grove", "balanced", rng=rng)
     session.commit()
     assert err is None
     assert pending is not None
+    assert pending.choices
 
     choice_id = pending.choices[0].id
     result, err = apply_adventure_choice(session, player, pending.active_id, choice_id, rng=rng)

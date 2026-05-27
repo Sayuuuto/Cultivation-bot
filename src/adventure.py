@@ -10,6 +10,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .character import compute_adventure_defense, compute_adventure_power, get_character_modifiers
+from .ui.formatting import RARE_EVENT_FLAIR
+from .combat.engine import create_combat_state, opponent_from_monster
+from .combat.monsters import get_monster
+from .combat.session import create_active_combat, get_active_combat
+from .combat_stats import compute_combat_stats
 from .content import AreaDef, DropEntry, RareEventDef, get_area
 from .effects import consume_effect_charge
 from .inventory import add_item, get_item_name
@@ -24,14 +29,27 @@ STANCES = {
 
 SEGMENTS_PER_RUN = 2
 
-RARE_EVENT_REWARDS: dict[str, dict[str, int | str]] = {
+PITY_BOOST_PER_SEGMENT = 0.05
+PITY_BOOST_CAP = 0.25
+PITY_HINT_THRESHOLD = 3
+
+RARE_EVENT_REWARDS: dict[str, dict[str, int | str | float]] = {
     "hidden_herb_patch": {"green_dew_herb": 3, "moonlotus": 1},
-    "wandering_elder": {"effect": "qi_gathering", "charges": 1},
-    "ancient_cache": {"affix_stone": 1, "ancient_dust": 2},
-    "ambush": {"bandit_token": 2, "spirit_stones": 15},
-    "abandoned_cart": {"spirit_iron_shard": 2, "ember_moss": 2},
-    "hidden_moonwell": {"moonlotus": 2, "moonwell_tonic": 1},
-    "inheritance_fragment": {"root_reforging_pill": 1},
+    "wandering_elder": {
+        "effect": "qi_gathering",
+        "charges": 1,
+        "manual_pool": "elder_mortal",
+        "manual_chance": 1.0,
+    },
+    "ancient_cache": {"affix_stone": 1, "ancient_dust": 2, "blank_scroll": 1},
+    "ambush": {"bandit_token": 2, "spirit_stones": 15, "technique_fragment": 1},
+    "abandoned_cart": {"spirit_iron_shard": 2, "ember_moss": 2, "technique_fragment": 1},
+    "hidden_moonwell": {"moonlotus": 2, "moonwell_tonic": 1, "script_shard": 1},
+    "inheritance_fragment": {
+        "root_reforging_pill": 1,
+        "manual_pool": "inheritance_earth",
+        "manual_chance": 1.0,
+    },
 }
 
 ENCOUNTERS_PATH = Path(__file__).resolve().parent.parent / "config" / "adventure_encounters.json"
@@ -45,13 +63,19 @@ class AdventureChoice:
     success_bonus: float
     drop_mult: float
     fail_chance: float
+    karma_delta: int = 0
+    manual_pool: str | None = None
+    manual_chance: float = 1.0
+    spirit_stones: int = 0
 
 
 @dataclass
 class AdventureEncounter:
     id: str
     prompt: str
-    choices: tuple[AdventureChoice, ...]
+    encounter_type: str
+    choices: tuple[AdventureChoice, ...] = ()
+    monster_id: str | None = None
 
 
 @dataclass
@@ -76,8 +100,15 @@ class PendingAdventure:
     segment: int
     segments_total: int
     prompt: str
-    choices: tuple[AdventureChoice, ...]
+    choices: tuple[AdventureChoice, ...] = ()
     messages: list[str] = field(default_factory=list)
+    encounter_type: str = "choice"
+    combat_id: int | None = None
+    monster_name: str | None = None
+    player_hp: int | None = None
+    player_max_hp: int | None = None
+    opponent_hp: int | None = None
+    opponent_max_hp: int | None = None
 
 
 def _load_encounters() -> dict[str, list[dict]]:
@@ -92,6 +123,17 @@ def get_encounters_for_area(area_id: str) -> list[AdventureEncounter]:
     raw = _load_encounters().get(area_id, [])
     encounters: list[AdventureEncounter] = []
     for entry in raw:
+        encounter_type = entry.get("type", "choice")
+        if encounter_type == "combat":
+            encounters.append(
+                AdventureEncounter(
+                    id=entry["id"],
+                    prompt=entry["prompt"],
+                    encounter_type="combat",
+                    monster_id=entry.get("monster_id"),
+                )
+            )
+            continue
         choices = tuple(
             AdventureChoice(
                 id=c["id"],
@@ -99,11 +141,20 @@ def get_encounters_for_area(area_id: str) -> list[AdventureEncounter]:
                 success_bonus=float(c.get("success_bonus", 0)),
                 drop_mult=float(c.get("drop_mult", 1.0)),
                 fail_chance=float(c.get("fail_chance", 0.1)),
+                karma_delta=int(c.get("karma_delta", 0)),
+                manual_pool=c.get("manual_pool"),
+                manual_chance=float(c.get("manual_chance", 1.0)),
+                spirit_stones=int(c.get("spirit_stones", 0)),
             )
-            for c in entry["choices"]
+            for c in entry.get("choices", [])
         )
         encounters.append(
-            AdventureEncounter(id=entry["id"], prompt=entry["prompt"], choices=choices)
+            AdventureEncounter(
+                id=entry["id"],
+                prompt=entry["prompt"],
+                encounter_type=encounter_type,
+                choices=choices,
+            )
         )
     return encounters
 
@@ -112,6 +163,7 @@ def _default_encounter(segment: int) -> AdventureEncounter:
     return AdventureEncounter(
         id=f"generic_{segment}",
         prompt="The path narrows. How do you proceed?",
+        encounter_type="choice",
         choices=(
             AdventureChoice("steady", "Press forward steadily", 0.05, 1.0, 0.08),
             AdventureChoice("scout", "Scout from cover", 0.1, 0.85, 0.05),
@@ -120,7 +172,29 @@ def _default_encounter(segment: int) -> AdventureEncounter:
     )
 
 
-def _pick_encounter(rng: random.Random, area_id: str, segment: int) -> AdventureEncounter:
+def _encounter_by_id(area_id: str, encounter_id: str, segment: int) -> AdventureEncounter:
+    encounters = get_encounters_for_area(area_id)
+    encounter = next((e for e in encounters if e.id == encounter_id), None)
+    if encounter is None:
+        from .novice_trial import NOVICE_SEGMENT2_ENCOUNTER, SAGE_TRIAL_ENCOUNTER
+
+        if encounter_id == SAGE_TRIAL_ENCOUNTER.id:
+            return SAGE_TRIAL_ENCOUNTER
+        if encounter_id == NOVICE_SEGMENT2_ENCOUNTER.id:
+            return NOVICE_SEGMENT2_ENCOUNTER
+    if encounter is None:
+        return _default_encounter(segment)
+    return encounter
+
+
+def _pick_encounter(rng: random.Random, area_id: str, segment: int, player: Player | None = None) -> AdventureEncounter:
+    if player is not None:
+        from .novice_trial import is_first_adventure, pick_novice_encounter
+
+        if is_first_adventure(player):
+            novice = pick_novice_encounter(segment)
+            if novice is not None:
+                return novice
     pool = get_encounters_for_area(area_id)
     if not pool:
         return _default_encounter(segment)
@@ -164,26 +238,183 @@ def _apply_rare_event(
     area: AreaDef,
     drops: dict[str, int],
     messages: list[str],
+    rng: random.Random | None = None,
 ) -> None:
-    messages.append(event.message)
-    rewards = RARE_EVENT_REWARDS.get(event.id, {})
-    for key, val in rewards.items():
-        if key == "effect":
-            from .effects import add_effect
+    from .manuals import RARE_EVENT_META_KEYS, apply_rare_event_manual_reward
 
-            add_effect(session, player.id, str(val), charges=int(rewards.get("charges", 1)))
-            messages.append("A fleeting blessing settles upon your meridians.")
-            continue
-        if key in ("charges", "hours"):
+    rng = rng or random.Random()
+    emoji, title = RARE_EVENT_FLAIR.get(event.id, ("✨", event.id.replace("_", " ").title()))
+    messages.append(f"{emoji} **{title}** — {event.message}")
+    rewards = RARE_EVENT_REWARDS.get(event.id, {})
+    if "effect" in rewards:
+        from .effects import add_effect
+
+        add_effect(session, player.id, str(rewards["effect"]), charges=int(rewards.get("charges", 1)))
+        messages.append("🌟 A fleeting blessing settles upon your meridians.")
+
+    if "spirit_stones" in rewards:
+        stones = int(rewards["spirit_stones"])
+        player.spirit_stones += stones
+        messages.append(f"💎 You gain **{stones}** spirit stones from the encounter.")
+
+    for key, val in rewards.items():
+        if key in RARE_EVENT_META_KEYS:
             continue
         if key == "spirit_stones":
-            player.spirit_stones += int(val)
-            messages.append(f"You gain {val} spirit stones from the encounter.")
             continue
         from .inventory import get_item_def
 
         if get_item_def(key) is not None or key in {d.item_id for d in area.drops}:
             drops[key] = drops.get(key, 0) + int(val)
+
+    apply_rare_event_manual_reward(session, player, rewards, drops, messages, rng)
+
+
+def _encounter_icon(encounter_type: str) -> str:
+    if encounter_type == "combat":
+        return "⚔️"
+    return "📜"
+
+
+def _pity_bonus(state: dict) -> float:
+    segments = int(state.get("segments_since_rare", 0))
+    return min(segments * PITY_BOOST_PER_SEGMENT, PITY_BOOST_CAP)
+
+
+def _maybe_pity_hint(state: dict, messages: list[str]) -> None:
+    segments = int(state.get("segments_since_rare", 0))
+    if segments >= PITY_HINT_THRESHOLD:
+        messages.append("_Fate stirs… something rare may be near._")
+
+
+def _build_pending_from_encounter(
+    active: ActiveAdventure,
+    area: AreaDef,
+    encounter: AdventureEncounter,
+    state: dict,
+    *,
+    combat_id: int | None = None,
+    combat_state=None,
+) -> PendingAdventure:
+    pending = PendingAdventure(
+        active_id=active.id,
+        area_name=area.name,
+        segment=active.segment,
+        segments_total=SEGMENTS_PER_RUN,
+        prompt=encounter.prompt,
+        choices=encounter.choices,
+        messages=list(state.get("messages", [])),
+        encounter_type=encounter.encounter_type,
+        combat_id=combat_id,
+    )
+    if encounter.encounter_type == "combat" and combat_state is not None:
+        pending.monster_name = combat_state.opponent_name
+        pending.player_hp = combat_state.player.hp
+        pending.player_max_hp = combat_state.player.max_hp
+        pending.opponent_hp = combat_state.opponent.hp
+        pending.opponent_max_hp = combat_state.opponent.max_hp
+    elif encounter.monster_id:
+        monster = get_monster(encounter.monster_id)
+        if monster:
+            pending.monster_name = monster.name
+    return pending
+
+
+def _start_combat_encounter(
+    session: Session,
+    player: Player,
+    area_id: str,
+    encounter: AdventureEncounter,
+    state: dict,
+) -> tuple[int | None, str | None]:
+    if not encounter.monster_id:
+        return None, "This combat encounter has no foe configured."
+    monster = get_monster(encounter.monster_id)
+    if monster is None:
+        return None, "The foe vanished before the fight began."
+
+    mod = get_character_modifiers(session, player)
+    stats = compute_combat_stats(player, session, mod)
+    opponent = opponent_from_monster(
+        monster.monster_id,
+        monster.name,
+        monster.hp,
+        monster.attack,
+        monster.defense,
+        monster.speed,
+        traits=list(monster.traits),
+    )
+    combat_state = create_combat_state(
+        stats,
+        opponent,
+        context="adventure",
+        context_meta={"area_id": area_id, "encounter_id": encounter.id, "monster_id": monster.monster_id},
+    )
+    active_combat = create_active_combat(
+        session,
+        player,
+        combat_state,
+        context="adventure",
+        context_key=area_id,
+    )
+    state["pending_combat"] = True
+    state["combat_encounter_id"] = encounter.id
+    state.setdefault("messages", []).append(
+        f"{_encounter_icon('combat')} **Combat!** {encounter.prompt}"
+    )
+    return active_combat.id, None
+
+
+def _resolve_combat_segment(
+    session: Session,
+    player: Player,
+    area: AreaDef,
+    stance: str,
+    state: dict,
+    rng: random.Random,
+    *,
+    victory: bool,
+) -> tuple[bool, bool]:
+    """Returns (segment_success, run_failed)."""
+    stance_mod = STANCES[stance]
+    mod = get_character_modifiers(session, player)
+
+    if victory:
+        state["segments_cleared"] = int(state.get("segments_cleared", 0)) + 1
+        drop_mult = stance_mod["drop_mult"]
+        rolled = _roll_drop(rng, area.drops, drop_mult, mod.drop_luck)
+        drops: dict[str, int] = state.setdefault("drops", {})
+        if rolled:
+            item_id, qty = rolled
+            drops[item_id] = drops.get(item_id, 0) + qty
+        state["messages"].append("Victory in combat — you claim spoils from the foe.")
+    else:
+        penalty = max(5, 8 + area.min_realm * 3)
+        state["qi_penalty"] = int(state.get("qi_penalty", 0)) + penalty
+        state["messages"].append(f"You were driven back from combat ({penalty} qi lost).")
+        return False, True
+
+    segments_since_rare = int(state.get("segments_since_rare", 0))
+    pity_bonus = _pity_bonus(state)
+    rare_roll = min(0.95, area.rare_event_chance + pity_bonus) * mod.rare_event_mult
+    if stance == "reckless":
+        rare_roll *= 1.1
+    _maybe_pity_hint(state, state["messages"])
+    if rng.random() < rare_roll:
+        event = _pick_rare_event(rng, area.rare_events)
+        if event:
+            rare_events: list[str] = state.setdefault("rare_events", [])
+            rare_events.append(event.id)
+            _apply_rare_event(
+                session, player, event, area, state.setdefault("drops", {}), state["messages"], rng
+            )
+            state["segments_since_rare"] = 0
+    else:
+        state["segments_since_rare"] = segments_since_rare + 1
+
+    state.pop("pending_combat", None)
+    state.pop("combat_encounter_id", None)
+    return True, False
 
 
 def _load_state(active: ActiveAdventure) -> dict:
@@ -207,6 +438,9 @@ def abandon_adventure(session: Session, player_id: int) -> tuple[bool, str]:
     active = get_active_adventure(session, player_id)
     if active is None:
         return False, "You have no adventure in progress."
+    from .combat.session import delete_active_combat
+
+    delete_active_combat(session, player_id)
     session.delete(active)
     return True, "You withdraw from the wilds. The path can wait."
 
@@ -239,15 +473,24 @@ def start_adventure_session(
     assert area is not None
 
     stance = stance.lower()
-    encounter = _pick_encounter(rng, area_id, 1)
+    from .novice_trial import is_first_adventure
+
+    encounter = _pick_encounter(rng, area_id, 1, player)
     state = {
         "drops": {},
         "messages": [f"You enter **{area.name}** with a {stance} stance."],
         "rare_events": [],
         "segments_cleared": 0,
+        "segments_since_rare": 0,
         "qi_penalty": 0,
         "failed_run": False,
     }
+    if is_first_adventure(player):
+        state["novice_adventure"] = True
+        state["messages"].append(
+            "_The sect elders whisper: your first journey teaches karma — "
+            "no choice here can end the run._"
+        )
 
     active = ActiveAdventure(
         player_id=player.id,
@@ -260,15 +503,24 @@ def start_adventure_session(
     session.add(active)
     session.flush()
 
+    combat_id = None
+    combat_state = None
+    if encounter.encounter_type == "combat":
+        combat_id, err = _start_combat_encounter(session, player, area_id, encounter, state)
+        if err:
+            session.delete(active)
+            return None, err
+        active.state_json = json.dumps(state)
+        if combat_id is not None:
+            from .combat.session import load_combat_state as load_combat
+
+            active_combat = get_active_combat(session, player.id)
+            if active_combat is not None:
+                combat_state = load_combat(active_combat)
+
     return (
-        PendingAdventure(
-            active_id=active.id,
-            area_name=area.name,
-            segment=1,
-            segments_total=SEGMENTS_PER_RUN,
-            prompt=encounter.prompt,
-            choices=encounter.choices,
-            messages=list(state["messages"]),
+        _build_pending_from_encounter(
+            active, area, encounter, state, combat_id=combat_id, combat_state=combat_state
         ),
         None,
     )
@@ -288,23 +540,74 @@ def resume_adventure_session(
         return None, "Your adventure area no longer exists."
 
     encounters = get_encounters_for_area(active.area_id)
-    encounter = next((e for e in encounters if e.id == active.encounter_id), None)
-    if encounter is None:
-        encounter = _default_encounter(active.segment)
+    encounter = _encounter_by_id(active.area_id, active.encounter_id, active.segment)
 
     state = _load_state(active)
+    combat_id = None
+    combat_state = None
+    if state.get("pending_combat"):
+        active_combat = get_active_combat(session, player.id)
+        if active_combat is not None:
+            from .combat.session import load_combat_state as load_combat
+
+            combat_id = active_combat.id
+            combat_state = load_combat(active_combat)
+
     return (
-        PendingAdventure(
-            active_id=active.id,
-            area_name=area.name,
-            segment=active.segment,
-            segments_total=SEGMENTS_PER_RUN,
-            prompt=encounter.prompt,
-            choices=encounter.choices,
-            messages=list(state.get("messages", [])),
+        _build_pending_from_encounter(
+            active, area, encounter, state, combat_id=combat_id, combat_state=combat_state
         ),
         None,
     )
+
+
+def _apply_choice_karma(
+    player: Player,
+    choice: AdventureChoice,
+    state: dict,
+) -> None:
+    from .karma import clamp_karma
+
+    if not choice.karma_delta:
+        return
+    before = player.karma
+    player.karma = clamp_karma(player.karma + choice.karma_delta)
+    delta = player.karma - before
+    if delta > 0:
+        state["messages"].append(f"☯️ Your karma rises (**+{delta}** → **{player.karma}**).")
+    elif delta < 0:
+        state["messages"].append(f"☯️ Your karma falls (**{delta}** → **{player.karma}**).")
+    if state.get("novice_adventure") and not state.get("karma_tutorial_shown"):
+        state["karma_tutorial_shown"] = True
+        state["messages"].append(
+            "_Karma shapes breakthrough flavor and manual drops — righteous or demonic arts await those who commit._"
+        )
+
+
+def _apply_choice_rewards(
+    session: Session,
+    player: Player,
+    choice: AdventureChoice,
+    state: dict,
+    rng: random.Random,
+) -> None:
+    from .manuals import roll_manual_pool_reward
+
+    if choice.spirit_stones > 0:
+        player.spirit_stones += choice.spirit_stones
+        state["messages"].append(f"💎 You gain **{choice.spirit_stones}** spirit stones.")
+
+    if choice.manual_pool:
+        note = roll_manual_pool_reward(
+            session,
+            player.id,
+            choice.manual_pool,
+            rng,
+            state.setdefault("drops", {}),
+            chance=choice.manual_chance,
+        )
+        if note:
+            state["messages"].append(note)
 
 
 def _resolve_segment(
@@ -331,6 +634,8 @@ def _resolve_segment(
         )
         return False, True
 
+    _apply_choice_karma(player, choice, state)
+
     success_chance = _clamp_chance(
         area.base_success
         + stance_mod["success"]
@@ -339,6 +644,11 @@ def _resolve_segment(
         + min(0.12, power / 200.0)
     )
     success_chance = min(0.95, success_chance * defense)
+    from .novice_trial import novice_adventure_success_floor
+
+    floor = novice_adventure_success_floor(state)
+    if floor > 0:
+        success_chance = max(success_chance, floor)
 
     drop_mult = stance_mod["drop_mult"] * choice.drop_mult
 
@@ -350,6 +660,7 @@ def _resolve_segment(
             item_id, qty = rolled
             drops[item_id] = drops.get(item_id, 0) + qty
         state["messages"].append(f"**{choice.label}** pays off — you gather spoils.")
+        _apply_choice_rewards(session, player, choice, state, rng)
     else:
         penalty = max(3, 5 + area.min_realm * 2)
         state["qi_penalty"] = int(state.get("qi_penalty", 0)) + penalty
@@ -357,15 +668,23 @@ def _resolve_segment(
             f"**{choice.label}** falters. You are forced back ({penalty} qi lost)."
         )
 
-    rare_roll = area.rare_event_chance * mod.rare_event_mult
+    segments_since_rare = int(state.get("segments_since_rare", 0))
+    pity_bonus = _pity_bonus(state)
+    rare_roll = min(0.95, area.rare_event_chance + pity_bonus) * mod.rare_event_mult
     if stance == "reckless":
         rare_roll *= 1.1
+    _maybe_pity_hint(state, state["messages"])
     if rng.random() < rare_roll:
         event = _pick_rare_event(rng, area.rare_events)
         if event:
             rare_events: list[str] = state.setdefault("rare_events", [])
             rare_events.append(event.id)
-            _apply_rare_event(session, player, event, area, state.setdefault("drops", {}), state["messages"])
+            _apply_rare_event(
+                session, player, event, area, state.setdefault("drops", {}), state["messages"], rng
+            )
+            state["segments_since_rare"] = 0
+    else:
+        state["segments_since_rare"] = segments_since_rare + 1
 
     return bool(state["segments_cleared"] > 0), False
 
@@ -387,17 +706,20 @@ def apply_adventure_choice(
         session.delete(active)
         return None, "That area vanished from the map."
 
-    encounters = get_encounters_for_area(active.area_id)
-    encounter = next((e for e in encounters if e.id == active.encounter_id), None)
-    if encounter is None:
-        encounter = _default_encounter(active.segment)
+    encounter = _encounter_by_id(active.area_id, active.encounter_id, active.segment)
+
+    if encounter.encounter_type == "combat":
+        return None, "This segment is a combat encounter — use the combat buttons."
 
     choice = next((c for c in encounter.choices if c.id == choice_id), None)
     if choice is None:
         return None, "That choice is not available."
 
     state = _load_state(active)
-    _, run_failed = _resolve_segment(session, player, area, active.stance, choice, state, rng)
+    allow_catastrophic = not state.get("novice_adventure", False)
+    _, run_failed = _resolve_segment(
+        session, player, area, active.stance, choice, state, rng, allow_catastrophic=allow_catastrophic
+    )
 
     if run_failed:
         state["failed_run"] = True
@@ -407,21 +729,94 @@ def apply_adventure_choice(
         return _finalize_adventure(session, player, area, active.stance, state, active), None
 
     next_segment = current_segment + 1
-    next_encounter = _pick_encounter(rng, active.area_id, next_segment)
+    next_encounter = _pick_encounter(rng, active.area_id, next_segment, player)
     active.segment = next_segment
     active.encounter_id = next_encounter.id
     _save_state(active, state)
     session.add(active)
 
+    combat_id = None
+    combat_state = None
+    if next_encounter.encounter_type == "combat":
+        combat_id, err = _start_combat_encounter(session, player, active.area_id, next_encounter, state)
+        if err:
+            return None, err
+        _save_state(active, state)
+        if combat_id is not None:
+            from .combat.session import load_combat_state as load_combat
+
+            active_combat = get_active_combat(session, player.id)
+            if active_combat is not None:
+                combat_state = load_combat(active_combat)
+
     return (
-        PendingAdventure(
-            active_id=active.id,
-            area_name=area.name,
-            segment=next_segment,
-            segments_total=SEGMENTS_PER_RUN,
-            prompt=next_encounter.prompt,
-            choices=next_encounter.choices,
-            messages=list(state.get("messages", [])),
+        _build_pending_from_encounter(
+            active, area, next_encounter, state, combat_id=combat_id, combat_state=combat_state
+        ),
+        None,
+    )
+
+
+def apply_adventure_combat_outcome(
+    session: Session,
+    player: Player,
+    active_id: int,
+    *,
+    victory: bool,
+    fled: bool = False,
+    rng: random.Random | None = None,
+) -> tuple[PendingAdventure | AdventureResult | None, str | None]:
+    rng = rng or random.Random()
+    active = session.get(ActiveAdventure, active_id)
+    if active is None or active.player_id != player.id:
+        return None, "That adventure is no longer active."
+
+    area = get_area(active.area_id)
+    if area is None:
+        session.delete(active)
+        return None, "That area vanished from the map."
+
+    state = _load_state(active)
+    if fled:
+        state["failed_run"] = True
+        state["messages"].append("You fled the combat encounter.")
+        return _finalize_adventure(session, player, area, active.stance, state, active), None
+
+    _, run_failed = _resolve_combat_segment(
+        session, player, area, active.stance, state, rng, victory=victory
+    )
+    if run_failed:
+        state["failed_run"] = True
+
+    current_segment = active.segment
+    if run_failed or current_segment >= SEGMENTS_PER_RUN:
+        _save_state(active, state)
+        return _finalize_adventure(session, player, area, active.stance, state, active), None
+
+    next_segment = current_segment + 1
+    next_encounter = _pick_encounter(rng, active.area_id, next_segment, player)
+    active.segment = next_segment
+    active.encounter_id = next_encounter.id
+    _save_state(active, state)
+    session.add(active)
+
+    combat_id = None
+    combat_state = None
+    if next_encounter.encounter_type == "combat":
+        combat_id, err = _start_combat_encounter(session, player, active.area_id, next_encounter, state)
+        if err:
+            return None, err
+        _save_state(active, state)
+        if combat_id is not None:
+            from .combat.session import load_combat_state as load_combat
+
+            active_combat = get_active_combat(session, player.id)
+            if active_combat is not None:
+                combat_state = load_combat(active_combat)
+
+    return (
+        _build_pending_from_encounter(
+            active, area, next_encounter, state, combat_id=combat_id, combat_state=combat_state
         ),
         None,
     )
@@ -441,6 +836,9 @@ def _finalize_adventure(
         consume_effect_charge(session, player.id, "tempering")
 
     drops: dict[str, int] = state.get("drops", {})
+    from .manuals import normalize_manual_drops
+
+    drops = normalize_manual_drops(session, player.id, drops)
     for item_id, qty in drops.items():
         add_item(session, player.id, item_id, qty)
 
@@ -521,12 +919,15 @@ def run_adventure(
         "messages": [f"You enter **{area.name}** with a {stance} stance."],
         "rare_events": [],
         "segments_cleared": 0,
+        "segments_since_rare": 0,
         "qi_penalty": 0,
         "failed_run": False,
     }
 
     for segment in range(1, SEGMENTS_PER_RUN + 1):
         encounter = _pick_encounter(rng, area_id, segment)
+        if not encounter.choices:
+            encounter = _default_encounter(segment)
         choice = min(encounter.choices, key=lambda c: c.fail_chance)
         _, run_failed = _resolve_segment(
             session, player, area, stance, choice, state, rng, allow_catastrophic=False

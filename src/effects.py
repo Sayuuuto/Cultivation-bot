@@ -20,6 +20,8 @@ EFFECT_DESCRIPTIONS: dict[str, str] = {
     "haste_adventure": "Shaves minutes off adventure cooldown",
     "haste_cultivate": "Shaves minutes off cultivate cooldown",
     "haste_dungeon": "Shaves minutes off dungeon cooldown",
+    "haste_gather": "Shaves minutes off gather cooldown",
+    "haste_hunt": "Shaves minutes off hunt cooldown",
 }
 
 HASTE_EFFECTS: dict[str, dict[str, int | str]] = {
@@ -138,6 +140,8 @@ VOID_PULSE_HASTE: dict[str, int] = {
     "haste_adventure": 600,
     "haste_dungeon": 1800,
     "haste_duel": 3600,
+    "haste_gather": 180,
+    "haste_hunt": 180,
 }
 
 

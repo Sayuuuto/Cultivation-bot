@@ -19,7 +19,7 @@ class CharacterModifiers:
     stamina_efficiency: float = 1.0
     stamina_regen_mult: float = 1.0
     offline_cap_mult: float = 1.0
-    sect_contribution_mult: float = 1.0
+    clan_contribution_mult: float = 1.0
     dungeon_luck: float = 0.0
     dungeon_risk: float = 0.0
     clarity_breakthrough_bonus: float = 0.0

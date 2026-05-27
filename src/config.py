@@ -14,6 +14,7 @@ class Config:
     database_path: str
     announce_channel_id: str | None
     tutorial_channel_id: str | None
+    library_channel_id: str | None
 
     # Game constants (MVP defaults)
     cultivate_cooldown_seconds: int = 15 * 60
@@ -26,6 +27,8 @@ class Config:
     # PvE cooldowns
     adventure_cooldown_seconds: int = 20 * 60
     dungeon_cooldown_seconds: int = 2 * 60 * 60
+    gather_cooldown_seconds: int = 5 * 60
+    hunt_cooldown_seconds: int = 5 * 60
 
 
 def get_config() -> Config:
@@ -37,6 +40,7 @@ def get_config() -> Config:
     database_path = os.getenv("DATABASE_PATH", "cultivation_bot.sqlite3").strip()
     announce_channel_id = os.getenv("ANNOUNCE_CHANNEL_ID", "").strip() or None
     tutorial_channel_id = os.getenv("TUTORIAL_CHANNEL_ID", "").strip() or None
+    library_channel_id = os.getenv("LIBRARY_CHANNEL_ID", "").strip() or None
 
     return Config(
         discord_token=token,
@@ -44,5 +48,6 @@ def get_config() -> Config:
         database_path=database_path,
         announce_channel_id=announce_channel_id,
         tutorial_channel_id=tutorial_channel_id,
+        library_channel_id=library_channel_id,
     )
 

@@ -1,0 +1,177 @@
+{
+  "elder_mortal": {
+    "manuals": [
+      {"item_id": "manual_swift_slash", "weight": 28},
+      {"item_id": "manual_ember_palm", "weight": 28},
+      {"item_id": "manual_soul_needle", "weight": 18},
+      {"item_id": "manual_iron_body", "weight": 14},
+      {"item_id": "manual_qi_barrier", "weight": 12},
+      {"item_id": "manual_ember_heart", "weight": 5},
+      {"item_id": "manual_keen_focus", "weight": 5}
+    ]
+  },
+  "righteous_elder": {
+    "manuals": [
+      {"item_id": "manual_purifying_breath", "weight": 24},
+      {"item_id": "manual_mountain_guard", "weight": 22},
+      {"item_id": "manual_qi_barrier", "weight": 16},
+      {"item_id": "manual_mirror_nimbus", "weight": 14},
+      {"item_id": "manual_merciful_edge", "weight": 12},
+      {"item_id": "manual_iron_will", "weight": 6},
+      {"item_id": "manual_lotus_revival", "weight": 6}
+    ]
+  },
+  "demonic_elder": {
+    "manuals": [
+      {"item_id": "manual_sanguine_drain", "weight": 22},
+      {"item_id": "manual_hemorrhage_art", "weight": 20},
+      {"item_id": "manual_void_pulse", "weight": 16},
+      {"item_id": "manual_rending_flurry", "weight": 14},
+      {"item_id": "manual_soul_siphon", "weight": 12},
+      {"item_id": "manual_blood_feast", "weight": 10},
+      {"item_id": "manual_undying_vow", "weight": 5},
+      {"item_id": "manual_heavens_cleave", "weight": 5}
+    ]
+  },
+  "neutral_wanderer": {
+    "manuals": [
+      {"item_id": "manual_swift_slash", "weight": 24},
+      {"item_id": "manual_ember_palm", "weight": 22},
+      {"item_id": "manual_rising_tempo", "weight": 20},
+      {"item_id": "manual_keen_focus", "weight": 18},
+      {"item_id": "manual_mist_step", "weight": 16}
+    ]
+  },
+  "righteous_breakthrough": {
+    "manuals": [
+      {"item_id": "manual_mirror_nimbus", "weight": 35},
+      {"item_id": "manual_merciful_edge", "weight": 35},
+      {"item_id": "manual_purifying_breath", "weight": 30}
+    ]
+  },
+  "demonic_breakthrough": {
+    "manuals": [
+      {"item_id": "manual_rending_flurry", "weight": 35},
+      {"item_id": "manual_soul_siphon", "weight": 35},
+      {"item_id": "manual_void_pulse", "weight": 30}
+    ]
+  },
+  "inheritance_earth": {
+    "manuals": [
+      {"item_id": "manual_iron_cleave", "weight": 16},
+      {"item_id": "manual_flame_burst", "weight": 16},
+      {"item_id": "manual_cinder_lance", "weight": 14},
+      {"item_id": "manual_meridian_strike", "weight": 12},
+      {"item_id": "manual_void_pulse", "weight": 12},
+      {"item_id": "manual_mist_step", "weight": 10},
+      {"item_id": "manual_blood_feast", "weight": 10},
+      {"item_id": "manual_soul_siphon", "weight": 10}
+    ]
+  },
+  "hunt_bamboo_elite": {
+    "manuals": [
+      {"item_id": "manual_swift_slash", "weight": 40},
+      {"item_id": "manual_keen_focus", "weight": 35},
+      {"item_id": "manual_rising_tempo", "weight": 25}
+    ]
+  },
+  "hunt_ashen_elite": {
+    "manuals": [
+      {"item_id": "manual_flame_burst", "weight": 35},
+      {"item_id": "manual_iron_cleave", "weight": 35},
+      {"item_id": "manual_cinder_lance", "weight": 30}
+    ]
+  },
+  "hunt_moonwell_elite": {
+    "manuals": [
+      {"item_id": "manual_void_pulse", "weight": 30},
+      {"item_id": "manual_blood_feast", "weight": 25},
+      {"item_id": "manual_venom_weave", "weight": 25},
+      {"item_id": "manual_soul_siphon", "weight": 20}
+    ]
+  },
+  "dungeon_earth": {
+    "manuals": [
+      {"item_id": "manual_iron_cleave", "weight": 12},
+      {"item_id": "manual_flame_burst", "weight": 12},
+      {"item_id": "manual_cinder_lance", "weight": 10},
+      {"item_id": "manual_meridian_strike", "weight": 10},
+      {"item_id": "manual_void_pulse", "weight": 10},
+      {"item_id": "manual_mist_step", "weight": 10},
+      {"item_id": "manual_blood_feast", "weight": 10},
+      {"item_id": "manual_rending_flurry", "weight": 8},
+      {"item_id": "manual_mirror_nimbus", "weight": 8},
+      {"item_id": "manual_iron_will", "weight": 5},
+      {"item_id": "manual_undying_vow", "weight": 5},
+      {"item_id": "manual_lotus_revival", "weight": 5},
+      {"item_id": "manual_heavens_cleave", "weight": 4},
+      {"item_id": "manual_venom_weave", "weight": 6}
+    ]
+  },
+  "shop_unidentified": {
+    "manuals": [
+      {"item_id": "manual_swift_slash", "weight": 14},
+      {"item_id": "manual_ember_palm", "weight": 14},
+      {"item_id": "manual_soul_needle", "weight": 12},
+      {"item_id": "manual_iron_body", "weight": 12},
+      {"item_id": "manual_qi_barrier", "weight": 10},
+      {"item_id": "manual_ember_heart", "weight": 9},
+      {"item_id": "manual_keen_focus", "weight": 9},
+      {"item_id": "manual_rising_tempo", "weight": 8},
+      {"item_id": "manual_sanguine_drain", "weight": 4},
+      {"item_id": "manual_hemorrhage_art", "weight": 4},
+      {"item_id": "manual_purifying_breath", "weight": 4},
+      {"item_id": "manual_mountain_guard", "weight": 3},
+      {"item_id": "manual_mist_step", "weight": 3},
+      {"item_id": "manual_blood_feast", "weight": 2}
+    ]
+  },
+  "craft_mortal": {
+    "manuals": [
+      {"item_id": "manual_swift_slash", "weight": 20},
+      {"item_id": "manual_ember_palm", "weight": 20},
+      {"item_id": "manual_soul_needle", "weight": 16},
+      {"item_id": "manual_iron_body", "weight": 16},
+      {"item_id": "manual_qi_barrier", "weight": 14},
+      {"item_id": "manual_ember_heart", "weight": 8},
+      {"item_id": "manual_keen_focus", "weight": 8},
+      {"item_id": "manual_rising_tempo", "weight": 8}
+    ]
+  },
+  "craft_earth": {
+    "manuals": [
+      {"item_id": "manual_sanguine_drain", "weight": 18},
+      {"item_id": "manual_hemorrhage_art", "weight": 18},
+      {"item_id": "manual_purifying_breath", "weight": 16},
+      {"item_id": "manual_mountain_guard", "weight": 16},
+      {"item_id": "manual_mist_step", "weight": 14},
+      {"item_id": "manual_blood_feast", "weight": 14}
+    ]
+  },
+  "cultivate_enlightenment": {
+    "manuals": [
+      {"item_id": "manual_swift_slash", "weight": 24},
+      {"item_id": "manual_ember_palm", "weight": 24},
+      {"item_id": "manual_soul_needle", "weight": 18},
+      {"item_id": "manual_iron_body", "weight": 14},
+      {"item_id": "manual_qi_barrier", "weight": 14},
+      {"item_id": "manual_rising_tempo", "weight": 6}
+    ]
+  },
+  "breakthrough_success": {
+    "manuals": [
+      {"item_id": "manual_iron_cleave", "weight": 18},
+      {"item_id": "manual_flame_burst", "weight": 18},
+      {"item_id": "manual_cinder_lance", "weight": 16},
+      {"item_id": "manual_meridian_strike", "weight": 14},
+      {"item_id": "manual_void_pulse", "weight": 14},
+      {"item_id": "manual_mist_step", "weight": 12},
+      {"item_id": "manual_blood_feast", "weight": 12},
+      {"item_id": "manual_soul_siphon", "weight": 10},
+      {"item_id": "manual_rending_flurry", "weight": 8},
+      {"item_id": "manual_mirror_nimbus", "weight": 8},
+      {"item_id": "manual_merciful_edge", "weight": 8},
+      {"item_id": "manual_venom_weave", "weight": 6}
+    ]
+  }
+}

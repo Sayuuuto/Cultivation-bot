@@ -40,6 +40,40 @@ def get_session() -> Session:
     return _session_factory()
 
 
+def _table_exists(conn, table: str) -> bool:
+    row = conn.execute(
+        text("SELECT name FROM sqlite_master WHERE type='table' AND name=:name"),
+        {"name": table},
+    ).fetchone()
+    return row is not None
+
+
+def _column_exists(conn, table: str, column: str) -> bool:
+    rows = conn.execute(text(f"PRAGMA table_info({table})")).fetchall()
+    return column in {row[1] for row in rows}
+
+
+def _rename_column_if_exists(conn, table: str, old: str, new: str) -> None:
+    if _column_exists(conn, table, old) and not _column_exists(conn, table, new):
+        conn.execute(text(f'ALTER TABLE {table} RENAME COLUMN {old} TO {new}'))
+
+
+def _migrate_clan_rename(engine) -> None:
+    """Rename legacy player-guild 'sects' table/columns to 'clans'."""
+    with engine.connect() as conn:
+        if _table_exists(conn, "sects") and not _table_exists(conn, "clans"):
+            conn.execute(text("ALTER TABLE sects RENAME TO clans"))
+        if _table_exists(conn, "clans"):
+            _rename_column_if_exists(conn, "clans", "sect_qi_contributed", "clan_qi_contributed")
+        if _table_exists(conn, "players"):
+            _rename_column_if_exists(conn, "players", "sect_id", "clan_id")
+            _rename_column_if_exists(conn, "players", "sect_role", "clan_role")
+            _rename_column_if_exists(
+                conn, "players", "sect_contribution_qi_total", "clan_contribution_qi_total"
+            )
+        conn.commit()
+
+
 def _migrate_table_columns(engine, table: str, additions: dict[str, str]) -> None:
     with engine.connect() as conn:
         rows = conn.execute(text(f"PRAGMA table_info({table})")).fetchall()
@@ -52,6 +86,31 @@ def _migrate_table_columns(engine, table: str, additions: dict[str, str]) -> Non
         conn.commit()
 
 
+def _migrate_game_sect_columns(engine) -> None:
+    _migrate_table_columns(
+        engine,
+        "players",
+        {
+            "game_sect_id": "VARCHAR(32)",
+            "sect_merit": "INTEGER DEFAULT 0",
+            "last_sect_task_date": "VARCHAR(10)",
+            "sect_daily_task_id": "VARCHAR(64)",
+            "sect_daily_task_progress": "INTEGER DEFAULT 0",
+            "sect_daily_task_date": "VARCHAR(10)",
+            "sect_joined_at": "DATETIME",
+            "sect_leave_cooldown_until": "DATETIME",
+        },
+    )
+
+
+def _migrate_clan_invite_columns(engine) -> None:
+    _migrate_table_columns(
+        engine,
+        "clans",
+        {"invite_only": "BOOLEAN DEFAULT 0"},
+    )
+
+
 def _migrate_player_columns(engine) -> None:
     _migrate_table_columns(
         engine,
@@ -59,9 +118,40 @@ def _migrate_player_columns(engine) -> None:
         {
             "last_adventure_at": "DATETIME",
             "last_dungeon_at": "DATETIME",
+            "last_gather_at": "DATETIME",
+            "last_hunt_at": "DATETIME",
             "remind_dms_blocked": "BOOLEAN DEFAULT 0",
+            "karma": "INTEGER DEFAULT 0",
+            "novice_trial_step": "INTEGER DEFAULT 6",
+            "novice_cultivates": "INTEGER DEFAULT 0",
+            "adventures_completed": "INTEGER DEFAULT 0",
         },
     )
+    _migrate_novice_trial_existing_players(engine)
+
+
+def _migrate_novice_trial_existing_players(engine) -> None:
+    with engine.connect() as conn:
+        rows = conn.execute(text("PRAGMA table_info(players)")).fetchall()
+        if not rows:
+            return
+        columns = {row[1] for row in rows}
+        if "novice_trial_step" not in columns or "realm_index" not in columns:
+            return
+        parts = ["realm_index > 0", "substage > 0", "qi > 0", "spirit_stones > 0"]
+        if "last_daily_at" in columns:
+            parts.insert(0, "last_daily_at IS NOT NULL")
+        where = f"novice_trial_step = 0 AND ({' OR '.join(parts)})"
+        conn.execute(
+            text(
+                f"""
+                UPDATE players
+                SET novice_trial_step = 6
+                WHERE {where}
+                """
+            )
+        )
+        conn.commit()
 
 
 def _migrate_equipment_columns(engine) -> None:
@@ -89,7 +179,36 @@ def _migrate_effect_columns(engine) -> None:
 def init_db() -> None:
     engine = get_engine()
     Base.metadata.create_all(engine)
+    _migrate_clan_rename(engine)
     _migrate_player_columns(engine)
     _migrate_equipment_columns(engine)
     _migrate_effect_columns(engine)
+    _migrate_game_sect_columns(engine)
+    _migrate_clan_invite_columns(engine)
+    _migrate_karma_from_moral_path(engine)
+
+
+def _migrate_karma_from_moral_path(engine) -> None:
+    from .karma import karma_from_legacy_moral_path
+
+    with engine.connect() as conn:
+        rows = conn.execute(text("PRAGMA table_info(players)")).fetchall()
+        if not rows:
+            return
+        columns = {row[1] for row in rows}
+        if "karma" not in columns:
+            return
+        players = conn.execute(
+            text("SELECT id, moral_path, karma FROM players WHERE karma = 0 AND moral_path IS NOT NULL")
+        ).fetchall()
+        for player_id, moral_path, karma in players:
+            if karma != 0:
+                continue
+            mapped = karma_from_legacy_moral_path(str(moral_path or "neutral"))
+            if mapped != 0:
+                conn.execute(
+                    text("UPDATE players SET karma = :karma WHERE id = :id"),
+                    {"karma": mapped, "id": player_id},
+                )
+        conn.commit()
 

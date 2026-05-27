@@ -26,7 +26,7 @@ def test_spirit_iron_shard_sources_include_adventure_and_dungeon():
 def test_bamboo_materials_point_to_bamboo_grove():
     hint = format_item_drop_hints("green_dew_herb")
     assert "Whispering Bamboo Grove" in hint
-    assert "/adventure" in hint
+    assert "/adventure" in hint or "/gather" in hint
 
 
 def test_forge_missing_materials_lists_farm_locations(session, player):
@@ -40,7 +40,20 @@ def test_craft_missing_materials_lists_farm_locations(session, player):
     res = craft_recipe(session, player, "qi_gathering_pill", amount=1, rng=random.Random(0))
     assert res.success is False
     assert "Whispering Bamboo Grove" in res.message
-    assert "/areas" in res.message
+    assert "/item" in res.message
+
+
+def test_drop_sources_include_gather_for_herbs():
+    vias = {s.via for s in get_drop_sources("green_dew_herb")}
+    assert "`/gather`" in vias
+
+
+def test_drop_sources_include_hunt_for_beast_cores():
+    import src.drop_sources as drop_sources
+
+    drop_sources._item_sources = None
+    vias = {s.via for s in get_drop_sources("minor_beast_core")}
+    assert "`/hunt`" in vias
 
 
 def test_craft_key_missing_lists_sources(session, player):

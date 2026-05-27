@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass, field
 
 import pytest
 from sqlalchemy import func, select
@@ -16,6 +15,7 @@ from src.adventure import (
     run_adventure,
     start_adventure_session,
 )
+from tests.rng_helpers import ScriptedRNG, safe_adventure_segment_floats
 from src.character import get_character_modifiers
 from src.consumables import use_item
 from src.content import load_all_content
@@ -39,50 +39,8 @@ def load_content():
     load_item_catalog()
 
 
-@dataclass
-class ScriptedRNG:
-    """Deterministic RNG for multi-step adventure and craft flows."""
-
-    floats: list[float] = field(default_factory=list)
-    encounter_queue: list[object] = field(default_factory=list)
-    randint_queue: list[int] = field(default_factory=list)
-    _float_idx: int = 0
-    _encounter_idx: int = 0
-    _randint_idx: int = 0
-    fallback: random.Random = field(default_factory=lambda: random.Random(0))
-
-    def random(self) -> float:
-        if self._float_idx < len(self.floats):
-            value = self.floats[self._float_idx]
-            self._float_idx += 1
-            return value
-        return self.fallback.random()
-
-    def choice(self, seq):
-        if not seq:
-            raise IndexError("empty sequence")
-        sample = seq[0]
-        if hasattr(sample, "item_id") and hasattr(sample, "weight"):
-            return sample
-        if self._encounter_idx < len(self.encounter_queue):
-            picked = self.encounter_queue[self._encounter_idx]
-            self._encounter_idx += 1
-            if isinstance(picked, int):
-                return seq[picked]
-            return picked
-        return seq[0]
-
-    def randint(self, a: int, b: int) -> int:
-        if self._randint_idx < len(self.randint_queue):
-            value = self.randint_queue[self._randint_idx]
-            self._randint_idx += 1
-            return value
-        return self.fallback.randint(a, b)
-
-
 def _safe_segment_floats() -> list[float]:
-    """Skip catastrophe, succeed segment, skip rare event (repeat per segment)."""
-    return [0.99, 0.01, 0.99, 0.99, 0.01, 0.99]
+    return safe_adventure_segment_floats()
 
 
 def _complete_interactive_adventure(session, player, area_id: str = "bamboo_grove") -> AdventureResult:
@@ -316,24 +274,21 @@ def test_cooldown_haste_can_zero_out_remaining_timer(session):
 
 
 def test_craft_batch_partial_success_tracks_byproducts(session, player):
-    add_item(session, player.id, "green_dew_herb", 6)
-    add_item(session, player.id, "bamboo_resin", 3)
+    add_item(session, player.id, "minor_beast_core", 6)
     session.commit()
 
-    rng = ScriptedRNG(floats=[0.99, 0.01, 0.99])  # fail, success, fail (qi_gathering is 85%)
-    res = craft_recipe(session, player, "qi_gathering_pill", amount=3, rng=rng)
+    rng = ScriptedRNG(floats=[0.99, 0.01, 0.99])  # fail, success, fail (tempering is 88%)
+    res = craft_recipe(session, player, "tempering_pill", amount=3, rng=rng)
     session.commit()
 
     assert res.success is True
-    assert res.crafted.get("qi_gathering_pill", 0) == 1
+    assert res.crafted.get("tempering_pill", 0) == 1
     assert res.byproducts.get("pill_ash", 0) == 2
-    assert get_item_quantity(session, player.id, "green_dew_herb") == 0
-    assert get_item_quantity(session, player.id, "bamboo_resin") == 0
+    assert get_item_quantity(session, player.id, "minor_beast_core") == 0
 
 
 def test_craft_batch_stops_when_materials_exhausted(session, player):
     add_item(session, player.id, "green_dew_herb", 2)
-    add_item(session, player.id, "bamboo_resin", 1)
     session.commit()
 
     res = craft_recipe(session, player, "qi_gathering_pill", amount=5, rng=ScriptedRNG(floats=[0.0]))
@@ -422,6 +377,7 @@ def test_partial_adventure_keeps_first_segment_loot_on_second_segment_catastroph
     session.commit()
 
     encounters = get_encounters_for_area("bamboo_grove")
+    beast_enc = next(e for e in encounters if e.id == "beast_on_path")
     rng = ScriptedRNG(
         floats=[
             0.99,
@@ -429,7 +385,7 @@ def test_partial_adventure_keeps_first_segment_loot_on_second_segment_catastroph
             0.99,  # segment 1: no catastrophe, success, no rare
             0.01,  # segment 2: catastrophe on risky choice
         ],
-        encounter_queue=[encounters[0], encounters[0]],
+        encounter_queue=[beast_enc, beast_enc],
         randint_queue=[1],
     )
     pending, _ = start_adventure_session(session, player, "bamboo_grove", "balanced", rng=rng)

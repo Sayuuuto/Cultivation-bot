@@ -31,7 +31,9 @@ def test_start_next_steps_lists_commands():
 def test_help_sections_cover_pve():
     sections = dict(get_help_sections())
     assert "Exploration & crafting" in sections
-    assert "/adventure" in sections["Exploration & crafting"]
+    assert "Martial techniques" in sections
+    assert "/techniques" in sections["Martial techniques"]
+    assert "/gather" in sections["Exploration & crafting"]
 
 
 def test_cooldown_lines_ready_cultivate(player: Player, cfg: Config):

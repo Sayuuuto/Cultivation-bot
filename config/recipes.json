@@ -17,17 +17,17 @@
     "type": "pill",
     "output_item_id": "qi_gathering_pill",
     "output_quantity": 1,
-    "inputs": {"green_dew_herb": 2, "bamboo_resin": 1},
-    "success_chance": 0.85,
-    "byproduct_item_id": "pill_ash"
+    "inputs": {"green_dew_herb": 3},
+    "success_chance": 1.0,
+    "byproduct_item_id": null
   },
   "tempering_pill": {
     "name": "Tempering Pill",
     "type": "pill",
     "output_item_id": "tempering_pill",
     "output_quantity": 1,
-    "inputs": {"bamboo_resin": 2, "minor_beast_core": 1},
-    "success_chance": 0.80,
+    "inputs": {"minor_beast_core": 2},
+    "success_chance": 0.88,
     "byproduct_item_id": "pill_ash"
   },
   "clarity_pill": {
