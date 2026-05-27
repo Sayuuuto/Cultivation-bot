@@ -28,19 +28,36 @@ from .combat.session import create_active_combat, get_active_combat
 
 from .combat_stats import compute_combat_stats
 
-from .content import get_area
+from .area_risk import (
+    apply_drop_quantity_bonus,
+    realm_gap,
+    underleveled_drop_bonus,
+    underleveled_entry_message,
+)
+from .content import AreaDef, get_area
 
 from .gather import GatherNode
 
 from .inventory import add_item, get_item_name
 
-from .manuals import normalize_manual_drops
+from .manuals import grant_manual_drop, normalize_manual_drops, pick_manual_from_pool
 
 from .models import Player
 
 
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "hunt_targets.json"
+
+ELITE_MANUAL_POOLS: dict[str, str] = {
+    "bamboo_grove": "hunt_bamboo_elite",
+    "ashen_cliff": "hunt_ashen_elite",
+    "moonwell_ruins": "hunt_moonwell_elite",
+    "mistwood_village": "hunt_mistwood_elite",
+    "verdant_depths": "hunt_verdant_elite",
+    "cursed_swamp": "hunt_swamp_elite",
+}
+
+ELITE_MANUAL_CHANCE = 0.85
 
 
 
@@ -254,7 +271,7 @@ def _pick_beast(beasts: tuple[HuntBeastDef, ...], rng: random.Random) -> HuntBea
 
 
 
-def _validate_area(player: Player, area_id: str) -> tuple[str | None, str | None]:
+def _validate_area(player: Player, area_id: str) -> tuple[AreaDef | None, str | None]:
 
     area = get_area(area_id)
 
@@ -262,36 +279,47 @@ def _validate_area(player: Player, area_id: str) -> tuple[str | None, str | None
 
         return None, "That region is unknown."
 
-    if player.realm_index < area.min_realm:
-
-        return None, f"You are not ready for **{area.name}**. {area.recommended_text} recommended."
-
-    return area.name, None
+    return area, None
 
 
 
 
 
-def _roll_hunt_drops(beast: HuntBeastDef, rng: random.Random) -> dict[str, int]:
-
+def _roll_hunt_drops(
+    session: Session,
+    player_id: int,
+    beast: HuntBeastDef,
+    rng: random.Random,
+    *,
+    area_id: str | None = None,
+) -> dict[str, int]:
     drops: dict[str, int] = {}
-
     for entry in beast.drops:
-
-        if rng.randint(1, 100) > entry.weight:
-
+        if entry.item_id.startswith("manual_"):
             continue
-
+        if rng.randint(1, 100) > entry.weight:
+            continue
         qty = rng.randint(entry.min_qty, entry.max_qty)
-
         drops[entry.item_id] = drops.get(entry.item_id, 0) + qty
-
     if not drops and beast.drops:
-
-        fallback = beast.drops[0]
-
-        drops[fallback.item_id] = rng.randint(fallback.min_qty, fallback.max_qty)
-
+        fallback = next((d for d in beast.drops if not d.item_id.startswith("manual_")), beast.drops[0])
+        if not fallback.item_id.startswith("manual_"):
+            drops[fallback.item_id] = rng.randint(fallback.min_qty, fallback.max_qty)
+    if beast.combat_tier == "elite" and area_id:
+        pool_id = ELITE_MANUAL_POOLS.get(area_id)
+        if pool_id and rng.random() <= ELITE_MANUAL_CHANCE:
+            player = session.get(Player, player_id)
+            karma = player.karma if player is not None else 0
+            manual_id = pick_manual_from_pool(
+                pool_id,
+                rng,
+                session=session,
+                player_id=player_id,
+                karma=karma,
+                max_rarity="rare",
+            )
+            if manual_id is not None:
+                grant_manual_drop(session, player_id, manual_id, drops)
     return drops
 
 
@@ -326,9 +354,9 @@ def start_hunt_combat(
 
     rng = rng or random.Random()
 
-    area_name, err = _validate_area(player, area_id)
+    area, err = _validate_area(player, area_id)
 
-    if err:
+    if err or area is None:
 
         return None, err
 
@@ -391,7 +419,9 @@ def start_hunt_combat(
     )
 
     state.log.insert(0, hunt_def.flavor)
-
+    gap = realm_gap(player, area)
+    if gap > 0:
+        state.log.insert(1, underleveled_entry_message(area, gap))
     active = create_active_combat(session, player, state, context="hunt", context_key=area_id)
 
 
@@ -402,7 +432,7 @@ def start_hunt_combat(
 
             combat_id=active.id,
 
-            area_name=area_name or area_id,
+            area_name=area.name,
 
             beast_name=beast_def.name,
 
@@ -446,11 +476,11 @@ def finalize_hunt_combat(
 
     rng = rng or random.Random()
 
-    area_name, err = _validate_area(player, area_id)
+    area, err = _validate_area(player, area_id)
 
-    if err:
+    if err or area is None:
 
-        return HuntResult(success=False, area_name=area_id, combat=None, drops={}, messages=[err])
+        return HuntResult(success=False, area_name=area_id, combat=None, drops={}, messages=[err or "Unknown area."])
 
 
 
@@ -464,7 +494,7 @@ def finalize_hunt_combat(
 
             success=False,
 
-            area_name=area_name or area_id,
+            area_name=area.name,
 
             combat=None,
 
@@ -482,9 +512,11 @@ def finalize_hunt_combat(
 
     if victory:
 
-        drops = _roll_hunt_drops(beast_def, rng)
+        drops = _roll_hunt_drops(session, player.id, beast_def, rng, area_id=area_id)
 
         drops = normalize_manual_drops(session, player.id, drops)
+        gap = realm_gap(player, area)
+        drops = apply_drop_quantity_bonus(drops, gap)
 
         from .novice_trial import apply_first_hunt_bonus, on_hunt_victory
 
@@ -506,6 +538,11 @@ def finalize_hunt_combat(
             loot_lines = ", ".join(f"**{get_item_name(i)}** ×{q}" for i, q in drops.items())
 
             messages.append(f"Spoils: {loot_lines}.")
+            if gap > 0:
+                bonus_pct = int((underleveled_drop_bonus(gap) - 1.0) * 100)
+                messages.append(
+                    f"_The beasts of **{area.name}** yielded **+{bonus_pct}%** spoils for your daring._"
+                )
 
         else:
 
@@ -521,7 +558,7 @@ def finalize_hunt_combat(
 
         success=victory,
 
-        area_name=area_name or area_id,
+        area_name=area.name,
 
         combat=None,
 
@@ -555,11 +592,11 @@ def run_hunt(
 
     rng = rng or random.Random()
 
-    area_name, err = _validate_area(player, area_id)
+    area, err = _validate_area(player, area_id)
 
-    if err:
+    if err or area is None:
 
-        return HuntResult(success=False, area_name=area_id, combat=None, drops={}, messages=[err])
+        return HuntResult(success=False, area_name=area_id, combat=None, drops={}, messages=[err or "Unknown area."])
 
 
 
@@ -571,7 +608,7 @@ def run_hunt(
 
             success=False,
 
-            area_name=area_name or area_id,
+            area_name=area.name,
 
             combat=None,
 
@@ -591,7 +628,7 @@ def run_hunt(
 
             success=False,
 
-            area_name=area_name or area_id,
+            area_name=area.name,
 
             combat=None,
 
@@ -627,7 +664,11 @@ def run_hunt(
 
 
 
-    messages = [hunt_def.flavor, f"You encounter **{beast.name}** (HP {beast.hp})."]
+    gap = realm_gap(player, area)
+    messages = [hunt_def.flavor]
+    if gap > 0:
+        messages.append(underleveled_entry_message(area, gap))
+    messages.append(f"You encounter **{beast.name}** (HP {beast.hp}).")
 
     messages.extend(combat.log_lines)
 
@@ -637,9 +678,10 @@ def run_hunt(
 
     if combat.victory:
 
-        drops = _roll_hunt_drops(beast_def, rng)
+        drops = _roll_hunt_drops(session, player.id, beast_def, rng, area_id=area_id)
 
         drops = normalize_manual_drops(session, player.id, drops)
+        drops = apply_drop_quantity_bonus(drops, gap)
 
         for item_id, qty in drops.items():
 
@@ -650,10 +692,27 @@ def run_hunt(
             loot_lines = ", ".join(f"**{get_item_name(i)}** ×{q}" for i, q in drops.items())
 
             messages.append(f"Spoils: {loot_lines}.")
+            if gap > 0:
+                bonus_pct = int((underleveled_drop_bonus(gap) - 1.0) * 100)
+                messages.append(
+                    f"_The beasts of **{area.name}** yielded **+{bonus_pct}%** spoils for your daring._"
+                )
 
         else:
 
             messages.append("The beast yielded no usable materials.")
+
+        from .game_sects import on_sect_activity
+
+        messages.extend(
+            on_sect_activity(
+                session,
+                player,
+                "hunt",
+                area_id=area_id,
+                beast_id=beast_def.beast_id,
+            )
+        )
 
 
 
@@ -661,7 +720,7 @@ def run_hunt(
 
         success=combat.victory,
 
-        area_name=area_name or area_id,
+        area_name=area.name,
 
         combat=combat,
 

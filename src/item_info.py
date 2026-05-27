@@ -131,10 +131,16 @@ def get_item_effect_text(item_id: str) -> str | None:
     item = get_item_def(item_id)
     if item is not None and item.category == "manual":
         from .combat.catalog import get_technique_by_manual
+        from .technique_info import format_technique_combat_summary
 
         tech = get_technique_by_manual(item_id)
         if tech is not None:
-            return f"Teaches **{tech.name}** ({tech.category.title()} · {tech.tier.title()} tier)."
+            kind = "Passive art" if tech.slot_type == "passive" else "Active art"
+            return (
+                f"**{tech.name}** — {kind} ({tech.category.title()} · {tech.tier.title()} tier). "
+                f"{tech.description} "
+                f"Use **`/technique {tech.name}`** or **`/item {get_item_name(item_id)}`** for full details."
+            )
 
     dungeon = _dungeon_for_key(item_id)
     if dungeon is not None:
@@ -150,7 +156,7 @@ def get_item_quick_action(item_id: str) -> tuple[str, str] | None:
         return None
 
     if item.category == "manual":
-        return ("/learn", "Study this manual, then **`/equip-technique`** to slot it.")
+        return ("/learn", "Read the full art with **`/technique`** or **`/item`**, then study with **`/learn`**.")
 
     if item_id in PILL_EFFECTS or item_id in HASTE_EFFECTS or item_id == "root_reforging_pill":
         return ("/use", f"Consume with **`/use {get_item_name(item_id)}`**.")
@@ -204,6 +210,14 @@ def build_item_detail_embed(
         color=_category_color(item.category),
     )
 
+    if item.category == "manual":
+        from .combat.catalog import get_technique_by_manual
+        from .technique_info import append_manual_technique_fields
+
+        tech = get_technique_by_manual(item_id)
+        if tech is not None:
+            append_manual_technique_fields(embed, tech)
+
     embed.add_field(name="You carry", value=f"**×{have}**", inline=True)
     embed.add_field(name="Type", value=f"{emoji} {category_label}", inline=True)
 
@@ -229,7 +243,7 @@ def build_item_detail_embed(
 
     embed.add_field(name="📍 How to obtain more", value=_format_sources_block(item_id), inline=False)
 
-    embed.set_footer(text="Storage ring · /inventory lists names only · /item <name> for this card")
+    embed.set_footer(text="Storage ring · /inventory lists names · /item or /technique for manual details")
     return embed
 
 

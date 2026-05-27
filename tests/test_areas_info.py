@@ -11,10 +11,12 @@ def test_areas_embed_lists_all_zones(player: Player):
     load_item_catalog()
     embed = build_areas_embed(player)
     assert embed.title == "Adventure Areas"
-    assert "Whispering Bamboo Grove" in embed.fields[0].name
-    assert "Ashen Cliff Pass" in embed.fields[1].name
-    assert "Moonwell Ruins" in embed.fields[2].name
-    assert "Green Dew Herb" in embed.fields[0].value
+    assert len(embed.fields) >= 6
+    names = " ".join(f.name for f in embed.fields)
+    assert "Whispering Bamboo Grove" in names
+    assert "Mistwood Village" in names
+    assert "Verdant Depths" in names
+    assert "Cursed Swamp" in names
 
 
 def test_areas_embed_single_area_shows_rare_events(player: Player):

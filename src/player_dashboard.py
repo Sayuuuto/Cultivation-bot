@@ -23,6 +23,7 @@ from .game import qi_cap
 from .inventory import get_player_inventory
 from .item_info import format_manual_bind_progress
 from .karma import karma_tier_label
+from .reputation import reputation_tier_label
 from .ui.formatting import format_qi_bar
 from .models import Clan, Player
 
@@ -124,6 +125,7 @@ def build_profile_embed(
 
     identity_bits = [player.origin or "Unknown origin", player.spirit_root or "Unrevealed root"]
     identity_bits.append(karma_tier_label(player.karma))
+    identity_bits.append(reputation_tier_label(player.reputation))
     if player.clan_id is not None:
         clan = session.get(Clan, player.clan_id)
         if clan is not None:
@@ -206,11 +208,16 @@ def build_techniques_embed(session: Session, player: Player) -> discord.Embed:
     loadout = get_loadout(session, player.id)
     manuals = list_player_manuals(session, player.id)
 
-    lines = ["**Combat loadout**"]
+    lines = [
+        "**Active slots (1–4)** — arts you trigger manually in combat.",
+        "**Passive slot** — one always-on art; effects apply automatically.",
+        "",
+        "**Combat loadout**",
+    ]
     for slot in ACTIVE_SLOTS:
         technique_id = loadout.get(slot)
         name = get_technique(technique_id).name if technique_id else "—"
-        lines.append(f"Slot **{slot}**: {name}")
+        lines.append(f"Active **{slot}**: {name}")
     passive_id = loadout.get(PASSIVE_SLOT)
     passive_name = get_technique(passive_id).name if passive_id else "—"
     lines.append(f"**Passive**: {passive_name}")
@@ -226,9 +233,13 @@ def build_techniques_embed(session: Session, player: Player) -> discord.Embed:
             if player.realm_index < tech.min_realm:
                 realm_gate = " _(realm locked)_"
             icon = align_icon.get(tech.alignment, "⚖️")
-            hint = f" — _{tech.synergy_hint}_" if tech.synergy_hint else ""
+            kind = "Passive" if tech.slot_type == "passive" else "Active"
+            if tech.slot_type == "passive":
+                detail = "always on when equipped"
+            else:
+                detail = f"CD **{tech.cooldown}**"
             lines.append(
-                f"• {icon} **{tech.name}** [{tech.role}/{tech.category}] CD **{tech.cooldown}**{equipped}{realm_gate}{hint}"
+                f"• {icon} **{tech.name}** [{kind} · {tech.role}/{tech.category}] {detail}{equipped}{realm_gate}"
             )
     else:
         lines.append("_Basic Strike only — hunt, adventure, and shop manuals expand your art._")
@@ -255,5 +266,7 @@ def build_techniques_embed(session: Session, player: Player) -> discord.Embed:
         description="\n".join(lines),
         color=discord.Color.dark_purple(),
     )
-    embed.set_footer(text="Use the menus below, or /learn and /equip-technique with autocomplete")
+    embed.set_footer(
+        text="Use /technique <name> for art type & combat details · /equip-technique for active slots 1–4 or passive"
+    )
     return embed

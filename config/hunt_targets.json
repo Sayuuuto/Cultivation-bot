@@ -33,6 +33,7 @@
         "beast_id": "mist_fang_wolf",
         "name": "Mist Fang Wolf",
         "weight": 20,
+        "combat_tier": "elite",
         "hp": 80,
         "attack": 16,
         "defense": 6,
@@ -40,9 +41,7 @@
         "drops": [
           {"item_id": "minor_beast_core", "weight": 50, "min": 1, "max": 2},
           {"item_id": "spirit_iron_shard", "weight": 35, "min": 1, "max": 1},
-          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1},
-          {"item_id": "manual_swift_slash", "weight": 6, "min": 1, "max": 1},
-          {"item_id": "manual_keen_focus", "weight": 4, "min": 1, "max": 1}
+          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
         ]
       }
     ]
@@ -80,15 +79,14 @@
         "beast_id": "fire_mantis",
         "name": "Fire Mantis",
         "weight": 25,
+        "combat_tier": "elite",
         "hp": 110,
         "attack": 22,
         "defense": 8,
         "drops": [
           {"item_id": "refined_beast_core", "weight": 55, "min": 1, "max": 1},
           {"item_id": "spirit_iron_shard", "weight": 30, "min": 1, "max": 2},
-          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1},
-          {"item_id": "manual_flame_burst", "weight": 5, "min": 1, "max": 1},
-          {"item_id": "manual_iron_cleave", "weight": 5, "min": 1, "max": 1}
+          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
         ]
       }
     ]
@@ -126,16 +124,155 @@
         "beast_id": "ruin_devourer",
         "name": "Ruin Devourer",
         "weight": 25,
+        "combat_tier": "elite",
         "hp": 200,
         "attack": 30,
         "defense": 14,
         "drops": [
           {"item_id": "refined_beast_core", "weight": 60, "min": 1, "max": 2},
           {"item_id": "ancient_dust", "weight": 30, "min": 1, "max": 2},
-          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1},
-          {"item_id": "manual_void_pulse", "weight": 5, "min": 1, "max": 1},
-          {"item_id": "manual_venom_weave", "weight": 4, "min": 1, "max": 1},
-          {"item_id": "manual_blood_feast", "weight": 3, "min": 1, "max": 1}
+          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
+        ]
+      }
+    ]
+  },
+  "mistwood_village": {
+    "flavor": "Spirit hounds and village pests lurk at the forest edge.",
+    "beasts": [
+      {
+        "beast_id": "garden_pheasant",
+        "name": "Garden Pheasant",
+        "weight": 45,
+        "hp": 30,
+        "attack": 6,
+        "defense": 2,
+        "drops": [
+          {"item_id": "village_herb", "weight": 55, "min": 1, "max": 2},
+          {"item_id": "minor_beast_core", "weight": 35, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 8, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "lane_fox",
+        "name": "Lane Fox",
+        "weight": 35,
+        "hp": 48,
+        "attack": 10,
+        "defense": 3,
+        "drops": [
+          {"item_id": "village_herb", "weight": 40, "min": 1, "max": 2},
+          {"item_id": "green_dew_herb", "weight": 35, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "mist_hound",
+        "name": "Mist Hound",
+        "weight": 20,
+        "combat_tier": "elite",
+        "hp": 72,
+        "attack": 14,
+        "defense": 5,
+        "traits": ["bleed_immune"],
+        "drops": [
+          {"item_id": "minor_beast_core", "weight": 55, "min": 1, "max": 2},
+          {"item_id": "village_herb", "weight": 30, "min": 1, "max": 2},
+          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
+        ]
+      }
+    ]
+  },
+  "verdant_depths": {
+    "flavor": "Predators stalk the deep forest where sunlight barely reaches the floor.",
+    "beasts": [
+      {
+        "beast_id": "pine_stalker",
+        "name": "Pine Stalker",
+        "weight": 40,
+        "hp": 95,
+        "attack": 17,
+        "defense": 7,
+        "drops": [
+          {"item_id": "pine_resin", "weight": 45, "min": 1, "max": 2},
+          {"item_id": "refined_beast_core", "weight": 40, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "thornback_boar",
+        "name": "Thornback Boar",
+        "weight": 35,
+        "hp": 125,
+        "attack": 21,
+        "defense": 10,
+        "traits": ["bleed_immune"],
+        "drops": [
+          {"item_id": "pine_resin", "weight": 40, "min": 1, "max": 2},
+          {"item_id": "spirit_iron_shard", "weight": 35, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "canopy_serpent",
+        "name": "Canopy Serpent",
+        "weight": 25,
+        "combat_tier": "elite",
+        "hp": 165,
+        "attack": 26,
+        "defense": 11,
+        "traits": ["seal_on_hit", "high_stun_chance"],
+        "drops": [
+          {"item_id": "refined_beast_core", "weight": 55, "min": 1, "max": 1},
+          {"item_id": "pine_resin", "weight": 30, "min": 1, "max": 2},
+          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
+        ]
+      }
+    ]
+  },
+  "cursed_swamp": {
+    "flavor": "Corrupted beasts rise from the bog to devour careless cultivators.",
+    "beasts": [
+      {
+        "beast_id": "bog_leech",
+        "name": "Bog Leech",
+        "weight": 40,
+        "hp": 140,
+        "attack": 22,
+        "defense": 9,
+        "drops": [
+          {"item_id": "swamp_moss", "weight": 45, "min": 1, "max": 2},
+          {"item_id": "refined_beast_core", "weight": 40, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "mire_hound",
+        "name": "Mire Hound",
+        "weight": 35,
+        "hp": 175,
+        "attack": 27,
+        "defense": 12,
+        "traits": ["high_stun_chance"],
+        "drops": [
+          {"item_id": "bog_iron", "weight": 40, "min": 1, "max": 2},
+          {"item_id": "swamp_moss", "weight": 35, "min": 1, "max": 2},
+          {"item_id": "technique_fragment", "weight": 10, "min": 1, "max": 1}
+        ]
+      },
+      {
+        "beast_id": "swamp_hollow_king",
+        "name": "Swamp Hollow King",
+        "weight": 25,
+        "combat_tier": "elite",
+        "hp": 260,
+        "attack": 34,
+        "defense": 16,
+        "traits": ["seal_on_hit", "high_stun_chance", "cleanse_every_3_turns"],
+        "drops": [
+          {"item_id": "hollow_pearl", "weight": 50, "min": 1, "max": 1},
+          {"item_id": "bog_iron", "weight": 35, "min": 1, "max": 2},
+          {"item_id": "refined_beast_core", "weight": 30, "min": 1, "max": 1},
+          {"item_id": "technique_fragment", "weight": 12, "min": 1, "max": 1}
         ]
       }
     ]

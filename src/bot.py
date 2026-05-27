@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from .config import get_config
 from .db import get_session, init_db
+from .discord_guild import provision_new_cultivator, sync_member_realm_role
 from .content import get_areas, get_dungeons, get_recipes, load_all_content
 from .character import get_character_modifiers
 from .areas_info import build_areas_embed
@@ -93,6 +94,11 @@ from .command_choices import (
 from .crafting import craft_recipe
 from .dungeon import run_dungeon
 from .player_dashboard import build_profile_embed, build_techniques_embed
+from .technique_info import (
+    build_technique_detail_embed,
+    list_technique_inspect_options,
+    resolve_technique_inspect_target,
+)
 from .combat.technique_ui import TechniquesView
 from .duel_challenges import (
     DUEL_CHALLENGE_TIMEOUT_SECONDS,
@@ -133,11 +139,24 @@ from .game import (
     compute_breakthrough_preview,
     player_strength_for_pvp,
 )
+from .announcements import post_announcement
 from .models import ActiveAdventure, Clan, PendingDuel, Player
-from .clans import get_clan_by_name, get_clan_top_contributors
+from .clans import (
+    can_join_clan,
+    consume_clan_invitation,
+    create_clan_invitation,
+    get_clan_by_name,
+    get_clan_top_contributors,
+    list_clan_invitations_for_player,
+    set_clan_invite_only,
+)
 from .game_sects import (
+    buy_from_sect_shop,
+    ensure_daily_sect_task,
     format_player_sect_status,
     format_sect_list_entry,
+    format_sect_shop_listing,
+    format_sect_task_status,
     join_game_sect,
     leave_game_sect,
     load_game_sects,
@@ -826,6 +845,17 @@ class DuelChallengeView(discord.ui.View):
             )
             embed = build_duel_result_embed(executed)
             await self._edit_message(embed, interaction)
+            winner = executed.challenger if executed.result.success else executed.opponent
+            loser = executed.opponent if executed.result.success else executed.challenger
+            await post_announcement(
+                interaction.client,
+                cfg,
+                guild_id=self.guild_id,
+                message=(
+                    f"⚔️ **Duel resolved** — **{winner.dao_name}** defeated **{loser.dao_name}** "
+                    f"(+{executed.result.stones_delta_winner} spirit stones)."
+                ),
+            )
         except Exception:
             logger.exception("Duel accept failed challenge_id=%s", self.challenge_id)
             await interaction.followup.send(
@@ -1203,12 +1233,12 @@ async def on_ready():
 
 @bot.tree.command(
     name="start",
-    description="Begin your cultivation path (dao name + origin only — karma is earned in adventures).",
+    description="Begin your cultivation path — choose your dao name and origin.",
 )
 @app_commands.choices(origin=ORIGIN_CHOICES)
 @app_commands.describe(
     dao_name="Your dao name (as you wish the world to remember).",
-    origin="Your background — grants starting gifts. Morality is **not** chosen here.",
+    origin="Your background — each origin grants different starting gifts and manuals.",
 )
 async def start_cmd(
     interaction: discord.Interaction,
@@ -1287,6 +1317,31 @@ async def start_cmd(
             player.karma,
         )
 
+        member = interaction.user
+        abode_note = ""
+        if isinstance(member, discord.Member):
+            provision = await provision_new_cultivator(
+                interaction.guild,
+                member,
+                dao_name,
+                player.realm_index,
+                abode_category_id=cfg.abode_category_id,
+            )
+            if provision.channel is not None:
+                player.abode_channel_id = str(provision.channel.id)
+                session.add(player)
+                session.commit()
+                abode_note = (
+                    f"\n\nYour private abode is ready: {provision.channel.mention} "
+                    "— cultivate and venture from there."
+                )
+            elif provision.channel_error:
+                abode_note = f"\n\n{provision.channel_error}"
+            if provision.role is not None:
+                abode_note += f"\nYou bear the **{provision.role.name}** rank."
+            elif provision.role_error:
+                abode_note += f"\n\n{provision.role_error}"
+
         embed = discord.Embed(
             title="Your Cultivation Begins",
             description=(
@@ -1294,6 +1349,7 @@ async def start_cmd(
                 f"You name yourself **{dao_name}**. The past recedes: **{origin.value}**.\n"
                 f"Your spirit root is revealed: **{root}**.\n"
                 f"Your karma begins at **0** — choices in adventures will shape your dao."
+                f"{abode_note}"
             ),
             color=discord.Color.blurple(),
         )
@@ -1432,6 +1488,9 @@ async def reset_cmd(
         player.sect_merit = 0
         player.sect_joined_at = None
         player.last_sect_task_date = None
+        player.sect_daily_task_id = None
+        player.sect_daily_task_progress = 0
+        player.sect_daily_task_date = None
         player.sect_leave_cooldown_until = None
 
         # Reset progression.
@@ -1465,6 +1524,17 @@ async def reset_cmd(
         apply_origin_starter_gifts(session, player)
         ensure_starter_techniques(session, player.id)
         session.commit()
+
+        realm_role_note = ""
+        if interaction.guild is not None and isinstance(interaction.user, discord.Member):
+            _, role_err = await sync_member_realm_role(
+                interaction.guild,
+                interaction.user,
+                player.realm_index,
+            )
+            if role_err:
+                realm_role_note = f"\n\n{role_err}"
+
         logger.info(
             "Reset complete guild=%s user=%s new_root=%r new_realm=%s/%s qi=%s stones=%s",
             guild_id,
@@ -1482,6 +1552,7 @@ async def reset_cmd(
                 f"You restart as `{dao_name}` with `{origin.value}`.\n"
                 f"Spirit root: `{player.spirit_root}`.\n"
                 f"Karma reset to **0**."
+                f"{realm_role_note}"
             ),
             color=discord.Color.gold(),
         )
@@ -1594,6 +1665,25 @@ async def learn_manual_autocomplete(
         if player is None:
             return []
         return _choices_from_options(list_player_manuals(session, player.id), current)
+    finally:
+        session.close()
+
+
+async def technique_inspect_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+        return _choices_from_options(list_technique_inspect_options(session, player.id), current)
     finally:
         session.close()
 
@@ -1908,6 +1998,42 @@ async def item_cmd(interaction: discord.Interaction, name: str):
 
         cfg = get_config()
         attach_guidance(embed, "item", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    finally:
+        session.close()
+
+
+@bot.tree.command(
+    name="technique",
+    description="Read what a martial art does — before or after you study its manual.",
+)
+@app_commands.describe(name="Learned art or manual in your bag (autocomplete).")
+@app_commands.autocomplete(name=technique_inspect_autocomplete)
+async def technique_cmd(interaction: discord.Interaction, name: str):
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        tech, manual_item_id = resolve_technique_inspect_target(session, player.id, name)
+        if tech is None:
+            await interaction.response.send_message(
+                "That art is not in your scripture yet. Pick a **learned** technique or a **manual in your bag**.",
+                ephemeral=True,
+            )
+            return
+
+        embed = build_technique_detail_embed(
+            tech,
+            session=session,
+            player_id=player.id,
+            manual_item_id=manual_item_id,
+        )
+        attach_guidance(embed, "technique", player, session, get_config(), utcnow())
         await interaction.response.send_message(embed=embed, ephemeral=True)
     finally:
         session.close()
@@ -2263,6 +2389,7 @@ async def breakthrough_cmd(interaction: discord.Interaction):
         player.last_active_at = now
 
         bt_preview = compute_breakthrough_preview(player, mod)
+        old_realm_index = player.realm_index
         rng = rng_for(guild_id, discord_id)
         res: BreakthroughResult = breakthrough(player, cfg, rng=rng, mod=mod)
         _, enlighten_msg = roll_breakthrough_enlightenment(
@@ -2277,6 +2404,21 @@ async def breakthrough_cmd(interaction: discord.Interaction):
         session.add(player)
         session.commit()
 
+        desc = res.message
+        if (
+            res.success
+            and player.realm_index != old_realm_index
+            and interaction.guild is not None
+            and isinstance(interaction.user, discord.Member)
+        ):
+            _, role_err = await sync_member_realm_role(
+                interaction.guild,
+                interaction.user,
+                player.realm_index,
+            )
+            if role_err:
+                desc += f"\n\n{role_err}"
+
         logger.info(
             "Breakthrough complete guild=%s user=%s success=%s qi=%s new_realm=%s/%s",
             guild_id,
@@ -2288,7 +2430,6 @@ async def breakthrough_cmd(interaction: discord.Interaction):
         )
 
         color = discord.Color.green() if res.success else discord.Color.orange()
-        desc = res.message
         if enlighten_msg:
             desc += f"\n\n{enlighten_msg}"
         if trial_msgs:
@@ -2312,6 +2453,16 @@ async def breakthrough_cmd(interaction: discord.Interaction):
             embed.add_field(name="Enlightenment", value=enlighten_msg, inline=False)
         attach_guidance(embed, "breakthrough", player, session, cfg, now)
         await interaction.response.send_message(embed=embed, ephemeral=True)
+        if res.success:
+            await post_announcement(
+                interaction.client,
+                cfg,
+                guild_id=guild_id,
+                message=(
+                    f"⚡ **{player.dao_name}** broke through to "
+                    f"**{realm_display(player.realm_index, player.substage)}**!"
+                ),
+            )
     finally:
         session.close()
 
@@ -2721,11 +2872,14 @@ async def techniques_cmd(interaction: discord.Interaction):
         session.close()
 
 
-@bot.tree.command(name="equip-technique", description="Equip a learned technique to an active or passive slot.")
+@bot.tree.command(
+    name="equip-technique",
+    description="Equip a learned art — active slots 1–4 (manual use) or passive slot (always on).",
+)
 @app_commands.describe(
     setup="Pick technique + slot from the list (recommended).",
     technique="Or pick a technique, then a slot.",
-    slot="Slot 1–4 for actives, or passive.",
+    slot="Active slots 1–4, or passive for always-on arts.",
 )
 @app_commands.autocomplete(setup=technique_equip_autocomplete, technique=technique_autocomplete, slot=technique_slot_autocomplete)
 async def equip_technique_cmd(
@@ -3469,10 +3623,16 @@ async def clan_join_cmd(interaction: discord.Interaction, name: str):
             await interaction.response.send_message("That clan does not exist.", ephemeral=True)
             return
 
+        ok, reason = can_join_clan(session, player, clan)
+        if not ok:
+            await interaction.response.send_message(reason, ephemeral=True)
+            return
+
         player.clan_id = clan.id
         player.clan_role = "member"
         player.clan_contribution_qi_total = 0
         clan.member_count += 1
+        consume_clan_invitation(session, guild_id, discord_id, clan.id)
 
         session.add(player)
         session.add(clan)
@@ -3580,13 +3740,139 @@ async def clan_cmd(interaction: discord.Interaction):
             title=f"Clan: {clan.name}",
             description=(
                 f"Members: {clan.member_count}\n"
-                f"Total contributed qi: {clan.clan_qi_contributed}"
+                f"Total contributed qi: {clan.clan_qi_contributed}\n"
+                f"Join policy: **{'invite only' if clan.invite_only else 'open'}**"
             ),
             color=discord.Color.blue(),
         )
         embed.add_field(name="Top Contributors", value="\n".join(lines) if lines else "None yet.", inline=False)
         attach_guidance(embed, "clan", player, session, cfg, utcnow())
         await interaction.response.send_message(embed=embed, ephemeral=False)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="clan-invite", description="Invite a cultivator to your clan (founder only).")
+@app_commands.describe(member="The player to invite to your clan.")
+async def clan_invite_cmd(interaction: discord.Interaction, member: discord.Member):
+    session = get_session()
+    try:
+        if interaction.guild is None:
+            await interaction.response.send_message("This bot works inside a server.", ephemeral=True)
+            return
+
+        cfg = get_config()
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        if player.clan_id is None or player.clan_role != "founder":
+            await interaction.response.send_message(
+                "Only a **clan founder** can send invitations.", ephemeral=True
+            )
+            return
+
+        clan = session.get(Clan, player.clan_id)
+        if clan is None:
+            await interaction.response.send_message("Your clan record was not found.", ephemeral=True)
+            return
+
+        if member.bot:
+            await interaction.response.send_message("You cannot invite bots.", ephemeral=True)
+            return
+
+        invitee_id = str(member.id)
+        ok, msg = create_clan_invitation(
+            session,
+            clan=clan,
+            invitee_discord_id=invitee_id,
+            invited_by_discord_id=discord_id,
+        )
+        if not ok:
+            await interaction.response.send_message(msg, ephemeral=True)
+            return
+
+        session.commit()
+        embed = discord.Embed(
+            title="Clan Invitation Sent",
+            description=f"{msg}\nThey may join with **`/clan-join {clan.name}`**.",
+            color=discord.Color.green(),
+        )
+        attach_guidance(embed, "clan-invite", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="clan-invites", description="View pending clan invitations for you.")
+async def clan_invites_cmd(interaction: discord.Interaction):
+    session = get_session()
+    try:
+        if interaction.guild is None:
+            await interaction.response.send_message("This bot works inside a server.", ephemeral=True)
+            return
+
+        cfg = get_config()
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        rows = list_clan_invitations_for_player(session, guild_id, discord_id)
+        if not rows:
+            await interaction.response.send_message(
+                "You have no pending clan invitations.", ephemeral=True
+            )
+            return
+
+        lines = [f"• **{clan.name}** — `/clan-join {clan.name}`" for _, clan in rows]
+        embed = discord.Embed(
+            title="Pending Clan Invitations",
+            description="\n".join(lines),
+            color=discord.Color.blue(),
+        )
+        attach_guidance(embed, "clan-invites", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="clan-invite-only", description="Toggle whether your clan requires invitations (founder).")
+@app_commands.describe(enabled="True = invite only; False = open join.")
+async def clan_invite_only_cmd(interaction: discord.Interaction, enabled: bool):
+    session = get_session()
+    try:
+        if interaction.guild is None:
+            await interaction.response.send_message("This bot works inside a server.", ephemeral=True)
+            return
+
+        cfg = get_config()
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        if player.clan_id is None or player.clan_role != "founder":
+            await interaction.response.send_message(
+                "Only a **clan founder** can change join policy.", ephemeral=True
+            )
+            return
+
+        clan = session.get(Clan, player.clan_id)
+        if clan is None:
+            await interaction.response.send_message("Your clan record was not found.", ephemeral=True)
+            return
+
+        msg = set_clan_invite_only(session, clan, enabled)
+        session.commit()
+        await interaction.response.send_message(msg, ephemeral=True)
     finally:
         session.close()
 
@@ -3717,6 +4003,131 @@ async def game_sect_leave_cmd(interaction: discord.Interaction):
             color=discord.Color.orange(),
         )
         attach_guidance(embed, "sect-leave", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+    finally:
+        session.close()
+
+
+async def sect_shop_item_autocomplete(
+    interaction: discord.Interaction,
+    current: str,
+) -> list[app_commands.Choice[str]]:
+    if interaction.guild is None:
+        return []
+
+    session = get_session()
+    try:
+        from .game_sects import list_sect_shop_entries
+        from .inventory import get_item_name
+
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return []
+
+        _shop, entries = list_sect_shop_entries(player)
+        lower = (current or "").lower()
+        choices: list[app_commands.Choice[str]] = []
+        for entry in entries:
+            name = get_item_name(entry.item_id)
+            if lower and lower not in name.lower() and lower not in entry.item_id:
+                continue
+            choices.append(app_commands.Choice(name=f"{name} ({entry.merit_cost} merit)", value=entry.item_id))
+        return choices[:25]
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="sect-task", description="View your daily martial sect assignment and progress.")
+async def sect_task_cmd(interaction: discord.Interaction):
+    session = get_session()
+    try:
+        cfg = get_config()
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        if player.game_sect_id is None:
+            await interaction.response.send_message(
+                "You belong to no martial sect. Use **`/sect-list`** and **`/sect-join`**.",
+                ephemeral=True,
+            )
+            return
+
+        ensure_daily_sect_task(session, player)
+        session.commit()
+
+        embed = discord.Embed(
+            title="Daily Sect Task",
+            description=format_sect_task_status(player),
+            color=discord.Color.dark_teal(),
+        )
+        embed.set_footer(text="Merit also trickles in from /cultivate, /gather, /hunt, /adventure, /dungeon.")
+        attach_guidance(embed, "sect-task", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="sect-shop", description="Browse your martial sect's merit shop (Common–Uncommon manuals).")
+async def sect_shop_cmd(interaction: discord.Interaction):
+    session = get_session()
+    try:
+        cfg = get_config()
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        if player.game_sect_id is None:
+            await interaction.response.send_message(
+                "Join a martial sect first (`/sect-join`).", ephemeral=True
+            )
+            return
+
+        embed = discord.Embed(
+            title="Sect Merit Shop",
+            description=format_sect_shop_listing(player),
+            color=discord.Color.gold(),
+        )
+        attach_guidance(embed, "sect-shop", player, session, cfg, utcnow())
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+    finally:
+        session.close()
+
+
+@bot.tree.command(name="sect-buy", description="Buy a manual from your sect shop with merit.")
+@app_commands.describe(item="Manual from /sect-shop (autocomplete).")
+@app_commands.autocomplete(item=sect_shop_item_autocomplete)
+async def sect_buy_cmd(interaction: discord.Interaction, item: str):
+    session = get_session()
+    try:
+        cfg = get_config()
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=True)
+            return
+
+        ok, msg = buy_from_sect_shop(session, player, item.strip())
+        if not ok:
+            await interaction.response.send_message(msg, ephemeral=True)
+            return
+
+        session.commit()
+        embed = discord.Embed(
+            title="Sect Purchase",
+            description=msg + f"\nRemaining merit: **{player.sect_merit}**.",
+            color=discord.Color.green(),
+        )
+        attach_guidance(embed, "sect-buy", player, session, cfg, utcnow())
         await interaction.response.send_message(embed=embed, ephemeral=False)
     finally:
         session.close()

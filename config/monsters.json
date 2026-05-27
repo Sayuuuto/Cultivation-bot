@@ -52,5 +52,60 @@
     "speed": 10,
     "areas": ["moonwell_ruins"],
     "traits": ["seal_on_hit", "high_stun_chance"]
+  },
+  "village_thief": {
+    "name": "Village Thief",
+    "hp": 38,
+    "attack": 8,
+    "defense": 3,
+    "speed": 12,
+    "areas": ["mistwood_village"],
+    "traits": ["high_stun_chance"]
+  },
+  "root_sprite": {
+    "name": "Root Sprite",
+    "hp": 52,
+    "attack": 11,
+    "defense": 4,
+    "speed": 14,
+    "areas": ["mistwood_village"],
+    "traits": ["cleanse_every_3_turns"]
+  },
+  "forest_stalker": {
+    "name": "Forest Stalker",
+    "hp": 98,
+    "attack": 18,
+    "defense": 8,
+    "speed": 13,
+    "areas": ["verdant_depths"],
+    "traits": ["bleed_immune"]
+  },
+  "thornback_brute": {
+    "name": "Thornback Brute",
+    "hp": 118,
+    "attack": 22,
+    "defense": 10,
+    "speed": 9,
+    "areas": ["verdant_depths"],
+    "traits": ["seal_on_hit"]
+  },
+  "bog_lurker": {
+    "name": "Bog Lurker",
+    "hp": 145,
+    "attack": 24,
+    "defense": 11,
+    "speed": 11,
+    "areas": ["cursed_swamp"],
+    "traits": ["high_stun_chance"]
+  },
+  "swamp_hollow_king": {
+    "name": "Swamp Hollow King",
+    "hp": 320,
+    "attack": 36,
+    "defense": 18,
+    "speed": 12,
+    "areas": ["cursed_swamp"],
+    "traits": ["seal_on_hit", "high_stun_chance", "cleanse_every_3_turns"],
+    "is_boss": true
   }
 }

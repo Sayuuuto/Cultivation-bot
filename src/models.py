@@ -49,6 +49,7 @@ class Player(Base):
     spirit_root: Mapped[str] = mapped_column(String(64), default="")
     moral_path: Mapped[str] = mapped_column(String(16), default="neutral")  # legacy; karma is authoritative
     karma: Mapped[int] = mapped_column(Integer, default=0)
+    reputation: Mapped[int] = mapped_column(Integer, default=0)
     novice_trial_step: Mapped[int] = mapped_column(Integer, default=0)
     novice_cultivates: Mapped[int] = mapped_column(Integer, default=0)
     adventures_completed: Mapped[int] = mapped_column(Integer, default=0)
@@ -83,6 +84,9 @@ class Player(Base):
     pvp_losses: Mapped[int] = mapped_column(Integer, default=0)
 
     remind_dms_blocked: Mapped[bool] = mapped_column(default=False)
+
+    # Private Discord abode channel for this cultivator (server-specific).
+    abode_channel_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
 
     # Player clan (Discord-server guild group).
     clan_id: Mapped[int | None] = mapped_column(ForeignKey("clans.id"), nullable=True)
@@ -139,6 +143,7 @@ class PlayerEquipment(Base):
     stat_fortune: Mapped[int] = mapped_column(Integer, default=0)
     stat_insight: Mapped[int] = mapped_column(Integer, default=0)
     affix_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    technique_tag: Mapped[str | None] = mapped_column(String(16), nullable=True)
 
     player: Mapped[Player] = relationship(back_populates="equipment")
 

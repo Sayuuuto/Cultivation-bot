@@ -36,6 +36,11 @@ RARE_EVENT_FLAIR: dict[str, tuple[str, str]] = {
     "abandoned_cart": ("🛒", "Abandoned Cart"),
     "hidden_moonwell": ("🌙", "Hidden Moonwell"),
     "inheritance_fragment": ("📜", "Inheritance Fragment"),
+    "market_day": ("🏪", "Market Day"),
+    "lost_child": ("👧", "Lost Child"),
+    "deep_grove": ("🌲", "Deep Grove"),
+    "sinking_road": ("🕳️", "Sinking Road"),
+    "cursed_shrine": ("⛩️", "Cursed Shrine"),
 }
 
 

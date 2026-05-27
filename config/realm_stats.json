@@ -10,17 +10,17 @@
     "luck": 5
   },
   "per_realm": {
-    "hp": 80,
-    "internal_strength": 8,
-    "external_strength": 7,
-    "agility": 5,
+    "hp": 90,
+    "internal_strength": 9,
+    "external_strength": 8,
+    "agility": 6,
     "spiritual_sense": 4,
-    "defense": 6,
+    "defense": 7,
     "comprehension": 3,
-    "luck": 2
+    "luck": 1
   },
   "per_substage": {
-    "hp": 25,
+    "hp": 28,
     "internal_strength": 3,
     "external_strength": 3,
     "agility": 2,

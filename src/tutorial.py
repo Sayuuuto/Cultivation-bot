@@ -169,7 +169,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                 (
                     "Create your character",
                     "**`/start`** — dao name + **origin** (starting gifts, often includes a technique manual).\n\n"
-                    "**Karma** is **not** chosen at `/start`. It grows from **`/adventure`** moral choices "
+                    "**Karma** begins neutral and shifts through **`/adventure`** moral choices "
                     f"(Righteous **+{KARMA_RIGHTEOUS_THRESHOLD}+** · Demonic **{KARMA_DEMONIC_THRESHOLD}−**).\n\n"
                     "Your **origin** and rolled **spirit root** passively modify stats forever.\n"
                     "**`/reroll_root`** — **1 free reroll**, then 50 spirit stones + 7-day wait.\n"
@@ -284,9 +284,10 @@ def build_tutorial_pages() -> list[discord.Embed]:
             [
                 (
                     "Study & equip",
-                    "**`/techniques`** — loadout, dao alignment, synergy hints, study/equip **menus**\n"
+                    "**`/techniques`** — loadout, art types, study/equip **menus**\n"
+                    "**`/technique`** — read what an art does before you study it\n"
                     "**`/learn`** — consume a manual from your bag (autocomplete)\n"
-                    "**`/equip-technique`** — slot **4 active** + **1 passive**\n"
+                    "**`/equip-technique`** — **active slots 1–4** or **passive slot** (autocomplete labels the type)\n"
                     f"{subtext('Everyone starts with Basic Strike — manuals expand your arsenal')}",
                 ),
                 (
@@ -303,7 +304,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                 (
                     "Scripture Pavilion",
                     "Admins run **`/post-library`** in your manual channel for the "
-                    "**full catalog** — obtain paths, synergy notes, and karma pools.",
+                    "**full catalog** — obtain paths, art types, and karma pools.",
                 ),
             ],
             author="Chapter 7 · Techniques",
@@ -444,7 +445,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "Cultivating in a clan contributes qi to your clan total.\n\n"
                     "**Martial sects** — `/sect-list` · `/sect-join` · `/sect-leave` · `/sect`\n"
                     "Join orders (Wudang, Shaolin, Tang, …) based on **karma** and realm.\n"
-                    "Sect **merit** shows on **`/profile`** · daily sect tasks coming soon.\n\n"
+                    "Sect **merit** shows on **`/profile`** · use **`/sect-task`** and **`/sect-shop`**.\n\n"
                     "**`/leaderboard`** — top cultivators on this server.",
                 ),
             ],

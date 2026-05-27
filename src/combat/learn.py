@@ -6,6 +6,7 @@ from ..command_choices import resolve_manual_item_id
 from ..inventory import get_item_def, get_item_name, get_item_quantity, remove_item
 from .catalog import get_technique_by_manual
 from .loadout import learn_technique
+from ..technique_info import format_art_type_label
 
 
 def learn_technique_from_manual(session: Session, player_id: int, manual_item_id: str) -> tuple[bool, str]:
@@ -36,4 +37,13 @@ def learn_technique_from_manual(session: Session, player_id: int, manual_item_id
         return ok, msg
 
     remove_item(session, player_id, manual_item_id, 1)
-    return True, f"You studied **{get_item_name(manual_item_id)}** and learned **{tech.name}**."
+    equip_hint = (
+        "Equip to the **passive slot** with **`/equip-technique`**."
+        if tech.slot_type == "passive"
+        else "Equip to **active slots 1–4** with **`/equip-technique`**."
+    )
+    return (
+        True,
+        f"You studied **{get_item_name(manual_item_id)}** and learned **{tech.name}**.\n"
+        f"{format_art_type_label(tech)}\n{equip_hint}",
+    )

@@ -26,6 +26,8 @@ def test_create_and_join_clan(session, player):
 
 
 def test_clan_qi_contribution_on_cultivate(session, player):
+    import random
+
     from src.config import get_config
     from src.game import cultivate
 
@@ -39,10 +41,12 @@ def test_clan_qi_contribution_on_cultivate(session, player):
     session.flush()
     player.clan_id = clan.id
     player.qi = 0
+    player.realm_index = 10
+    player.stamina = 100
     session.commit()
 
     cfg = get_config()
-    result = cultivate(player, clan, cfg)
+    result = cultivate(player, clan, cfg, rng=random.Random(42))
     assert result.qi_gain > 0
     assert player.clan_contribution_qi_total > 0
     assert clan.clan_qi_contributed > 0

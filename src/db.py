@@ -122,9 +122,11 @@ def _migrate_player_columns(engine) -> None:
             "last_hunt_at": "DATETIME",
             "remind_dms_blocked": "BOOLEAN DEFAULT 0",
             "karma": "INTEGER DEFAULT 0",
+            "reputation": "INTEGER DEFAULT 0",
             "novice_trial_step": "INTEGER DEFAULT 6",
             "novice_cultivates": "INTEGER DEFAULT 0",
             "adventures_completed": "INTEGER DEFAULT 0",
+            "abode_channel_id": "VARCHAR(32)",
         },
     )
     _migrate_novice_trial_existing_players(engine)
@@ -164,6 +166,7 @@ def _migrate_equipment_columns(engine) -> None:
             "stat_defense": "INTEGER DEFAULT 0",
             "stat_fortune": "INTEGER DEFAULT 0",
             "stat_insight": "INTEGER DEFAULT 0",
+            "technique_tag": "VARCHAR(16)",
         },
     )
 

@@ -43,15 +43,7 @@ def _format_stances() -> str:
     )
 
 
-def _player_realm_status(player: Player | None, area: AreaDef) -> str:
-    if player is None:
-        return f"Requires **{_realm_label(area.min_realm)}** or higher."
-    if player.realm_index >= area.min_realm:
-        return f"You qualify (**{_realm_label(player.realm_index)}**)."
-    return (
-        f"You need **{_realm_label(area.min_realm)}** or higher "
-        f"(you are **{_realm_label(player.realm_index)}**)."
-    )
+from .area_risk import player_realm_status as _player_realm_status
 
 
 def _format_area_field(area: AreaDef, player: Player | None) -> str:
@@ -94,7 +86,8 @@ def build_areas_embed(player: Player | None, area_id: str | None = None) -> disc
         title="Adventure Areas",
         description=(
             "Each area has different materials used for **pill crafting** and **dungeon keys**. "
-            "Higher areas need stronger cultivation but drop better ingredients.\n\n"
+            "You may wander into higher zones at your own risk — the beasts there are far stronger, "
+            "but rare triumphs pay extra.\n\n"
             + _format_stances()
         ),
         color=discord.Color.dark_green(),

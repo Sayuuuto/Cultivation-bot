@@ -101,3 +101,70 @@ def test_breakthrough_pool_for_karma():
     assert breakthrough_pool_for_karma(-40, realm_index=1) == "demonic_breakthrough"
     assert breakthrough_pool_for_karma(0, realm_index=1) == "breakthrough_success"
     assert breakthrough_pool_for_karma(0, realm_index=0) == "cultivate_enlightenment"
+
+
+def _passive(technique_id: str):
+    tech = get_technique(technique_id)
+    assert tech is not None
+    return tech
+
+
+def test_blood_predator_hemorrhage_applies_bleed_on_hit():
+    stats = _stats()
+    passive = _passive("hemorrhage_art")
+    beast = BeastTemplate("wolf", "Wolf", hp=120, attack=8, defense=4)
+    applied = False
+    for seed in range(200):
+        state = create_combat_state(stats, opponent_from_beast(beast))
+        resolve_technique(state, stats, passive, "swift_slash", random.Random(seed))
+        if has_status(state.opponent, "bleed"):
+            applied = True
+            break
+    assert applied, "Hemorrhage Art should proc bleed within reasonable seeds"
+
+
+def test_ember_executioner_burn_bonus():
+    stats = _stats(internal_strength=40)
+    passive = _passive("ember_heart")
+    beast = BeastTemplate("dummy", "Dummy", hp=200, attack=1, defense=0)
+    state = create_combat_state(stats, opponent_from_beast(beast))
+    resolve_technique(state, stats, passive, "ember_palm", random.Random(4))
+    dmg_with_passive = 200 - state.opponent.hp
+    state2 = create_combat_state(stats, opponent_from_beast(beast))
+    resolve_technique(state2, stats, None, "ember_palm", random.Random(4))
+    dmg_without = 200 - state2.opponent.hp
+    assert dmg_with_passive >= dmg_without
+    assert has_status(state.opponent, "burn")
+
+
+def test_venom_ascendant_poison_payoff():
+    stats = _stats(spiritual_sense=35)
+    passive = _passive("venom_weave")
+    beast = BeastTemplate("shade", "Shade", hp=150, attack=6, defense=3)
+    state = create_combat_state(stats, opponent_from_beast(beast))
+    apply_status(state.opponent, "poison")
+    hp_before = state.opponent.hp
+    resolve_technique(state, stats, passive, "void_pulse", random.Random(5))
+    assert state.opponent.hp < hp_before
+
+
+def test_lotus_guardian_revives_below_threshold():
+    stats = _stats(hp=100, max_hp=100)
+    passive = _passive("lotus_revival")
+    beast = BeastTemplate("golem", "Golem", hp=50, attack=80, defense=0)
+    state = create_combat_state(stats, opponent_from_beast(beast))
+    state.player.hp = 25
+    from src.combat.triggers import process_passive_hp_threshold
+
+    process_passive_hp_threshold(state, passive)
+    assert state.player.hp > 25
+
+
+def test_gear_technique_tag_boosts_matching_category():
+    from src.combat.triggers import _gear_tag_damage_bonus
+
+    stats = _stats(technique_tag_counts={"sword": 2})
+    tech = get_technique("swift_slash")
+    assert tech is not None
+    assert _gear_tag_damage_bonus(stats, tech) == pytest.approx(1.12)
+

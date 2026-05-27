@@ -164,6 +164,11 @@ def run_dungeon(
     if qi_penalty:
         messages.append(f"Qi lost: {qi_penalty}.")
 
+    if boss_win:
+        from .game_sects import on_sect_activity
+
+        messages.extend(on_sect_activity(session, player, "dungeon"))
+
     return DungeonResult(
         success=boss_win,
         outcome=outcome,

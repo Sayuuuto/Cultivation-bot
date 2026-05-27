@@ -39,6 +39,7 @@ class PlayerCombatStats:
     luck: int
     crit_chance: float
     dodge: float
+    technique_tag_counts: dict[str, int] | None = None
 
     def as_dict(self) -> dict[str, int | float]:
         return {
@@ -78,7 +79,7 @@ def compute_combat_stats(
     session: Session,
     mod: CharacterModifiers | None = None,
 ) -> PlayerCombatStats:
-    from .stats import get_total_equipment_stats
+    from .stats import get_technique_tag_counts, get_total_equipment_stats
 
     cfg = _load_realm_stats()
     realm_index = max(0, player.realm_index)
@@ -90,6 +91,7 @@ def compute_combat_stats(
 
     gear = get_total_equipment_stats(session, player.id)
     _apply_gear(stats, gear, cfg)
+    tag_counts = get_technique_tag_counts(session, player.id)
 
     if mod is not None:
         stats["internal_strength"] = int(
@@ -125,6 +127,7 @@ def compute_combat_stats(
         luck=max(1, stats["luck"]),
         crit_chance=max(0.0, min(0.45, crit)),
         dodge=max(0.0, min(0.40, dodge)),
+        technique_tag_counts=tag_counts,
     )
 
 

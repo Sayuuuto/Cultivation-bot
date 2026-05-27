@@ -1,0 +1,16 @@
+{
+  "realms": [
+    {"name": "Mortal", "base_qi_cap": 100},
+    {"name": "Qi Refining", "base_qi_cap": 250},
+    {"name": "Foundation Establishment", "base_qi_cap": 600},
+    {"name": "Core Formation", "base_qi_cap": 1400},
+    {"name": "Nascent Soul", "base_qi_cap": 3200},
+    {"name": "Spirit Severing", "base_qi_cap": 7200},
+    {"name": "Void Refinement", "base_qi_cap": 16000},
+    {"name": "Immortal Ascension", "base_qi_cap": 36000},
+    {"name": "Heavenly Transcendence", "base_qi_cap": 82000},
+    {"name": "Immortal Monarch", "base_qi_cap": 180000}
+  ],
+  "substages": ["early", "mid", "late"],
+  "substage_multipliers": [1.0, 1.5, 2.2]
+}

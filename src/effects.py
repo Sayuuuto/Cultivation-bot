@@ -17,6 +17,8 @@ EFFECT_DESCRIPTIONS: dict[str, str] = {
     "swiftwind": "+10% adventure success (1 run)",
     "blood_ember": "+15% dungeon damage (1 run)",
     "moonwell_tonic": "+35% rare event chance (1 run)",
+    "shrine_boon": "+10% adventure success and PvP power (2 runs)",
+    "shrine_curse": "-8% adventure success (2 runs)",
     "haste_adventure": "Shaves minutes off adventure cooldown",
     "haste_cultivate": "Shaves minutes off cultivate cooldown",
     "haste_dungeon": "Shaves minutes off dungeon cooldown",
@@ -78,6 +80,11 @@ def _apply_effect(mod: CharacterModifiers, effect_id: str) -> None:
         "swiftwind": lambda m: setattr(m, "adventure_success", m.adventure_success + 0.10),
         "blood_ember": lambda m: setattr(m, "dungeon_damage", m.dungeon_damage + 0.15),
         "moonwell_tonic": lambda m: setattr(m, "rare_event_mult", m.rare_event_mult * 1.35),
+        "shrine_boon": lambda m: (
+            setattr(m, "adventure_success", m.adventure_success + 0.10),
+            setattr(m, "pvp_power", m.pvp_power + 0.10),
+        ),
+        "shrine_curse": lambda m: setattr(m, "adventure_success", m.adventure_success - 0.08),
     }
     fn = mapping.get(effect_id)
     if fn:

@@ -56,6 +56,17 @@ def test_drop_sources_include_hunt_for_beast_cores():
     assert "`/hunt`" in vias
 
 
+def test_blank_scroll_sources_include_shop_and_gather():
+    import src.drop_sources as drop_sources
+
+    drop_sources._item_sources = None
+    vias = {s.via for s in get_drop_sources("blank_scroll")}
+    labels = {s.label for s in get_drop_sources("blank_scroll")}
+    assert "`/shop buy`" in vias
+    assert "Spirit Stone Shop" in labels
+    assert "`/gather`" in vias
+
+
 def test_craft_key_missing_lists_sources(session, player):
     res = craft_recipe(session, player, "blackwind_key", amount=1, rng=random.Random(0))
     assert res.success is False

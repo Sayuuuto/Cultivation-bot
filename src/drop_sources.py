@@ -196,7 +196,7 @@ def format_missing_materials_message(
     if ready:
         parts.append("\n**Already have:**\n" + "\n".join(ready))
     parts.append("\n**Still need:**\n" + "\n".join(missing))
-    parts.append("\nUse **`/item <name>`** for details · **`/gather`** to farm scroll & ink.")
+    parts.append("\nUse **`/item <name>`** for details · **`/shop buy`** for blank scrolls · **`/gather`** for spirit ink.")
     return "\n".join(parts)
 
 

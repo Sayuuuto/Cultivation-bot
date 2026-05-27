@@ -277,12 +277,12 @@
   "technique_fragment": {
     "name": "Technique Fragment",
     "category": "material",
-    "description": "Imprinted qi from a fallen art. You need 3 fragments + 1 Blank Scroll + 1 Spirit Ink to bind a random manual with /craft manual. Farm scroll and ink from /gather in the Bamboo Grove."
+    "description": "Imprinted qi from a fallen art. You need 3 fragments + 1 Blank Scroll + 1 Spirit Ink to bind a random manual with /craft manual. Buy blank scrolls at /shop; farm ink from /gather."
   },
   "blank_scroll": {
     "name": "Blank Scroll",
     "category": "material",
-    "description": "Unmarked parchment for inscribing techniques. Required for /craft manual (with 3 fragments and spirit ink). Common drop from /gather."
+    "description": "Unmarked parchment for inscribing techniques. Required for /craft manual (with 3 fragments and spirit ink). Buy at /shop or gather from Bamboo Grove, Mistwood Village, and Moonwell Ruins."
   },
   "spirit_ink": {
     "name": "Spirit Ink",
@@ -293,5 +293,30 @@
     "name": "Script Shard",
     "category": "material",
     "description": "A shard of ancient inscription from ruined sect vaults."
+  },
+  "village_herb": {
+    "name": "Village Herb",
+    "category": "material",
+    "description": "Common herbs traded in Mistwood Village markets."
+  },
+  "pine_resin": {
+    "name": "Pine Resin",
+    "category": "material",
+    "description": "Thick resin harvested from ancient pines in the Verdant Depths."
+  },
+  "swamp_moss": {
+    "name": "Swamp Moss",
+    "category": "material",
+    "description": "Qi-soaked moss from the Cursed Swamp's black waters."
+  },
+  "bog_iron": {
+    "name": "Bog Iron",
+    "category": "material",
+    "description": "Ore pulled from sunken paths in the Cursed Swamp."
+  },
+  "hollow_pearl": {
+    "name": "Hollow Pearl",
+    "category": "material",
+    "description": "A pearl formed around corrupt qi — prized by swamp hunters."
   }
 }

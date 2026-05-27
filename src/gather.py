@@ -172,6 +172,18 @@ def run_gather(
             rare_message = rare.message or f"A rare find: **{get_item_name(rare.item_id)}** ×{rare_qty}."
             messages.append(rare_message)
 
+    from .game_sects import on_sect_activity
+
+    primary_item = node.item_id
+    sect_msgs = on_sect_activity(
+        session,
+        player,
+        "gather",
+        area_id=area_id,
+        item_id=primary_item,
+    )
+    messages.extend(sect_msgs)
+
     return GatherResult(
         success=True,
         area_name=area_name or area_id,

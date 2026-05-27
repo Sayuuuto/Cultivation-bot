@@ -1,0 +1,31 @@
+---
+description: Player-facing text must read in-world, never like dev notes or AI scaffolding
+alwaysApply: true
+---
+
+# Player-facing copy
+
+All text shown to players (Discord embeds, command descriptions, tutorials, guidance hints, error messages, autocomplete labels) must stay **in-world** and **action-oriented**.
+
+## Never include
+
+- Negations about **what the game used to do** or **what was cut from a flow** (e.g. "not at character creation", "not chosen at `/start`", "karma is earned in play").
+- **Implementation vocabulary**: MVP, scaffold, wired, backlog, Phase 1, legacy, authoritative, config-first, placeholder, future update, not yet implemented, we decided, during development.
+- **Meta explanations** of design history instead of what the player should do next.
+
+## Do instead
+
+- State what **is** true and what to **do next** (e.g. "Karma begins neutral — shift it through `/adventure` choices").
+- Put design rationale in code comments, `DESIGN.md`, or plan files — **not** in `src/guidance.py`, `src/tutorial.py`, `src/bot.py` command strings, or embed field values.
+
+## Examples
+
+```text
+❌ "Karma is not chosen at character creation."
+✅ "You begin with neutral karma. Moral choices on `/adventure` shift it."
+
+❌ "Begin path (dao + origin only — karma earned in adventures)."
+✅ "Begin your cultivation path — choose your dao name and origin."
+```
+
+When editing player-facing strings, grep for: `not at`, `not chosen`, `earned in play`, `MVP`, `scaffold`, `future update`, `legacy`, `backlog`.

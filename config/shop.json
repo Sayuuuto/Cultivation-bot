@@ -71,6 +71,14 @@
     "item_id": "affix_stone",
     "quantity": 1
   },
+  "blank_scroll": {
+    "name": "Blank Scroll",
+    "category": "supply",
+    "price": 25,
+    "description": "Unmarked parchment for binding technique manuals (`/craft manual`).",
+    "item_id": "blank_scroll",
+    "quantity": 1
+  },
   "blackwind_key": {
     "name": "Blackwind Key",
     "category": "supply",

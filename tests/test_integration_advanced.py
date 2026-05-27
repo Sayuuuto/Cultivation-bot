@@ -296,21 +296,21 @@ def test_craft_batch_stops_when_materials_exhausted(session, player):
     assert "enough materials" in res.message.lower()
 
 
-def test_underleveled_area_rejected_for_interactive_start(session, player):
+def test_underleveled_player_can_start_interactive_adventure(session, player):
     player.realm_index = 0
     session.commit()
 
     pending, err = start_adventure_session(session, player, "moonwell_ruins", "balanced")
-    assert pending is None
-    assert err is not None
-    assert "not ready" in err.lower()
+    assert pending is not None
+    assert err is None
 
 
-def test_run_adventure_auto_path_respects_realm_gate(session, player):
+def test_run_adventure_auto_path_allows_underleveled_entry(session, player):
+    player.realm_index = 0
+    session.commit()
     res = run_adventure(session, player, "moonwell_ruins", "balanced")
-    assert res.success is False
-    assert res.outcome == "invalid"
-    assert any("not ready" in m.lower() for m in res.messages)
+    assert res.outcome != "invalid"
+    assert any("beasts here could end you" in m.lower() for m in res.messages)
 
 
 def test_high_insight_gear_increases_rare_event_multiplier(session, player):

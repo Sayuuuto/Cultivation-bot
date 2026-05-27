@@ -103,9 +103,9 @@ def equip_technique(
     if player.realm_index < tech.min_realm:
         return False, f"**{tech.name}** requires a higher realm."
     if slot == PASSIVE_SLOT and tech.slot_type != "passive":
-        return False, "Only passive techniques go in the passive slot."
+        return False, f"**{tech.name}** is an **active** art — equip it to slots **1–4**, not the passive slot."
     if slot in ACTIVE_SLOTS and tech.slot_type != "active":
-        return False, "Only active techniques go in active slots."
+        return False, f"**{tech.name}** is a **passive** art — equip it to the **passive** slot only."
 
     stmt = select(TechniqueLoadout).where(
         TechniqueLoadout.player_id == player.id,
@@ -116,7 +116,9 @@ def equip_technique(
         session.add(TechniqueLoadout(player_id=player.id, slot=slot, technique_id=technique_id))
     else:
         row.technique_id = technique_id
-    return True, f"Equipped **{tech.name}** in slot **{slot}**."
+    if slot == PASSIVE_SLOT:
+        return True, f"Equipped **{tech.name}** as your **passive** (always on in combat)."
+    return True, f"Equipped **{tech.name}** in **active slot {slot}** (manual use in combat)."
 
 
 def format_techniques_embed_text(session: Session, player: Player) -> str:

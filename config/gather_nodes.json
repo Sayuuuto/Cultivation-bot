@@ -57,5 +57,62 @@
         "message": "An intact inscription stone hums in the ruins — an **Affix Stone**."
       }
     ]
+  },
+  "mistwood_village": {
+    "flavor": "You wander the misty lanes between village gardens and spirit herb stalls.",
+    "nodes": [
+      {"item_id": "village_herb", "weight": 50, "min": 1, "max": 3},
+      {"item_id": "green_dew_herb", "weight": 30, "min": 1, "max": 2},
+      {"item_id": "blank_scroll", "weight": 10, "min": 1, "max": 1},
+      {"item_id": "spirit_ink", "weight": 8, "min": 1, "max": 1}
+    ],
+    "rare_node_chance": 0.05,
+    "rare_nodes": [
+      {
+        "item_id": "minor_beast_core",
+        "weight": 1,
+        "min": 1,
+        "max": 1,
+        "message": "A merchant's hidden stash yields a **Minor Beast Core**."
+      }
+    ]
+  },
+  "verdant_depths": {
+    "flavor": "You push through towering pines where spirit beasts nest in the canopy.",
+    "nodes": [
+      {"item_id": "pine_resin", "weight": 45, "min": 1, "max": 2},
+      {"item_id": "spirit_iron_shard", "weight": 30, "min": 1, "max": 2},
+      {"item_id": "refined_beast_core", "weight": 12, "min": 1, "max": 1},
+      {"item_id": "script_shard", "weight": 8, "min": 1, "max": 1}
+    ],
+    "rare_node_chance": 0.06,
+    "rare_nodes": [
+      {
+        "item_id": "affix_stone",
+        "weight": 1,
+        "min": 1,
+        "max": 1,
+        "message": "Sunlight catches an inscription stone wedged in an ancient trunk — **Affix Stone**."
+      }
+    ]
+  },
+  "cursed_swamp": {
+    "flavor": "You wade through black water where corrupted qi coils beneath the surface.",
+    "nodes": [
+      {"item_id": "swamp_moss", "weight": 42, "min": 1, "max": 2},
+      {"item_id": "bog_iron", "weight": 35, "min": 1, "max": 2},
+      {"item_id": "hollow_pearl", "weight": 10, "min": 1, "max": 1},
+      {"item_id": "refined_beast_core", "weight": 8, "min": 1, "max": 1}
+    ],
+    "rare_node_chance": 0.07,
+    "rare_nodes": [
+      {
+        "item_id": "script_shard",
+        "weight": 1,
+        "min": 1,
+        "max": 1,
+        "message": "A sunken tablet surfaces — a **Script Shard** etched in forbidden script."
+      }
+    ]
   }
 }

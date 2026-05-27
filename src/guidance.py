@@ -58,7 +58,7 @@ def get_help_sections() -> list[tuple[str, str]]:
     return [
         (
             "Getting started",
-            "`/start` — begin your path (dao name + origin; karma earned in play)\n"
+            "`/start` — choose your dao name and origin (starting gifts and manuals)\n"
             "`/profile` — cultivation dashboard with activity timers and martial summary\n"
             "`/roots` — spirit root tier list & stat bonuses\n"
             "`/help` — this guide\n"
@@ -80,9 +80,11 @@ def get_help_sections() -> list[tuple[str, str]]:
         ),
         (
             "Martial techniques",
-            "`/techniques` — loadout, dao alignment, synergy hints, study & equip menus\n"
+            "`/techniques` — loadout, study & equip menus\n"
+            "`/technique` — read what an art does (manual in bag or already learned)\n"
+            "`/item` — full item card; manuals show art type and combat effect\n"
             "`/learn` — study a manual from inventory (autocomplete)\n"
-            "`/equip-technique` — equip learned arts to 4 active + 1 passive slot\n"
+            "`/equip-technique` — **active slots 1–4** for manual arts · **passive slot** for always-on arts\n"
             "Manuals from **hunt**, **adventure**, **cultivate**, **breakthrough**, **dungeon**, **shop**, **`/craft manual`**",
         ),
         (
@@ -108,8 +110,8 @@ def get_help_sections() -> list[tuple[str, str]]:
             "Social",
             "`/duel` — challenge a player; Accept/Decline in channel (stat-based, stones only, 2 hr cooldown)\n"
             "`/leaderboard` — top cultivators in this server\n"
-            "`/clan-create` · `/clan-join` · `/clan-leave` · `/clan` — player clans\n"
-            "`/sect-list` · `/sect` · `/sect-join` · `/sect-leave` — martial sects (karma gates)",
+            "`/clan-create` · `/clan-join` · `/clan-leave` · `/clan` · `/clan-invite` · `/clan-invites` — player clans\n"
+            "`/sect-list` · `/sect` · `/sect-join` · `/sect-leave` · `/sect-task` · `/sect-shop` · `/sect-buy` — martial sects",
         ),
         (
             "Other",
@@ -131,7 +133,7 @@ COOLDOWN_COMMANDS: list[tuple[str, str, str]] = [
 ]
 
 NO_COOLDOWN_COMMANDS = (
-    "/profile · /inventory · /item · /loadout · /stats · /recipes · /roots · /breakthrough · "
+    "/profile · /inventory · /item · /technique · /loadout · /stats · /recipes · /roots · /breakthrough · "
     "/techniques · /learn · /equip-technique · /craft pill · /craft key · /craft manual · "
     "/forge · /shop · /use · /equip · /help · /cooldown · /remind · /leaderboard · /clan · /sect · "
     "/areas · /adventure-continue · /adventure-abandon · /reset"
@@ -230,8 +232,8 @@ def get_next_steps(
 
     if command == "start":
         return (
-            "Your karma starts at **0** (neutral). Shape it through **`/adventure`** choices — "
-            "not at character creation. Next: **`/daily`**, then **`/profile`**."
+            "You begin with **neutral karma (0)**. Help or harm others on **`/adventure`** to shift it. "
+            "Next: **`/daily`**, then **`/profile`**."
         )
 
     if command == "help":
@@ -273,19 +275,34 @@ def get_next_steps(
     if command == "techniques":
         return (
             "Use the **menus** to study manuals or equip techniques. "
-            "Look for **synergy hints** — e.g. bleed setup + lifesteal payoff. "
+            "Use **`/technique <name>`** to see whether an art is **active** (slots 1–4) or **passive** (always on). "
             "Farm manuals via **`/hunt`**, **`/adventure`**, **`/dungeon`**, or **`/shop`**. "
             "Bind fragments with **`/craft manual`**."
         )
 
+    if command == "technique":
+        return (
+            "When you **`/learn`** a manual, equip it with **`/equip-technique`**. "
+            "**Active** arts go in slots **1–4**; **passive** arts go in the **passive slot**. "
+            "Test the art in **`/hunt`** or **`/adventure`** combat."
+        )
+
     if command == "learn":
-        return "After studying, **`/equip-technique`** to slot your new art. **`/hunt`** to test it in combat."
+        return (
+            "Read the manual first with **`/technique`** if you are unsure. "
+            "After studying, **`/equip-technique`**: actives → slots **1–4**, passives → **passive slot**. "
+            "**`/hunt`** to test it in combat."
+        )
 
     if command == "inventory":
         return "Names only here — use **`/item <name>`** for effects, crafting, and farm locations."
 
     if command == "item":
-        return "Farm missing parts with **`/gather`**. When all materials show ✓, run **`/craft manual`**."
+        return (
+            "Manuals show **art type** (active vs passive) and combat details here. "
+            "Study with **`/learn`**, then **`/equip-technique`**. "
+            "Or use **`/technique <name>`** for the same scripture card."
+        )
 
     if command == "craft_manual":
         return "Study the bound manual with **`/learn`**, then **`/equip-technique`**. **`/techniques`** shows your full build."
@@ -374,7 +391,7 @@ def get_next_steps(
         return "Clan qi grows when you **`/cultivate`**. **`/profile`** shows your clan and sect."
 
     if command.startswith("sect"):
-        return "Earn sect merit through daily tasks (coming soon). **`/sect-list`** shows join requirements."
+        return "Earn merit from activities and **`/sect-task`** dailies. Spend merit at **`/sect-shop`**."
 
     return "See **`/help`** for commands or **`/cooldown`** for what is ready."
 

@@ -52,6 +52,16 @@ def get_total_equipment_stats(session: Session, player_id: int) -> EquipmentStat
     return total
 
 
+def get_technique_tag_counts(session: Session, player_id: int) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for eq in _get_player_equipment(session, player_id):
+        if not eq.item_id or not eq.technique_tag:
+            continue
+        tag = eq.technique_tag.lower()
+        counts[tag] = counts.get(tag, 0) + 1
+    return counts
+
+
 def equipment_stats_to_modifiers(stats: EquipmentStats) -> dict[str, float]:
     """Map forged gear stats into character modifier keys."""
     return {

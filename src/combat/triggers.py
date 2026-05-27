@@ -51,6 +51,19 @@ def _damage_boost_mult(state) -> float:
     return 1.0
 
 
+def _gear_tag_damage_bonus(stats: PlayerCombatStats, tech: TechniqueDef) -> float:
+    counts = stats.technique_tag_counts or {}
+    if not counts:
+        return 1.0
+    category = tech.category.lower()
+    if category == "passive":
+        return 1.0
+    matches = counts.get(category, 0)
+    if matches <= 0:
+        return 1.0
+    return 1.0 + 0.06 * matches
+
+
 def _compute_base_damage(
     tech: TechniqueDef,
     stats: PlayerCombatStats,
@@ -65,6 +78,7 @@ def _compute_base_damage(
     stat_val = _stat_value(stats, tech.scaling_stat)
     raw = tech.base_damage + stat_val * tech.scaling_ratio
     raw *= rarity_damage_multiplier(tech.rarity)
+    raw *= _gear_tag_damage_bonus(stats, tech)
     if tech.damage_type == "physical":
         raw += stats.external_strength * 0.15
     elif tech.damage_type == "internal":

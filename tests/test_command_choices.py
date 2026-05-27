@@ -105,12 +105,13 @@ def test_list_equippable_techniques_filters_by_realm(session, player):
     assert "iron_cleave" not in ids
 
 
-def test_list_unlocked_areas_respects_realm(session, player):
+def test_list_unlocked_areas_shows_danger_labels(session, player):
     player.realm_index = 0
     session.commit()
-    areas = {area_id for area_id, _ in list_unlocked_areas(player)}
+    areas = {area_id: label for area_id, label in list_unlocked_areas(player)}
     assert "bamboo_grove" in areas
-    assert "moonwell_ruins" not in areas
+    assert "moonwell_ruins" in areas
+    assert "deadly" in areas["moonwell_ruins"].lower()
 
 
 def test_list_enterable_dungeons_requires_key_and_realm(session, player):

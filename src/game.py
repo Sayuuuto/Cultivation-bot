@@ -8,24 +8,16 @@ from .config import Config
 from .models import Clan, Player
 
 
-REALMS = [
-    "Mortal",
-    "Qi Refining",
-    "Foundation Establishment",
-    "Core Formation",
-    "Nascent Soul",
-    "Spirit Severing",
-    "Void Refinement",
-    "Immortal Ascension",
-    "Heavenly Transcendence",
-    "Immortal Monarch",
-]
-
-SUBSTAGES = ["early", "mid", "late"]
-
-# Base Qi caps for each realm (0..9). Sub-stages multiply this.
-REALM_BASE_QI_CAP = [100, 250, 600, 1400, 3200, 7200, 16000, 36000, 82000, 180000]
-SUBSTAGE_MULTIPLIER = [1.0, 1.5, 2.2]  # early/mid/late
+from .realms import (
+    REALM_BASE_QI_CAP,
+    REALMS,
+    SUBSTAGE_MULTIPLIER,
+    SUBSTAGES,
+    get_realm_name,
+    qi_cap,
+    realm_index_range,
+    substage_range,
+)
 
 SPIRIT_ROOTS = [
     "Pure Jade Root",
@@ -63,26 +55,6 @@ def to_utc(dt: datetime) -> datetime:
     if dt.tzinfo is None:
         return dt.replace(tzinfo=timezone.utc)
     return dt.astimezone(timezone.utc)
-
-
-def realm_index_range(realm_index: int) -> bool:
-    return 0 <= realm_index < len(REALMS)
-
-
-def substage_range(substage: int) -> bool:
-    return 0 <= substage < len(SUBSTAGES)
-
-
-def qi_cap(realm_index: int, substage: int, player: Player | None = None) -> int:
-    realm_index = max(0, min(realm_index, len(REALMS) - 1))
-    substage = max(0, min(substage, len(SUBSTAGES) - 1))
-    cap = int(REALM_BASE_QI_CAP[realm_index] * SUBSTAGE_MULTIPLIER[substage])
-    if player is not None:
-        from .novice_trial import NOVICE_MORTAL_EARLY_CAP, novice_breakthrough_pace
-
-        if novice_breakthrough_pace(player):
-            cap = min(cap, NOVICE_MORTAL_EARLY_CAP)
-    return cap
 
 
 from .karma import (
@@ -295,6 +267,13 @@ def cultivate(
     trial_msgs = on_cultivated(player)
     if trial_msgs:
         msg += "\n" + "\n".join(trial_msgs)
+
+    if session is not None and player_id is not None:
+        from .game_sects import on_sect_activity
+
+        sect_msgs = on_sect_activity(session, player, "cultivate")
+        if sect_msgs:
+            msg += "\n" + "\n".join(sect_msgs)
 
     return CultivateResult(
         qi_gain=qi_gain,

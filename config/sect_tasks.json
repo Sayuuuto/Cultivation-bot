@@ -46,6 +46,15 @@
         "merit": 12,
         "label": "Hunt 2 hares to train footwork"
       }
+    ],
+    "earth": [
+      {
+        "id": "shaolin_adventure",
+        "type": "adventure",
+        "count": 1,
+        "merit": 25,
+        "label": "Complete one adventure to prove discipline"
+      }
     ]
   },
   "mount_hua_tasks": {
@@ -56,12 +65,155 @@
         "count": 1,
         "merit": 18,
         "label": "Complete one adventure to prove your resolve"
+      },
+      {
+        "id": "mount_hua_hunt",
+        "type": "hunt",
+        "beast_tag": "wolf",
+        "count": 1,
+        "merit": 14,
+        "label": "Slay a wolf-type beast on the sword path"
+      }
+    ],
+    "earth": [
+      {
+        "id": "mount_hua_dungeon",
+        "type": "dungeon",
+        "count": 1,
+        "merit": 35,
+        "label": "Clear Blackwind Cavern once"
       }
     ]
   },
-  "kunlun_tasks": {},
-  "tang_tasks": {},
-  "blood_lotus_tasks": {},
-  "imperial_guard_tasks": {},
-  "shadow_pavilion_tasks": {}
+  "kunlun_tasks": {
+    "earth": [
+      {
+        "id": "kunlun_cultivate",
+        "type": "cultivate",
+        "count": 3,
+        "merit": 20,
+        "label": "Meditate thrice on Kunlun doctrine"
+      },
+      {
+        "id": "kunlun_adventure",
+        "type": "adventure",
+        "count": 1,
+        "merit": 22,
+        "label": "Walk the middle path through one adventure"
+      }
+    ],
+    "heaven": [
+      {
+        "id": "kunlun_dungeon",
+        "type": "dungeon",
+        "count": 1,
+        "merit": 40,
+        "label": "Survive Blackwind Cavern"
+      }
+    ]
+  },
+  "tang_tasks": {
+    "mortal": [
+      {
+        "id": "tang_gather",
+        "type": "gather",
+        "item_id": "ember_moss",
+        "count": 2,
+        "area_id": "ashen_cliff",
+        "merit": 14,
+        "label": "Gather Ember Moss from Ashen Cliff"
+      },
+      {
+        "id": "tang_hunt",
+        "type": "hunt",
+        "beast_tag": "scorpion",
+        "count": 2,
+        "merit": 16,
+        "label": "Hunt scorpion-type beasts"
+      }
+    ],
+    "earth": [
+      {
+        "id": "tang_adventure",
+        "type": "adventure",
+        "count": 1,
+        "merit": 24,
+        "label": "Complete a shadowed adventure run"
+      }
+    ]
+  },
+  "blood_lotus_tasks": {
+    "mortal": [
+      {
+        "id": "blood_lotus_hunt",
+        "type": "hunt",
+        "beast_tag": "wolf",
+        "count": 2,
+        "merit": 16,
+        "label": "Cull wolf-type beasts for the cult"
+      },
+      {
+        "id": "blood_lotus_cultivate",
+        "type": "cultivate",
+        "count": 2,
+        "merit": 12,
+        "label": "Cultivate with blood-lotus breathing"
+      }
+    ],
+    "earth": [
+      {
+        "id": "blood_lotus_adventure",
+        "type": "adventure",
+        "count": 1,
+        "merit": 28,
+        "label": "Walk a demonic adventure to completion"
+      }
+    ]
+  },
+  "imperial_guard_tasks": {
+    "heaven": [
+      {
+        "id": "imperial_adventure",
+        "type": "adventure",
+        "count": 1,
+        "merit": 30,
+        "label": "Patrol the realm — complete an adventure"
+      },
+      {
+        "id": "imperial_dungeon",
+        "type": "dungeon",
+        "count": 1,
+        "merit": 45,
+        "label": "Secure Blackwind Cavern for the throne"
+      }
+    ]
+  },
+  "shadow_pavilion_tasks": {
+    "earth": [
+      {
+        "id": "shadow_hunt",
+        "type": "hunt",
+        "beast_tag": "devourer",
+        "count": 1,
+        "merit": 28,
+        "label": "Slay a devourer-class beast in the ruins"
+      },
+      {
+        "id": "shadow_adventure",
+        "type": "adventure",
+        "count": 1,
+        "merit": 26,
+        "label": "Complete a moonwell adventure in shadow"
+      }
+    ],
+    "heaven": [
+      {
+        "id": "shadow_dungeon",
+        "type": "dungeon",
+        "count": 1,
+        "merit": 42,
+        "label": "Claim spoils from Blackwind Cavern"
+      }
+    ]
+  }
 }

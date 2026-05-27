@@ -17,6 +17,7 @@ def cfg() -> Config:
         announce_channel_id=None,
         tutorial_channel_id=None,
         library_channel_id=None,
+        abode_category_id=None,
     )
 
 
@@ -24,12 +25,27 @@ def test_shop_catalog_loads(session):
     catalog = load_shop_catalog()
     assert "void_pulse_pill" in catalog
     assert "shop_spirit_blade" in catalog
+    assert "blank_scroll" in catalog
     assert catalog["void_pulse_pill"].listing_type == "item"
     assert catalog["shop_spirit_blade"].listing_type == "equipment"
+    assert catalog["blank_scroll"].item_id == "blank_scroll"
 
 
 def test_resolve_shop_id_by_name(session):
     assert resolve_shop_id("Void Pulse Pill") == "void_pulse_pill"
+    assert resolve_shop_id("Blank Scroll") == "blank_scroll"
+
+
+def test_buy_blank_scroll(session, player, cfg):
+    player.spirit_stones = 50
+    session.add(player)
+    session.commit()
+
+    ok, message = buy_from_shop(session, player, "blank_scroll", 1)
+    assert ok is True
+    assert player.spirit_stones == 25
+    assert get_item_quantity(session, player.id, "blank_scroll") == 1
+    assert "Blank Scroll" in message
 
 
 def test_buy_pill_deducts_stones(session, player, cfg):

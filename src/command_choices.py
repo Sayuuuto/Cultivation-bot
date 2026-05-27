@@ -10,6 +10,7 @@ from .combat.loadout import (
     get_loadout,
 )
 from .combat.catalog import get_technique, get_technique_by_manual, load_technique_catalog
+from .area_risk import format_area_choice_label
 from .content import get_areas, get_dungeons, get_recipes
 from .equipment import get_player_equipment
 from .forge import get_forge_recipes
@@ -170,9 +171,7 @@ def list_equippable_techniques(session: Session, player: Player) -> list[tuple[s
 def list_unlocked_areas(player: Player) -> list[tuple[str, str]]:
     options: list[tuple[str, str]] = []
     for area_id, area in get_areas().items():
-        if player.realm_index < area.min_realm:
-            continue
-        label = f"{area.name} ({area.recommended_text})"
+        label = format_area_choice_label(player, area)
         options.append((area_id, label))
     return options
 
@@ -243,10 +242,10 @@ def list_technique_equip_options(session: Session, player: Player) -> list[tuple
             for slot in ACTIVE_SLOTS:
                 if loadout.get(slot) == tech.technique_id:
                     continue
-                label = f"{tech.name} → Slot {slot}"
+                label = f"[Active] {tech.name} → Slot {slot}"
                 options.append((f"{tech.technique_id}|{slot}", label))
         elif loadout.get(PASSIVE_SLOT) != tech.technique_id:
-            options.append((f"{tech.technique_id}|passive", f"{tech.name} → Passive"))
+            options.append((f"{tech.technique_id}|passive", f"[Passive] {tech.name} → Passive slot"))
 
     options.sort(key=lambda row: row[1].lower())
     return options[:MAX_AUTOCOMPLETE]
@@ -262,10 +261,10 @@ def list_valid_slots_for_technique(session: Session, player: Player, technique_i
         for slot in ACTIVE_SLOTS:
             current = loadout.get(slot)
             suffix = " (equipped)" if current == technique_id else ""
-            options.append((slot, f"Slot {slot}{suffix}"))
+            options.append((slot, f"Active slot {slot}{suffix}"))
     elif tech.slot_type == "passive":
         suffix = " (equipped)" if loadout.get(PASSIVE_SLOT) == technique_id else ""
-        options.append(("passive", f"Passive{suffix}"))
+        options.append(("passive", f"Passive slot{suffix}"))
     return options
 
 

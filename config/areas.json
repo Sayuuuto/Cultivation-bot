@@ -55,5 +55,64 @@
       {"id": "inheritance_fragment", "weight": 15, "message": "A fragment of inheritance pulses in the ruins."},
       {"id": "ancient_cache", "weight": 40, "message": "Ancient dust swirls into the shape of a sealed vault."}
     ]
+  },
+  "mistwood_village": {
+    "name": "Mistwood Village",
+    "difficulty": "easy",
+    "min_realm": 0,
+    "recommended_text": "Mortal cultivators",
+    "base_success": 0.80,
+    "drops": [
+      {"item_id": "village_herb", "weight": 45, "min": 1, "max": 3},
+      {"item_id": "green_dew_herb", "weight": 30, "min": 1, "max": 2},
+      {"item_id": "minor_beast_core", "weight": 15, "min": 1, "max": 1},
+      {"item_id": "technique_fragment", "weight": 5, "min": 1, "max": 1}
+    ],
+    "rare_event_chance": 0.09,
+    "rare_events": [
+      {"id": "market_day", "weight": 45, "message": "Village merchants spread rare herbs on woven mats."},
+      {"id": "lost_child", "weight": 35, "message": "A child points you toward a qi-rich grove behind the inn."},
+      {"id": "cursed_shrine", "weight": 10, "message": "A cracked shrine pulses with forbidden power at the village edge."},
+      {"id": "ancient_cache", "weight": 10, "message": "An old storage cellar hides sealed crates beneath the floorboards."}
+    ]
+  },
+  "verdant_depths": {
+    "name": "Verdant Depths",
+    "difficulty": "medium",
+    "min_realm": 2,
+    "recommended_text": "Foundation Establishment",
+    "base_success": 0.64,
+    "drops": [
+      {"item_id": "pine_resin", "weight": 40, "min": 1, "max": 2},
+      {"item_id": "spirit_iron_shard", "weight": 35, "min": 1, "max": 2},
+      {"item_id": "refined_beast_core", "weight": 15, "min": 1, "max": 1},
+      {"item_id": "technique_fragment", "weight": 5, "min": 1, "max": 1}
+    ],
+    "rare_event_chance": 0.09,
+    "rare_events": [
+      {"id": "deep_grove", "weight": 45, "message": "Ancient trees part to reveal a sunlit clearing rich with resin."},
+      {"id": "cursed_shrine", "weight": 15, "message": "A moss-covered shrine whispers promises of power."},
+      {"id": "ancient_cache", "weight": 40, "message": "Roots twist aside to expose a buried cultivator's stash."}
+    ]
+  },
+  "cursed_swamp": {
+    "name": "Cursed Swamp",
+    "difficulty": "hard",
+    "min_realm": 3,
+    "recommended_text": "Core Formation+",
+    "base_success": 0.52,
+    "drops": [
+      {"item_id": "swamp_moss", "weight": 38, "min": 1, "max": 2},
+      {"item_id": "bog_iron", "weight": 35, "min": 1, "max": 2},
+      {"item_id": "hollow_pearl", "weight": 12, "min": 1, "max": 1},
+      {"item_id": "refined_beast_core", "weight": 10, "min": 1, "max": 1},
+      {"item_id": "script_shard", "weight": 5, "min": 1, "max": 1}
+    ],
+    "rare_event_chance": 0.14,
+    "rare_events": [
+      {"id": "sinking_road", "weight": 35, "message": "The path sinks — something valuable glints in the murk below."},
+      {"id": "cursed_shrine", "weight": 25, "message": "A black obelisk rises from the bog, offering a dark bargain."},
+      {"id": "ancient_cache", "weight": 40, "message": "A sunken chest bobs to the surface, sealed in bog iron."}
+    ]
   }
 }

@@ -81,15 +81,18 @@ def forge_equipment(
     row.stat_defense = rolled.get("defense", 0)
     row.stat_fortune = rolled.get("fortune", 0)
     row.stat_insight = rolled.get("insight", 0)
+    row.technique_tag = recipe.get("technique_tag")
     session.add(row)
 
     stat_bits = [f"{k.title()} {v}" for k, v in rolled.items() if v > 0]
     stats_text = ", ".join(stat_bits) if stat_bits else "modest qi"
+    tag = recipe.get("technique_tag")
+    tag_text = f" · **{tag.title()}** lane" if tag else ""
     return ForgeResult(
         success=True,
         message=(
             f"You forge **{recipe['name']}** for your {slot}. "
-            f"Rolled stats: {stats_text}."
+            f"Rolled stats: {stats_text}.{tag_text}"
         ),
         slot=slot,
         stats=rolled,

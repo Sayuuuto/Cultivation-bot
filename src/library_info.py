@@ -8,6 +8,7 @@ import discord
 
 from .combat.catalog import TechniqueDef, load_technique_catalog
 from .combat.rarity import RARITY_EMOJI, RARITY_LABEL
+from .technique_info import format_art_type_label, format_technique_combat_summary
 from .content import get_areas, get_dungeons, load_all_content
 from .inventory import load_item_catalog
 from .karma import KARMA_DEMONIC_THRESHOLD, KARMA_RIGHTEOUS_THRESHOLD
@@ -95,6 +96,12 @@ POOL_SUMMARY: dict[str, str] = {
     "craft_earth": "`/craft manual` binding pool (Earth realm+)",
     "shop_unidentified": "**Unidentified Scroll** — `/shop buy` (75 stones, **Common–Uncommon** only)",
     "dungeon_earth": "**Blackwind Cavern** weekly boss manual (once per 7 days, Earth pool)",
+    "hunt_bamboo_elite": "**Mist Fang Wolf** elite `/hunt` pool (Bamboo Grove)",
+    "hunt_ashen_elite": "**Fire Mantis** elite `/hunt` pool (Ashen Cliff)",
+    "hunt_moonwell_elite": "**Ruin Devourer** elite `/hunt` pool (Moonwell Ruins)",
+    "hunt_mistwood_elite": "**Mist Hound** elite `/hunt` pool (Mistwood Village)",
+    "hunt_verdant_elite": "**Canopy Serpent** elite `/hunt` pool (Verdant Depths)",
+    "hunt_swamp_elite": "**Swamp Hollow King** elite `/hunt` pool (Cursed Swamp)",
 }
 
 
@@ -151,6 +158,12 @@ def _collect_pool_references() -> set[str]:
             "craft_earth",
             "shop_unidentified",
             "dungeon_earth",
+            "hunt_bamboo_elite",
+            "hunt_ashen_elite",
+            "hunt_moonwell_elite",
+            "hunt_mistwood_elite",
+            "hunt_verdant_elite",
+            "hunt_swamp_elite",
         }
     )
     return wired
@@ -177,16 +190,23 @@ def _build_manual_source_index() -> dict[str, list[str]]:
         area = get_areas().get(area_id)
         area_name = area.name if area else area_id
         for beast in data.get("beasts", []):
-            for drop in beast.get("drops", []):
-                item_id = drop.get("item_id", "")
-                if not item_id.startswith("manual_"):
-                    continue
-                weight = drop.get("weight", 0)
-                _add_source(
-                    index,
-                    item_id,
-                    f"**{beast['name']}** elite hunt drop — {area_name} (`/hunt`, ~{weight}% on victory)",
-                )
+            if beast.get("combat_tier") != "elite":
+                continue
+            pool_id = {
+                "bamboo_grove": "hunt_bamboo_elite",
+                "ashen_cliff": "hunt_ashen_elite",
+                "moonwell_ruins": "hunt_moonwell_elite",
+                "mistwood_village": "hunt_mistwood_elite",
+                "verdant_depths": "hunt_verdant_elite",
+                "cursed_swamp": "hunt_swamp_elite",
+            }.get(area_id)
+            if not pool_id:
+                continue
+            summary = POOL_SUMMARY.get(pool_id)
+            if not summary:
+                continue
+            for manual_id, _weight in pools.get(pool_id, []):
+                _add_source(index, manual_id, summary)
 
     shop = _load_json("shop.json")
     for listing in shop.values():
@@ -288,9 +308,9 @@ def _technique_card(entry: ManualEntry, *, include_obtain: bool = True) -> str:
     lines = [
         f"**Tags** · {_technique_tags(entry)}",
         f"**Description**\n{_quote(tech.description)}",
+        f"**Art type**\n{_quote(format_art_type_label(tech))}",
+        f"**In combat**\n{_quote(format_technique_combat_summary(tech))}",
     ]
-    if tech.synergy_hint:
-        lines.append(f"**Synergy**\n{_quote(f'💡 {tech.synergy_hint}')}")
     if include_obtain:
         if entry.sources:
             obtain_lines = [f"{idx}. {src}" for idx, src in enumerate(entry.sources, start=1)]
@@ -475,8 +495,8 @@ def build_library_intro_markdown() -> str:
         "> 💡 **`/learn`** consumes a manual · **`/equip-technique`** slots it · **`/techniques`** shows your build\n\n"
         "### Study & equip\n"
         "• **`/learn manual:<name>`** — consume a manual from your bag\n"
-        "• **`/equip-technique`** — slot active (1–4) or passive techniques\n"
-        "• **`/techniques`** — full build view with alignment tags, synergy hints, and study/equip menus\n\n"
+        "• **`/equip-technique`** — **active slots 1–4** or **passive slot** (labels show art type)\n"
+        "• **`/techniques`** — full build view with art types and study/equip menus\n\n"
         "### Button combat (`/hunt` & `/adventure` fights)\n"
         "> Engage with your technique buttons, **Flee**, or **Finish**.\n"
         "> Loadout matters — passives and status combos define your build.\n\n"
@@ -566,7 +586,7 @@ def _build_category_embed(
         title=f"{emoji} {title} Manuals{suffix}",
         description=(
             f"**{total} scroll{'s' if total != 1 else ''}** on the {title.lower()} path.\n"
-            f"{_subtext('Each card: Tags · Description · Synergy · Obtain')}"
+            f"{_subtext('Each card: Tags · Description · Art type · In combat · Obtain')}"
         ),
         color=color,
     )
@@ -639,8 +659,8 @@ def build_library_embeds() -> list[discord.Embed]:
         inline=True,
     )
     intro.add_field(
-        name="💡 Synergy",
-        value="Combo tips in quotes",
+        name="⚔️ In combat",
+        value="What the art does when equipped",
         inline=True,
     )
     intro.add_field(

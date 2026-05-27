@@ -35,7 +35,7 @@ BREAKTHROUGH_MANUAL_CHANCE = 0.08
 BREAKTHROUGH_FAIL_FRAGMENT_CHANCE = 0.05
 
 RARE_EVENT_META_KEYS = frozenset(
-    {"effect", "charges", "hours", "spirit_stones", "manual_pool", "manual_chance"}
+    {"effect", "charges", "hours", "spirit_stones", "manual_pool", "manual_chance", "interactive"}
 )
 
 _pools: dict[str, list[tuple[str, int]]] | None = None

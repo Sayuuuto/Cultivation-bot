@@ -90,6 +90,28 @@
       {"item_id": "manual_soul_siphon", "weight": 20}
     ]
   },
+  "hunt_mistwood_elite": {
+    "manuals": [
+      {"item_id": "manual_swift_slash", "weight": 35},
+      {"item_id": "manual_purifying_breath", "weight": 35},
+      {"item_id": "manual_rising_tempo", "weight": 30}
+    ]
+  },
+  "hunt_verdant_elite": {
+    "manuals": [
+      {"item_id": "manual_mountain_guard", "weight": 35},
+      {"item_id": "manual_mist_step", "weight": 35},
+      {"item_id": "manual_meridian_strike", "weight": 30}
+    ]
+  },
+  "hunt_swamp_elite": {
+    "manuals": [
+      {"item_id": "manual_soul_siphon", "weight": 30},
+      {"item_id": "manual_venom_weave", "weight": 28},
+      {"item_id": "manual_hemorrhage_art", "weight": 22},
+      {"item_id": "manual_heavens_cleave", "weight": 20}
+    ]
+  },
   "dungeon_earth": {
     "manuals": [
       {"item_id": "manual_iron_cleave", "weight": 12},
