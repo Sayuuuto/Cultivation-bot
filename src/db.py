@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import shutil
 import sqlite3
 from pathlib import Path
@@ -203,6 +204,19 @@ def _database_seed_sources() -> list[Path]:
     ]
 
 
+def _database_seed_mode() -> str:
+    """
+    if_empty — copy seed when the target DB has no player rows (default).
+    always   — copy seed on every startup (overwrites volume; use for one-time sync).
+    never    — never copy; only create/migrate an empty schema.
+    """
+    mode = os.getenv("DATABASE_SEED_MODE", "if_empty").strip().lower()
+    if mode in {"if_empty", "always", "never"}:
+        return mode
+    logger.warning("Unknown DATABASE_SEED_MODE=%r; using if_empty.", mode)
+    return "if_empty"
+
+
 def _local_player_count(db_path: Path) -> int:
     if not db_path.is_file():
         return 0
@@ -221,18 +235,25 @@ def _local_player_count(db_path: Path) -> int:
 
 def maybe_seed_database_file(database_path: str) -> bool:
     """
-    On startup, copy cultivation_bot.sqlite3 into DATABASE_PATH when the target
-    has no player rows.
+    On startup, copy cultivation_bot.sqlite3 into DATABASE_PATH from a bundled seed.
 
     Sources (first match wins):
       1. deploy/seed/cultivation_bot.sqlite3  — commit via publish_database_seed.ps1
       2. ./cultivation_bot.sqlite3 at project root — local dev / manual copy in image
 
-    Never overwrites a database that already has players (Railway volume safety).
+    DATABASE_SEED_MODE:
+      if_empty (default) — copy only when the target has no player rows.
+      always             — copy every run (overwrites the volume file).
+      never              — skip copying.
     """
     target = Path(database_path).resolve()
+    mode = _database_seed_mode()
+    if mode == "never":
+        print(f"Database seed disabled; using {target.as_posix()}")
+        return False
+
     existing = _local_player_count(target)
-    if existing > 0:
+    if mode == "if_empty" and existing > 0:
         msg = f"Database ready: {target.as_posix()} ({existing} players, seed skipped)"
         logger.info(msg)
         print(msg)
@@ -253,12 +274,25 @@ def maybe_seed_database_file(database_path: str) -> bool:
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(seed, target)
         players = _local_player_count(target)
-        msg = (
-            f"Copied {seed.as_posix()} -> {target.as_posix()} ({players} players)"
-        )
+        if mode == "always" and existing > 0:
+            msg = (
+                f"DATABASE_SEED_MODE=always: replaced {target.as_posix()} "
+                f"from {seed.as_posix()} ({players} players, was {existing})"
+            )
+        else:
+            msg = f"Copied {seed.as_posix()} -> {target.as_posix()} ({players} players)"
         logger.info(msg)
         print(msg)
         return True
+
+    if mode == "always" and existing > 0:
+        msg = (
+            f"DATABASE_SEED_MODE=always but no seed file; "
+            f"keeping {target.as_posix()} ({existing} players)"
+        )
+        logger.warning(msg)
+        print(msg)
+        return False
 
     msg = (
         f"No seed {DEFAULT_DATABASE_FILENAME} found; "

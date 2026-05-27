@@ -20,7 +20,8 @@ def _write_players_db(path: Path, count: int) -> None:
     conn.close()
 
 
-def test_seed_copies_when_target_empty(tmp_path: Path) -> None:
+def test_seed_copies_when_target_empty(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("DATABASE_SEED_MODE", "if_empty")
     seed_dir = tmp_path / "deploy" / "seed"
     seed_dir.mkdir(parents=True)
     seed = seed_dir / DEFAULT_DATABASE_FILENAME
@@ -43,7 +44,32 @@ def test_seed_copies_when_target_empty(tmp_path: Path) -> None:
     conn.close()
 
 
-def test_seed_skips_when_target_has_players(tmp_path: Path) -> None:
+def test_seed_always_overwrites(tmp_path: Path, monkeypatch) -> None:
+    seed_dir = tmp_path / "deploy" / "seed"
+    seed_dir.mkdir(parents=True)
+    _write_players_db(seed_dir / DEFAULT_DATABASE_FILENAME, 3)
+
+    target = tmp_path / "live" / DEFAULT_DATABASE_FILENAME
+    target.parent.mkdir(parents=True, exist_ok=True)
+    _write_players_db(target, 1)
+
+    import src.db as db_mod
+
+    monkeypatch.setenv("DATABASE_SEED_MODE", "always")
+    original_root = db_mod._project_root
+    db_mod._project_root = lambda: tmp_path  # type: ignore[assignment]
+    try:
+        assert maybe_seed_database_file(str(target)) is True
+    finally:
+        db_mod._project_root = original_root  # type: ignore[assignment]
+
+    conn = sqlite3.connect(target)
+    assert conn.execute("SELECT COUNT(*) FROM players").fetchone()[0] == 3
+    conn.close()
+
+
+def test_seed_skips_when_target_has_players(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("DATABASE_SEED_MODE", "if_empty")
     seed_dir = tmp_path / "deploy" / "seed"
     seed_dir.mkdir(parents=True)
     _write_players_db(seed_dir / DEFAULT_DATABASE_FILENAME, 5)

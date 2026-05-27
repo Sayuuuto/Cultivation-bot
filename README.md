@@ -64,7 +64,9 @@ git commit -m "Add database seed for Railway"
 git push
 ```
 
-Redeploy on Railway. On every startup, if `/data/cultivation_bot.sqlite3` has **no players**, the bot copies `deploy/seed/cultivation_bot.sqlite3` (or project-root `cultivation_bot.sqlite3` if present). Deploy logs show e.g. `Copied ... -> /data/... (4 players)` or `Database ready: ... (N players, seed skipped)`.
+Redeploy on Railway. On startup the bot copies `deploy/seed/cultivation_bot.sqlite3` ? `DATABASE_PATH` (`/data/cultivation_bot.sqlite3` on Railway) when `DATABASE_SEED_MODE` is `if_empty` (default) and the volume has **no players**. Logs show `Copied ... (N players)`.
+
+To **force** prod to match your latest local file after updating the seed: set Railway variable `DATABASE_SEED_MODE=always`, redeploy once, confirm `/profile`, then set back to `if_empty` (or remove the variable) so live progress is not overwritten on every restart.
 
 **Option B ù Upload without committing the DB**
 
