@@ -75,6 +75,12 @@ def card_fonts_available() -> bool:
     return regular is not None
 
 
+def card_images_enabled() -> bool:
+    """Profile / techniques PNG cards default on; set PROFILE_CARD_IMAGE=0 to disable."""
+    raw = os.getenv("PROFILE_CARD_IMAGE", "1").strip().lower()
+    return raw not in ("0", "false", "no", "off")
+
+
 def load_card_font(size: int, *, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
     """Load a scalable font for PIL cards. Never use bitmap default on production."""
     regular, bold_path = _resolve_font_paths()

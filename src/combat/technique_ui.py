@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from collections import defaultdict
 from io import BytesIO
 
@@ -22,7 +23,9 @@ from ..models import Player
 from ..realms import get_realm_name
 from ..technique_info import format_technique_effect_plain
 from ..ui.combat_skills_card import build_combat_skills_card_data, render_combat_skills_card
-from ..ui.fonts import card_fonts_available
+from ..ui.fonts import card_fonts_available, card_images_enabled
+
+logger = logging.getLogger(__name__)
 
 EMBED_COLOR = 0x5B4B8A
 
@@ -190,24 +193,36 @@ async def _send_skills_hub_message(
 ) -> None:
     session = get_session()
     try:
-        embed = build_combat_skills_hub_embed(session, player)
-        attachments: list[discord.File] = []
-        if card_fonts_available():
-            try:
-                attachments.append(_skills_file(session, player))
-            except Exception:
-                pass
         view = TechniquesHubView(owner_discord_id, player.id)
-        kwargs: dict = {
-            "content": None,
-            "embed": embed,
-            "attachments": attachments,
-            "view": view,
-        }
+        card_file: discord.File | None = None
+        if card_images_enabled() and card_fonts_available():
+            try:
+                card_file = _skills_file(session, player)
+            except Exception:
+                logger.exception(
+                    "Combat skills card render failed player_id=%s",
+                    player.id,
+                )
+
+        if card_file is not None:
+            kwargs: dict = {
+                "content": None,
+                "embed": None,
+                "attachments": [],
+                "file": card_file,
+                "view": view,
+            }
+            if edit:
+                await interaction.response.edit_message(**kwargs)
+            else:
+                await interaction.response.send_message(**kwargs)
+            return
+
+        embed = build_combat_skills_hub_embed(session, player)
         if edit:
-            await interaction.response.edit_message(**kwargs)
+            await interaction.response.edit_message(embed=embed, view=view)
         else:
-            await interaction.response.send_message(**kwargs)
+            await interaction.response.send_message(embed=embed, view=view)
     finally:
         session.close()
 

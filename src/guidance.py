@@ -429,6 +429,21 @@ def add_guidance_to_embed(
     embed.set_footer(text=GUIDANCE_FOOTER)
 
 
+def format_guidance_content(
+    command: str,
+    player: Player | None,
+    session: Session | None,
+    cfg: Config,
+    now: datetime,
+    remaining_fn,
+) -> str | None:
+    """Plain-text guidance for image-only command replies."""
+    if player is None:
+        return None
+    next_steps = get_next_steps(command, player, session, cfg, now, remaining_fn)
+    return f"**What happens next**\n{next_steps}\n_{GUIDANCE_FOOTER}_"
+
+
 def build_help_embed() -> "discord.Embed":
     import discord
 

@@ -1750,6 +1750,18 @@ async def on_ready():
     cfg = get_config()
     print(f"Logged in as {bot.user} (guild sync: {cfg.guild_id or 'global'})")
     print(f"Database: {cfg.database_path}")
+    from .ui.fonts import card_fonts_available, card_images_enabled
+
+    if card_images_enabled():
+        if card_fonts_available():
+            print("Profile/techniques cards: PNG enabled (fonts OK)")
+        else:
+            print(
+                "Profile/techniques cards: fonts missing — using text embed fallback. "
+                "Ensure assets/fonts/DejaVuSans.ttf is deployed."
+            )
+    else:
+        print("Profile/techniques cards: disabled (PROFILE_CARD_IMAGE=0)")
     try:
         session = get_session()
         try:
@@ -2196,6 +2208,37 @@ async def profile_cmd(interaction: discord.Interaction):
         except Exception:
             logger.debug("Profile avatar fetch skipped for %s", discord_id, exc_info=True)
 
+        content_parts: list[str] = []
+        if offline_qi > 0:
+            content_parts.append(
+                f"While you were away: **+{offline_qi}** passive Qi was added to your pool."
+            )
+
+        from .guidance import format_guidance_content
+        from .ui.fonts import card_fonts_available, card_images_enabled
+
+        file = None
+        if card_images_enabled() and card_fonts_available():
+            try:
+                png_bytes = render_profile_card(card_data, avatar_image)
+                from io import BytesIO
+
+                file = discord.File(BytesIO(png_bytes), filename="profile.png")
+            except Exception:
+                logger.exception("Profile card render failed for %s", discord_id)
+
+        if file is not None:
+            hint = format_guidance_content(
+                "profile", player, session, cfg, now, cooldown_remaining
+            )
+            if hint:
+                content_parts.append(hint)
+            reply: dict = {"file": file, "view": view, "ephemeral": False}
+            if content_parts:
+                reply["content"] = "\n\n".join(content_parts)
+            await interaction.response.send_message(**reply)
+            return
+
         embed = build_profile_embed(
             player,
             session,
@@ -2207,37 +2250,9 @@ async def profile_cmd(interaction: discord.Interaction):
             remaining_fn=cooldown_remaining,
         )
         attach_guidance(embed, "profile", player, session, cfg, now)
-        content_parts: list[str] = []
-        if offline_qi > 0:
-            content_parts.append(
-                f"While you were away: **+{offline_qi}** passive Qi was added to your pool."
-            )
-        from .ui.fonts import card_fonts_available
-
-        show_card_image = os.getenv("PROFILE_CARD_IMAGE", "").strip().lower() in {
-            "1",
-            "true",
-            "yes",
-        }
-        file = None
-        if show_card_image and card_fonts_available():
-            try:
-                png_bytes = render_profile_card(card_data, avatar_image)
-                from io import BytesIO
-
-                file = discord.File(BytesIO(png_bytes), filename="profile.png")
-            except Exception:
-                logger.exception("Profile card render failed for %s", discord_id)
-
-        reply: dict = {
-            "embed": embed,
-            "view": view,
-            "ephemeral": False,
-        }
+        reply = {"embed": embed, "view": view, "ephemeral": False}
         if content_parts:
             reply["content"] = "\n".join(content_parts)
-        if file is not None:
-            reply["file"] = file
         await interaction.response.send_message(**reply)
     finally:
         session.close()
