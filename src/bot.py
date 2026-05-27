@@ -111,8 +111,6 @@ from .technique_info import (
     list_technique_inspect_options,
     resolve_technique_inspect_target,
 )
-from .combat.technique_ui import TechniquesHubView
-from .ui.combat_skills_card import build_combat_skills_card_data, render_combat_skills_card
 from .duel_challenges import (
     DUEL_CHALLENGE_TIMEOUT_SECONDS,
     accept_duel_challenge,
@@ -2198,35 +2196,43 @@ async def profile_cmd(interaction: discord.Interaction):
         except Exception:
             logger.debug("Profile avatar fetch skipped for %s", discord_id, exc_info=True)
 
+        embed = build_profile_embed(
+            player,
+            session,
+            cfg,
+            now,
+            offline_qi=offline_qi,
+            combat=combat,
+            realm_display=realm_display(player.realm_index, player.substage),
+            remaining_fn=cooldown_remaining,
+        )
+        attach_guidance(embed, "profile", player, session, cfg, now)
+        content_parts: list[str] = []
+        if offline_qi > 0:
+            content_parts.append(
+                f"While you were away: **+{offline_qi}** passive Qi was added to your pool."
+            )
         try:
             png_bytes = render_profile_card(card_data, avatar_image)
             from io import BytesIO
 
             file = discord.File(BytesIO(png_bytes), filename="profile.png")
-            content_parts: list[str] = []
-            if offline_qi > 0:
-                content_parts.append(f"While you were away: **+{offline_qi}** passive Qi was added to your pool.")
-            content_parts.append("_Use the **Cultivate** button below · `/techniques` for your martial build_")
+            embed.set_image(url="attachment://profile.png")
             await interaction.response.send_message(
-                content="\n".join(content_parts),
+                content="\n".join(content_parts) if content_parts else None,
+                embed=embed,
                 file=file,
                 view=view,
                 ephemeral=False,
             )
         except Exception:
-            logger.exception("Profile card render failed for %s; falling back to embed", discord_id)
-            embed = build_profile_embed(
-                player,
-                session,
-                cfg,
-                now,
-                offline_qi=offline_qi,
-                combat=combat,
-                realm_display=realm_display(player.realm_index, player.substage),
-                remaining_fn=cooldown_remaining,
+            logger.exception("Profile card render failed for %s; embed only", discord_id)
+            await interaction.response.send_message(
+                content="\n".join(content_parts) if content_parts else None,
+                embed=embed,
+                view=view,
+                ephemeral=False,
             )
-            attach_guidance(embed, "profile", player, session, cfg, now)
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
     finally:
         session.close()
 
@@ -3417,16 +3423,13 @@ async def techniques_cmd(interaction: discord.Interaction):
 
         ensure_starter_techniques(session, player.id)
         session.commit()
-        from io import BytesIO
+        from .combat.technique_ui import _send_skills_hub_message
 
-        card_data = build_combat_skills_card_data(session, player)
-        png_bytes = render_combat_skills_card(card_data)
-        file = discord.File(BytesIO(png_bytes), filename="combat_skills.png")
-        view = TechniquesHubView(str(interaction.user.id), player.id)
-        await interaction.response.send_message(
-            file=file,
-            view=view,
-            ephemeral=False,
+        await _send_skills_hub_message(
+            interaction,
+            str(interaction.user.id),
+            player,
+            edit=False,
         )
     finally:
         session.close()

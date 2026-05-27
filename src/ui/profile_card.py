@@ -25,10 +25,12 @@ if TYPE_CHECKING:
     from ..config import Config
     from ..models import Player
 
-CARD_W = 900
+CARD_W = 1024
 FOOTER_H = 92
 MARGIN = 28
 SUPER_SAMPLE = 2
+# Discord shrinks attachment previews; scale type above 1.0 for legible card images.
+FONT_SCALE = 1.35
 
 BG_TOP = (14, 20, 34)
 BG_BOTTOM = (8, 11, 20)
@@ -344,6 +346,10 @@ def _scale(v: int) -> int:
     return v * SUPER_SAMPLE
 
 
+def _font_size(points: int) -> int:
+    return max(8, int(points * FONT_SCALE * SUPER_SAMPLE))
+
+
 def _draw_rounded_rect(
     draw: ImageDraw.ImageDraw,
     box: tuple[int, int, int, int],
@@ -516,15 +522,15 @@ def render_profile_card(data: ProfileCardData, avatar: Image.Image | None = None
     _fill_gradient(img, (0, 0, CARD_W, card_h), BG_TOP, BG_BOTTOM)
     draw = ImageDraw.Draw(img)
 
-    font_xs = _load_font(11 * ss)
-    font_sm = _load_font(13 * ss)
-    font_md = _load_font(15 * ss)
-    font_lg = _load_font(20 * ss, bold=True)
-    font_xl = _load_font(26 * ss, bold=True)
-    font_banner = _load_font(32 * ss, bold=True)
-    font_stones = _load_font(30 * ss, bold=True)
-    font_stat = _load_font(17 * ss, bold=True)
-    font_section = _load_font(12 * ss, bold=True)
+    font_xs = _load_font(_font_size(11))
+    font_sm = _load_font(_font_size(13))
+    font_md = _load_font(_font_size(15))
+    font_lg = _load_font(_font_size(20), bold=True)
+    font_xl = _load_font(_font_size(26), bold=True)
+    font_banner = _load_font(_font_size(32), bold=True)
+    font_stones = _load_font(_font_size(30), bold=True)
+    font_stat = _load_font(_font_size(17), bold=True)
+    font_section = _load_font(_font_size(12), bold=True)
 
     x_inner = MARGIN
 

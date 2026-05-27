@@ -15,10 +15,11 @@ from sqlalchemy.orm import Session
 
 from ..models import Player
 
-CARD_W = 900
+CARD_W = 1024
 MARGIN = 28
 SUPER_SAMPLE = 2
-SLOT_BLOCK_H = 88
+FONT_SCALE = 1.35
+SLOT_BLOCK_H = 100
 HEADER_H = 72
 FOOTER_H = 48
 
@@ -83,6 +84,10 @@ def _load_font(size: int, *, bold: bool = False) -> ImageFont.FreeTypeFont | Ima
 
 def _scale(v: int) -> int:
     return v * SUPER_SAMPLE
+
+
+def _font_size(points: int) -> int:
+    return max(8, int(points * FONT_SCALE * SUPER_SAMPLE))
 
 
 def _realm_label(realm_index: int, substage: int) -> str:
@@ -211,12 +216,12 @@ def render_combat_skills_card(data: CombatSkillsCardData) -> bytes:
     # Accent bar
     draw.rectangle((0, 0, _scale(6), card_h * ss), fill=ACCENT)
 
-    font_title = _load_font(28 * ss, bold=True)
-    font_section = _load_font(13 * ss, bold=True)
-    font_name = _load_font(17 * ss, bold=True)
-    font_body = _load_font(13 * ss)
-    font_sm = _load_font(11 * ss)
-    font_stats = _load_font(12 * ss)
+    font_title = _load_font(_font_size(28), bold=True)
+    font_section = _load_font(_font_size(13), bold=True)
+    font_name = _load_font(_font_size(17), bold=True)
+    font_body = _load_font(_font_size(13))
+    font_sm = _load_font(_font_size(11))
+    font_stats = _load_font(_font_size(12))
 
     y = 20
     draw.text((_scale(MARGIN), _scale(y)), "Combat Skills", font=font_title, fill=CYAN)
@@ -252,7 +257,7 @@ def render_combat_skills_card(data: CombatSkillsCardData) -> bytes:
         line_y = box_y0 + 48
         for line in wrapped:
             draw.text((_scale(MARGIN + 14), _scale(line_y)), line, font=font_body, fill=TEXT_DIM)
-            line_y += 16
+            line_y += 18
 
         y = box_y1 + 10
 

@@ -57,9 +57,9 @@ def _equip_status_label(tech: TechniqueDef, loadout: dict[str, str]) -> str:
 def _format_skill_entry(tech: TechniqueDef, loadout: dict[str, str]) -> str:
     rarity = RARITY_EMOJI.get(tech.rarity, "⚪")
     effect = format_technique_effect_plain(tech)
-    if len(effect) > 140:
-        effect = effect[:137] + "…"
-    return f"{rarity} **{tech.name}** — {_equip_status_label(tech, loadout)}\n_{effect}_"
+    if len(effect) > 180:
+        effect = effect[:177] + "…"
+    return f"{rarity} **{tech.name}** — {_equip_status_label(tech, loadout)}\n{effect}"
 
 
 def _bucket_learned_by_realm(
@@ -156,6 +156,57 @@ def _skills_file(session: Session, player: Player) -> discord.File:
     return discord.File(BytesIO(png), filename="combat_skills.png")
 
 
+def build_combat_skills_hub_embed(session: Session, player: Player) -> discord.Embed:
+    """Readable Discord embed for the techniques hub (native text size)."""
+    data = build_combat_skills_card_data(session, player)
+    embed = discord.Embed(
+        title=f"Combat Skills — {data.dao_name}",
+        description=(
+            f"**{data.realm_label}**\n"
+            f"Arts studied **{data.unlocked}** / **{data.total}** · "
+            f"Spirit stones **{data.spirit_stones_display}**"
+        ),
+        color=EMBED_COLOR,
+    )
+    for slot in data.slots:
+        if slot.filled:
+            value = f"**{slot.technique_name}**\n{slot.effect_text}"
+        else:
+            value = "_Empty — tap **Equip Skill** to assign an art._"
+        if len(value) > 1024:
+            value = value[:1021] + "…"
+        embed.add_field(name=slot.slot_label, value=value, inline=False)
+    embed.set_footer(text="Equip Skill · My Skills · Unlock Skill")
+    return embed
+
+
+async def _send_skills_hub_message(
+    interaction: discord.Interaction,
+    owner_discord_id: str,
+    player: Player,
+    *,
+    edit: bool,
+) -> None:
+    session = get_session()
+    try:
+        embed = build_combat_skills_hub_embed(session, player)
+        file = _skills_file(session, player)
+        embed.set_image(url="attachment://combat_skills.png")
+        view = TechniquesHubView(owner_discord_id, player.id)
+        kwargs: dict = {
+            "content": None,
+            "embed": embed,
+            "attachments": [file],
+            "view": view,
+        }
+        if edit:
+            await interaction.response.edit_message(**kwargs)
+        else:
+            await interaction.response.send_message(**kwargs)
+    finally:
+        session.close()
+
+
 async def _restore_skills_hub(
     interaction: discord.Interaction,
     owner_discord_id: str,
@@ -167,13 +218,8 @@ async def _restore_skills_hub(
         if player is None:
             await interaction.response.send_message("Character not found.", ephemeral=True)
             return
-        file = _skills_file(session, player)
-        view = TechniquesHubView(owner_discord_id, player_id)
-        await interaction.response.edit_message(
-            content=None,
-            embed=None,
-            attachments=[file],
-            view=view,
+        await _send_skills_hub_message(
+            interaction, owner_discord_id, player, edit=True
         )
     finally:
         session.close()
@@ -305,13 +351,8 @@ class EquipSlotSelect(discord.ui.Select):
                 await interaction.response.send_message(message, ephemeral=True)
                 return
             session.commit()
-            file = _skills_file(session, player)
-            view = TechniquesHubView(str(interaction.user.id), player.id)
-            await interaction.response.edit_message(
-                content=None,
-                embed=None,
-                attachments=[file],
-                view=view,
+            await _send_skills_hub_message(
+                interaction, str(interaction.user.id), player, edit=True
             )
             await interaction.followup.send(message, ephemeral=True)
         finally:
@@ -395,13 +436,8 @@ class UnlockManualSelect(discord.ui.Select):
             if player is None:
                 await interaction.response.send_message(message, ephemeral=True)
                 return
-            file = _skills_file(session, player)
-            view = TechniquesHubView(str(interaction.user.id), player.id)
-            await interaction.response.edit_message(
-                content=None,
-                embed=None,
-                attachments=[file],
-                view=view,
+            await _send_skills_hub_message(
+                interaction, str(interaction.user.id), player, edit=True
             )
             await interaction.followup.send(message, ephemeral=True)
         finally:
