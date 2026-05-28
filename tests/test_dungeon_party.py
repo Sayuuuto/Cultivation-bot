@@ -5,7 +5,16 @@ from datetime import datetime, timedelta, timezone
 
 from src.cooperative_dungeons import get_cooperative_dungeon
 from src.dungeon_arena import build_dungeon_combat_embed, format_fighter_line
-from src.dungeon_combat import select_target, select_technique, start_room_combat
+from src.combat.loadout import ensure_starter_techniques, learn_technique
+from src.combat.targeting import technique_hits_all_enemies
+from src.combat.catalog import get_technique
+from src.dungeon_combat import (
+    advance_to_next_room,
+    select_target,
+    select_technique,
+    should_advance_room,
+    start_room_combat,
+)
 from src.dungeon_party import (
     MAX_INVITES,
     MAX_PARTY_SIZE,
@@ -169,3 +178,124 @@ def test_select_target_resolves_player_strike(session, player):
     assert result.ok
     assert state.pending_technique is None
     assert enemy.combatant.hp < enemy.combatant.max_hp
+
+
+def test_should_advance_room_after_clearing_enemies(session, player):
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[],
+    )
+    dungeon = get_cooperative_dungeon("mortal_catacomb")
+    state = start_room_combat(
+        session,
+        party_id=party.id,
+        dungeon=dungeon,
+        room_index=0,
+        members=load_members(party),
+        rng=random.Random(1),
+    )
+    for foe in state.living_enemies():
+        foe.combatant.hp = 0
+    state.room_cleared = True
+    state.finished = True
+    state.victory = True
+    assert should_advance_room(state)
+
+
+def test_advance_to_next_room_resets_combat_and_keeps_log(session, player):
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[],
+    )
+    dungeon = get_cooperative_dungeon("mortal_catacomb")
+    members = load_members(party)
+    state = start_room_combat(
+        session,
+        party_id=party.id,
+        dungeon=dungeon,
+        room_index=0,
+        members=members,
+        rng=random.Random(3),
+    )
+    state.log.append("**Entry Hall** is cleared!")
+    state.log_cursor = len(state.log)
+    state.room_cleared = True
+    state.finished = True
+    state.victory = True
+    new_state = advance_to_next_room(session, state, members, random.Random(4))
+    assert new_state.room_index == 1
+    assert not new_state.finished
+    assert new_state.living_enemies()
+    assert "Advancing to" in "\n".join(new_state.log)
+    assert "Entry Hall" in "\n".join(new_state.log)
+
+
+def test_flame_burst_clearing_room_sets_advance_flag(session, player):
+    ensure_starter_techniques(session, player.id)
+    learn_technique(session, player.id, "flame_burst")
+    session.commit()
+    tech = get_technique("flame_burst")
+    assert tech is not None
+    assert technique_hits_all_enemies(tech)
+
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[],
+    )
+    dungeon = get_cooperative_dungeon("mortal_catacomb")
+    state = start_room_combat(
+        session,
+        party_id=party.id,
+        dungeon=dungeon,
+        room_index=0,
+        members=load_members(party),
+        rng=random.Random(10),
+    )
+    ally = next(f for f in state.fighters.values() if not f.is_enemy)
+    for foe in state.living_enemies():
+        foe.combatant.hp = 1
+    state.turn_order = [ally.fighter_id]
+    state.turn_index = 0
+
+    res = select_technique(session, state, ally.fighter_id, "flame_burst", rng=random.Random(11))
+    assert res.ok
+    assert not res.needs_target
+    assert state.finished
+    assert state.victory
+    assert state.room_cleared
+    assert should_advance_room(state)
+
+
+def test_format_new_log_lines_tracks_cursor(session, player):
+    from src.dungeon_arena import format_new_log_lines
+
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[],
+    )
+    dungeon = get_cooperative_dungeon("mortal_catacomb")
+    state = start_room_combat(
+        session,
+        party_id=party.id,
+        dungeon=dungeon,
+        room_index=0,
+        members=load_members(party),
+        rng=random.Random(1),
+    )
+    state.log_cursor = 0
+    chunk = format_new_log_lines(state)
+    assert chunk
+    state.log_cursor = len(state.log)
+    assert format_new_log_lines(state) is None

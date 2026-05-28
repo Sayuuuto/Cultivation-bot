@@ -10,14 +10,19 @@ from .combat.loadout import get_equipped_active_techniques
 from .config import Config, get_config
 from .cooperative_dungeons import get_cooperative_dungeon, get_cooperative_dungeons
 from .db import get_session
-from .dungeon_arena import build_dungeon_combat_embed, dungeon_channel_slug, resolve_dungeon_category
+from .dungeon_arena import (
+    build_dungeon_combat_embed,
+    dungeon_channel_slug,
+    format_new_log_lines,
+    resolve_dungeon_category,
+)
 from .dungeon_combat import (
-    advance_to_next_room,
     load_combat_state,
     process_turn_start,
     save_combat_state,
     select_target,
     select_technique,
+    should_advance_room,
     start_room_combat,
 )
 from .dungeon_party import (
@@ -42,7 +47,8 @@ from .ui.formatting import technique_button_emoji
 logger = logging.getLogger(__name__)
 
 NOT_STARTED_HINT = "Begin your path with **`/start`** first."
-PUBLIC = False  # discord visibility: False = everyone in channel sees the message
+# Ephemeral combat panels — only the acting player sees technique/target buttons.
+COMBAT_EPHEMERAL = True
 
 
 async def coop_dungeon_autocomplete(
@@ -114,27 +120,27 @@ class DungeonInviteView(discord.ui.View):
         if actor_id not in self.invited_discord_ids:
             await interaction.response.send_message(
                 "Only invited daoists may accept this expedition.",
-                ephemeral=PUBLIC,
+                ephemeral=False,
             )
             return
 
-        await interaction.response.defer(ephemeral=PUBLIC)
+        await interaction.response.defer(ephemeral=False)
         session = get_session()
         try:
             guild_id = get_guild_id(interaction)
             party = session.get(ActiveDungeonParty, self.party_id)
             if party is None or party.status != "lobby":
-                await interaction.followup.send("This expedition is no longer open.", ephemeral=PUBLIC)
+                await interaction.followup.send("This expedition is no longer open.", ephemeral=False)
                 return
 
             player = ensure_player(session, guild_id, actor_id)
             if player is None:
-                await interaction.followup.send(NOT_STARTED_HINT, ephemeral=PUBLIC)
+                await interaction.followup.send(NOT_STARTED_HINT, ephemeral=False)
                 return
 
             accepted, msg = accept_invite(session, party, player)
             if not accepted:
-                await interaction.followup.send(msg, ephemeral=PUBLIC)
+                await interaction.followup.send(msg, ephemeral=False)
                 return
 
             session.add(party)
@@ -156,13 +162,46 @@ class DungeonInviteView(discord.ui.View):
                     rng_for(guild_id, party.leader_discord_id),
                 )
                 if err:
-                    await interaction.followup.send(err, ephemeral=PUBLIC)
+                    await interaction.followup.send(err, ephemeral=False)
                 return
 
             await self._edit(interaction, embed)
-            await interaction.followup.send(msg, ephemeral=PUBLIC)
+            await interaction.followup.send(msg, ephemeral=False)
         finally:
             session.close()
+
+
+class DungeonOpenPanelView(discord.ui.View):
+    """Pinned status card — one button; only the current actor may open their private panel."""
+
+    def __init__(self, party_id: int, actor_discord_id: str, participant_ids: set[str]):
+        super().__init__(timeout=900)
+        self.party_id = party_id
+        self.actor_discord_id = actor_discord_id
+        self.participant_ids = participant_ids
+        btn = discord.ui.Button(
+            label="Open your combat panel",
+            style=discord.ButtonStyle.primary,
+            custom_id=f"dungeon:{party_id}:open_panel",
+        )
+        btn.callback = self._open_panel
+        self.add_item(btn)
+
+    async def _open_panel(self, interaction: discord.Interaction) -> None:
+        from .bot import get_discord_id
+
+        uid = get_discord_id(interaction.user)
+        if uid not in self.participant_ids:
+            await interaction.response.send_message(
+                "This expedition is not yours.", ephemeral=COMBAT_EPHEMERAL
+            )
+            return
+        if uid != self.actor_discord_id:
+            await interaction.response.send_message(
+                "Wait for your turn.", ephemeral=COMBAT_EPHEMERAL
+            )
+            return
+        await _send_actor_combat_panel(interaction, self.party_id)
 
 
 class DungeonCombatView(discord.ui.View):
@@ -252,10 +291,14 @@ class DungeonCombatView(discord.ui.View):
 
         uid = get_discord_id(interaction.user)
         if uid not in self.participant_ids:
-            await interaction.response.send_message("This expedition is not yours.", ephemeral=PUBLIC)
+            await interaction.response.send_message(
+                "This expedition is not yours.", ephemeral=COMBAT_EPHEMERAL
+            )
             return False
         if uid != self.actor_discord_id:
-            await interaction.response.send_message("Wait for your turn.", ephemeral=PUBLIC)
+            await interaction.response.send_message(
+                "Wait for your turn.", ephemeral=COMBAT_EPHEMERAL
+            )
             return False
         return True
 
@@ -361,25 +404,27 @@ async def _launch_dungeon(
     session.add(party)
     session.commit()
 
-    actor = state.current_actor()
-    view = None
-    if actor and not actor.is_enemy and actor.player_id:
-        techniques = get_equipped_active_techniques(session, actor.player_id)
-        view = DungeonCombatView(
-            party.id,
-            actor.fighter_id,
-            member_discord_ids(party),
-            techniques=techniques,
-            technique_cooldowns=actor.technique_cooldowns,
-            player_sealed=actor.combatant.sealed,
-        )
     embed = build_dungeon_combat_embed(party, state)
-    combat_msg = await channel.send(embed=embed, view=view)
-    if view is not None:
-        view.message = combat_msg
+    combat_msg = await channel.send(embed=embed)
     party.combat_message_id = str(combat_msg.id)
+    state.log_cursor = len(state.log)
+    save_combat_state(party, state)
     session.add(party)
     session.commit()
+
+    client = interaction.client
+    await _post_new_log_lines(client, party, state)
+    session = get_session()
+    try:
+        party = session.get(ActiveDungeonParty, party.id)
+        state = load_combat_state(party)
+        if party and state:
+            save_combat_state(party, state)
+            session.add(party)
+            session.commit()
+            await _sync_combat_ui(interaction, party, state, rng)
+    finally:
+        session.close()
 
     if interaction.channel:
         await interaction.channel.send(
@@ -389,61 +434,188 @@ async def _launch_dungeon(
     return None
 
 
-async def _refresh_combat_message(
-    interaction: discord.Interaction | None,
-    party: ActiveDungeonParty,
-    state,
-) -> None:
+async def _get_dungeon_channel(client, party: ActiveDungeonParty):
+    if not party.channel_id:
+        return None
+    channel = client.get_channel(int(party.channel_id))
+    if channel is None:
+        try:
+            channel = await client.fetch_channel(int(party.channel_id))
+        except discord.HTTPException:
+            return None
+    return channel
+
+
+async def _post_new_log_lines(client, party: ActiveDungeonParty, state) -> None:
+    text = format_new_log_lines(state)
+    if not text:
+        return
+    channel = await _get_dungeon_channel(client, party)
+    if channel is None:
+        return
+    state.log_cursor = len(state.log)
+    while text:
+        chunk = text[:1900]
+        if len(text) > 1900:
+            split = chunk.rfind("\n")
+            if split > 0:
+                chunk = text[:split]
+        await channel.send(chunk)
+        text = text[len(chunk) :].lstrip("\n")
+
+
+def _build_combat_panel_view(party: ActiveDungeonParty, state) -> DungeonCombatView | None:
     actor = state.current_actor()
-    if actor and actor.is_enemy and not state.finished:
-        session = get_session()
-        try:
-            process_turn_start(session, state, random.Random())
-            save_combat_state(party, state)
-            session.add(party)
-            session.commit()
-            actor = state.current_actor()
-        finally:
-            session.close()
-
-    techniques = []
-    cds: dict[str, int] = {}
-    sealed = False
-    if actor and not actor.is_enemy and actor.player_id:
-        session = get_session()
-        try:
-            techniques = get_equipped_active_techniques(session, actor.player_id)
-            cds = actor.technique_cooldowns
-            sealed = actor.combatant.sealed
-        finally:
-            session.close()
-
-    view = None
-    if actor and not actor.is_enemy:
-        view = DungeonCombatView(
+    if state.finished or actor is None or actor.is_enemy or not actor.player_id:
+        return None
+    session = get_session()
+    try:
+        techniques = get_equipped_active_techniques(session, actor.player_id)
+        return DungeonCombatView(
             party.id,
             actor.fighter_id,
             member_discord_ids(party),
             techniques=techniques,
-            technique_cooldowns=cds,
+            technique_cooldowns=actor.technique_cooldowns,
             enemies=state.living_enemies(),
             pending_technique=state.pending_technique,
-            player_sealed=sealed,
+            player_sealed=actor.combatant.sealed,
+        )
+    finally:
+        session.close()
+
+
+async def _send_actor_combat_panel(interaction: discord.Interaction, party_id: int) -> None:
+    session = get_session()
+    try:
+        party = session.get(ActiveDungeonParty, party_id)
+        if party is None or party.status != "in_combat":
+            await interaction.response.send_message(
+                "This expedition is not active.", ephemeral=COMBAT_EPHEMERAL
+            )
+            return
+        state = load_combat_state(party)
+        if state is None:
+            await interaction.response.send_message(
+                "No active combat.", ephemeral=COMBAT_EPHEMERAL
+            )
+            return
+        view = _build_combat_panel_view(party, state)
+        if view is None:
+            await interaction.response.send_message(
+                "Combat has ended or it is not your turn.", ephemeral=COMBAT_EPHEMERAL
+            )
+            return
+        embed = build_dungeon_combat_embed(party, state)
+        await interaction.response.send_message(
+            embed=embed, view=view, ephemeral=COMBAT_EPHEMERAL
+        )
+    finally:
+        session.close()
+
+
+async def _after_combat_action(session, party, state, rng, cfg) -> object:
+    """Advance rooms, mark defeat, or complete run after any combat action."""
+    if should_advance_room(state):
+        await _handle_room_cleared(session, party, state, rng, cfg)
+        loaded = load_combat_state(party)
+        if loaded is not None:
+            state = loaded
+    if state.run_complete or (state.finished and not state.victory):
+        if state.finished and not state.victory:
+            party.status = "completed"
+        session.add(party)
+        session.commit()
+    return state
+
+
+async def _sync_combat_ui(
+    interaction: discord.Interaction | None,
+    party: ActiveDungeonParty,
+    state,
+    rng: random.Random,
+) -> None:
+    if state is None:
+        return
+    session = get_session()
+    try:
+        if not state.finished:
+            actor = state.current_actor()
+            if actor and actor.is_enemy:
+                process_turn_start(session, state, rng)
+                save_combat_state(party, state)
+                session.add(party)
+                session.commit()
+    finally:
+        session.close()
+
+    client = interaction.client if interaction else None
+    if client is None:
+        return
+
+    await _post_new_log_lines(client, party, state)
+    session = get_session()
+    try:
+        party = session.get(ActiveDungeonParty, party.id) if party.id else party
+        if party is not None:
+            save_combat_state(party, state)
+            session.add(party)
+            session.commit()
+    finally:
+        session.close()
+
+    if not party.channel_id or not party.combat_message_id:
+        return
+    channel = await _get_dungeon_channel(client, party)
+    if channel is None:
+        return
+
+    actor = state.current_actor()
+    status_view: discord.ui.View | None = None
+    if (
+        not state.finished
+        and actor
+        and not actor.is_enemy
+        and actor.fighter_id
+    ):
+        status_view = DungeonOpenPanelView(
+            party.id,
+            actor.fighter_id,
+            member_discord_ids(party),
         )
     embed = build_dungeon_combat_embed(party, state)
-    client = interaction.client if interaction else None
-    if client is None or not party.channel_id or not party.combat_message_id:
-        return
-    channel = client.get_channel(int(party.channel_id))
-    if channel is None:
-        channel = await client.fetch_channel(int(party.channel_id))
     try:
         msg = await channel.fetch_message(int(party.combat_message_id))
-        await msg.edit(embed=embed, view=view)
-        if view is not None:
-            view.message = msg
+        await msg.edit(embed=embed, view=status_view)
     except discord.HTTPException:
-        logger.exception("Failed to refresh dungeon combat party=%s", party.id)
+        logger.exception("Failed to refresh dungeon status party=%s", party.id)
+
+    if (
+        interaction is not None
+        and not state.finished
+        and actor
+        and not actor.is_enemy
+    ):
+        from .bot import get_discord_id
+
+        if get_discord_id(interaction.user) == actor.fighter_id:
+            panel = _build_combat_panel_view(party, state)
+            if panel is not None:
+                try:
+                    await interaction.followup.send(
+                        embed=embed,
+                        view=panel,
+                        ephemeral=COMBAT_EPHEMERAL,
+                    )
+                except discord.HTTPException:
+                    pass
+        elif actor.discord_id:
+            try:
+                await channel.send(
+                    f"<@{actor.discord_id}> — your turn. Use **Open your combat panel** on the pinned card."
+                )
+            except discord.HTTPException:
+                pass
 
 
 async def _complete_dungeon(session, party, state, rng, cfg) -> str:
@@ -476,6 +648,9 @@ async def _complete_dungeon(session, party, state, rng, cfg) -> str:
         session.add(player)
     party.status = "completed"
     state.run_complete = True
+    state.finished = True
+    state.victory = True
+    state.log.extend(lines)
     save_combat_state(party, state)
     session.add(party)
     return "\n".join(lines)
@@ -487,9 +662,7 @@ async def _handle_room_cleared(session, party, state, rng, cfg) -> None:
     if dungeon is None:
         return
     if state.room_index + 1 >= len(dungeon.rooms):
-        msg = await _complete_dungeon(session, party, state, rng, cfg)
-        state.log.append(msg)
-        save_combat_state(party, state)
+        await _complete_dungeon(session, party, state, rng, cfg)
         return
     new_state = advance_to_next_room(session, state, members, rng)
     party.room_index = new_state.room_index
@@ -500,12 +673,15 @@ async def _handle_room_cleared(session, party, state, rng, cfg) -> None:
 async def _handle_dungeon_technique(interaction: discord.Interaction, party_id: int, technique_id: str):
     from .bot import get_discord_id, get_guild_id, rng_for
 
-    await interaction.response.defer(ephemeral=PUBLIC)
+    await interaction.response.defer(ephemeral=COMBAT_EPHEMERAL)
+    cfg = get_config()
     session = get_session()
     try:
         party = session.get(ActiveDungeonParty, party_id)
         if party is None or party.status != "in_combat":
-            await interaction.followup.send("This expedition is not active.", ephemeral=PUBLIC)
+            await interaction.followup.send(
+                "This expedition is not active.", ephemeral=COMBAT_EPHEMERAL
+            )
             return
         state = load_combat_state(party)
         if state is None:
@@ -517,10 +693,13 @@ async def _handle_dungeon_technique(interaction: discord.Interaction, party_id: 
         session.commit()
         if not res.ok:
             if res.message:
-                await interaction.followup.send(res.message, ephemeral=PUBLIC)
+                await interaction.followup.send(res.message, ephemeral=COMBAT_EPHEMERAL)
             return
-        await _refresh_combat_message(interaction, party, state)
-        # Target buttons and prompt live on the combat card — no extra channel posts.
+        state = await _after_combat_action(session, party, state, rng, cfg)
+        save_combat_state(party, state)
+        session.add(party)
+        session.commit()
+        await _sync_combat_ui(interaction, party, state, rng)
     finally:
         session.close()
 
@@ -528,7 +707,7 @@ async def _handle_dungeon_technique(interaction: discord.Interaction, party_id: 
 async def _handle_dungeon_target(interaction: discord.Interaction, party_id: int, target_id: str):
     from .bot import get_discord_id, get_guild_id, rng_for
 
-    await interaction.response.defer(ephemeral=PUBLIC)
+    await interaction.response.defer(ephemeral=COMBAT_EPHEMERAL)
     cfg = get_config()
     session = get_session()
     try:
@@ -536,6 +715,9 @@ async def _handle_dungeon_target(interaction: discord.Interaction, party_id: int
         discord_id = get_discord_id(interaction.user)
         party = session.get(ActiveDungeonParty, party_id)
         if party is None or party.status != "in_combat":
+            await interaction.followup.send(
+                "This expedition is not active.", ephemeral=COMBAT_EPHEMERAL
+            )
             return
         state = load_combat_state(party)
         if state is None:
@@ -543,41 +725,40 @@ async def _handle_dungeon_target(interaction: discord.Interaction, party_id: int
         rng = rng_for(guild_id, discord_id)
         res = select_target(session, state, discord_id, target_id, rng=rng)
         save_combat_state(party, state)
-        if state.finished and state.victory and state.room_cleared and not state.run_complete:
-            await _handle_room_cleared(session, party, state, rng, cfg)
-            state = load_combat_state(party) or state
-        if state.run_complete or (state.finished and not state.victory):
-            if state.finished and not state.victory:
-                party.status = "completed"
-            session.add(party)
-            session.commit()
-            await _refresh_combat_message(interaction, party, state)
-            if state.log:
-                ch = interaction.channel
-                if ch:
-                    await ch.send("\n".join(state.log[-4:]))
-            return
         session.add(party)
         session.commit()
-        await _refresh_combat_message(interaction, party, state)
+        if not res.ok:
+            if res.message:
+                await interaction.followup.send(res.message, ephemeral=COMBAT_EPHEMERAL)
+            return
+        state = await _after_combat_action(session, party, state, rng, cfg)
+        save_combat_state(party, state)
+        session.add(party)
+        session.commit()
+        await _sync_combat_ui(interaction, party, state, rng)
     finally:
         session.close()
 
 
 async def _handle_dungeon_cancel_target(interaction: discord.Interaction, party_id: int):
+    from .bot import get_guild_id, rng_for
+
     session = get_session()
     try:
         party = session.get(ActiveDungeonParty, party_id)
         state = load_combat_state(party) if party else None
         if state is None:
-            await interaction.response.send_message("No active combat.", ephemeral=PUBLIC)
+            await interaction.response.send_message(
+                "No active combat.", ephemeral=COMBAT_EPHEMERAL
+            )
             return
         state.pending_technique = None
         save_combat_state(party, state)
         session.add(party)
         session.commit()
-        await interaction.response.defer(ephemeral=PUBLIC)
-        await _refresh_combat_message(interaction, party, state)
+        await interaction.response.defer(ephemeral=COMBAT_EPHEMERAL)
+        rng = rng_for(get_guild_id(interaction), str(interaction.user.id))
+        await _sync_combat_ui(interaction, party, state, rng)
     finally:
         session.close()
 
@@ -604,7 +785,7 @@ def setup_dungeon_command(bot) -> None:
         from .bot import ensure_player, get_discord_id, get_guild_id, rng_for
 
         if interaction.guild is None:
-            await interaction.response.send_message("Use this command in a server.", ephemeral=PUBLIC)
+            await interaction.response.send_message("Use this command in a server.", ephemeral=False)
             return
 
         allies = [m for m in (ally_1, ally_2, ally_3) if m is not None]
@@ -618,7 +799,7 @@ def setup_dungeon_command(bot) -> None:
             leader_id = get_discord_id(interaction.user)
             leader = ensure_player(session, guild_id, leader_id)
             if leader is None:
-                await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=PUBLIC)
+                await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
                 return
 
             invitee_players: list[Player] = []
@@ -626,14 +807,14 @@ def setup_dungeon_command(bot) -> None:
                 if member.bot:
                     await interaction.response.send_message(
                         "Spirit beasts cannot join dungeon parties.",
-                        ephemeral=PUBLIC,
+                        ephemeral=False,
                     )
                     return
                 p = ensure_player(session, guild_id, get_discord_id(member))
                 if p is None:
                     await interaction.response.send_message(
                         f"**{member.display_name}** has not started with **`/start`**.",
-                        ephemeral=PUBLIC,
+                        ephemeral=False,
                     )
                     return
                 invitee_players.append(p)
@@ -647,13 +828,13 @@ def setup_dungeon_command(bot) -> None:
             )
             if party is None:
                 session.commit()
-                await interaction.response.send_message(err, ephemeral=PUBLIC)
+                await interaction.response.send_message(err, ephemeral=False)
                 return
 
             session.commit()
 
             if not invitee_players:
-                await interaction.response.defer(ephemeral=PUBLIC)
+                await interaction.response.defer(ephemeral=False)
                 launch_err = await _launch_dungeon(
                     interaction,
                     party,
@@ -662,7 +843,7 @@ def setup_dungeon_command(bot) -> None:
                     rng_for(guild_id, leader_id),
                 )
                 if launch_err:
-                    await interaction.followup.send(launch_err, ephemeral=PUBLIC)
+                    await interaction.followup.send(launch_err, ephemeral=False)
                 return
 
             coop = get_cooperative_dungeon(dungeon)
@@ -674,7 +855,7 @@ def setup_dungeon_command(bot) -> None:
             )
             invited_ids = {p.discord_id for p in invitee_players}
             view = DungeonInviteView(party.id, invited_ids)
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=PUBLIC)
+            await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
             msg = await interaction.original_response()
             view.message = msg
             party.lobby_message_id = str(msg.id)

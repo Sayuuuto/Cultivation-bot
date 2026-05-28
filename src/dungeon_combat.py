@@ -128,6 +128,7 @@ class DungeonCombatState:
     pending_technique: str | None = None
     pending_loot: dict[str, int] = field(default_factory=dict)
     looted_enemy_ids: set[str] = field(default_factory=set)
+    log_cursor: int = 0
 
     @property
     def current_actor_id(self) -> str:
@@ -161,6 +162,7 @@ class DungeonCombatState:
             "pending_technique": self.pending_technique,
             "pending_loot": dict(self.pending_loot),
             "looted_enemy_ids": sorted(self.looted_enemy_ids),
+            "log_cursor": int(self.log_cursor),
         }
 
     @classmethod
@@ -183,7 +185,18 @@ class DungeonCombatState:
             pending_technique=data.get("pending_technique"),
             pending_loot={str(k): int(v) for k, v in data.get("pending_loot", {}).items()},
             looted_enemy_ids=set(data.get("looted_enemy_ids", [])),
+            log_cursor=int(data.get("log_cursor", 0)),
         )
+
+
+def should_advance_room(state: DungeonCombatState) -> bool:
+    """True when Discord layer should call advance_to_next_room."""
+    return (
+        state.finished
+        and state.victory
+        and state.room_cleared
+        and not state.run_complete
+    )
 
 
 @dataclass(frozen=True)
@@ -722,6 +735,8 @@ def advance_to_next_room(
         state.log.append("The final chamber falls — the dungeon is yours!")
         return state
     pending_loot = dict(state.pending_loot)
+    carry_log = list(state.log)
+    log_cursor = state.log_cursor
     new_state = start_room_combat(
         session,
         party_id=state.party_id,
@@ -731,6 +746,7 @@ def advance_to_next_room(
         rng=rng,
     )
     new_state.pending_loot = pending_loot
-    new_state.log.insert(0, f"Advancing to **{new_state.room_label}**…")
+    new_state.log = carry_log + [f"Advancing to **{new_state.room_label}**…"] + new_state.log
+    new_state.log_cursor = log_cursor
     process_turn_start(session, new_state, rng)
     return new_state

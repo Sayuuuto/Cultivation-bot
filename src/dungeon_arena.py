@@ -126,8 +126,18 @@ def build_dungeon_combat_embed(
     if foes:
         embed.add_field(name="Foes", value="\n".join(format_fighter_line(f) for f in foes), inline=True)
 
-    log_text = "\n".join(state.log[-8:]) if state.log else "_Steel meets qi…_"
-    embed.add_field(name="Battle log", value=log_text, inline=False)
+    if state.finished:
+        if state.victory and state.room_cleared:
+            footer = "Room cleared — advancing…" if not state.run_complete else "Dungeon complete."
+        else:
+            footer = "The party has fallen or the assault stalled."
+        embed.add_field(name="Battle log", value=footer, inline=False)
+    else:
+        embed.add_field(
+            name="Battle log",
+            value="Turn-by-turn log is posted in this channel below.",
+            inline=False,
+        )
     return embed
 
 
@@ -137,6 +147,13 @@ def build_dungeon_cancelled_embed(*, reason: str) -> discord.Embed:
         description=reason,
         color=discord.Color.dark_grey(),
     )
+
+
+def format_new_log_lines(state: DungeonCombatState) -> str | None:
+    """Lines not yet posted to the dungeon channel."""
+    if state.log_cursor >= len(state.log):
+        return None
+    return "\n".join(state.log[state.log_cursor :])
 
 
 def build_lobby_embed(party: ActiveDungeonParty) -> discord.Embed:
