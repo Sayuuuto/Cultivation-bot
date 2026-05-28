@@ -369,8 +369,8 @@ async def _launch_dungeon(
     session.add(party)
     session.commit()
 
-    embed = build_dungeon_combat_embed(party, state)
-    launch_view = _combat_message_view(party, state)
+    embed = build_dungeon_combat_embed(state)
+    launch_view = _combat_message_view(party.id, state)
     combat_msg = await channel.send(embed=embed, view=launch_view)
     party.combat_message_id = str(combat_msg.id)
     state.log_cursor = len(state.log)
@@ -379,18 +379,8 @@ async def _launch_dungeon(
     session.commit()
 
     client = interaction.client
-    await _post_new_log_lines(client, party, state)
-    session = get_session()
-    try:
-        party = session.get(ActiveDungeonParty, party.id)
-        state = load_combat_state(party)
-        if party and state:
-            save_combat_state(party, state)
-            session.add(party)
-            session.commit()
-            await _sync_combat_ui(interaction, party, state, rng)
-    finally:
-        session.close()
+    await _post_new_log_lines(client, party.channel_id, state)
+    await _sync_combat_ui(interaction, party.id, state, rng)
 
     if interaction.channel:
         await interaction.channel.send(
@@ -400,23 +390,27 @@ async def _launch_dungeon(
     return None
 
 
-async def _get_dungeon_channel(client, party: ActiveDungeonParty):
-    if not party.channel_id:
+async def _get_dungeon_channel_by_id(client, channel_id: str | None):
+    if not channel_id:
         return None
-    channel = client.get_channel(int(party.channel_id))
+    channel = client.get_channel(int(channel_id))
     if channel is None:
         try:
-            channel = await client.fetch_channel(int(party.channel_id))
+            channel = await client.fetch_channel(int(channel_id))
         except discord.HTTPException:
             return None
     return channel
 
 
-async def _post_new_log_lines(client, party: ActiveDungeonParty, state) -> None:
+async def _get_dungeon_channel(client, party: ActiveDungeonParty):
+    return await _get_dungeon_channel_by_id(client, party.channel_id)
+
+
+async def _post_new_log_lines(client, channel_id: str | None, state) -> None:
     text = format_new_log_lines(state)
     if not text:
         return
-    channel = await _get_dungeon_channel(client, party)
+    channel = await _get_dungeon_channel_by_id(client, channel_id)
     if channel is None:
         return
     state.log_cursor = len(state.log)
@@ -430,15 +424,18 @@ async def _post_new_log_lines(client, party: ActiveDungeonParty, state) -> None:
         text = text[len(chunk) :].lstrip("\n")
 
 
-def _build_combat_panel_view(party: ActiveDungeonParty, state) -> DungeonCombatView | None:
+def _build_combat_panel_view(party_id: int, state) -> DungeonCombatView | None:
     actor = state.current_actor()
     if state.finished or actor is None or actor.is_enemy or not actor.player_id:
         return None
     session = get_session()
     try:
+        party = session.get(ActiveDungeonParty, party_id)
+        if party is None:
+            return None
         techniques = get_equipped_active_techniques(session, actor.player_id)
         return DungeonCombatView(
-            party.id,
+            party_id,
             actor.fighter_id,
             member_discord_ids(party),
             techniques=techniques,
@@ -451,9 +448,9 @@ def _build_combat_panel_view(party: ActiveDungeonParty, state) -> DungeonCombatV
         session.close()
 
 
-def _combat_message_view(party: ActiveDungeonParty, state) -> DungeonCombatView | None:
+def _combat_message_view(party_id: int, state) -> DungeonCombatView | None:
     """Full technique/target buttons on the pinned card when a player may act."""
-    return _build_combat_panel_view(party, state)
+    return _build_combat_panel_view(party_id, state)
 
 
 async def _after_combat_action(session, party, state, rng, cfg) -> object:
@@ -473,55 +470,58 @@ async def _after_combat_action(session, party, state, rng, cfg) -> object:
 
 async def _sync_combat_ui(
     interaction: discord.Interaction | None,
-    party: ActiveDungeonParty,
+    party_id: int,
     state,
     rng: random.Random,
 ) -> None:
     if state is None:
         return
-    session = get_session()
-    try:
-        if not state.finished:
-            actor = state.current_actor()
-            if actor and actor.is_enemy:
-                process_turn_start(session, state, rng)
-                save_combat_state(party, state)
-                session.add(party)
-                session.commit()
-    finally:
-        session.close()
 
     client = interaction.client if interaction else None
     if client is None:
         return
 
-    await _post_new_log_lines(client, party, state)
+    channel_id: str | None = None
+    combat_message_id: str | None = None
+
     session = get_session()
     try:
-        party = session.get(ActiveDungeonParty, party.id) if party.id else party
-        if party is not None:
-            save_combat_state(party, state)
-            session.add(party)
-            session.commit()
+        party = session.get(ActiveDungeonParty, party_id)
+        if party is None:
+            return
+        loaded = load_combat_state(party)
+        if loaded is not None:
+            state = loaded
+        if not state.finished:
+            actor = state.current_actor()
+            if actor and actor.is_enemy:
+                process_turn_start(session, state, rng)
+        save_combat_state(party, state)
+        channel_id = party.channel_id
+        combat_message_id = party.combat_message_id
+        session.add(party)
+        session.commit()
     finally:
         session.close()
 
-    if not party.channel_id or not party.combat_message_id:
+    await _post_new_log_lines(client, channel_id, state)
+
+    if not channel_id or not combat_message_id:
         return
-    channel = await _get_dungeon_channel(client, party)
+    channel = await _get_dungeon_channel_by_id(client, channel_id)
     if channel is None:
         return
 
     actor = state.current_actor()
     combat_view: discord.ui.View | None = None
     if not state.finished and actor and not actor.is_enemy and actor.fighter_id:
-        combat_view = _combat_message_view(party, state)
-    embed = build_dungeon_combat_embed(party, state)
+        combat_view = _combat_message_view(party_id, state)
+    embed = build_dungeon_combat_embed(state)
     try:
-        msg = await channel.fetch_message(int(party.combat_message_id))
+        msg = await channel.fetch_message(int(combat_message_id))
         await msg.edit(embed=embed, view=combat_view)
     except discord.HTTPException:
-        logger.exception("Failed to refresh dungeon status party=%s", party.id)
+        logger.exception("Failed to refresh dungeon status party=%s", party_id)
 
     if (
         interaction is not None
@@ -534,7 +534,9 @@ async def _sync_combat_ui(
 
         if get_discord_id(interaction.user) != actor.fighter_id:
             try:
-                await channel.send(f"<@{actor.fighter_id}> — your turn. Use the buttons on the combat card above.")
+                await channel.send(
+                    f"<@{actor.fighter_id}> — your turn. Use the buttons on the combat card above."
+                )
             except discord.HTTPException:
                 pass
 
@@ -616,11 +618,14 @@ async def _handle_dungeon_technique(interaction: discord.Interaction, party_id: 
             if res.message:
                 await interaction.followup.send(res.message, ephemeral=COMBAT_EPHEMERAL)
             return
+        if res.needs_target:
+            await _sync_combat_ui(interaction, party_id, state, rng)
+            return
         state = await _after_combat_action(session, party, state, rng, cfg)
         save_combat_state(party, state)
         session.add(party)
         session.commit()
-        await _sync_combat_ui(interaction, party, state, rng)
+        await _sync_combat_ui(interaction, party_id, state, rng)
     finally:
         session.close()
 
@@ -656,7 +661,7 @@ async def _handle_dungeon_target(interaction: discord.Interaction, party_id: int
         save_combat_state(party, state)
         session.add(party)
         session.commit()
-        await _sync_combat_ui(interaction, party, state, rng)
+        await _sync_combat_ui(interaction, party_id, state, rng)
     finally:
         session.close()
 
@@ -679,7 +684,7 @@ async def _handle_dungeon_cancel_target(interaction: discord.Interaction, party_
         session.commit()
         await interaction.response.defer(ephemeral=COMBAT_EPHEMERAL)
         rng = rng_for(get_guild_id(interaction), str(interaction.user.id))
-        await _sync_combat_ui(interaction, party, state, rng)
+        await _sync_combat_ui(interaction, party_id, state, rng)
     finally:
         session.close()
 

@@ -141,10 +141,41 @@ def test_start_room_spawns_enemies_and_players(session, player, player_two):
     ally = next(f for f in state.fighters.values() if not f.is_enemy)
     line = format_fighter_line(ally)
     assert str(ally.combatant.hp) in line
-    embed = build_dungeon_combat_embed(party, state)
+    embed = build_dungeon_combat_embed(state)
     assert embed.title
     party_field = next(f for f in embed.fields if f.name == "Party")
     assert str(ally.combatant.hp) in party_field.value
+
+
+def test_combat_panel_shows_targets_when_technique_pending(session, player):
+    from src.dungeon_discord import _build_combat_panel_view
+
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[],
+    )
+    dungeon = get_cooperative_dungeon("mortal_catacomb")
+    state = start_room_combat(
+        session,
+        party_id=party.id,
+        dungeon=dungeon,
+        room_index=0,
+        members=load_members(party),
+        rng=random.Random(1),
+    )
+    ally = next(f for f in state.fighters.values() if not f.is_enemy)
+    state.turn_order = [ally.fighter_id]
+    state.turn_index = 0
+    select_technique(session, state, ally.fighter_id, "basic_strike")
+
+    view = _build_combat_panel_view(party.id, state)
+    assert view is not None
+    labels = [getattr(c, "label", "") for c in view.children]
+    assert any("🎯" in label for label in labels)
+    assert any("Cancel" in label for label in labels)
 
 
 def test_select_target_resolves_player_strike(session, player):

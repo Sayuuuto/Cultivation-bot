@@ -589,7 +589,11 @@ def select_technique(
     if actor.is_enemy:
         return DungeonActionResult(False, "Only daoists choose techniques.", state)
     if state.pending_technique:
-        return DungeonActionResult(False, "Choose a target for your technique first.", state)
+        return DungeonActionResult(
+            False,
+            "Pick a foe using the **target buttons** on the combat card above.",
+            state,
+        )
 
     tech = get_technique(technique_id)
     if tech is None and technique_id != "basic_strike":

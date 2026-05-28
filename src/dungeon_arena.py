@@ -101,9 +101,10 @@ def format_fighter_line(fighter: DungeonFighter) -> str:
 
 
 def build_dungeon_combat_embed(
-    party: ActiveDungeonParty,
     state: DungeonCombatState,
+    party: ActiveDungeonParty | None = None,
 ) -> discord.Embed:
+    _ = party
     dungeon = get_cooperative_dungeon(state.dungeon_id)
     title = dungeon.name if dungeon else state.dungeon_id
     actor = state.current_actor()
