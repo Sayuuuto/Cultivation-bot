@@ -12,7 +12,7 @@ from .character import get_character_modifiers
 from .config import Config
 from .game import (
     DuelResult,
-    apply_offline_progress,
+    collect_passive_qi,
     duel,
     to_utc,
     utcnow,
@@ -226,10 +226,8 @@ def execute_duel(
     now: datetime | None = None,
 ) -> ExecutedDuel:
     now = to_utc(now or utcnow())
-    offline_qi = apply_offline_progress(challenger, now, cfg.offline_cap_minutes)
-    if offline_qi > 0:
-        challenger.qi += offline_qi
-        challenger.last_active_at = now
+    collect_passive_qi(challenger, now, cap_mult=get_character_modifiers(session, challenger).offline_cap_mult)
+    challenger.last_active_at = now
 
     mod_a = get_character_modifiers(session, challenger)
     mod_b = get_character_modifiers(session, opponent)

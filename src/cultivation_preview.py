@@ -7,12 +7,13 @@ from .game import (
     BreakthroughPreview,
     CULTIVATE_LUCK_MAX,
     CULTIVATE_LUCK_MIN,
+    PASSIVE_BANK_CAP_FRACTION,
+    PASSIVE_FILL_HOURS,
     compute_breakthrough_preview,
-    apply_offline_progress,
     cultivate_base_qi_gain,
     passive_qi_per_minute,
+    preview_passive_bank,
     qi_cap,
-    to_utc,
 )
 from .karma import karma_tier_label
 from .models import Player
@@ -22,8 +23,9 @@ from .modifiers import CharacterModifiers
 @dataclass(frozen=True)
 class CultivatePreview:
     passive_qi_pending: int
+    passive_qi_in_bank: int
     passive_minutes: int
-    passive_cap_minutes: int
+    passive_bank_cap_qi: int
     passive_qi_per_minute: float
     active_qi_min: int
     active_qi_max: int
@@ -38,20 +40,11 @@ def preview_passive_qi(
     offline_cap_minutes: int,
     cap_mult: float = 1.0,
 ) -> tuple[int, int, int]:
-    """Returns (qi_pending, minutes_away, cap_minutes)."""
-    if player.last_active_at is None:
-        return 0, 0, int(offline_cap_minutes * cap_mult)
-
-    now = to_utc(now)
-    last_active = to_utc(player.last_active_at)
-    if now <= last_active:
-        return 0, 0, int(offline_cap_minutes * cap_mult)
-
-    minutes = int((now - last_active).total_seconds() / 60)
-    cap_minutes = int(offline_cap_minutes * cap_mult)
-    capped_minutes = min(minutes, cap_minutes)
-    qi = apply_offline_progress(player, now, offline_cap_minutes, cap_mult=cap_mult)
-    return qi, capped_minutes, cap_minutes
+    """Returns (qi_pending_in_bank_after_accrual, minutes_accrued, bank_cap_qi)."""
+    _ = offline_cap_minutes
+    bank_after, minutes, bank_cap, _rate = preview_passive_bank(player, now, cap_mult=cap_mult)
+    pending = max(0, bank_after - player.passive_qi_bank)
+    return bank_after, minutes, bank_cap
 
 
 def preview_cultivate_qi(
@@ -61,12 +54,16 @@ def preview_cultivate_qi(
     now,
 ) -> CultivatePreview:
     qi_mult = mod.cultivate_qi_mult * mod.qi_gathering_mult
-    base = cultivate_base_qi_gain(player.realm_index)
+    base = cultivate_base_qi_gain(
+        player.realm_index,
+        substage=player.substage,
+        player=player,
+    )
     active_min = int(base * CULTIVATE_LUCK_MIN * qi_mult)
     active_max = int(base * CULTIVATE_LUCK_MAX * qi_mult)
     active_typical = int(base * qi_mult)
 
-    passive_qi, passive_minutes, passive_cap = preview_passive_qi(
+    passive_bank, passive_minutes, passive_cap = preview_passive_qi(
         player,
         now,
         cfg.offline_cap_minutes,
@@ -74,29 +71,22 @@ def preview_cultivate_qi(
     )
 
     return CultivatePreview(
-        passive_qi_pending=passive_qi,
+        passive_qi_pending=passive_bank,
+        passive_qi_in_bank=player.passive_qi_bank,
         passive_minutes=passive_minutes,
-        passive_cap_minutes=passive_cap,
-        passive_qi_per_minute=passive_qi_per_minute(player.realm_index),
+        passive_bank_cap_qi=passive_cap,
+        passive_qi_per_minute=passive_qi_per_minute(
+            player.realm_index,
+            substage=player.substage,
+            player=player,
+            cap_mult=mod.offline_cap_mult,
+        ),
         active_qi_min=active_min,
         active_qi_max=active_max,
         active_qi_typical=active_typical,
         qi_mult=qi_mult,
         qi_cap=qi_cap(player.realm_index, player.substage, player),
     )
-
-
-def _pct(value: float) -> str:
-    return f"{int(round(value * 100))}%"
-
-
-def _signed_pct(value: float) -> str:
-    pct = int(round(abs(value) * 100))
-    if value > 0:
-        return f"+{pct}%"
-    if value < 0:
-        return f"−{pct}%"
-    return "0%"
 
 
 def _format_qi_rate(per_minute: float) -> str:
@@ -107,16 +97,23 @@ def _format_qi_rate(per_minute: float) -> str:
 
 def format_passive_qi_rate_line(preview: CultivatePreview) -> str:
     rate = _format_qi_rate(preview.passive_qi_per_minute)
+    bank_pct = int(round(PASSIVE_BANK_CAP_FRACTION * 100))
+    fill_h = int(PASSIVE_FILL_HOURS) if PASSIVE_FILL_HOURS == int(PASSIVE_FILL_HOURS) else PASSIVE_FILL_HOURS
     lines = [
-        f"**{rate} Qi/min** while away — banked on your next action "
-        f"(up to **{preview.passive_cap_minutes}** min stored)."
+        f"**{rate} Qi/min** into your formation bank (up to **{preview.passive_bank_cap_qi}** Qi, "
+        f"**{bank_pct}%** of cap — about **{fill_h}h** to fill at this rate).",
     ]
     if preview.passive_qi_pending > 0:
-        lines.append(
-            f"Ready now: **+{preview.passive_qi_pending} Qi** from **{preview.passive_minutes}** min away."
-        )
+        if preview.passive_minutes > 0:
+            lines.append(
+                f"Bank now: **{preview.passive_qi_pending} Qi** "
+                f"(**{preview.passive_minutes}** min gathering since last sync)."
+            )
+        else:
+            lines.append(f"Bank now: **{preview.passive_qi_pending} Qi** ready to absorb.")
     else:
-        lines.append("Nothing banked yet — qi gathers whenever you are inactive.")
+        lines.append("Bank empty — qi gathers while you are away.")
+    lines.append("Absorbs into your pool on **`/profile`**, **`/cultivate`**, or **`/breakthrough`**.")
     return "\n".join(lines)
 
 
@@ -124,10 +121,10 @@ def format_passive_qi_line(preview: CultivatePreview) -> str:
     """Short passive summary (e.g. after an action applied banked qi)."""
     if preview.passive_qi_pending <= 0:
         rate = _format_qi_rate(preview.passive_qi_per_minute)
-        return f"Passive income: **{rate} Qi/min** while away (nothing banked right now)."
+        return f"Formation bank: **{rate} Qi/min** (nothing stored right now)."
     return (
-        f"**+{preview.passive_qi_pending} Qi** banked from **{preview.passive_minutes} min** away — "
-        f"collects on your next action."
+        f"**{preview.passive_qi_pending} Qi** in your formation bank — "
+        f"absorbs on **`/profile`** or **`/cultivate`**."
     )
 
 
@@ -140,7 +137,7 @@ def format_active_cultivate_line(preview: CultivatePreview, mod: CharacterModifi
     bonus = f" ({' · '.join(pill_bits)})" if pill_bits else ""
     return (
         f"**`/cultivate`**: **{preview.active_qi_min}–{preview.active_qi_max} Qi** per use "
-        f"(typical **~{preview.active_qi_typical}**){bonus}.\n"
+        f"(typical **~{preview.active_qi_typical}** — about **8** sessions to fill your cap){bonus}.\n"
         "_Pills boost active cultivation only — not passive Qi/min._"
     )
 
@@ -152,7 +149,7 @@ def format_total_cultivate_line(preview: CultivatePreview, mod: CharacterModifie
         return active
     return (
         f"{active}\n"
-        f"Also collects **+{preview.passive_qi_pending} passive Qi** banked from time away."
+        f"Your formation bank holds **{preview.passive_qi_pending} Qi** — collected when you cultivate."
     )
 
 
@@ -184,6 +181,19 @@ def format_breakthrough_chance_breakdown(preview: BreakthroughPreview, player: P
     else:
         lines.append(f"Need **{preview.qi_required} Qi** to attempt (you have **{player.qi}**).")
     return "\n".join(lines)
+
+
+def _pct(value: float) -> str:
+    return f"{int(round(value * 100))}%"
+
+
+def _signed_pct(value: float) -> str:
+    pct = int(round(abs(value) * 100))
+    if value > 0:
+        return f"+{pct}%"
+    if value < 0:
+        return f"−{pct}%"
+    return "0%"
 
 
 def format_breakthrough_chance_line(preview: BreakthroughPreview, player: Player) -> str:
@@ -243,7 +253,7 @@ def add_cultivation_preview_fields(
     )
     embed.add_field(name="Qi progress", value=f"**{player.qi} / {cultivate.qi_cap}**", inline=True)
     embed.add_field(
-        name="🌙 Passive Qi (time away)",
+        name="🌙 Passive Qi (formation bank)",
         value=format_passive_qi_rate_line(cultivate),
         inline=False,
     )

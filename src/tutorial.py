@@ -27,7 +27,8 @@ LANE_COLORS = {
     "resource": discord.Color.from_rgb(52, 152, 219),
     "story": discord.Color.from_rgb(155, 89, 182),
 }
-OFFLINE_QI_CAP_MINUTES = 120
+PASSIVE_BANK_CAP_FRACTION_PCT = 50
+PASSIVE_FILL_HOURS = 12
 FRAGMENTS_FOR_MANUAL = MANUAL_CRAFT_INPUTS.get("technique_fragment", 3)
 
 
@@ -202,13 +203,13 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "**Martial dao** — loadout, learned arts, unread manuals, craft progress\n"
                     "**Combat stats** — HP, strength, agility, defense (for button fights)\n"
                     "**Resources** — spirit stones\n"
-                    "**Qi gathering** — passive **Qi/min** while away + **`/cultivate`** preview (pills boost active only)",
+                    "**Qi gathering** — **formation bank** (passive **Qi/min** while offline) + **`/cultivate`** preview (pills boost active only)",
                 ),
                 (
                     "Profile buttons",
-                    "**Cultivate** — same as **`/cultivate`** (collects banked passive qi + active roll)\n"
+                    "**Cultivate** — same as **`/cultivate`** (absorbs formation bank + active roll)\n"
                     "**Breakthrough** — same as **`/breakthrough`** when qi is full\n\n"
-                    f"{subtext(f'Passive qi accrues at a fixed rate while away (up to {OFFLINE_QI_CAP_MINUTES} min banked)')}",
+                    f"{subtext(f'Passive qi scales with your cap — bank holds up to {PASSIVE_BANK_CAP_FRACTION_PCT}% (~{PASSIVE_FILL_HOURS}h to fill)')}",
                 ),
             ],
             author="Chapter 4 · Profile",
@@ -233,7 +234,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                 (
                     "Dao events & breakthrough",
                     f"{quote(f'~{dao_chance * 100:.0f}% dao event chance per cultivate — Spirit Surge, Heavenly Glimpse, Scripture Whisper, and more.')}\n"
-                    "**Passive qi** — **`/profile`** shows your **Qi/min** while inactive; banked on any action.\n"
+                    "**Passive qi** — **`/profile`** shows **Qi/min** into your formation bank while offline; absorbs on profile/cultivate/breakthrough.\n"
                     f"**`/cultivate` rolls** — ~{CULTIVATE_FRAGMENT_CHANCE * 100:.0f}% technique fragment · ~{CULTIVATE_MANUAL_CHANCE * 100:.1f}% manual.\n\n"
                     "**Daily streak** on `/profile` boosts stipend stones.\n"
                     "**Clarity pills** boost breakthrough stability for one attempt.\n"

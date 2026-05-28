@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from .character import get_character_modifiers
 from .config import Config
 from .cooldown_haste import consume_haste_for_activity
-from .game import apply_offline_progress, to_utc, utcnow
+from .game import collect_passive_qi, to_utc, utcnow
 from .models import ActivePvpMatch, PendingDuel, Player
 from .pvp_combat import PvpCombatState, create_pvp_combat_state, deserialize_pvp_state, serialize_pvp_state
 
@@ -124,10 +124,14 @@ def finalize_pvp_match(
     if challenger is None or opponent is None:
         raise ValueError("PvP match players missing.")
 
-    offline_qi = apply_offline_progress(challenger, now, cfg.offline_cap_minutes)
-    if offline_qi > 0:
-        challenger.qi += offline_qi
-        challenger.last_active_at = now
+    from .character import get_character_modifiers
+
+    collect_passive_qi(
+        challenger,
+        now,
+        cap_mult=get_character_modifiers(session, challenger).offline_cap_mult,
+    )
+    challenger.last_active_at = now
 
     winner = challenger if state.winner_discord_id == challenger.discord_id else opponent
     loser = opponent if winner is challenger else challenger

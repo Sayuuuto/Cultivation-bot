@@ -139,9 +139,37 @@ def _migrate_player_columns(engine) -> None:
             "foundation_meridian_json": "VARCHAR(512) DEFAULT '{}'",
             "meridian_points": "INTEGER DEFAULT 0",
             "body_temper_charges": "INTEGER DEFAULT 0",
+            "passive_qi_bank": "INTEGER DEFAULT 0",
+            "passive_accrual_at": "DATETIME",
         },
     )
+    _migrate_passive_qi_backfill(engine)
     _migrate_novice_trial_existing_players(engine)
+
+
+def _migrate_passive_qi_backfill(engine) -> None:
+    """Seed passive accrual clock from last activity so existing players keep continuity."""
+    with engine.connect() as conn:
+        rows = conn.execute(text("PRAGMA table_info(players)")).fetchall()
+        if not rows:
+            return
+        columns = {row[1] for row in rows}
+        if "passive_accrual_at" not in columns:
+            return
+        if "last_active_at" in columns:
+            conn.execute(
+                text(
+                    "UPDATE players SET passive_accrual_at = last_active_at "
+                    "WHERE passive_accrual_at IS NULL AND last_active_at IS NOT NULL"
+                )
+            )
+        conn.execute(
+            text(
+                "UPDATE players SET passive_accrual_at = CURRENT_TIMESTAMP "
+                "WHERE passive_accrual_at IS NULL"
+            )
+        )
+        conn.commit()
 
 
 def _migrate_novice_trial_existing_players(engine) -> None:

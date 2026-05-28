@@ -312,7 +312,6 @@ def _new_adventure_state(player: Player, area: AreaDef, stance: str) -> dict:
         "rare_events": [],
         "segments_cleared": 0,
         "segments_since_rare": 0,
-        "qi_penalty": 0,
         "failed_run": False,
         "realm_gap": gap,
     }
@@ -576,9 +575,9 @@ def _resolve_combat_segment(
         state.pop("combat_monster_id", None)
         _apply_combat_stance_karma(player, stance, state)
     else:
-        penalty = max(5, 8 + area.min_realm * 3)
-        state["qi_penalty"] = int(state.get("qi_penalty", 0)) + penalty
-        state["messages"].append(f"You were driven back from combat ({penalty} qi lost).")
+        state["messages"].append(
+            "You were driven back from combat — wounds ache, but your cultivation core holds steady."
+        )
         return False, True
 
     segments_since_rare = int(state.get("segments_since_rare", 0))
@@ -893,10 +892,8 @@ def _resolve_segment(
     power = compute_adventure_power(mod, player)
 
     if allow_catastrophic and rng.random() < choice.fail_chance:
-        penalty = max(5, 8 + area.min_realm * 3)
-        state["qi_penalty"] = int(state.get("qi_penalty", 0)) + penalty
         state["messages"].append(
-            f"Your choice — **{choice.label}** — backfires. You retreat, qi churning ({penalty} lost)."
+            f"Your choice — **{choice.label}** — backfires. You retreat battered; your stored qi remains untouched."
         )
         return False, True
 
@@ -944,10 +941,8 @@ def _resolve_segment(
         state["messages"].append(f"**{choice.label}** pays off — you gather spoils.")
         _apply_choice_rewards(session, player, choice, state, rng)
     else:
-        penalty = max(3, 5 + area.min_realm * 2)
-        state["qi_penalty"] = int(state.get("qi_penalty", 0)) + penalty
         state["messages"].append(
-            f"**{choice.label}** falters. You are forced back ({penalty} qi lost)."
+            f"**{choice.label}** falters. You are forced back — the setback costs you time, not qi."
         )
 
     segments_since_rare = int(state.get("segments_since_rare", 0))
@@ -1136,9 +1131,6 @@ def _finalize_adventure(
     for item_id, qty in drops.items():
         add_item(session, player.id, item_id, qty)
 
-    qi_penalty = int(state.get("qi_penalty", 0))
-    player.qi = max(0, player.qi - qi_penalty)
-
     segments_cleared = int(state.get("segments_cleared", 0))
     failed_run = bool(state.get("failed_run", False))
     if failed_run and segments_cleared == 0:
@@ -1151,7 +1143,7 @@ def _finalize_adventure(
         outcome = "fail"
 
     rare_events = list(state.get("rare_events", []))
-    rewards_json = json.dumps({"drops": drops, "rare_events": rare_events, "qi_penalty": qi_penalty})
+    rewards_json = json.dumps({"drops": drops, "rare_events": rare_events})
     session.add(
         AdventureRun(
             player_id=player.id,
@@ -1168,9 +1160,6 @@ def _finalize_adventure(
     drop_lines = [f"{get_item_name(k)} ×{v}" for k, v in sorted(drops.items())]
     if drop_lines:
         messages.append("Loot: " + ", ".join(drop_lines))
-    if qi_penalty:
-        messages.append(f"You lose {qi_penalty} qi from the journey.")
-
     adventure_success = outcome == "success"
     if adventure_success:
         from .game_sects import on_sect_activity
@@ -1189,7 +1178,7 @@ def _finalize_adventure(
         drops=drops,
         rare_events=rare_events,
         messages=messages,
-        qi_delta=-qi_penalty,
+        qi_delta=0,
         failed_run=failed_run,
     )
 

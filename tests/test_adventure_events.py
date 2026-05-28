@@ -193,7 +193,6 @@ def test_each_rare_event_triggers_during_adventure_segment(
         "messages": [],
         "rare_events": [],
         "segments_cleared": 0,
-        "qi_penalty": 0,
     }
     roll = randint_for_weighted_event(area.rare_events, event_id)
     rng = ScriptedRNG(
@@ -227,7 +226,6 @@ def test_each_rare_event_triggers_in_live_segment_flow(session, player: Player, 
             "messages": [],
             "rare_events": [],
             "segments_cleared": 0,
-            "qi_penalty": 0,
         }
         roll = randint_for_weighted_event(area.rare_events, event.id)
         rng = ScriptedRNG(
@@ -368,7 +366,6 @@ def test_pity_counter_increments_without_rare(session, player: Player):
         "rare_events": [],
         "segments_cleared": 0,
         "segments_since_rare": 2,
-        "qi_penalty": 0,
     }
     safe_choice = AdventureChoice("safe", "Play it safe", 0.15, 1.0, 0.0)
     rng = ScriptedRNG(floats=safe_adventure_segment_floats(trigger_rare=False))
@@ -389,7 +386,7 @@ def test_choice_shifts_karma_without_zero_neutral(session, player: Player):
     player.realm_index = 0
     session.commit()
     area = get_area("bamboo_grove")
-    state = {"drops": {}, "messages": [], "rare_events": [], "segments_cleared": 0, "qi_penalty": 0}
+    state = {"drops": {}, "messages": [], "rare_events": [], "segments_cleared": 0}
     rng = ScriptedRNG(floats=safe_adventure_segment_floats())
 
     before = player.karma
@@ -397,14 +394,14 @@ def test_choice_shifts_karma_without_zero_neutral(session, player: Player):
     assert player.karma > before
 
     player.karma = before
-    state = {"drops": {}, "messages": [], "rare_events": [], "segments_cleared": 0, "qi_penalty": 0}
+    state = {"drops": {}, "messages": [], "rare_events": [], "segments_cleared": 0}
     _resolve_segment(session, player, area, "balanced", rob_choice, state, rng)
     assert player.karma < before
 
 
 def test_combat_victory_shifts_karma(session, player: Player):
     area = get_area("bamboo_grove")
-    state = {"drops": {}, "messages": [], "rare_events": [], "segments_cleared": 0, "qi_penalty": 0}
+    state = {"drops": {}, "messages": [], "rare_events": [], "segments_cleared": 0}
     rng = ScriptedRNG(floats=safe_adventure_segment_floats(trigger_rare=False))
     before = player.karma
     _resolve_combat_segment(session, player, area, "reckless", state, rng, victory=True)

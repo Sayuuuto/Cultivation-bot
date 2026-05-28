@@ -62,6 +62,9 @@ class Player(Base):
     substage: Mapped[int] = mapped_column(Integer, default=0)  # 0..2
     qi: Mapped[int] = mapped_column(Integer, default=0)
     spirit_stones: Mapped[int] = mapped_column(Integer, default=0)
+    # Passive qi accrues into bank while away; collected on profile/cultivate/breakthrough prep.
+    passive_qi_bank: Mapped[int] = mapped_column(Integer, default=0)
+    passive_accrual_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Times
     last_cultivate_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

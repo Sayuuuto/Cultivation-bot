@@ -152,7 +152,7 @@ from .game import (
     breakthrough,
     compute_daily_rewards,
     cultivate,
-    apply_offline_progress,
+    collect_passive_qi,
     qi_cap,
     utcnow,
     compute_breakthrough_preview,
@@ -1353,14 +1353,7 @@ class CultivateButton(discord.ui.Button):
                 )
                 return
 
-            # Apply offline progress on cultivate.
             mod = get_character_modifiers(session, player)
-            passive_before = apply_offline_progress(
-                player, now, self.cfg.offline_cap_minutes, cap_mult=mod.offline_cap_mult
-            )
-            if passive_before > 0:
-                player.qi += passive_before
-                player.last_active_at = now
 
             clan = None
             if player.clan_id is not None:
@@ -1395,7 +1388,7 @@ class CultivateButton(discord.ui.Button):
                 res,
                 player,
                 realm_display=realm_display(player.realm_index, player.substage),
-                passive_qi=passive_before,
+                passive_qi=res.passive_qi_collected,
                 applied_drops=applied_drops,
             )
             attach_guidance(embed, "cultivate", player, session, self.cfg, now)
@@ -1406,9 +1399,7 @@ class CultivateButton(discord.ui.Button):
 
 async def _prepare_player_for_breakthrough(session, player, cfg, now) -> None:
     mod = get_character_modifiers(session, player)
-    offline_qi = apply_offline_progress(player, now, cfg.offline_cap_minutes, cap_mult=mod.offline_cap_mult)
-    if offline_qi > 0:
-        player.qi += offline_qi
+    collect_passive_qi(player, now, cap_mult=mod.offline_cap_mult)
     player.last_active_at = now
 
 
@@ -1890,6 +1881,7 @@ async def start_cmd(
             last_daily_streak_claimed_at=None,
             last_pvp_at=None,
             last_active_at=now,
+            passive_accrual_at=now,
             daily_streak=0,
             clan_id=None,
             clan_role="member",
@@ -2177,11 +2169,7 @@ async def profile_cmd(interaction: discord.Interaction):
             player.substage,
         )
         mod = get_character_modifiers(session, player)
-        offline_qi = apply_offline_progress(player, now, cfg.offline_cap_minutes, cap_mult=mod.offline_cap_mult)
-        if offline_qi > 0:
-            player.qi += offline_qi
-            player.last_active_at = now
-
+        offline_qi = collect_passive_qi(player, now, cap_mult=mod.offline_cap_mult)
         player.last_active_at = now
         session.add(player)
         session.commit()
@@ -2217,7 +2205,7 @@ async def profile_cmd(interaction: discord.Interaction):
         content_parts: list[str] = []
         if offline_qi > 0:
             content_parts.append(
-                f"While you were away: **+{offline_qi}** passive Qi was added to your pool."
+                f"Your formation bank released **+{offline_qi} Qi** into your cultivation pool."
             )
 
         from .guidance import format_guidance_content
@@ -2951,12 +2939,6 @@ async def cultivate_cmd(interaction: discord.Interaction):
             player.substage,
         )
         mod = get_character_modifiers(session, player)
-        passive_before = apply_offline_progress(
-            player, now, cfg.offline_cap_minutes, cap_mult=mod.offline_cap_mult
-        )
-        if passive_before > 0:
-            player.qi += passive_before
-            player.last_active_at = now
 
         clan = None
         if player.clan_id is not None:
@@ -2993,7 +2975,7 @@ async def cultivate_cmd(interaction: discord.Interaction):
             res,
             player,
             realm_display=realm_display(player.realm_index, player.substage),
-            passive_qi=passive_before,
+            passive_qi=res.passive_qi_collected,
             applied_drops=applied_drops,
         )
         attach_guidance(embed, "cultivate", player, session, cfg, now)
@@ -3055,12 +3037,9 @@ async def daily_cmd(interaction: discord.Interaction):
             return
 
         now = utcnow()
-        # Offline Qi cap (daily still counts as an action).
         mod = get_character_modifiers(session, player)
-        offline_qi = apply_offline_progress(player, now, cfg.offline_cap_minutes, cap_mult=mod.offline_cap_mult)
-        if offline_qi > 0:
-            player.qi += offline_qi
-            player.last_active_at = now
+        collect_passive_qi(player, now, cap_mult=mod.offline_cap_mult)
+        player.last_active_at = now
 
         daily_remaining = activity_cooldown_remaining(
             session,

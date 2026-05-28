@@ -101,9 +101,6 @@ def run_dungeon(
     messages: list[str] = [f"You descend into **{dungeon.name}** ({mode})."]
     segments_cleared = 0
     drops: dict[str, int] = {}
-    qi_penalty = 0
-    blood_ember_active = "blood_ember" in mod.active_effects
-
     for segment in range(1, dungeon.segments + 1):
         chance = dungeon.base_success + mod.dungeon_damage * 0.5 + mod.adventure_success * 0.3
         chance += mod.dungeon_luck
@@ -114,8 +111,9 @@ def run_dungeon(
             segments_cleared += 1
             messages.append(f"Encounter {segment}: cleared.")
         else:
-            qi_penalty += 8 + dungeon.min_realm * 3
-            messages.append(f"Encounter {segment}: you take a heavy blow.")
+            messages.append(
+                f"Encounter {segment}: you take a heavy blow — your formation holds your qi intact."
+            )
 
     boss_chance = dungeon.boss_success + mod.dungeon_damage * 0.4 + mod.dungeon_luck * 0.5
     boss_chance -= mod.dungeon_risk
@@ -164,11 +162,9 @@ def run_dungeon(
         outcome = "success"
     else:
         outcome = "fail"
-        extra = int(qi_penalty * (0.5 + mod.dungeon_risk))
-        if blood_ember_active:
-            extra = int(extra * 1.5)
-        qi_penalty += extra
-        messages.append("The boss overwhelms you. You retreat through gritted teeth.")
+        messages.append(
+            "The boss overwhelms you. You retreat through gritted teeth — cultivation qi untouched."
+        )
 
     consume_effect_charge(session, player.id, "blood_ember")
     consume_effect_charge(session, player.id, "tempering")
@@ -178,12 +174,9 @@ def run_dungeon(
     for item_id, qty in drops.items():
         add_item(session, player.id, item_id, qty)
 
-    player.qi = max(0, player.qi - qi_penalty)
-
     rewards_json = json.dumps(
         {
             "drops": drops,
-            "qi_penalty": qi_penalty,
             "boss_win": boss_win,
             "weekly_manual": weekly_manual_id if boss_win else None,
         }
@@ -201,9 +194,6 @@ def run_dungeon(
     if drops:
         drop_lines = [f"{get_item_name(k)} ×{v}" for k, v in sorted(drops.items())]
         messages.append("Rewards: " + ", ".join(drop_lines))
-    if qi_penalty:
-        messages.append(f"Qi lost: {qi_penalty}.")
-
     if boss_win:
         from .game_sects import on_sect_activity
 
@@ -216,5 +206,5 @@ def run_dungeon(
         segments_cleared=segments_cleared,
         drops=drops,
         messages=messages,
-        qi_delta=-qi_penalty,
+        qi_delta=0,
     )

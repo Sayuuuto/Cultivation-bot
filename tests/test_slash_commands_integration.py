@@ -69,6 +69,7 @@ def ready_player(session, integration_env):
             qi=0,
             spirit_stones=0,
             last_active_at=now,
+            passive_accrual_at=now,
         )
         session.add(row)
         session.flush()

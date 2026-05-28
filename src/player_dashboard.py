@@ -212,8 +212,8 @@ def build_profile_embed(
 
     if offline_qi > 0:
         embed.add_field(
-            name="Collected just now",
-            value=f"**+{offline_qi} passive Qi** from time away was added to your pool.",
+            name="Formation bank absorbed",
+            value=f"**+{offline_qi} Qi** from your formation bank flowed into your cultivation pool.",
             inline=False,
         )
 

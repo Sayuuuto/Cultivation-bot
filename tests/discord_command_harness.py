@@ -186,8 +186,12 @@ def make_mock_interaction(
     guild = MagicMock()
     guild.id = guild_id
     guild.name = "Test Guild"
+    dungeon_category = MagicMock()
+    dungeon_category.name = "Dungeons"
+    guild.categories = [dungeon_category]
     channel = MagicMock()
     channel.id = 888888888888888888
+    channel.send = AsyncMock()
 
     captured = CapturedInteractionPayload()
     followup = _MockFollowup(captured)
@@ -214,6 +218,8 @@ def install_bot_db_patch(session: Session, monkeypatch: Any) -> None:
 
     monkeypatch.setattr("src.db.get_session", _test_session)
     monkeypatch.setattr("src.bot.get_session", _test_session)
+    monkeypatch.setattr("src.dungeon_discord.get_session", _test_session)
+    monkeypatch.setattr("src.autocomplete_cache.get_session", _test_session)
 
 
 def install_discord_stubs(monkeypatch: Any) -> None:
@@ -229,6 +235,26 @@ def install_discord_stubs(monkeypatch: Any) -> None:
 
     monkeypatch.setattr("src.discord_guild.provision_new_cultivator", _noop_provision)
     monkeypatch.setattr("src.bot.provision_new_cultivator", _noop_provision)
+
+    async def _mock_dungeon_channel(*args: Any, **kwargs: Any) -> MagicMock:
+        ch = MagicMock()
+        ch.id = 777777777777777777
+        ch.mention = "#dungeon-test"
+        combat_msg = MagicMock()
+        combat_msg.id = 888888888888888889
+        ch.send = AsyncMock(return_value=combat_msg)
+        return ch
+
+    monkeypatch.setattr("src.dungeon_discord._create_dungeon_channel", _mock_dungeon_channel)
+
+    async def _noop_post_log(*args: Any, **kwargs: Any) -> None:
+        return None
+
+    async def _noop_sync_ui(*args: Any, **kwargs: Any) -> None:
+        return None
+
+    monkeypatch.setattr("src.dungeon_discord._post_new_log_lines", _noop_post_log)
+    monkeypatch.setattr("src.dungeon_discord._sync_combat_ui", _noop_sync_ui)
 
 
 def resolve_slash_command(tree: app_commands.CommandTree, qualified_name: str) -> app_commands.Command:

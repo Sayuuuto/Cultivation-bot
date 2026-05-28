@@ -8,7 +8,15 @@ from src.character import get_character_modifiers
 from src.config import Config
 from src.cultivation_preview import preview_cultivate_qi, preview_passive_qi
 from src.effects import add_effect
-from src.game import compute_breakthrough_preview, passive_qi_per_minute, qi_cap
+from src.game import (
+    CULTIVATE_QI_CAP_FRACTION,
+    PASSIVE_BANK_CAP_FRACTION,
+    compute_breakthrough_preview,
+    passive_qi_per_minute,
+    preview_passive_bank,
+    qi_cap,
+    sync_passive_qi_bank,
+)
 from src.karma import karma_breakthrough_modifiers
 from src.models import Player
 
@@ -35,14 +43,14 @@ def now() -> datetime:
 
 
 def test_preview_passive_qi_after_inactivity(session, player, cfg, now):
-    player.last_active_at = now - timedelta(minutes=45)
+    player.passive_accrual_at = now - timedelta(minutes=45)
     session.add(player)
     session.commit()
 
-    qi, minutes, cap = preview_passive_qi(player, now, cfg.offline_cap_minutes)
-    assert qi > 0
+    qi, minutes, bank_cap = preview_passive_qi(player, now, cfg.offline_cap_minutes)
+    assert qi > player.passive_qi_bank
     assert minutes == 45
-    assert cap == cfg.offline_cap_minutes
+    assert bank_cap == int(qi_cap(player.realm_index, player.substage, player) * PASSIVE_BANK_CAP_FRACTION)
 
 
 def test_preview_cultivate_qi_range(session, player, cfg, now):
@@ -51,15 +59,37 @@ def test_preview_cultivate_qi_range(session, player, cfg, now):
 
     assert preview.active_qi_min <= preview.active_qi_typical <= preview.active_qi_max
     assert preview.qi_cap == qi_cap(player.realm_index, player.substage)
-    assert preview.passive_qi_per_minute == pytest.approx(passive_qi_per_minute(player.realm_index))
+    cap = qi_cap(player.realm_index, player.substage, player)
+    expected_rate = cap / (12.0 * 60.0)
+    assert preview.passive_qi_per_minute == pytest.approx(expected_rate)
 
 
-def test_passive_qi_per_minute_matches_offline_formula(player, cfg, now):
-    player.last_active_at = now - timedelta(minutes=30)
-    per_min = passive_qi_per_minute(player.realm_index)
-    qi, minutes, _ = preview_passive_qi(player, now, cfg.offline_cap_minutes)
+def test_passive_qi_scales_with_cap_and_sync(session, player, cfg, now):
+    player.passive_accrual_at = now - timedelta(minutes=30)
+    session.add(player)
+    session.commit()
+
+    cap = qi_cap(player.realm_index, player.substage, player)
+    per_min = passive_qi_per_minute(
+        player.realm_index,
+        substage=player.substage,
+        player=player,
+    )
+    bank_after, minutes, bank_cap, _ = preview_passive_bank(player, now)
     assert minutes == 30
-    assert qi == int(per_min * 30)
+    assert bank_after == min(
+        int(cap * PASSIVE_BANK_CAP_FRACTION),
+        player.passive_qi_bank + int(per_min * 30),
+    )
+
+    sync_passive_qi_bank(player, now)
+    assert player.passive_qi_bank == bank_after
+
+
+def test_cultivate_gain_scales_with_cap(player):
+    cap = qi_cap(0, 0)
+    gain = int(cap * CULTIVATE_QI_CAP_FRACTION)
+    assert gain == 12  # 100 * 0.125
 
 
 def test_mortal_breakthrough_base_is_ninety_percent(session, player, cfg):

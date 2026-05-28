@@ -43,13 +43,13 @@ def build_cultivate_embed(
 
     embed = discord.Embed(title=title, description=description, color=color)
 
-    active_qi = max(0, res.qi_gain - passive_qi)
+    active_qi = res.active_qi_gain if res.active_qi_gain else max(0, res.qi_gain - passive_qi)
     embed.add_field(
         name="🌙 Passive Qi",
         value=(
-            f"**+{passive_qi} Qi** from time away"
+            f"**+{passive_qi} Qi** from formation bank"
             if passive_qi > 0
-            else "_No passive qi banked this time._"
+            else "_Formation bank was empty this cultivate._"
         ),
         inline=True,
     )

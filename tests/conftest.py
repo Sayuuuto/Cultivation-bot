@@ -34,6 +34,9 @@ def session() -> Session:
         future=True,
     )
     Base.metadata.create_all(engine)
+    from src.db import _migrate_player_columns
+
+    _migrate_player_columns(engine)
     factory = sessionmaker(bind=engine, autocommit=False, autoflush=False, future=True)
     db = factory()
     try:
@@ -61,6 +64,7 @@ def player(session: Session) -> Player:
         qi=0,
         spirit_stones=0,
         last_active_at=now,
+        passive_accrual_at=now,
     )
     session.add(p)
     session.commit()
@@ -86,6 +90,7 @@ def player_two(session: Session) -> Player:
         qi=50,
         spirit_stones=100,
         last_active_at=now,
+        passive_accrual_at=now,
     )
     session.add(p)
     session.commit()

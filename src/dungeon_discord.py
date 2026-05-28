@@ -47,8 +47,9 @@ from .ui.formatting import technique_button_emoji
 logger = logging.getLogger(__name__)
 
 NOT_STARTED_HINT = "Begin your path with **`/start`** first."
-# Ephemeral combat panels — only the acting player sees technique/target buttons.
-COMBAT_EPHEMERAL = True
+# Ephemeral only for denial toasts; combat buttons live on the pinned channel card.
+COMBAT_EPHEMERAL = False
+COMBAT_DENY_EPHEMERAL = True
 
 
 async def coop_dungeon_autocomplete(
@@ -171,39 +172,6 @@ class DungeonInviteView(discord.ui.View):
             session.close()
 
 
-class DungeonOpenPanelView(discord.ui.View):
-    """Pinned status card — one button; only the current actor may open their private panel."""
-
-    def __init__(self, party_id: int, actor_discord_id: str, participant_ids: set[str]):
-        super().__init__(timeout=900)
-        self.party_id = party_id
-        self.actor_discord_id = actor_discord_id
-        self.participant_ids = participant_ids
-        btn = discord.ui.Button(
-            label="Open your combat panel",
-            style=discord.ButtonStyle.primary,
-            custom_id=f"dungeon:{party_id}:open_panel",
-        )
-        btn.callback = self._open_panel
-        self.add_item(btn)
-
-    async def _open_panel(self, interaction: discord.Interaction) -> None:
-        from .bot import get_discord_id
-
-        uid = get_discord_id(interaction.user)
-        if uid not in self.participant_ids:
-            await interaction.response.send_message(
-                "This expedition is not yours.", ephemeral=COMBAT_EPHEMERAL
-            )
-            return
-        if uid != self.actor_discord_id:
-            await interaction.response.send_message(
-                "Wait for your turn.", ephemeral=COMBAT_EPHEMERAL
-            )
-            return
-        await _send_actor_combat_panel(interaction, self.party_id)
-
-
 class DungeonCombatView(discord.ui.View):
     def __init__(
         self,
@@ -230,14 +198,12 @@ class DungeonCombatView(discord.ui.View):
                 btn = discord.ui.Button(
                     label=f"🎯 {enemy.name}"[:80],
                     style=discord.ButtonStyle.danger,
-                    custom_id=f"dungeon:{party_id}:target:{enemy.fighter_id}",
                 )
                 btn.callback = self._make_target_callback(enemy.fighter_id)
                 self.add_item(btn)
             cancel = discord.ui.Button(
                 label="↩ Cancel",
                 style=discord.ButtonStyle.secondary,
-                custom_id=f"dungeon:{party_id}:cancel_target",
             )
             cancel.callback = self._make_cancel_callback()
             self.add_item(cancel)
@@ -262,7 +228,6 @@ class DungeonCombatView(discord.ui.View):
                 button = discord.ui.Button(
                     label=label[:80],
                     style=style,
-                    custom_id=f"dungeon:{party_id}:s{slot_idx}:{tech.technique_id}",
                     disabled=cd > 0 or sealed_blocked,
                 )
                 button.callback = self._make_technique_callback(tech.technique_id)
@@ -292,12 +257,12 @@ class DungeonCombatView(discord.ui.View):
         uid = get_discord_id(interaction.user)
         if uid not in self.participant_ids:
             await interaction.response.send_message(
-                "This expedition is not yours.", ephemeral=COMBAT_EPHEMERAL
+                "This expedition is not yours.", ephemeral=COMBAT_DENY_EPHEMERAL
             )
             return False
         if uid != self.actor_discord_id:
             await interaction.response.send_message(
-                "Wait for your turn.", ephemeral=COMBAT_EPHEMERAL
+                "Wait for your turn.", ephemeral=COMBAT_DENY_EPHEMERAL
             )
             return False
         return True
@@ -405,7 +370,8 @@ async def _launch_dungeon(
     session.commit()
 
     embed = build_dungeon_combat_embed(party, state)
-    combat_msg = await channel.send(embed=embed)
+    launch_view = _combat_message_view(party, state)
+    combat_msg = await channel.send(embed=embed, view=launch_view)
     party.combat_message_id = str(combat_msg.id)
     state.log_cursor = len(state.log)
     save_combat_state(party, state)
@@ -485,33 +451,9 @@ def _build_combat_panel_view(party: ActiveDungeonParty, state) -> DungeonCombatV
         session.close()
 
 
-async def _send_actor_combat_panel(interaction: discord.Interaction, party_id: int) -> None:
-    session = get_session()
-    try:
-        party = session.get(ActiveDungeonParty, party_id)
-        if party is None or party.status != "in_combat":
-            await interaction.response.send_message(
-                "This expedition is not active.", ephemeral=COMBAT_EPHEMERAL
-            )
-            return
-        state = load_combat_state(party)
-        if state is None:
-            await interaction.response.send_message(
-                "No active combat.", ephemeral=COMBAT_EPHEMERAL
-            )
-            return
-        view = _build_combat_panel_view(party, state)
-        if view is None:
-            await interaction.response.send_message(
-                "Combat has ended or it is not your turn.", ephemeral=COMBAT_EPHEMERAL
-            )
-            return
-        embed = build_dungeon_combat_embed(party, state)
-        await interaction.response.send_message(
-            embed=embed, view=view, ephemeral=COMBAT_EPHEMERAL
-        )
-    finally:
-        session.close()
+def _combat_message_view(party: ActiveDungeonParty, state) -> DungeonCombatView | None:
+    """Full technique/target buttons on the pinned card when a player may act."""
+    return _build_combat_panel_view(party, state)
 
 
 async def _after_combat_action(session, party, state, rng, cfg) -> object:
@@ -571,22 +513,13 @@ async def _sync_combat_ui(
         return
 
     actor = state.current_actor()
-    status_view: discord.ui.View | None = None
-    if (
-        not state.finished
-        and actor
-        and not actor.is_enemy
-        and actor.fighter_id
-    ):
-        status_view = DungeonOpenPanelView(
-            party.id,
-            actor.fighter_id,
-            member_discord_ids(party),
-        )
+    combat_view: discord.ui.View | None = None
+    if not state.finished and actor and not actor.is_enemy and actor.fighter_id:
+        combat_view = _combat_message_view(party, state)
     embed = build_dungeon_combat_embed(party, state)
     try:
         msg = await channel.fetch_message(int(party.combat_message_id))
-        await msg.edit(embed=embed, view=status_view)
+        await msg.edit(embed=embed, view=combat_view)
     except discord.HTTPException:
         logger.exception("Failed to refresh dungeon status party=%s", party.id)
 
@@ -595,25 +528,13 @@ async def _sync_combat_ui(
         and not state.finished
         and actor
         and not actor.is_enemy
+        and actor.fighter_id
     ):
         from .bot import get_discord_id
 
-        if get_discord_id(interaction.user) == actor.fighter_id:
-            panel = _build_combat_panel_view(party, state)
-            if panel is not None:
-                try:
-                    await interaction.followup.send(
-                        embed=embed,
-                        view=panel,
-                        ephemeral=COMBAT_EPHEMERAL,
-                    )
-                except discord.HTTPException:
-                    pass
-        elif actor.discord_id:
+        if get_discord_id(interaction.user) != actor.fighter_id:
             try:
-                await channel.send(
-                    f"<@{actor.discord_id}> — your turn. Use **Open your combat panel** on the pinned card."
-                )
+                await channel.send(f"<@{actor.fighter_id}> — your turn. Use the buttons on the combat card above.")
             except discord.HTTPException:
                 pass
 

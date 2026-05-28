@@ -9,13 +9,16 @@ from src.character import get_character_modifiers
 from src.config import Config
 from src.effects import add_effect
 from src.game import (
-    apply_offline_progress,
+    CULTIVATE_QI_CAP_FRACTION,
     breakthrough,
+    collect_passive_qi,
     compute_breakthrough_preview,
     compute_daily_rewards,
     cultivate,
     duel,
+    passive_bank_cap_qi,
     qi_cap,
+    sync_passive_qi_bank,
     to_utc,
 )
 from src.models import Player
@@ -34,11 +37,24 @@ def test_to_utc_handles_naive_and_aware():
     assert to_utc(aware) == aware
 
 
-def test_offline_progress_with_naive_last_active(player: Player, cfg: Config):
+def test_passive_bank_accrues_with_naive_clock(player: Player, cfg: Config):
     now = datetime.now(timezone.utc)
-    player.last_active_at = (now - timedelta(hours=1)).replace(tzinfo=None)
-    qi = apply_offline_progress(player, now, cfg.offline_cap_minutes)
-    assert qi > 0
+    player.passive_accrual_at = (now - timedelta(hours=1)).replace(tzinfo=None)
+    player.passive_qi_bank = 0
+    sync_passive_qi_bank(player, now)
+    bank_cap = passive_bank_cap_qi(player.realm_index, substage=player.substage, player=player)
+    assert 0 < player.passive_qi_bank <= bank_cap
+
+
+def test_collect_passive_qi_moves_bank_to_pool(player: Player, cfg: Config):
+    now = datetime.now(timezone.utc)
+    player.passive_accrual_at = now - timedelta(hours=2)
+    player.passive_qi_bank = 0
+    before = player.qi
+    collected = collect_passive_qi(player, now)
+    assert collected > 0
+    assert player.qi == before + collected
+    assert player.passive_qi_bank == 0
 
 
 def test_cultivate_increases_qi(player: Player, cfg: Config):

@@ -92,7 +92,7 @@ def test_full_interactive_adventure_two_segments_grants_inventory(session, playe
     assert run_count == 1
 
 
-def test_catastrophic_choice_ends_run_early_with_qi_loss(session, player):
+def test_catastrophic_choice_ends_run_early_without_qi_loss(session, player):
     player.realm_index = 1
     player.qi = 30
     session.commit()
@@ -115,7 +115,7 @@ def test_catastrophic_choice_ends_run_early_with_qi_loss(session, player):
     assert result.failed_run is True
     assert result.outcome == "fail"
     assert result.segments_cleared == 0
-    assert player.qi < 30
+    assert player.qi == 30
     assert get_active_adventure(session, player.id) is None
 
 

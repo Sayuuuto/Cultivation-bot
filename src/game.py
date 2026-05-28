@@ -77,13 +77,141 @@ def daily_qi_bonus(realm_index: int) -> int:
     return 10 + realm_index * 2
 
 
-def cultivate_base_qi_gain(realm_index: int) -> int:
-    return 10 + realm_index * 2
+# ~8 cultivates fill a substage cap; passive fills half a cap over 12h at base rate.
+CULTIVATE_QI_CAP_FRACTION = 0.125
+PASSIVE_BANK_CAP_FRACTION = 0.50
+PASSIVE_FILL_HOURS = 12.0
 
 
-def passive_qi_per_minute(realm_index: int) -> float:
-    """Qi banked per minute while inactive; paid out on the player's next action."""
-    return cultivate_base_qi_gain(realm_index) / 15.0
+def _current_qi_cap(player: Player) -> int:
+    return qi_cap(player.realm_index, player.substage, player)
+
+
+def cultivate_base_qi_gain(realm_index: int, *, substage: int = 0, player: Player | None = None) -> int:
+    cap = _current_qi_cap(player) if player is not None else qi_cap(realm_index, substage)
+    return max(1, int(cap * CULTIVATE_QI_CAP_FRACTION))
+
+
+def passive_qi_per_minute(
+    realm_index: int,
+    *,
+    substage: int = 0,
+    player: Player | None = None,
+    cap_mult: float = 1.0,
+) -> float:
+    """Qi per minute into the passive bank; scales with substage cap."""
+    cap = _current_qi_cap(player) if player is not None else qi_cap(realm_index, substage)
+    minutes = PASSIVE_FILL_HOURS * 60.0
+    return (cap / minutes) * cap_mult if minutes > 0 else 0.0
+
+
+def passive_bank_cap_qi(realm_index: int, *, substage: int = 0, player: Player | None = None, cap_mult: float = 1.0) -> int:
+    cap = _current_qi_cap(player) if player is not None else qi_cap(realm_index, substage)
+    return max(1, int(cap * PASSIVE_BANK_CAP_FRACTION * cap_mult))
+
+
+def _ensure_passive_accrual_clock(player: Player, now: datetime) -> None:
+    if player.passive_accrual_at is None:
+        player.passive_accrual_at = to_utc(now)
+
+
+def sync_passive_qi_bank(player: Player, now: datetime, cap_mult: float = 1.0) -> int:
+    """
+    Lazy accrual: add elapsed minutes × rate into passive_qi_bank (capped).
+    Returns qi added to the bank this sync.
+    """
+    now = to_utc(now)
+    _ensure_passive_accrual_clock(player, now)
+    last = to_utc(player.passive_accrual_at)
+    if now <= last:
+        return 0
+
+    minutes = int((now - last).total_seconds() / 60)
+    if minutes <= 0:
+        return 0
+
+    bank_cap = passive_bank_cap_qi(
+        player.realm_index,
+        substage=player.substage,
+        player=player,
+        cap_mult=cap_mult,
+    )
+    if player.passive_qi_bank >= bank_cap:
+        player.passive_accrual_at = now
+        return 0
+
+    rate = passive_qi_per_minute(
+        player.realm_index,
+        substage=player.substage,
+        player=player,
+        cap_mult=cap_mult,
+    )
+    gain = int(rate * minutes)
+    before = player.passive_qi_bank
+    player.passive_qi_bank = min(bank_cap, before + gain)
+    player.passive_accrual_at = now
+    return player.passive_qi_bank - before
+
+
+def withdraw_passive_qi_to_pool(player: Player) -> int:
+    """Move banked passive qi into the cultivation pool."""
+    amount = max(0, player.passive_qi_bank)
+    if amount <= 0:
+        return 0
+    player.qi += amount
+    player.passive_qi_bank = 0
+    return amount
+
+
+def collect_passive_qi(player: Player, now: datetime, cap_mult: float = 1.0) -> int:
+    """Accrue then absorb banked passive qi into player.qi."""
+    sync_passive_qi_bank(player, now, cap_mult=cap_mult)
+    return withdraw_passive_qi_to_pool(player)
+
+
+def preview_passive_bank(
+    player: Player,
+    now: datetime,
+    cap_mult: float = 1.0,
+) -> tuple[int, int, int, float]:
+    """
+    Non-mutating preview: (bank_after_accrual, minutes_accrued, bank_cap_qi, rate_per_min).
+    """
+    now = to_utc(now)
+    cap = _current_qi_cap(player)
+    bank_cap = passive_bank_cap_qi(
+        player.realm_index,
+        substage=player.substage,
+        player=player,
+        cap_mult=cap_mult,
+    )
+    rate = passive_qi_per_minute(
+        player.realm_index,
+        substage=player.substage,
+        player=player,
+        cap_mult=cap_mult,
+    )
+    if player.passive_accrual_at is None:
+        return player.passive_qi_bank, 0, bank_cap, rate
+
+    last = to_utc(player.passive_accrual_at)
+    if now <= last:
+        return player.passive_qi_bank, 0, bank_cap, rate
+
+    minutes = int((now - last).total_seconds() / 60)
+    if minutes <= 0 or player.passive_qi_bank >= bank_cap:
+        return player.passive_qi_bank, 0, bank_cap, rate
+
+    gain = int(rate * minutes)
+    bank_after = min(bank_cap, player.passive_qi_bank + gain)
+    return bank_after, minutes, bank_cap, rate
+
+
+def apply_offline_progress(player: Player, now: datetime, offline_cap_minutes: int, cap_mult: float = 1.0) -> int:
+    """Legacy name: returns banked passive qi after accrual (does not withdraw)."""
+    _ = offline_cap_minutes
+    sync_passive_qi_bank(player, now, cap_mult=cap_mult)
+    return player.passive_qi_bank
 
 
 CULTIVATE_LUCK_MIN = 0.85
@@ -95,30 +223,6 @@ def cultivate_stone_chance(realm_index: int) -> float:
     return min(0.25, 0.12 + realm_index * 0.01)
 
 
-def apply_offline_progress(player: Player, now: datetime, offline_cap_minutes: int, cap_mult: float = 1.0) -> int:
-    """
-    Returns qi gained from offline progress.
-    Offline progress is capped to a small amount so players don't feel it becomes pay/clock abuse.
-    """
-    if player.last_active_at is None:
-        return 0
-
-    now = to_utc(now)
-    last_active = to_utc(player.last_active_at)
-    if now <= last_active:
-        return 0
-
-    minutes = int((now - last_active).total_seconds() / 60)
-    capped_minutes = min(minutes, int(offline_cap_minutes * cap_mult))
-    if capped_minutes <= 0:
-        return 0
-
-    avg_cultivate_qi = cultivate_base_qi_gain(player.realm_index)  # representative scale
-    # A cultivate is on 15min cooldown by default -> align offline minutes with typical action frequency.
-    qi = int(avg_cultivate_qi * capped_minutes / 15)
-    return max(0, qi)
-
-
 @dataclass(frozen=True)
 class CultivateResult:
     qi_gain: int
@@ -128,6 +232,8 @@ class CultivateResult:
     new_realm_index: int
     new_substage: int
     message: str
+    passive_qi_collected: int = 0
+    active_qi_gain: int = 0
     event_id: str | None = None
     event_title: str = ""
     event_emoji: str = ""
@@ -156,21 +262,18 @@ def cultivate(
     offline_mult = 1.0 if mod is None else getattr(mod, "offline_cap_mult", 1.0)
     clan_mult = 1.0 if mod is None else getattr(mod, "clan_contribution_mult", 1.0)
 
-    # Offline progress (partial cap) applied on the first action after being inactive.
-    offline_qi = 0
-    if player.last_active_at is not None:
-        offline_qi = apply_offline_progress(player, now, cfg.offline_cap_minutes, cap_mult=offline_mult)
-
+    passive_qi_collected = collect_passive_qi(player, now, cap_mult=offline_mult)
     player.last_active_at = now
 
-    base = cultivate_base_qi_gain(player.realm_index)
+    base = cultivate_base_qi_gain(player.realm_index, substage=player.substage, player=player)
     # Luck makes it feel less robotic without becoming pay-to-win.
     luck_roll = rng.uniform(0.85, 1.15)
     from .cultivate_events import roll_cultivate_event
     from .novice_trial import apply_novice_cultivate_boost, on_cultivated, should_force_first_cultivate_event
 
-    qi_gain = int(base * luck_roll * qi_mult) + offline_qi
-    qi_gain = apply_novice_cultivate_boost(player, max(0, qi_gain))
+    active_qi_gain = int(base * luck_roll * qi_mult)
+    active_qi_gain = apply_novice_cultivate_boost(player, max(0, active_qi_gain))
+    qi_gain = active_qi_gain + passive_qi_collected
 
     event = roll_cultivate_event(
         rng,
@@ -193,7 +296,8 @@ def cultivate(
         event_emoji = event.emoji
         event_message = event.message
         event_qi_mult = event.qi_mult
-        qi_gain = max(0, int(qi_gain * event.qi_mult) + event.bonus_qi)
+        active_qi_gain = max(0, int(active_qi_gain * event.qi_mult) + event.bonus_qi)
+        qi_gain = active_qi_gain + passive_qi_collected
         bonus_drops = dict(event.drops)
         if event.meridian_points > 0:
             from .foundation import grant_meridian_points
@@ -263,6 +367,8 @@ def cultivate(
         new_realm_index=new_realm_index,
         new_substage=new_substage,
         message=msg,
+        passive_qi_collected=passive_qi_collected,
+        active_qi_gain=active_qi_gain,
         event_id=event_id,
         event_title=event_title,
         event_emoji=event_emoji,
