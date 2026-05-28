@@ -1,0 +1,57 @@
+{
+  "label": "Void Great Emperor — snapshot 00:07–00:10 (Qi Refining late)",
+  "match": {
+    "dao_name": "Void Great Emperor"
+  },
+  "progression": {
+    "realm_index": 1,
+    "substage": 2,
+    "qi": 199,
+    "spirit_stones": 184,
+    "passive_qi_bank": 0
+  },
+  "techniques": [
+    "basic_strike",
+    "ember_palm",
+    "sanguine_drain",
+    "swift_slash",
+    "hemorrhage_art",
+    "rising_tempo",
+    "cinder_lance",
+    "flame_burst",
+    "heavens_cleave",
+    "iron_cleave",
+    "mist_step",
+    "rending_flurry",
+    "soul_siphon",
+    "void_pulse",
+    "blood_feast",
+    "venom_weave"
+  ],
+  "loadout": {
+    "1": "flame_burst",
+    "2": "swift_slash",
+    "3": "rending_flurry",
+    "4": "void_pulse",
+    "passive": "rising_tempo"
+  },
+  "inventory": {
+    "ancient_dust": 42,
+    "bamboo_resin": 39,
+    "bandit_token": 19,
+    "blank_scroll": 2,
+    "ember_moss": 84,
+    "green_dew_herb": 20,
+    "minor_beast_core": 15,
+    "moonlotus": 9,
+    "refined_beast_core": 43,
+    "spirit_ink": 6,
+    "spirit_iron_shard": 82,
+    "technique_fragment": 46,
+    "clarity_pill": 2,
+    "flow_pill": 2,
+    "qi_gathering_pill": 1,
+    "tempering_pill": 2,
+    "manual_swift_slash": 1
+  }
+}
