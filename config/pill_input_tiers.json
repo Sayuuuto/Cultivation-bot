@@ -1,0 +1,62 @@
+{
+  "qi_gathering_pill": [
+    {"min_realm": 0, "inputs": {"green_dew_herb": 3}},
+    {"min_realm": 1, "inputs": {"spirit_iron_shard": 2, "ember_moss": 1}},
+    {"min_realm": 3, "inputs": {"bog_iron": 2, "swamp_moss": 1}},
+    {"min_realm": 4, "inputs": {"souljade_leaf": 2, "nascent_soul_core": 1}},
+    {"min_realm": 9, "inputs": {"monarch_jade": 2, "imperial_beast_core": 1}}
+  ],
+  "tempering_pill": [
+    {"min_realm": 0, "inputs": {"minor_beast_core": 2}},
+    {"min_realm": 1, "inputs": {"refined_beast_core": 2}},
+    {"min_realm": 3, "inputs": {"hollow_pearl": 2}},
+    {"min_realm": 4, "inputs": {"nascent_soul_core": 2}},
+    {"min_realm": 9, "inputs": {"imperial_beast_core": 2}}
+  ],
+  "clarity_pill": [
+    {"min_realm": 0, "inputs": {"green_dew_herb": 1, "moonlotus": 1}},
+    {"min_realm": 1, "inputs": {"spirit_iron_shard": 1, "ember_moss": 2}},
+    {"min_realm": 2, "inputs": {"ancient_dust": 1, "moonlotus": 1}},
+    {"min_realm": 4, "inputs": {"souljade_leaf": 1, "script_shard": 1}},
+    {"min_realm": 9, "inputs": {"monarch_jade": 1, "transcendence_pearl": 1}}
+  ],
+  "swiftwind_pill": [
+    {"min_realm": 0, "inputs": {"ember_moss": 2, "bandit_token": 1}},
+    {"min_realm": 1, "inputs": {"ember_moss": 2, "spirit_iron_shard": 1}},
+    {"min_realm": 3, "inputs": {"swamp_moss": 2, "bog_iron": 1}},
+    {"min_realm": 6, "inputs": {"void_dust": 2, "void_crystal": 1}},
+    {"min_realm": 9, "inputs": {"heavenly_silk": 2, "monarch_jade": 1}}
+  ],
+  "blood_ember_pill": [
+    {"min_realm": 0, "inputs": {"ember_moss": 2, "refined_beast_core": 1}},
+    {"min_realm": 1, "inputs": {"refined_beast_core": 2, "spirit_iron_shard": 1}},
+    {"min_realm": 4, "inputs": {"nascent_soul_core": 1, "souljade_leaf": 2}},
+    {"min_realm": 7, "inputs": {"ascendant_ichor": 1, "immortal_jade": 2}},
+    {"min_realm": 9, "inputs": {"imperial_beast_core": 1, "monarch_jade": 2}}
+  ],
+  "moonwell_tonic": [
+    {"min_realm": 0, "inputs": {"moonlotus": 2, "ancient_dust": 1}},
+    {"min_realm": 2, "inputs": {"moonlotus": 2, "ancient_dust": 2}},
+    {"min_realm": 4, "inputs": {"souljade_leaf": 2, "script_shard": 1}},
+    {"min_realm": 8, "inputs": {"transcendence_pearl": 1, "heavenly_silk": 2}},
+    {"min_realm": 9, "inputs": {"monarch_jade": 2, "transcendence_pearl": 1}}
+  ],
+  "flow_pill": [
+    {"min_realm": 0, "inputs": {"green_dew_herb": 1, "ember_moss": 2, "bamboo_resin": 1}},
+    {"min_realm": 1, "inputs": {"green_dew_herb": 1, "ember_moss": 2, "spirit_iron_shard": 1}},
+    {"min_realm": 4, "inputs": {"souljade_leaf": 1, "nascent_soul_core": 1, "script_shard": 1}},
+    {"min_realm": 9, "inputs": {"monarch_jade": 1, "imperial_beast_core": 1, "heavenly_silk": 1}}
+  ],
+  "meridian_surge_pill": [
+    {"min_realm": 0, "inputs": {"moonlotus": 1, "bamboo_resin": 2, "green_dew_herb": 2}},
+    {"min_realm": 1, "inputs": {"moonlotus": 1, "spirit_iron_shard": 2, "ember_moss": 1}},
+    {"min_realm": 4, "inputs": {"souljade_leaf": 2, "nascent_soul_core": 1}},
+    {"min_realm": 9, "inputs": {"monarch_jade": 2, "imperial_beast_core": 1}}
+  ],
+  "gatebreaker_dust": [
+    {"min_realm": 0, "inputs": {"ancient_dust": 2, "spirit_iron_shard": 2, "refined_beast_core": 1}},
+    {"min_realm": 2, "inputs": {"ancient_dust": 2, "script_shard": 2, "refined_beast_core": 1}},
+    {"min_realm": 5, "inputs": {"severing_silk": 2, "abyssal_bone": 2, "refined_beast_core": 1}},
+    {"min_realm": 9, "inputs": {"monarch_jade": 2, "imperial_beast_core": 2, "transcendence_pearl": 1}}
+  ]
+}

@@ -56,7 +56,21 @@ def load_item_catalog() -> dict[str, ItemDef]:
 
 
 def get_item_def(item_id: str) -> ItemDef | None:
-    return load_item_catalog().get(item_id)
+    catalog = load_item_catalog()
+    item = catalog.get(item_id)
+    if item is not None:
+        return item
+    if item_id.startswith("sealed_"):
+        base_id = item_id.removeprefix("sealed_")
+        base = catalog.get(base_id)
+        if base is not None and base.category == "manual":
+            return ItemDef(
+                item_id=item_id,
+                name=f"Sealed {base.name}",
+                category="manual",
+                description=f"A sealed scripture containing {base.name}. Unseal it when your realm is ready.",
+            )
+    return None
 
 
 def get_item_name(item_id: str) -> str:
@@ -136,7 +150,25 @@ def _format_name_qty_block(names_and_qty: list[tuple[str, int]]) -> str:
     return "```\n" + "\n".join(lines) + "\n```"
 
 
-def build_inventory_embed(player: Player, stacks: list[InventoryItem]) -> discord.Embed:
+def _inventory_display_name(player: Player, item_id: str, base_name: str) -> str:
+    if not item_id.startswith("sealed_"):
+        return base_name
+    from .manuals import can_unseal_manual, is_sealed_manual
+    from .player_guides import guide_text
+
+    if not is_sealed_manual(item_id):
+        return base_name
+    ok, _ = can_unseal_manual(player, item_id)
+    tag = guide_text("sealed_manual", "inventory_ready" if ok else "inventory_sealed")
+    return f"{base_name} [{tag}]"
+
+
+def build_inventory_embed(
+    player: Player,
+    stacks: list[InventoryItem],
+    *,
+    session: Session | None = None,
+) -> discord.Embed:
     catalog = load_item_catalog()
 
     if not stacks:
@@ -155,7 +187,8 @@ def build_inventory_embed(player: Player, stacks: list[InventoryItem]) -> discor
 
     for stack in stacks:
         item = catalog.get(stack.item_id)
-        name = item.name if item is not None else stack.item_id.replace("_", " ").title()
+        raw_name = item.name if item is not None else stack.item_id.replace("_", " ").title()
+        name = _inventory_display_name(player, stack.item_id, raw_name)
         total_qty += stack.quantity
         category = item.category if item is not None else "material"
         row = (name, stack.quantity)
@@ -199,6 +232,13 @@ def build_inventory_embed(player: Player, stacks: list[InventoryItem]) -> discor
         )
 
     embed.set_footer(text=f"{categories_present} categories · /item <name> for full details")
+    if session is not None:
+        from .gear_stash import stash_count
+
+        n = stash_count(session, player.id)
+        if n:
+            footer = embed.footer.text or ""
+            embed.set_footer(text=f"{footer} · Forged gear: {n} — /gear for stash")
     return embed
 
 

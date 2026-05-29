@@ -72,10 +72,23 @@ def restore_from_profile(
     print(f"  qi: {player.qi} -> {prog['qi']}")
     print(f"  spirit_stones: {player.spirit_stones} -> {prog['spirit_stones']}")
 
-    techniques = list(profile["techniques"])
+    raw_techniques = list(profile["techniques"])
+    technique_ranks: dict[str, int] = dict(profile.get("technique_ranks") or {})
+    techniques: list[str] = []
+    for entry in raw_techniques:
+        if isinstance(entry, str):
+            techniques.append(entry)
+        elif isinstance(entry, dict):
+            tid = entry.get("technique_id") or entry.get("id")
+            if tid:
+                techniques.append(str(tid))
+                if "rank" in entry:
+                    technique_ranks[str(tid)] = int(entry["rank"])
     loadout = profile.get("loadout") or {}
     inventory = profile.get("inventory") or {}
+    schema_version = profile.get("profile_schema_version", 1)
 
+    print(f"  profile_schema_version: {schema_version}")
     print(f"  techniques: {len(techniques)} arts")
     print(f"  loadout: {loadout}")
     print(f"  inventory: {len(inventory)} item types, {sum(inventory.values())} stacks")
@@ -98,6 +111,18 @@ def restore_from_profile(
         ok, msg = learn_technique(session, player.id, technique_id)
         if not ok:
             print(f"  WARNING learn {technique_id}: {msg}", file=sys.stderr)
+        rank = technique_ranks.get(technique_id)
+        if rank and rank > 1:
+            from src.models import PlayerTechnique
+
+            stmt = select(PlayerTechnique).where(
+                PlayerTechnique.player_id == player.id,
+                PlayerTechnique.technique_id == technique_id,
+            )
+            row = session.execute(stmt).scalar_one_or_none()
+            if row is not None:
+                row.rank = max(1, int(rank))
+                session.add(row)
 
     for slot, technique_id in loadout.items():
         ok, msg = equip_technique(session, player, technique_id, slot)

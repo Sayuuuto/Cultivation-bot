@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import random
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -11,7 +12,9 @@ from .character import get_character_modifiers
 from .config import Config
 from .cooldown_haste import consume_haste_for_activity
 from .game import collect_passive_qi, to_utc, utcnow
-from .models import ActivePvpMatch, PendingDuel, Player
+from .combat.loadout import get_loadout
+from .combat.rules import load_combat_rules
+from .models import ActivePvpMatch, PendingDuel, Player, PvpTelemetry
 from .pvp_combat import PvpCombatState, create_pvp_combat_state, deserialize_pvp_state, serialize_pvp_state
 
 PVP_MATCH_EXPIRY_MINUTES = 20
@@ -71,6 +74,13 @@ def begin_pvp_match(
     rng: random.Random,
     now: datetime | None = None,
 ) -> StartedPvpMatch:
+    from .combat.loadout import validate_pvp_loadout
+
+    for duelist in (challenger, opponent):
+        ok, reason = validate_pvp_loadout(session, duelist)
+        if not ok:
+            raise ValueError(f"{duelist.dao_name}'s duel loadout is not ready. {reason}")
+
     now = to_utc(now or utcnow())
     match = ActivePvpMatch(
         guild_id=challenge.guild_id,
@@ -158,6 +168,21 @@ def finalize_pvp_match(
     session.add(challenger)
     session.add(opponent)
     session.add(match)
+
+    if load_combat_rules().enabled("pvp_telemetry"):
+        session.add(
+            PvpTelemetry(
+                match_id=match.id,
+                winner_player_id=winner.id,
+                loser_player_id=loser.id,
+                winner_realm_index=winner.realm_index,
+                loser_realm_index=loser.realm_index,
+                turn_count=state.turn,
+                winner_techniques_json=json.dumps(sorted(set(get_loadout(session, winner.id).values()))),
+                loser_techniques_json=json.dumps(sorted(set(get_loadout(session, loser.id).values()))),
+                created_at=now,
+            )
+        )
 
     if match.pending_duel_id is not None:
         challenge = session.get(PendingDuel, match.pending_duel_id)

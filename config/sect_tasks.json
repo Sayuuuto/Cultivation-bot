@@ -6,9 +6,9 @@
         "type": "gather",
         "item_id": "green_dew_herb",
         "count": 3,
-        "area_id": "bamboo_grove",
+        "area_id": "mortal_grove",
         "merit": 15,
-        "label": "Gather 3 Green Dew Herbs in the Bamboo Grove"
+        "label": "Gather 3 Green Dew Herbs in Mortal Grove"
       },
       {
         "id": "wudang_meditate",
@@ -119,9 +119,9 @@
         "type": "gather",
         "item_id": "ember_moss",
         "count": 2,
-        "area_id": "ashen_cliff",
+        "area_id": "qi_refining_cliffs",
         "merit": 14,
-        "label": "Gather Ember Moss from Ashen Cliff"
+        "label": "Gather Ember Moss from Qi Refining Cliffs"
       },
       {
         "id": "tang_hunt",
@@ -196,14 +196,14 @@
         "beast_tag": "devourer",
         "count": 1,
         "merit": 28,
-        "label": "Slay a devourer-class beast in the ruins"
+        "label": "Slay a devourer-class beast"
       },
       {
         "id": "shadow_adventure",
         "type": "adventure",
         "count": 1,
         "merit": 26,
-        "label": "Complete a moonwell adventure in shadow"
+        "label": "Complete a shadowed adventure"
       }
     ],
     "heaven": [

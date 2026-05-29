@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from ..auto_combat import BeastTemplate, resolve_auto_combat
 from ..combat_stats import PlayerCombatStats
 from ..modifiers import CharacterModifiers
+from ..ui.formatting import format_compact_number
 from .catalog import TechniqueDef
 from .effects import (
     CombatantState,
@@ -77,9 +78,11 @@ class CombatState:
             "player_max_hp": self.player.max_hp,
             "player_statuses": status_instances_to_json(self.player.statuses),
             "player_dodge_next": self.player.dodge_next,
+            "player_control_dr": dict(self.player.control_dr),
             "opponent_hp": self.opponent.hp,
             "opponent_max_hp": self.opponent.max_hp,
             "opponent_statuses": status_instances_to_json(self.opponent.statuses),
+            "opponent_control_dr": dict(self.opponent.control_dr),
             "opponent_id": self.opponent_id,
             "opponent_name": self.opponent_name,
             "opponent_attack": self.opponent_attack,
@@ -113,6 +116,7 @@ class CombatState:
             max_hp=int(data["player_max_hp"]),
             statuses=status_instances_from_json(data.get("player_statuses", [])),
             dodge_next=bool(data.get("player_dodge_next", False)),
+            control_dr={str(k): int(v) for k, v in data.get("player_control_dr", {}).items()},
         )
         player.sealed = has_status(player, "seal")
         player.feared = has_status(player, "fear")
@@ -120,6 +124,7 @@ class CombatState:
             hp=int(data["opponent_hp"]),
             max_hp=int(data["opponent_max_hp"]),
             statuses=status_instances_from_json(data.get("opponent_statuses", [])),
+            control_dr={str(k): int(v) for k, v in data.get("opponent_control_dr", {}).items()},
         )
         opponent.sealed = has_status(opponent, "seal")
         opponent.feared = has_status(opponent, "fear")
@@ -216,7 +221,10 @@ def create_combat_state(
         opponent_traits=list(opponent.traits),
         context=context,
         context_meta=context_meta or {},
-        log=[f"You face **{opponent.name}** (HP {opponent.hp}). Choose your action."],
+        log=[
+            f"You face **{opponent.name}** (HP {format_compact_number(opponent.hp)}). "
+            "Choose your action."
+        ],
     )
 
 
@@ -290,8 +298,10 @@ def _opponent_turn(
 
     _deal_damage_to_player(state, taken)
     if not check_fatal_survival(state, passive):
+        taken_text = format_compact_number(taken)
+        hp_text = format_compact_number(max(0, state.player.hp))
         state.log.append(
-            f"**{state.opponent_name}** hits you for **{taken}** damage. (**{max(0, state.player.hp)}** HP left)"
+            f"**{state.opponent_name}** hits you for **{taken_text}** damage. (**{hp_text}** HP left)"
         )
     process_passive_hp_threshold(state, passive)
     opponent_trait_turn(state, rng)
@@ -318,6 +328,8 @@ def execute_turn(
     player_skip = turn_skip_message(state.player, _actor_label(state), rng)
     if player_skip:
         state.log.append(player_skip)
+    elif action == "pass":
+        state.log.append(f"**{_actor_label(state)}** steadies their breath and passes the turn.")
     elif action == "strike":
         err = resolve_technique(state, stats, passive, "basic_strike", rng)
         if err:
@@ -440,6 +452,8 @@ def execute_pvp_turn(
     player_skip = turn_skip_message(state.player, _actor_label(state), rng)
     if player_skip:
         state.log.append(player_skip)
+    elif action == "pass":
+        state.log.append(f"**{_actor_label(state)}** steadies their breath and passes the turn.")
     elif action == "strike":
         err = resolve_technique(state, stats, passive, "basic_strike", rng)
         if err:

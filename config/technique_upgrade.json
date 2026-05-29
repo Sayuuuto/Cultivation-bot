@@ -1,0 +1,22 @@
+{
+  "rarity_cost_mult": {
+    "common": 1.0,
+    "uncommon": 1.4,
+    "rare": 2.0,
+    "legendary": 3.0
+  },
+  "category_materials": {
+    "sword": "spirit_iron_shard",
+    "body": "minor_beast_core",
+    "fire": "ember_moss",
+    "soul": "ancient_dust",
+    "poison": "moonlotus",
+    "utility": "blank_scroll",
+    "passive": "technique_fragment"
+  },
+  "stone_base": 20,
+  "stone_realm_mult": 12,
+  "stone_rarity_mult": 10,
+  "material_qty_divisor": 2,
+  "fragment_from_rank": 3
+}

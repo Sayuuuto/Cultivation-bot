@@ -16,7 +16,7 @@ def test_area_autocomplete_cache_returns_options(session, player, monkeypatch):
     async def run():
         opts = await get_area_autocomplete_options(player.guild_id, player.discord_id)
         assert opts is not None
-        assert any(v == "bamboo_grove" for v, _ in opts)
+        assert any(v == "mortal_grove" for v, _ in opts)
         cached = await get_area_autocomplete_options(player.guild_id, player.discord_id)
         assert cached == opts
 

@@ -77,7 +77,7 @@ ROOT_TIERS: dict[str, RootTierEntry] = {
         late_tier="S",
         early_summary="Modest bonuses before Moonwell/Ruins content.",
         late_summary="×1.10 rare events + dungeon dmg — king of Moonwell & affix farming.",
-        best_for="Moonwell Ruins · rare events · affix stone hunting",
+        best_for="Foundation Ruins · rare events · affix stone hunting",
     ),
     "Mercy Lotus Root": RootTierEntry(
         early_tier="C",

@@ -4,6 +4,8 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+from .combat_stats import scale_monster_stats
+
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "cooperative_dungeons.json"
 
 _catalog: dict | None = None
@@ -149,15 +151,22 @@ def scaled_enemy_stats(
     is_boss: bool = False,
 ) -> EnemyTemplate:
     """Scale enemies for realm tier and party size (tuned for 2+ daoists)."""
-    realm_mult = 1.0 + max(0, realm_index) * 0.42
+    scaled = scale_monster_stats(
+        template.hp,
+        template.attack,
+        template.defense,
+        realm_index=realm_index,
+        combat_tier="boss" if is_boss else template.combat_tier,
+    )
     # Tuned for ~2 daoists; solo faces tougher foes, larger parties slightly easier.
     party_mult = (2.0 / max(1, party_size)) ** 0.55
-    boss_mult = 1.35 if is_boss else 1.0
     return EnemyTemplate(
         template_id=template.template_id,
         name=template.name,
-        hp=max(1, int(template.hp * realm_mult * party_mult * boss_mult)),
-        attack=max(1, int(template.attack * realm_mult * party_mult * (1.15 if is_boss else 1.0))),
-        defense=max(1, int(template.defense * realm_mult * (1.1 if is_boss else 1.0))),
+        hp=max(1, int(scaled["hp"] * party_mult)),
+        attack=max(1, int(scaled["attack"] * party_mult)),
+        defense=max(1, int(scaled["defense"])),
         speed=template.speed,
+        combat_tier=template.combat_tier,
+        drops=template.drops,
     )

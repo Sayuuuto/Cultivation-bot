@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from .config import Config
 from .models import Clan, Player
@@ -75,6 +75,30 @@ def spirit_stones_daily_streak_bonus(streak: int) -> int:
 
 def daily_qi_bonus(realm_index: int) -> int:
     return 10 + realm_index * 2
+
+
+DAILY_STREAK_GRACE = timedelta(hours=48)
+
+
+def update_daily_streak(player: Player, now: datetime) -> int:
+    """
+    Advance the daily streak on a successful claim.
+
+    Streaks follow claim cadence, not strict UTC calendar boundaries: claiming again
+    after the cooldown and within a generous grace window increments the streak.
+    """
+    now_utc = to_utc(now)
+    last_claim = player.last_daily_streak_claimed_at or player.last_daily_at
+    if last_claim is None:
+        player.daily_streak = 1
+    else:
+        elapsed = now_utc - to_utc(last_claim)
+        if elapsed <= DAILY_STREAK_GRACE:
+            player.daily_streak = max(0, player.daily_streak) + 1
+        else:
+            player.daily_streak = 1
+    player.last_daily_streak_claimed_at = now_utc
+    return player.daily_streak
 
 
 # ~8 cultivates fill a substage cap; passive fills half a cap over 12h at base rate.

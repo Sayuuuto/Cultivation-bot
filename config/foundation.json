@@ -1,22 +1,21 @@
 {
+  "body_stack_rates": {
+    "external_strength": 0.005,
+    "defense": 0.006,
+    "agility": 0.004,
+    "hp": 0.008
+  },
+  "meridian_stack_rates": {
+    "internal_strength": 0.006,
+    "spiritual_sense": 0.005,
+    "comprehension": 0.004,
+    "hp": 0.007
+  },
   "body_stats": {
-    "external_strength": {
-      "label": "External Strength",
-      "inputs": {"minor_beast_core": 1, "green_dew_herb": 2}
-    },
-    "defense": {
-      "label": "Defense",
-      "inputs": {"minor_beast_core": 1, "bamboo_resin": 1}
-    },
-    "agility": {
-      "label": "Agility",
-      "inputs": {"minor_beast_core": 1, "green_dew_herb": 1}
-    },
-    "hp": {
-      "label": "Vitality",
-      "inputs": {"minor_beast_core": 2, "bamboo_resin": 1},
-      "hp_per_stack": 8
-    }
+    "external_strength": {"label": "External Strength"},
+    "defense": {"label": "Defense"},
+    "agility": {"label": "Agility"},
+    "hp": {"label": "Vitality"}
   },
   "body_caps_base": {
     "external_strength": 5,
@@ -30,10 +29,82 @@
     "agility": 1,
     "hp": 2
   },
+  "body_input_tiers": [
+    {
+      "min_realm": 0,
+      "external_strength": {"minor_beast_core": 1, "green_dew_herb": 2},
+      "defense": {"minor_beast_core": 1, "bamboo_resin": 1},
+      "agility": {"minor_beast_core": 1, "green_dew_herb": 1},
+      "hp": {"minor_beast_core": 2, "bamboo_resin": 1}
+    },
+    {
+      "min_realm": 1,
+      "external_strength": {"refined_beast_core": 1, "spirit_iron_shard": 2},
+      "defense": {"refined_beast_core": 1, "spirit_iron_shard": 1},
+      "agility": {"refined_beast_core": 1, "ember_moss": 1},
+      "hp": {"refined_beast_core": 2, "spirit_iron_shard": 1}
+    },
+    {
+      "min_realm": 2,
+      "external_strength": {"refined_beast_core": 1, "ancient_dust": 2},
+      "defense": {"refined_beast_core": 1, "moonlotus": 1},
+      "agility": {"refined_beast_core": 1, "script_shard": 1},
+      "hp": {"refined_beast_core": 2, "ancient_dust": 1}
+    },
+    {
+      "min_realm": 3,
+      "external_strength": {"hollow_pearl": 1, "bog_iron": 2},
+      "defense": {"hollow_pearl": 1, "swamp_moss": 2},
+      "agility": {"hollow_pearl": 1, "bog_iron": 1},
+      "hp": {"hollow_pearl": 2, "swamp_moss": 1}
+    },
+    {
+      "min_realm": 4,
+      "external_strength": {"nascent_soul_core": 1, "souljade_leaf": 2},
+      "defense": {"nascent_soul_core": 1, "souljade_leaf": 1},
+      "agility": {"nascent_soul_core": 1, "script_shard": 1},
+      "hp": {"nascent_soul_core": 2, "souljade_leaf": 1}
+    },
+    {
+      "min_realm": 5,
+      "external_strength": {"abyssal_bone": 1, "severing_silk": 2},
+      "defense": {"abyssal_bone": 1, "severing_silk": 1},
+      "agility": {"abyssal_bone": 1, "refined_beast_core": 1},
+      "hp": {"abyssal_bone": 2, "severing_silk": 1}
+    },
+    {
+      "min_realm": 6,
+      "external_strength": {"void_crystal": 1, "void_dust": 2},
+      "defense": {"void_crystal": 1, "void_dust": 1},
+      "agility": {"void_crystal": 1, "ancient_dust": 1},
+      "hp": {"void_crystal": 2, "void_dust": 1}
+    },
+    {
+      "min_realm": 7,
+      "external_strength": {"ascendant_ichor": 1, "immortal_jade": 2},
+      "defense": {"ascendant_ichor": 1, "immortal_jade": 1},
+      "agility": {"ascendant_ichor": 1, "void_crystal": 1},
+      "hp": {"ascendant_ichor": 2, "immortal_jade": 1}
+    },
+    {
+      "min_realm": 8,
+      "external_strength": {"transcendence_pearl": 1, "heavenly_silk": 2},
+      "defense": {"transcendence_pearl": 1, "heavenly_silk": 1},
+      "agility": {"transcendence_pearl": 1, "ascendant_ichor": 1},
+      "hp": {"transcendence_pearl": 2, "heavenly_silk": 1}
+    },
+    {
+      "min_realm": 9,
+      "external_strength": {"imperial_beast_core": 1, "monarch_jade": 2},
+      "defense": {"imperial_beast_core": 1, "monarch_jade": 1},
+      "agility": {"imperial_beast_core": 1, "transcendence_pearl": 1},
+      "hp": {"imperial_beast_core": 2, "monarch_jade": 1}
+    }
+  ],
   "meridian_stats": {
     "internal_strength": {"label": "Internal Strength", "cost": 2},
     "spiritual_sense": {"label": "Spirit Sense", "cost": 2},
-    "hp": {"label": "Vitality", "cost": 1, "hp_per_stack": 5},
+    "hp": {"label": "Vitality", "cost": 1},
     "comprehension": {"label": "Comprehension", "cost": 3}
   },
   "meridian_caps_base": {

@@ -73,6 +73,12 @@ def test_every_encounter_has_valid_choices():
                 assert encounter.monster_id
                 continue
             assert len(encounter.choices) >= 2
+            if encounter.encounter_type == "route_choice":
+                for choice in encounter.choices:
+                    assert choice.id
+                    assert choice.label
+                    assert choice.route_tag
+                continue
             assert is_moral_choice_encounter(encounter), (
                 f"{area_id}/{encounter.id} needs at least one merciful and one cruel path"
             )
@@ -87,7 +93,9 @@ def test_every_encounter_has_valid_choices():
 
 @pytest.mark.parametrize("area_id", ["bamboo_grove", "ashen_cliff", "moonwell_ruins"])
 def test_all_encounters_appear_over_many_starts(area_id: str):
-    expected = {e.id for e in get_encounters_for_area(area_id)}
+    encounters = get_encounters_for_area(area_id)
+    route_openers = {e.id for e in encounters if e.encounter_type == "route_choice"}
+    expected = route_openers or {e.id for e in encounters}
 
     def pick(seed_rng: random.Random) -> str:
         return _pick_encounter(seed_rng, area_id, 1).id
@@ -100,7 +108,42 @@ def test_all_encounters_appear_over_many_starts(area_id: str):
 def test_encounters_differ_between_seeds(area_id: str):
     """Adventure starts should not always pick the same encounter."""
     ids = [_pick_encounter(random.Random(seed), area_id, 1).id for seed in range(40)]
-    assert len(set(ids)) >= 2, "expected at least two different encounters in 40 seeds"
+    if any(e.encounter_type == "route_choice" for e in get_encounters_for_area(area_id)):
+        assert set(ids) == {"bamboo_route_choice"}
+    else:
+        assert len(set(ids)) >= 2, "expected at least two different encounters in 40 seeds"
+
+
+def test_route_picker_prefers_tagged_followup_and_climax():
+    state = {"route_tag": "merchant_village", "target_segments": 4}
+
+    followup = _pick_encounter(random.Random(0), "bamboo_grove", 2, state=state)
+    assert followup.id in {"village_lantern_toll", "village_apothecary_request"}
+
+    climax = _pick_encounter(random.Random(0), "bamboo_grove", 4, state=state)
+    assert climax.id == "village_market_climax"
+
+
+def test_route_picker_does_not_repeat_seen_followup():
+    state = {
+        "route_tag": "deep_forest",
+        "target_segments": 4,
+        "encounter_ids_seen": ["bamboo_route_choice", "deep_bamboo_whispers"],
+    }
+
+    picked = _pick_encounter(random.Random(0), "bamboo_grove", 3, state=state)
+
+    assert picked.id != "deep_bamboo_whispers"
+    assert picked.id in {"deep_bamboo_moonlit_pool", "deep_bamboo_nest_guardian"}
+
+
+def test_route_picker_falls_back_to_flat_area_pool():
+    state = {"route_tag": "unmapped_route", "target_segments": 4}
+
+    picked = _pick_encounter(random.Random(0), "bamboo_grove", 2, state=state)
+
+    assert picked.encounter_type != "route_choice"
+    assert picked.id in {e.id for e in get_encounters_for_area("bamboo_grove")}
 
 
 @pytest.mark.parametrize("area_id", ["bamboo_grove", "ashen_cliff", "moonwell_ruins"])
@@ -266,11 +309,12 @@ def test_each_choice_id_accepted_on_first_segment(session, player: Player, area_
             from src.adventure import abandon_adventure
 
             abandon_adventure(session, player.id)
+            session.flush()
 
             rng = ScriptedRNG(
-                floats=safe_adventure_segment_floats() * 2,
-                encounter_queue=[encounter, encounter],
-                randint_queue=[],
+                floats=safe_adventure_segment_floats() * 3,
+                encounter_queue=[encounter, encounter, encounter],
+                randint_queue=[3],
             )
             pending, err = start_adventure_session(session, player, area_id, "balanced", rng=rng)
             assert err is None and pending is not None
@@ -279,7 +323,7 @@ def test_each_choice_id_accepted_on_first_segment(session, player: Player, area_
             assert err is None, f"choice {choice.id} rejected on {encounter.id}"
             assert result is not None
 
-            if isinstance(result, PendingAdventure):
+            if isinstance(result, PendingAdventure) and result.choices:
                 follow_up, err = apply_adventure_choice(
                     session,
                     player,

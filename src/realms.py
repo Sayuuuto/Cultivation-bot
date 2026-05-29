@@ -43,6 +43,26 @@ def get_breakthrough_config() -> dict:
     return dict(_load_realms_config().get("breakthrough", {}))
 
 
+def get_realm_entry(realm_index: int) -> dict:
+    realms = _load_realms_config()["realms"]
+    idx = max(0, min(realm_index, len(realms) - 1))
+    return dict(realms[idx])
+
+
+def get_technique_load_budget(realm_index: int) -> dict[str, int]:
+    raw = get_realm_entry(realm_index).get("technique_load_budget", {})
+    default = {"active": 8 + realm_index * 2, "passive": 3 + realm_index, "total": 10 + realm_index * 3}
+    return {
+        "active": int(raw.get("active", default["active"])),
+        "passive": int(raw.get("passive", default["passive"])),
+        "total": int(raw.get("total", default["total"])),
+    }
+
+
+def get_technique_rank_cap(realm_index: int) -> int:
+    return int(get_realm_entry(realm_index).get("technique_rank_cap", min(10, 3 + realm_index)))
+
+
 def realm_breakthrough_base_success(realm_index: int, substage: int) -> float:
     """Base breakthrough odds before karma, pills, and gear — high in Mortal, lower in late realms."""
     cfg = get_breakthrough_config()

@@ -20,8 +20,8 @@ from .ui.formatting import RARE_EVENT_FLAIR
 from .combat.engine import create_combat_state, opponent_from_monster
 from .combat.monsters import get_monster
 from .combat.session import create_active_combat, get_active_combat
-from .combat_stats import compute_combat_stats
-from .content import AreaDef, DropEntry, RareEventDef, get_area
+from .combat_stats import compute_combat_stats, scale_monster_stats
+from .content import AreaDef, DropEntry, RareEventDef, get_area, resolve_area_id
 from .effects import consume_effect_charge
 from .inventory import add_item, get_item_name
 from .models import ActiveAdventure, AdventureRun, Player
@@ -32,6 +32,7 @@ STANCES = {
     "balanced": {"success": 0.0, "drop_mult": 1.0},
     "reckless": {"success": -0.05, "drop_mult": 1.25},
 }
+DEFAULT_STANCE = "balanced"
 
 SEGMENTS_PER_RUN = 2
 
@@ -80,6 +81,10 @@ class AdventureChoice:
     manual_chance: float = 1.0
     spirit_stones: int = 0
     sect_invitation: str | None = None
+    route_tag: str | None = None
+    route_label: str | None = None
+    route_tone: str | None = None
+    next_encounter_id: str | None = None
 
 
 @dataclass
@@ -90,6 +95,8 @@ class AdventureEncounter:
     choices: tuple[AdventureChoice, ...] = ()
     monster_id: str | None = None
     is_boss: bool = False
+    route_tags: tuple[str, ...] = ()
+    segment_role: str = "standard"
 
 
 def cursed_shrine_choices() -> tuple[AdventureChoice, ...]:
@@ -128,6 +135,9 @@ class AdventureResult:
     qi_delta: int = 0
     stones_delta: int = 0
     failed_run: bool = False
+    target_segments: int = SEGMENTS_PER_RUN
+    route_label: str | None = None
+    route_steps: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -146,6 +156,8 @@ class PendingAdventure:
     player_max_hp: int | None = None
     opponent_hp: int | None = None
     opponent_max_hp: int | None = None
+    route_label: str | None = None
+    route_tag: str | None = None
 
 
 def _load_encounters() -> dict[str, list[dict]]:
@@ -156,8 +168,87 @@ def _load_encounters() -> dict[str, list[dict]]:
     return _encounters
 
 
+def _generic_realm_encounters(area: AreaDef | None) -> list[AdventureEncounter]:
+    area_name = area.name if area is not None else "the wilds"
+    return [
+        AdventureEncounter(
+            id="realm_route_choice",
+            prompt=(
+                f"The qi in **{area_name}** divides into two trails: one follows signs of "
+                "travelers, the other sinks toward untamed spirit pressure."
+            ),
+            encounter_type="route_choice",
+            choices=(
+                AdventureChoice(
+                    "traveler_road",
+                    "Follow the marked traveler road",
+                    0.04,
+                    0.95,
+                    0.06,
+                    karma_delta=3,
+                    route_tag="traveler_road",
+                    route_label="Traveler Road",
+                ),
+                AdventureChoice(
+                    "wild_pressure",
+                    "Enter the deeper spirit pressure",
+                    -0.03,
+                    1.18,
+                    0.14,
+                    karma_delta=-3,
+                    route_tag="wild_pressure",
+                    route_label="Deeper Spirit Pressure",
+                ),
+            ),
+        ),
+        AdventureEncounter(
+            id="realm_traveler_cache",
+            prompt=f"A damaged supply cache lies beside the road through **{area_name}**.",
+            encounter_type="choice",
+            route_tags=("traveler_road",),
+            choices=(
+                AdventureChoice("return", "Mark it for its owner", 0.05, 0.9, 0.05, karma_delta=6),
+                AdventureChoice("claim", "Claim the useful supplies", -0.02, 1.2, 0.12, karma_delta=-4),
+            ),
+        ),
+        AdventureEncounter(
+            id="realm_pressure_crossing",
+            prompt=f"Heavy qi gathers into a crossing that tests your footing in **{area_name}**.",
+            encounter_type="choice",
+            route_tags=("wild_pressure",),
+            choices=(
+                AdventureChoice("steady", "Advance with measured breath", 0.05, 0.95, 0.06, karma_delta=3),
+                AdventureChoice("force", "Force your way through", -0.04, 1.25, 0.16, karma_delta=-4),
+            ),
+        ),
+        AdventureEncounter(
+            id="realm_final_find",
+            prompt=f"The route through **{area_name}** opens onto a qi-rich cache.",
+            encounter_type="choice",
+            route_tags=("traveler_road", "wild_pressure"),
+            segment_role="climax",
+            choices=(
+                AdventureChoice("share", "Take a fair share and leave the rest", 0.06, 1.0, 0.05, karma_delta=5),
+                AdventureChoice("strip", "Strip the cache bare", -0.02, 1.3, 0.12, karma_delta=-8),
+            ),
+        ),
+    ]
+
+
 def get_encounters_for_area(area_id: str) -> list[AdventureEncounter]:
-    raw = _load_encounters().get(area_id, [])
+    canonical_id = resolve_area_id(area_id) or area_id
+    raw_map = _load_encounters()
+    raw = raw_map.get(area_id) or raw_map.get(canonical_id)
+    if raw is None and canonical_id == "mortal_grove":
+        raw = raw_map.get("bamboo_grove")
+    elif raw is None and canonical_id == "qi_refining_cliffs":
+        raw = raw_map.get("ashen_cliff")
+    elif raw is None and canonical_id == "foundation_ruins":
+        raw = raw_map.get("moonwell_ruins")
+    elif raw is None and canonical_id == "core_formation_swamp":
+        raw = raw_map.get("cursed_swamp")
+    if raw is None:
+        return _generic_realm_encounters(get_area(canonical_id))
     encounters: list[AdventureEncounter] = []
     for entry in raw:
         encounter_type = entry.get("type", "choice")
@@ -169,6 +260,8 @@ def get_encounters_for_area(area_id: str) -> list[AdventureEncounter]:
                     encounter_type="combat",
                     monster_id=entry.get("monster_id"),
                     is_boss=bool(entry.get("is_boss", False)),
+                    route_tags=tuple(str(tag) for tag in entry.get("route_tags", [])),
+                    segment_role=str(entry.get("segment_role", "standard")),
                 )
             )
             continue
@@ -185,6 +278,10 @@ def get_encounters_for_area(area_id: str) -> list[AdventureEncounter]:
                 manual_chance=float(c.get("manual_chance", 1.0)),
                 spirit_stones=int(c.get("spirit_stones", 0)),
                 sect_invitation=c.get("sect_invitation"),
+                route_tag=c.get("route_tag"),
+                route_label=c.get("route_label"),
+                route_tone=c.get("route_tone"),
+                next_encounter_id=c.get("next_encounter_id"),
             )
             for c in entry.get("choices", [])
         )
@@ -194,6 +291,8 @@ def get_encounters_for_area(area_id: str) -> list[AdventureEncounter]:
                 prompt=entry["prompt"],
                 encounter_type=encounter_type,
                 choices=choices,
+                route_tags=tuple(str(tag) for tag in entry.get("route_tags", [])),
+                segment_role=str(entry.get("segment_role", "standard")),
             )
         )
     return encounters
@@ -257,6 +356,12 @@ def _encounter_by_id(area_id: str, encounter_id: str, segment: int) -> Adventure
     return encounter
 
 
+def _remember_encounter(state: dict, encounter_id: str) -> None:
+    seen: list[str] = state.setdefault("encounter_ids_seen", [])
+    if encounter_id not in seen:
+        seen.append(encounter_id)
+
+
 def _pick_encounter(
     rng: random.Random,
     area_id: str,
@@ -276,13 +381,51 @@ def _pick_encounter(
     if not pool:
         return _default_encounter(segment)
 
-    moral = [e for e in pool if is_moral_choice_encounter(e)]
-    other_choices = [
-        e for e in pool if e.encounter_type == "choice" and e not in moral
-    ]
-    combat = [e for e in pool if e.encounter_type == "combat"]
+    forced_id = (state or {}).pop("forced_next_encounter_id", None)
+    if forced_id:
+        return _encounter_by_id(area_id, str(forced_id), segment)
 
-    need_karma = bool(state) and not state.get("karma_touched") and segment >= SEGMENTS_PER_RUN
+    if segment == 1:
+        route_openers = [e for e in pool if e.encounter_type == "route_choice"]
+        if route_openers:
+            return rng.choice(route_openers)
+
+    route_tag = str((state or {}).get("route_tag") or "")
+    target_segments = int((state or {}).get("target_segments", SEGMENTS_PER_RUN))
+    seen_ids = set((state or {}).get("encounter_ids_seen", []))
+    if route_tag and segment > 1:
+        route_pool = [
+            e
+            for e in pool
+            if route_tag in e.route_tags and e.encounter_type != "route_choice"
+        ]
+        if route_pool:
+            if segment >= target_segments:
+                climax = [e for e in route_pool if e.segment_role == "climax" and e.id not in seen_ids]
+                if climax:
+                    return rng.choice(climax)
+            non_climax = [
+                e
+                for e in route_pool
+                if e.segment_role != "climax" and e.id not in seen_ids
+            ]
+            if non_climax:
+                return rng.choice(non_climax)
+
+    general_pool = [e for e in pool if e.encounter_type != "route_choice"]
+    unseen_general = [e for e in general_pool if e.id not in seen_ids]
+    if unseen_general:
+        general_pool = unseen_general
+    if not general_pool:
+        return _default_encounter(segment)
+
+    moral = [e for e in general_pool if is_moral_choice_encounter(e)]
+    other_choices = [
+        e for e in general_pool if e.encounter_type == "choice" and e not in moral
+    ]
+    combat = [e for e in general_pool if e.encounter_type == "combat"]
+
+    need_karma = bool(state) and not state.get("karma_touched") and segment >= target_segments
     if need_karma and moral:
         return rng.choice(moral)
     if moral and rng.random() < 0.82:
@@ -294,16 +437,22 @@ def _pick_encounter(
         return rng.choice(combat)
     if moral:
         return rng.choice(moral)
-    return rng.choice(pool)
+    return rng.choice(general_pool)
 
 
 def _clamp_chance(value: float, *, min_chance: float = 0.12, max_chance: float = 0.95) -> float:
     return max(min_chance, min(max_chance, value))
 
 
-def _new_adventure_state(player: Player, area: AreaDef, stance: str) -> dict:
+def _new_adventure_state(
+    player: Player,
+    area: AreaDef,
+    stance: str,
+    *,
+    target_segments: int = SEGMENTS_PER_RUN,
+) -> dict:
     gap = realm_gap(player, area)
-    messages = [f"You enter **{area.name}** with a {stance} stance."]
+    messages = [f"You enter **{area.name}** and follow the signs of your current realm."]
     if gap > 0:
         messages.append(underleveled_entry_message(area, gap))
     return {
@@ -311,6 +460,11 @@ def _new_adventure_state(player: Player, area: AreaDef, stance: str) -> dict:
         "messages": messages,
         "rare_events": [],
         "segments_cleared": 0,
+        "target_segments": target_segments,
+        "route_tag": None,
+        "route_label": None,
+        "route_steps": [],
+        "encounter_ids_seen": [],
         "segments_since_rare": 0,
         "failed_run": False,
         "realm_gap": gap,
@@ -413,11 +567,13 @@ def _build_shrine_pending(active: ActiveAdventure, area: AreaDef, state: dict) -
         active_id=active.id,
         area_name=area.name,
         segment=active.segment,
-        segments_total=SEGMENTS_PER_RUN,
+        segments_total=int(state.get("target_segments", SEGMENTS_PER_RUN)),
         prompt="A cursed shrine hums with forbidden qi. Do you accept its bargain?",
         choices=cursed_shrine_choices(),
         messages=list(state.get("messages", [])),
         encounter_type="shrine",
+        route_label=state.get("route_label"),
+        route_tag=state.get("route_tag"),
     )
 
 
@@ -453,12 +609,14 @@ def _build_pending_from_encounter(
         active_id=active.id,
         area_name=area.name,
         segment=active.segment,
-        segments_total=SEGMENTS_PER_RUN,
+        segments_total=int(state.get("target_segments", SEGMENTS_PER_RUN)),
         prompt=encounter.prompt,
         choices=encounter.choices,
         messages=list(state.get("messages", [])),
         encounter_type=encounter.encounter_type,
         combat_id=combat_id,
+        route_label=state.get("route_label"),
+        route_tag=state.get("route_tag"),
     )
     if encounter.encounter_type == "combat" and combat_state is not None:
         pending.monster_name = combat_state.opponent_name
@@ -485,15 +643,24 @@ def _start_combat_encounter(
     monster = get_monster(encounter.monster_id)
     if monster is None:
         return None, "The foe vanished before the fight began."
+    area = get_area(area_id)
+    area_realm = area.min_realm if area is not None else 0
+    scaled = scale_monster_stats(
+        monster.hp,
+        monster.attack,
+        monster.defense,
+        realm_index=area_realm,
+        combat_tier=monster.combat_tier,
+    )
 
     mod = get_character_modifiers(session, player)
     stats = compute_combat_stats(player, session, mod)
     opponent = opponent_from_monster(
         monster.monster_id,
         monster.name,
-        monster.hp,
-        monster.attack,
-        monster.defense,
+        scaled["hp"],
+        scaled["attack"],
+        scaled["defense"],
         monster.speed,
         traits=list(monster.traits),
     )
@@ -572,6 +739,7 @@ def _resolve_combat_segment(
                 item_id, qty = rolled
                 drops[item_id] = drops.get(item_id, 0) + qty
         state["messages"].append("Victory in combat — you claim spoils from the foe.")
+        state.setdefault("route_steps", []).append("Won a spirit-beast fight")
         state.pop("combat_monster_id", None)
         _apply_combat_stance_karma(player, stance, state)
     else:
@@ -650,6 +818,9 @@ def start_adventure_session(
     rng: random.Random | None = None,
 ) -> tuple[PendingAdventure | None, str | None]:
     rng = rng or random.Random()
+    requested_area_id = area_id
+    area_id = resolve_area_id(area_id) or area_id
+    encounter_area_id = requested_area_id if requested_area_id in _load_encounters() else area_id
     if get_active_adventure(session, player.id) is not None:
         return None, "You already have an adventure in progress. Use `/adventure continue` or `/adventure abandon`."
 
@@ -658,21 +829,23 @@ def start_adventure_session(
         return None, err
     assert area is not None
 
-    stance = stance.lower()
+    stance = stance.lower() if stance else DEFAULT_STANCE
     from .novice_trial import heal_stuck_novice_adventure, is_first_adventure
 
     if heal_stuck_novice_adventure(player):
         state_hint = (
             "_The sect reopens your first journey — seek the **Sage of the Bamboo Path** "
-            "in the **Whispering Bamboo Grove**._"
+            "when you follow **`/adventure`**._"
         )
     else:
         state_hint = ""
 
-    state = _new_adventure_state(player, area, stance)
+    target_segments = rng.randint(3, 5)
+    state = _new_adventure_state(player, area, stance, target_segments=target_segments)
     if state_hint:
         state["messages"].append(state_hint)
-    encounter = _pick_encounter(rng, area_id, 1, player, state=state)
+    encounter = _pick_encounter(rng, encounter_area_id, 1, player, state=state)
+    _remember_encounter(state, encounter.id)
     if is_first_adventure(player):
         state["novice_adventure"] = True
         state["messages"].append(
@@ -682,7 +855,7 @@ def start_adventure_session(
 
     active = ActiveAdventure(
         player_id=player.id,
-        area_id=area_id,
+        area_id=encounter_area_id,
         stance=stance,
         segment=1,
         encounter_id=encounter.id,
@@ -694,7 +867,7 @@ def start_adventure_session(
     combat_id = None
     combat_state = None
     if encounter.encounter_type == "combat":
-        combat_id, err = _start_combat_encounter(session, player, area_id, encounter, state)
+        combat_id, err = _start_combat_encounter(session, player, encounter_area_id, encounter, state)
         if err:
             session.delete(active)
             return None, err
@@ -727,8 +900,9 @@ def resume_adventure_session(
         session.delete(active)
         return None, "Your adventure area no longer exists."
 
-    encounters = get_encounters_for_area(active.area_id)
-    encounter = _encounter_by_id(active.area_id, active.encounter_id, active.segment)
+    area_id = active.area_id if active.area_id in _load_encounters() else (resolve_area_id(active.area_id) or active.area_id)
+    encounters = get_encounters_for_area(area_id)
+    encounter = _encounter_by_id(area_id, active.encounter_id, active.segment)
 
     state = _load_state(active)
     combat_id = None
@@ -895,10 +1069,12 @@ def _resolve_segment(
         state["messages"].append(
             f"Your choice — **{choice.label}** — backfires. You retreat battered; your stored qi remains untouched."
         )
+        state.setdefault("route_steps", []).append(f"{choice.label} (setback)")
         return False, True
 
     _apply_choice_karma(player, choice, state)
     _apply_choice_reputation(player, choice, state)
+    state.setdefault("route_steps", []).append(choice.label)
 
     gap = int(state.get("realm_gap", realm_gap(player, area)))
     penalty, min_chance = adventure_realm_modifiers(gap)
@@ -940,6 +1116,8 @@ def _resolve_segment(
             drops[item_id] = drops.get(item_id, 0) + qty
         state["messages"].append(f"**{choice.label}** pays off — you gather spoils.")
         _apply_choice_rewards(session, player, choice, state, rng)
+        if choice.next_encounter_id:
+            state["forced_next_encounter_id"] = choice.next_encounter_id
     else:
         state["messages"].append(
             f"**{choice.label}** falters. You are forced back — the setback costs you time, not qi."
@@ -982,7 +1160,8 @@ def _advance_adventure_after_segment(
         state["failed_run"] = True
 
     current_segment = active.segment
-    if run_failed or current_segment >= SEGMENTS_PER_RUN:
+    target_segments = int(state.get("target_segments", SEGMENTS_PER_RUN))
+    if run_failed or current_segment >= target_segments:
         return _finalize_adventure(session, player, area, active.stance, state, active), None
 
     if state.get("pending_shrine"):
@@ -991,7 +1170,9 @@ def _advance_adventure_after_segment(
         return _build_shrine_pending(active, area, state), None
 
     next_segment = current_segment + 1
-    next_encounter = _pick_encounter(rng, active.area_id, next_segment, player, state=state)
+    area_id = active.area_id if active.area_id in _load_encounters() else (resolve_area_id(active.area_id) or active.area_id)
+    next_encounter = _pick_encounter(rng, area_id, next_segment, player, state=state)
+    _remember_encounter(state, next_encounter.id)
     active.segment = next_segment
     active.encounter_id = next_encounter.id
     _save_state(active, state)
@@ -1000,7 +1181,7 @@ def _advance_adventure_after_segment(
     combat_id = None
     combat_state = None
     if next_encounter.encounter_type == "combat":
-        combat_id, err = _start_combat_encounter(session, player, active.area_id, next_encounter, state)
+        combat_id, err = _start_combat_encounter(session, player, area_id, next_encounter, state)
         if err:
             return None, err
         _save_state(active, state)
@@ -1049,7 +1230,28 @@ def apply_adventure_choice(
             session, player, active, area, state, rng, run_failed=False
         )
 
-    encounter = _encounter_by_id(active.area_id, active.encounter_id, active.segment)
+    area_id = active.area_id if active.area_id in _load_encounters() else (resolve_area_id(active.area_id) or active.area_id)
+    encounter = _encounter_by_id(area_id, active.encounter_id, active.segment)
+
+    if encounter.encounter_type == "route_choice":
+        choice = next((c for c in encounter.choices if c.id == choice_id), None)
+        if choice is None:
+            return None, "That choice is not available."
+        state["route_tag"] = choice.route_tag or choice.id
+        state["route_label"] = choice.route_label or choice.label
+        if choice.route_tone:
+            state["route_tone"] = choice.route_tone
+        route_steps: list[str] = state.setdefault("route_steps", [])
+        route_steps.append(choice.label)
+        state["segments_cleared"] = int(state.get("segments_cleared", 0)) + 1
+        state["messages"].append(f"Your route bends toward **{state['route_label']}**.")
+        _apply_choice_karma(player, choice, state)
+        _apply_choice_reputation(player, choice, state)
+        _save_state(active, state)
+        session.add(player)
+        return _advance_adventure_after_segment(
+            session, player, active, area, state, rng, run_failed=False
+        )
 
     if encounter.encounter_type == "combat":
         return None, "This segment is a combat encounter — use the combat buttons."
@@ -1131,11 +1333,12 @@ def _finalize_adventure(
     for item_id, qty in drops.items():
         add_item(session, player.id, item_id, qty)
 
+    target_segments = int(state.get("target_segments", SEGMENTS_PER_RUN))
     segments_cleared = int(state.get("segments_cleared", 0))
     failed_run = bool(state.get("failed_run", False))
     if failed_run and segments_cleared == 0:
         outcome = "fail"
-    elif segments_cleared == SEGMENTS_PER_RUN:
+    elif segments_cleared >= target_segments:
         outcome = "success"
     elif segments_cleared > 0:
         outcome = "partial"
@@ -1180,6 +1383,9 @@ def _finalize_adventure(
         messages=messages,
         qi_delta=0,
         failed_run=failed_run,
+        target_segments=target_segments,
+        route_label=state.get("route_label"),
+        route_steps=list(state.get("route_steps", [])),
     )
 
 
@@ -1205,13 +1411,24 @@ def run_adventure(
 
     assert area is not None
     stance = stance.lower()
-    state = _new_adventure_state(player, area, stance)
+    target_segments = rng.randint(3, 5)
+    state = _new_adventure_state(player, area, stance, target_segments=target_segments)
 
-    for segment in range(1, SEGMENTS_PER_RUN + 1):
-        encounter = _pick_encounter(rng, area_id, segment)
+    for segment in range(1, target_segments + 1):
+        encounter = _pick_encounter(rng, area_id, segment, player, state=state)
+        _remember_encounter(state, encounter.id)
         if not encounter.choices:
             encounter = _default_encounter(segment)
         choice = min(encounter.choices, key=lambda c: c.fail_chance)
+        if encounter.encounter_type == "route_choice":
+            state["route_tag"] = choice.route_tag or choice.id
+            state["route_label"] = choice.route_label or choice.label
+            if choice.route_tone:
+                state["route_tone"] = choice.route_tone
+            state.setdefault("route_steps", []).append(choice.label)
+            state["segments_cleared"] = int(state.get("segments_cleared", 0)) + 1
+            state["messages"].append(f"Your route bends toward **{state['route_label']}**.")
+            continue
         _, run_failed = _resolve_segment(
             session, player, area, stance, choice, state, rng, allow_catastrophic=False
         )

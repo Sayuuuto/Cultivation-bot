@@ -96,8 +96,9 @@ def format_fighter_line(fighter: DungeonFighter) -> str:
     )
     badges = format_status_badges(fighter.combatant.statuses)
     badge_text = f" {badges}" if badges else ""
+    shield_text = f" · 🛡️ **{fighter.shield}**" if getattr(fighter, "shield", 0) > 0 else ""
     side = "👹" if fighter.is_enemy else "🧙"
-    return f"{side} **{fighter.name}** — {hp}{badge_text}"
+    return f"{side} **{fighter.name}** — {hp}{shield_text}{badge_text}"
 
 
 def build_dungeon_combat_embed(
@@ -129,7 +130,9 @@ def build_dungeon_combat_embed(
 
     if state.finished:
         if state.victory and state.room_cleared:
-            footer = "Room cleared — advancing…" if not state.run_complete else "Dungeon complete."
+            footer = "Room cleared — advancing…"
+            if state.run_complete:
+                footer = _dungeon_completion_summary(state)
         else:
             footer = "The party has fallen or the assault stalled."
         embed.add_field(name="Battle log", value=footer, inline=False)
@@ -140,6 +143,14 @@ def build_dungeon_combat_embed(
             inline=False,
         )
     return embed
+
+
+def _dungeon_completion_summary(state: DungeonCombatState) -> str:
+    for idx, line in enumerate(state.log):
+        if "Dungeon conquered!" in line:
+            text = "\n".join(state.log[idx:])
+            return text[:1024]
+    return "Dungeon complete."
 
 
 def build_dungeon_cancelled_embed(*, reason: str) -> discord.Embed:

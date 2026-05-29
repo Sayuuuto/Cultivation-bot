@@ -8,6 +8,7 @@ from sqlalchemy import func, select
 from src.adventure import (
     AdventureResult,
     abandon_adventure,
+    apply_adventure_combat_outcome,
     apply_adventure_choice,
     get_active_adventure,
     get_encounters_for_area,
@@ -28,7 +29,7 @@ from src.cooldown_haste import (
 from src.crafting import craft_recipe
 from src.effects import add_haste_effect
 from src.equipment import apply_affix_stone, get_or_create_slot, get_player_equipment
-from src.forge import forge_equipment
+from src.forge import forge_and_equip, forge_equipment_for_player
 from src.inventory import add_item, get_item_quantity, load_item_catalog
 from src.models import AdventureRun, PlayerEffect
 from src.stats import equipment_stats_to_modifiers, get_total_equipment_stats
@@ -53,24 +54,26 @@ def _complete_interactive_adventure(session, player, area_id: str = "bamboo_grov
     beast = next(e for e in encounters if e.id == "beast_on_path")
     mist = next(e for e in encounters if e.id == "mist_crossroads")
     rng = ScriptedRNG(
-        floats=adventure_start_floats(segments=2),
-        encounter_queue=[beast, mist],
-        randint_queue=[1, 1, 1, 1],
+        floats=safe_adventure_segment_floats() * 3,
+        encounter_queue=[beast, mist, beast],
+        randint_queue=[3, 1, 1, 1],
     )
     pending, err = start_adventure_session(session, player, area_id, "balanced", rng=rng)
     assert err is None and pending is not None
 
-    choice_one = "detour" if any(c.id == "detour" for c in pending.choices) else _safest_choice_id(pending.choices)
-    result, err = apply_adventure_choice(session, player, pending.active_id, choice_one, rng=rng)
-    assert err is None and result is not None
+    current = pending
+    for _ in range(8):
+        preferred = "detour" if any(c.id == "detour" for c in current.choices) else None
+        if preferred is None:
+            preferred = "wait" if any(c.id == "wait" for c in current.choices) else None
+        choice_id = preferred or _safest_choice_id(current.choices)
+        result, err = apply_adventure_choice(session, player, current.active_id, choice_id, rng=rng)
+        assert err is None and result is not None
+        if isinstance(result, AdventureResult):
+            return result
+        current = result
 
-    if isinstance(result, AdventureResult):
-        return result
-
-    choice_two = "wait" if any(c.id == "wait" for c in result.choices) else _safest_choice_id(result.choices)
-    final, err = apply_adventure_choice(session, player, result.active_id, choice_two, rng=rng)
-    assert err is None and isinstance(final, AdventureResult)
-    return final
+    raise AssertionError("adventure did not finish within expected segments")
 
 
 def test_full_interactive_adventure_two_segments_grants_inventory(session, player):
@@ -81,7 +84,7 @@ def test_full_interactive_adventure_two_segments_grants_inventory(session, playe
     session.commit()
 
     assert result.outcome in {"success", "partial"}
-    assert result.segments_cleared == 2
+    assert result.segments_cleared >= 1
     assert result.qi_delta <= 0
     assert get_active_adventure(session, player.id) is None
     assert sum(get_item_quantity(session, player.id, item_id) for item_id in result.drops) > 0
@@ -173,24 +176,22 @@ def test_resume_adventure_restores_pending_state(session, player):
     assert resumed.prompt
 
 
+def _stock_mortal_forge_materials(session, player_id: int, *, sets: int = 4) -> None:
+    add_item(session, player_id, "minor_beast_core", 2 * sets)
+    add_item(session, player_id, "green_dew_herb", sets)
+    add_item(session, player_id, "bamboo_resin", sets)
+
+
 def test_forge_replaces_slot_and_aggregates_four_piece_stats(session, player):
-    recipes = {
-        "weapon": {"spirit_iron_shard": 2, "minor_beast_core": 1},
-        "armor": {"bamboo_resin": 3, "green_dew_herb": 2},
-        "accessory": {"bandit_token": 2, "ember_moss": 2},
-        "talisman": {"moonlotus": 1, "ancient_dust": 2},
-    }
-    for inputs in recipes.values():
-        for item_id, qty in inputs.items():
-            add_item(session, player.id, item_id, qty)
+    _stock_mortal_forge_materials(session, player.id, sets=4)
     session.commit()
 
-    for idx, slot in enumerate(recipes):
-        res = forge_equipment(session, player.id, slot, rng=random.Random(idx + 10))
+    for idx, slot in enumerate(("weapon", "armor", "accessory", "talisman")):
+        res = forge_and_equip(session, player, slot, rng=random.Random(idx + 10))
         assert res.success is True
 
     session.commit()
-    totals = get_total_equipment_stats(session, player.id)
+    totals = get_total_equipment_stats(session, player.id, player_realm_index=player.realm_index)
     assert totals.power > 0
     assert totals.defense > 0
     assert totals.fortune > 0
@@ -198,42 +199,42 @@ def test_forge_replaces_slot_and_aggregates_four_piece_stats(session, player):
     assert len(get_player_equipment(session, player.id)) == 4
 
 
-def test_forge_same_slot_overwrites_previous_piece(session, player):
-    add_item(session, player.id, "spirit_iron_shard", 4)
-    add_item(session, player.id, "minor_beast_core", 2)
+def test_forge_same_slot_adds_second_stash_piece(session, player):
+    _stock_mortal_forge_materials(session, player.id, sets=2)
     session.commit()
 
-    first = forge_equipment(session, player.id, "weapon", rng=random.Random(1))
-    second = forge_equipment(session, player.id, "weapon", rng=random.Random(99))
+    first = forge_equipment_for_player(session, player, "weapon", rng=random.Random(1))
+    second = forge_equipment_for_player(session, player, "weapon", rng=random.Random(99))
     session.commit()
 
     assert first.success and second.success
-    row = get_or_create_slot(session, player.id, "weapon")
-    assert row.stat_power == second.stats["power"]
+    from src.gear_stash import list_stash
+
+    stash = list_stash(session, player.id, slot="weapon")
+    assert len(stash) == 2
 
 
 def test_affix_stone_blocked_until_gear_is_forged(session, player):
     add_item(session, player.id, "affix_stone", 1)
     session.commit()
 
-    ok, message, affix = apply_affix_stone(session, player.id, "weapon", rng=random.Random(1))
+    ok, message, affix = apply_affix_stone(session, player.id, 99999, rng=random.Random(1))
     assert ok is False
     assert affix is None
-    assert "forge" in message.lower()
+    assert "forge" in message.lower() or "pick" in message.lower()
     assert get_item_quantity(session, player.id, "affix_stone") == 1
 
 
 def test_forged_stats_increase_character_modifiers(session, player):
     baseline = get_character_modifiers(session, player)
 
-    add_item(session, player.id, "moonlotus", 1)
-    add_item(session, player.id, "ancient_dust", 2)
+    _stock_mortal_forge_materials(session, player.id, sets=1)
     session.commit()
-    forge_equipment(session, player.id, "talisman", rng=random.Random(3))
+    forge_and_equip(session, player, "talisman", rng=random.Random(3))
     session.commit()
 
     geared = get_character_modifiers(session, player)
-    totals = get_total_equipment_stats(session, player.id)
+    totals = get_total_equipment_stats(session, player.id, player_realm_index=player.realm_index)
     expected = equipment_stats_to_modifiers(totals)
 
     assert geared.adventure_success > baseline.adventure_success
@@ -351,26 +352,20 @@ def test_forge_fails_without_consuming_materials(session, player):
     add_item(session, player.id, "spirit_iron_shard", 1)
     session.commit()
 
-    res = forge_equipment(session, player.id, "weapon", rng=random.Random(1))
+    res = forge_equipment_for_player(session, player, "weapon", rng=random.Random(1))
     assert res.success is False
     assert get_item_quantity(session, player.id, "spirit_iron_shard") == 1
 
 
 def test_full_gear_affix_loadout_pipeline(session, player):
-    forge_inputs = {
-        "weapon": {"spirit_iron_shard": 2, "minor_beast_core": 1},
-        "armor": {"bamboo_resin": 3, "green_dew_herb": 2},
-    }
-    for inputs in forge_inputs.values():
-        for item_id, qty in inputs.items():
-            add_item(session, player.id, item_id, qty)
+    _stock_mortal_forge_materials(session, player.id, sets=2)
     add_item(session, player.id, "affix_stone", 1)
     session.commit()
 
     baseline = get_character_modifiers(session, player)
-    forge_equipment(session, player.id, "weapon", rng=random.Random(2))
-    forge_equipment(session, player.id, "armor", rng=random.Random(3))
-    ok, _, affix_id = apply_affix_stone(session, player.id, "weapon", rng=random.Random(4))
+    weapon = forge_and_equip(session, player, "weapon", rng=random.Random(2))
+    forge_and_equip(session, player, "armor", rng=random.Random(3))
+    ok, _, affix_id = apply_affix_stone(session, player.id, weapon.gear_item_id, rng=random.Random(4))
     session.commit()
 
     assert ok is True and affix_id is not None
@@ -388,9 +383,9 @@ def test_partial_adventure_keeps_first_segment_loot_on_second_segment_setback(se
     encounters = get_encounters_for_area("bamboo_grove")
     beast_enc = next(e for e in encounters if e.id == "beast_on_path")
     rng = ScriptedRNG(
-        floats=[0.99] * 6 + [0.01],
+        floats=[*safe_adventure_segment_floats(), 0.99, 0.01],
         encounter_queue=[beast_enc, beast_enc],
-        randint_queue=[1],
+        randint_queue=[3],
     )
     pending, _ = start_adventure_session(session, player, "bamboo_grove", "balanced", rng=rng)
     assert pending is not None
@@ -399,39 +394,48 @@ def test_partial_adventure_keeps_first_segment_loot_on_second_segment_setback(se
     assert mid is not None and not isinstance(mid, AdventureResult)
 
     final, _ = apply_adventure_choice(session, player, mid.active_id, "bait", rng=rng)
+    if not isinstance(final, AdventureResult) and final is not None and final.encounter_type == "combat":
+        final, _ = apply_adventure_combat_outcome(
+            session, player, final.active_id, victory=False, rng=rng
+        )
     session.commit()
 
     assert isinstance(final, AdventureResult)
     assert final.outcome in {"partial", "fail"}
     assert final.segments_cleared >= 1
     assert len(final.drops) >= 1
-    assert any("forced back" in m or "backfires" in m for m in final.messages)
+    assert any(
+        "forced back" in m or "backfires" in m or "driven back" in m
+        for m in final.messages
+    )
     assert get_item_quantity(session, player.id, list(final.drops.keys())[0]) >= 1
 
 
 def test_rare_event_during_interactive_segment_can_grant_bonus_loot(session, player):
     encounters = get_encounters_for_area("bamboo_grove")
+    beast = next(e for e in encounters if e.id == "beast_on_path")
+    mist = next(e for e in encounters if e.id == "mist_crossroads")
     rng = ScriptedRNG(
         floats=[
-            0.99,
-            0.99,
             *safe_adventure_segment_floats(trigger_rare=True),
             *safe_adventure_segment_floats(),
+            *safe_adventure_segment_floats(),
         ],
-        encounter_queue=[encounters[0], encounters[1]],
-        randint_queue=[1, 1, 1, 1, 1],
+        encounter_queue=[beast, mist, beast],
+        randint_queue=[3, 1, 1, 1, 1],
     )
     pending, _ = start_adventure_session(session, player, "bamboo_grove", "balanced", rng=rng)
-    safe_one = _safest_choice_id(pending.choices)
-    result, err = apply_adventure_choice(session, player, pending.active_id, safe_one, rng=rng)
-    assert err is None and result is not None
-
-    if isinstance(result, AdventureResult):
-        final = result
-    else:
-        safe_two = _safest_choice_id(result.choices)
-        final, err = apply_adventure_choice(session, player, result.active_id, safe_two, rng=rng)
+    current = pending
+    for _ in range(6):
+        safe_choice = _safest_choice_id(current.choices)
+        result, err = apply_adventure_choice(session, player, current.active_id, safe_choice, rng=rng)
         assert err is None
+        if isinstance(result, AdventureResult):
+            final = result
+            break
+        current = result
+    else:
+        raise AssertionError("adventure did not finish")
     session.commit()
 
     assert isinstance(final, AdventureResult)

@@ -6,6 +6,9 @@
     "karma_requirement": ["neutral", "righteous"],
     "min_realm_index": 0,
     "theme": "internal",
+    "identity_tags": ["internal", "shield", "cleanse"],
+    "preferred_categories": ["utility", "soul"],
+    "leave_penalty": {"merit_loss_pct": 0.5, "cooldown_hours": 24},
     "description": "Taoist sword and internal arts on mist-wrapped peaks. Disciples meditate before they strike.",
     "shop_id": "wudang_shop",
     "task_pool_id": "wudang_tasks"
@@ -17,6 +20,9 @@
     "karma_requirement": ["neutral", "righteous"],
     "min_realm_index": 0,
     "theme": "body",
+    "identity_tags": ["body", "discipline", "cleanse"],
+    "preferred_categories": ["body", "utility"],
+    "leave_penalty": {"merit_loss_pct": 0.4, "cooldown_hours": 24},
     "description": "Monks temper flesh and will. External strength and iron discipline define the path.",
     "shop_id": "shaolin_shop",
     "task_pool_id": "shaolin_tasks"
@@ -28,6 +34,9 @@
     "karma_requirement": ["neutral", "righteous"],
     "min_realm_index": 0,
     "theme": "sword",
+    "identity_tags": ["sword", "bleed", "precision"],
+    "preferred_categories": ["sword", "passive"],
+    "leave_penalty": {"merit_loss_pct": 0.5, "cooldown_hours": 24},
     "description": "Austere sword cultivators who value precision, honor, and the long climb.",
     "shop_id": "mount_hua_shop",
     "task_pool_id": "mount_hua_tasks"
@@ -39,6 +48,9 @@
     "karma_requirement": ["neutral"],
     "min_realm_index": 1,
     "theme": "mystic",
+    "identity_tags": ["neutral", "balance", "shield"],
+    "preferred_categories": ["utility", "fire", "soul"],
+    "leave_penalty": {"merit_loss_pct": 0.55, "cooldown_hours": 36},
     "description": "Ancient mystics who accept only cultivators walking the middle path.",
     "shop_id": "kunlun_shop",
     "task_pool_id": "kunlun_tasks"
@@ -50,6 +62,9 @@
     "karma_requirement": ["neutral", "demonic"],
     "min_realm_index": 0,
     "theme": "poison",
+    "identity_tags": ["poison", "control", "hidden_weapon"],
+    "preferred_categories": ["poison", "soul", "sword"],
+    "leave_penalty": {"merit_loss_pct": 0.5, "cooldown_hours": 24},
     "description": "Artificers of poison and concealed steel. Reputation matters less than results.",
     "shop_id": "tang_shop",
     "task_pool_id": "tang_tasks"
@@ -61,6 +76,9 @@
     "karma_requirement": ["demonic"],
     "min_realm_index": 0,
     "theme": "demonic",
+    "identity_tags": ["demonic", "bleed", "lifesteal"],
+    "preferred_categories": ["sword", "passive"],
+    "leave_penalty": {"merit_loss_pct": 0.65, "cooldown_hours": 48},
     "description": "A demonic order that trades mercy for strength. Only the ruthless are welcome.",
     "shop_id": "blood_lotus_shop",
     "task_pool_id": "blood_lotus_tasks"
@@ -72,6 +90,9 @@
     "karma_requirement": ["righteous"],
     "min_realm_index": 3,
     "theme": "order",
+    "identity_tags": ["order", "shield", "judgment"],
+    "preferred_categories": ["body", "utility"],
+    "leave_penalty": {"merit_loss_pct": 0.75, "cooldown_hours": 72},
     "description": "The emperor's hidden cultivators. Recruitment is by edict alone — no wanderer may petition entry.",
     "shop_id": "imperial_guard_shop",
     "task_pool_id": "imperial_guard_tasks"
@@ -83,6 +104,9 @@
     "karma_requirement": ["demonic"],
     "min_realm_index": 1,
     "theme": "shadow",
+    "identity_tags": ["shadow", "bleed", "execution"],
+    "preferred_categories": ["sword", "soul", "passive"],
+    "leave_penalty": {"merit_loss_pct": 0.7, "cooldown_hours": 72},
     "description": "A demonic society that recruits only those who prove themselves in ruin and blood.",
     "shop_id": "shadow_pavilion_shop",
     "task_pool_id": "shadow_pavilion_tasks"

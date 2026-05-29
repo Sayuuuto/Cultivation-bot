@@ -51,7 +51,14 @@ def get_monster(monster_id: str) -> MonsterDef | None:
 
 
 def get_monsters_for_area(area_id: str) -> list[MonsterDef]:
-    return [m for m in load_monster_catalog().values() if area_id in m.areas]
+    from ..content import resolve_area_id
+
+    resolved = resolve_area_id(area_id) or area_id
+    return [
+        m
+        for m in load_monster_catalog().values()
+        if resolved in m.areas or area_id in m.areas
+    ]
 
 
 def get_area_monsters_by_tier(area_id: str) -> tuple[list[MonsterDef], list[MonsterDef], list[MonsterDef]]:

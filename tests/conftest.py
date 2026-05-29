@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from src.config import Config
-from src.models import Base, Player
+from src.models import Base, Player, PlayerNotification  # noqa: F401 — register table
 
 
 @pytest.fixture

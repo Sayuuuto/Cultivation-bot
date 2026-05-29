@@ -3,6 +3,7 @@ from __future__ import annotations
 import random
 
 from ..combat_stats import PlayerCombatStats
+from ..ui.formatting import format_compact_number
 from .catalog import TechniqueDef, get_technique
 from .rarity import rarity_damage_multiplier
 from .effect_defs import EffectDef
@@ -12,6 +13,7 @@ from .effects import (
     cleanse_debuffs,
     has_status,
     is_stunned,
+    status_application_chance,
 )
 
 CC_STATUSES = frozenset({"stun", "seal", "fear"})
@@ -102,7 +104,7 @@ SEAL_EXEMPT_TECHNIQUE_IDS = frozenset({"basic_strike"})
 
 def _apply_shield_damage(target_hp: int, shield: int, damage: int) -> tuple[int, int, int]:
     if shield <= 0:
-        return target_hp - damage, 0, damage
+        return target_hp - damage, 0, 0
     absorbed = min(shield, damage)
     remaining = damage - absorbed
     return target_hp - remaining, shield - absorbed, absorbed
@@ -120,7 +122,7 @@ def _deal_damage_to_player(state, damage: int) -> int:
     state.player.hp = hp
     state.player_shield = shield
     if absorbed > 0:
-        state.log.append(f"Your shield absorbs **{absorbed}** damage.")
+        state.log.append(f"Your shield absorbs **{format_compact_number(absorbed)}** damage.")
     return damage - absorbed
 
 
@@ -138,7 +140,8 @@ def _maybe_apply_status(
     if status_id == "bleed" and _is_bleed_immune(traits):
         state.log.append(f"{log_prefix}**{name}** resists **bleed**.")
         return False
-    if rng.random() >= chance:
+    effective_chance = status_application_chance(target, status_id, chance)
+    if rng.random() >= effective_chance:
         return False
     apply_status(target, status_id)
     state.log.append(f"{log_prefix}**{name}** is afflicted with **{status_id}**.")
@@ -168,7 +171,7 @@ def _resolve_on_hit_passives(
             reflect = int(damage_dealt * float(trig.params.get("ratio", 0.3)))
             if reflect > 0:
                 _deal_damage_to_opponent(state, reflect)
-                state.log.append(f"**{passive.name}** reflects **{reflect}** damage!")
+                state.log.append(f"**{passive.name}** reflects **{format_compact_number(reflect)}** damage!")
         elif trig.type == "low_hp_crit_bonus":
             threshold = float(trig.params.get("threshold", 0.3))
             if state.opponent.hp / max(1, state.opponent.max_hp) <= threshold:
@@ -251,7 +254,7 @@ def _resolve_effect(
         state.player.hp = min(state.player.max_hp, state.player.hp + heal)
         gained = state.player.hp - before
         if gained > 0:
-            state.log.append(f"**{tech.name}** restores **{gained}** HP.")
+            state.log.append(f"**{tech.name}** restores **{format_compact_number(gained)}** HP.")
         return 0
 
     if etype == "lifesteal":
@@ -265,7 +268,7 @@ def _resolve_effect(
         if dealt > 0:
             steal = max(1, int(dealt * float(p.get("ratio", 0.25))))
             state.player.hp = min(state.player.max_hp, state.player.hp + steal)
-            state.log.append(f"**{tech.name}** drains **{steal}** HP from bleeding prey.")
+            state.log.append(f"**{tech.name}** drains **{format_compact_number(steal)}** HP from bleeding prey.")
         return dealt
 
     if etype == "shield":
@@ -274,7 +277,7 @@ def _resolve_effect(
         amount = max(1, int(state.player.max_hp * pct))
         state.player_shield = max(state.player_shield, amount)
         state.shield_turns = max(state.shield_turns, turns)
-        state.log.append(f"**{tech.name}** raises a shield (**{amount}** absorption).")
+        state.log.append(f"**{tech.name}** raises a shield (**{format_compact_number(amount)}** absorption).")
         return 0
 
     if etype == "cleanse":
@@ -286,7 +289,24 @@ def _resolve_effect(
         if heal_ratio > 0:
             heal = max(1, int(state.player.max_hp * heal_ratio))
             state.player.hp = min(state.player.max_hp, state.player.hp + heal)
-            state.log.append(f"**{tech.name}** restores **{heal}** HP.")
+            state.log.append(f"**{tech.name}** restores **{format_compact_number(heal)}** HP.")
+        return 0
+
+    if etype == "adjust_karma":
+        from .rules import load_combat_rules
+
+        policy = load_combat_rules().karma_policy
+        if not policy.techniques_shift_karma_in_combat:
+            return 0
+        delta = int(p.get("delta", 0))
+        if delta == 0:
+            return 0
+        pending = int(state.context_meta.get("karma_delta", 0))
+        new_total = max(-policy.max_karma_per_fight, min(policy.max_karma_per_fight, pending + delta))
+        state.context_meta["karma_delta"] = new_total
+        if new_total != pending:
+            word = "righteous" if delta > 0 else "demonic"
+            state.log.append(f"**{tech.name}** tugs your dao toward the **{word}** path (**{delta:+d}** karma).")
         return 0
 
     if etype == "dodge_next":
@@ -408,7 +428,7 @@ def resolve_technique(
     if total_dealt > 0 and tech.damage_type != "none":
         crit_note = " **Critical!**" if is_crit else ""
         if not any(e.type in {"lifesteal", "multi_hit"} for e in effects):
-            state.log.append(f"**{tech.name}** hits for **{total_dealt}** damage.{crit_note}")
+            state.log.append(f"**{tech.name}** hits for **{format_compact_number(total_dealt)}** damage.{crit_note}")
         _resolve_on_hit_passives(state, passive, stats, rng, damage_dealt=total_dealt, is_crit=is_crit)
         state.consecutive_hits += 1
     elif total_dealt == 0 and tech.damage_type != "none" and not any(
@@ -434,7 +454,7 @@ def process_passive_turn_end(state, passive: TechniqueDef | None) -> None:
                 state.player.hp = min(state.player.max_hp, state.player.hp + heal)
                 gained = state.player.hp - before
                 if gained > 0:
-                    state.log.append(f"**{passive.name}** restores **{gained}** HP from bleeding prey.")
+                    state.log.append(f"**{passive.name}** restores **{format_compact_number(gained)}** HP from bleeding prey.")
         elif trig.type == "consecutive_hit_bonus" and state.consecutive_hits == 0:
             state.consecutive_bonus_per_hit = float(trig.params.get("bonus_per_hit", 0.05))
     if passive.passive_on_bleed and has_status(state.opponent, "bleed"):
@@ -445,7 +465,7 @@ def process_passive_turn_end(state, passive: TechniqueDef | None) -> None:
             state.player.hp = min(state.player.max_hp, state.player.hp + heal)
             gained = state.player.hp - before
             if gained > 0:
-                state.log.append(f"**{passive.name}** restores **{gained}** HP from bleeding prey.")
+                state.log.append(f"**{passive.name}** restores **{format_compact_number(gained)}** HP from bleeding prey.")
 
 
 def process_passive_on_cc(state, passive: TechniqueDef | None, status_id: str) -> None:

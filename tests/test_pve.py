@@ -69,15 +69,15 @@ def test_dungeon_with_key(session, player):
 
 
 def test_equip_affix_stone(session, player):
-    from src.forge import forge_equipment
+    from src.forge import forge_equipment_for_player
 
-    add_item(session, player.id, "spirit_iron_shard", 2)
-    add_item(session, player.id, "minor_beast_core", 1)
+    add_item(session, player.id, "minor_beast_core", 2)
+    add_item(session, player.id, "green_dew_herb", 1)
     add_item(session, player.id, "affix_stone", 1)
     session.commit()
-    forge_res = forge_equipment(session, player.id, "weapon", rng=random.Random(1))
+    forge_res = forge_equipment_for_player(session, player, "weapon", rng=random.Random(1))
     assert forge_res.success is True
-    ok, message, affix_id = apply_affix_stone(session, player.id, "weapon", rng=random.Random(1))
+    ok, message, affix_id = apply_affix_stone(session, player.id, forge_res.gear_item_id, rng=random.Random(1))
     session.commit()
     assert ok is True
     assert affix_id is not None

@@ -18,6 +18,7 @@ from .game import (
     utcnow,
 )
 from .models import PendingDuel, Player
+from .combat.loadout import list_pvp_loadout_violations
 from .pvp_match import StartedPvpMatch, begin_pvp_match
 
 DUEL_CHALLENGE_TIMEOUT_SECONDS = 120
@@ -149,6 +150,10 @@ def create_duel_challenge(
     if cooldown_err:
         return None, cooldown_err
 
+    violations = list_pvp_loadout_violations(session, challenger)
+    if violations:
+        return None, "Your loadout cannot challenge others:\n• " + "\n• ".join(violations)
+
     if find_active_pending_for_player(session, guild_id, challenger.discord_id, now):
         return None, "You already have a pending duel challenge."
 
@@ -273,6 +278,17 @@ def accept_duel_challenge(
     cooldown_err = validate_duel_participants(session, challenger, opponent, cfg, now)
     if cooldown_err:
         return None, cooldown_err
+
+    for duelist, label in ((challenger, "Challenger"), (opponent, "Opponent")):
+        violations = list_pvp_loadout_violations(session, duelist)
+        if violations:
+            if duelist.discord_id == opponent.discord_id:
+                return (
+                    None,
+                    f"**{opponent.dao_name}**'s loadout cannot enter the arena:\n• "
+                    + "\n• ".join(violations),
+                )
+            return None, f"{label} loadout cannot enter the arena:\n• " + "\n• ".join(violations)
 
     started = begin_pvp_match(session, challenge, challenger, opponent, rng, now)
     return started, None

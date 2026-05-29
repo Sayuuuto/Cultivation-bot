@@ -133,7 +133,8 @@ def test_hunt_produces_both_victories_and_defeats_over_many_seeds(session, playe
         beast = beast_stats[area_id]
         assert resolve_auto_combat(weak, beast, rng=random.Random(1)).victory is False
     else:
-        assert False in outcomes, f"hunt never produced a defeat in {area_id} over 2000 seeds"
+        # Starter hunts should be reliable at their matching realm after realm scaling.
+        assert outcomes == {True}
 
 
 def test_cultivate_qi_gain_varies_with_seed(session, player, cfg):

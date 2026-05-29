@@ -2,57 +2,65 @@
   "wudang_shop": {
     "name": "Wudang Scripture Pavilion",
     "entries": [
-      {"item_id": "manual_mountain_guard", "merit_cost": 120, "min_realm_index": 0},
-      {"item_id": "manual_qi_barrier", "merit_cost": 80, "min_realm_index": 0}
+      {"item_id": "manual_qi_barrier", "merit_cost": 80, "min_realm_index": 0, "tier": "outer"},
+      {"item_id": "manual_mountain_guard", "merit_cost": 120, "min_realm_index": 0, "tier": "inner"},
+      {"item_id": "manual_mirror_nimbus", "merit_cost": 240, "min_realm_index": 2, "tier": "core"}
     ]
   },
   "shaolin_shop": {
     "name": "Shaolin Arsenal",
     "entries": [
-      {"item_id": "manual_iron_body", "merit_cost": 100, "min_realm_index": 0},
-      {"item_id": "manual_purifying_breath", "merit_cost": 140, "min_realm_index": 1}
+      {"item_id": "manual_iron_body", "merit_cost": 100, "min_realm_index": 0, "tier": "outer"},
+      {"item_id": "manual_purifying_breath", "merit_cost": 140, "min_realm_index": 1, "tier": "inner"},
+      {"item_id": "manual_iron_will", "merit_cost": 230, "min_realm_index": 2, "tier": "core"}
     ]
   },
   "mount_hua_shop": {
     "name": "Mount Hua Sword Repository",
     "entries": [
-      {"item_id": "manual_swift_slash", "merit_cost": 90, "min_realm_index": 0},
-      {"item_id": "manual_hemorrhage_art", "merit_cost": 130, "min_realm_index": 0}
+      {"item_id": "manual_swift_slash", "merit_cost": 90, "min_realm_index": 0, "tier": "outer"},
+      {"item_id": "manual_hemorrhage_art", "merit_cost": 130, "min_realm_index": 0, "tier": "inner"},
+      {"item_id": "manual_heavens_cleave", "merit_cost": 260, "min_realm_index": 2, "tier": "core"}
     ]
   },
   "tang_shop": {
     "name": "Tang Hidden Arsenal",
     "entries": [
-      {"item_id": "manual_soul_needle", "merit_cost": 110, "min_realm_index": 0},
-      {"item_id": "manual_sanguine_drain", "merit_cost": 130, "min_realm_index": 0}
+      {"item_id": "manual_soul_needle", "merit_cost": 110, "min_realm_index": 0, "tier": "outer"},
+      {"item_id": "manual_sanguine_drain", "merit_cost": 130, "min_realm_index": 0, "tier": "inner"},
+      {"item_id": "manual_venom_weave", "merit_cost": 250, "min_realm_index": 2, "tier": "core"}
     ]
   },
   "blood_lotus_shop": {
     "name": "Blood Lotus Vault",
     "entries": [
-      {"item_id": "manual_hemorrhage_art", "merit_cost": 130, "min_realm_index": 0},
-      {"item_id": "manual_blood_feast", "merit_cost": 150, "min_realm_index": 1}
+      {"item_id": "manual_hemorrhage_art", "merit_cost": 130, "min_realm_index": 0, "tier": "outer"},
+      {"item_id": "manual_blood_feast", "merit_cost": 150, "min_realm_index": 1, "tier": "inner"},
+      {"item_id": "manual_undying_vow", "merit_cost": 280, "min_realm_index": 2, "tier": "core"}
     ]
   },
   "kunlun_shop": {
     "name": "Kunlun Inner Sanctum",
     "entries": [
-      {"item_id": "manual_purifying_breath", "merit_cost": 160, "min_realm_index": 1},
-      {"item_id": "manual_mountain_guard", "merit_cost": 120, "min_realm_index": 0}
+      {"item_id": "manual_mountain_guard", "merit_cost": 120, "min_realm_index": 0, "tier": "outer"},
+      {"item_id": "manual_purifying_breath", "merit_cost": 160, "min_realm_index": 1, "tier": "inner"},
+      {"item_id": "manual_mirror_nimbus", "merit_cost": 260, "min_realm_index": 2, "tier": "core"}
     ]
   },
   "imperial_guard_shop": {
     "name": "Imperial Guard Armory",
     "entries": [
-      {"item_id": "manual_mountain_guard", "merit_cost": 200, "min_realm_index": 2},
-      {"item_id": "manual_qi_barrier", "merit_cost": 160, "min_realm_index": 1}
+      {"item_id": "manual_qi_barrier", "merit_cost": 160, "min_realm_index": 1, "tier": "outer"},
+      {"item_id": "manual_mountain_guard", "merit_cost": 200, "min_realm_index": 2, "tier": "inner"},
+      {"item_id": "manual_lotus_revival", "merit_cost": 320, "min_realm_index": 3, "tier": "core"}
     ]
   },
   "shadow_pavilion_shop": {
     "name": "Shadow Pavilion Archive",
     "entries": [
-      {"item_id": "manual_sanguine_drain", "merit_cost": 130, "min_realm_index": 0},
-      {"item_id": "manual_blood_feast", "merit_cost": 170, "min_realm_index": 1}
+      {"item_id": "manual_sanguine_drain", "merit_cost": 130, "min_realm_index": 0, "tier": "outer"},
+      {"item_id": "manual_blood_feast", "merit_cost": 170, "min_realm_index": 1, "tier": "inner"},
+      {"item_id": "manual_undying_vow", "merit_cost": 320, "min_realm_index": 3, "tier": "core"}
     ]
   }
 }

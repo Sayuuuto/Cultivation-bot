@@ -3,6 +3,7 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass, field
 
+from ..ui.formatting import format_compact_number
 from .rules import StatusRule, load_combat_rules
 
 
@@ -21,6 +22,7 @@ class CombatantState:
     sealed: bool = False
     feared: bool = False
     dodge_next: bool = False
+    control_dr: dict[str, int] = field(default_factory=dict)
 
 
 def _status_rule(status_id: str) -> StatusRule | None:
@@ -49,7 +51,19 @@ def apply_status(target: CombatantState, status_id: str) -> str | None:
         target.sealed = True
     if status_id == "fear":
         target.feared = True
+    if rule.control and rule.dr_window > 0:
+        target.control_dr[status_id] = max(target.control_dr.get(status_id, 0), rule.dr_window)
     return status_id
+
+
+def status_application_chance(target: CombatantState, status_id: str, base_chance: float) -> float:
+    rule = _status_rule(status_id)
+    if rule is None or not rule.control:
+        return base_chance
+    stacks = max(0, int(target.control_dr.get(status_id, 0)))
+    if stacks <= 0:
+        return base_chance
+    return max(0.0, min(1.0, base_chance * (rule.dr_multiplier ** stacks)))
 
 
 def get_status_instance(target: CombatantState, status_id: str) -> StatusInstance | None:
@@ -146,11 +160,16 @@ def tick_statuses(target: CombatantState) -> list[str]:
         if rule.damage_per_stack > 0:
             damage = rule.damage_per_stack * status.stacks
             target.hp = max(0, target.hp - damage)
-            lines.append(f"**{status.status_id.title()}** deals **{damage}** damage.")
+            lines.append(f"**{status.status_id.title()}** deals **{format_compact_number(damage)}** damage.")
         status.turns_remaining -= 1
         if status.turns_remaining > 0:
             remaining.append(status)
     target.statuses = remaining
+    target.control_dr = {
+        status_id: turns - 1
+        for status_id, turns in target.control_dr.items()
+        if turns - 1 > 0
+    }
     target.sealed = has_status(target, "seal")
     target.feared = has_status(target, "fear")
     return lines

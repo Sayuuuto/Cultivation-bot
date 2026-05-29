@@ -119,6 +119,17 @@ def _migrate_clan_invite_columns(engine) -> None:
     )
 
 
+def _migrate_drop_legacy_stamina_columns(engine) -> None:
+    """Drop stamina columns from an older schema; Player no longer maps them."""
+    with engine.connect() as conn:
+        if not _table_exists(conn, "players"):
+            return
+        for column in ("stamina_last_updated_at", "stamina"):
+            if _column_exists(conn, "players", column):
+                conn.execute(text(f"ALTER TABLE players DROP COLUMN {column}"))
+        conn.commit()
+
+
 def _migrate_player_columns(engine) -> None:
     _migrate_table_columns(
         engine,
@@ -207,8 +218,77 @@ def _migrate_equipment_columns(engine) -> None:
             "stat_fortune": "INTEGER DEFAULT 0",
             "stat_insight": "INTEGER DEFAULT 0",
             "technique_tag": "VARCHAR(16)",
+            "gear_realm": "INTEGER DEFAULT 0",
+            "gear_grade": "VARCHAR(16) DEFAULT 'external'",
+            "gear_item_id": "INTEGER",
         },
     )
+
+
+def _migrate_gear_stash(engine) -> None:
+    """Backfill player_gear_items from legacy slot rows."""
+    with engine.connect() as conn:
+        if not _table_exists(conn, "player_gear_items"):
+            return
+        if not _table_exists(conn, "player_equipment"):
+            return
+        rows = conn.execute(
+            text(
+                """
+                SELECT id, player_id, slot, item_id, stat_power, stat_defense, stat_fortune, stat_insight,
+                       affix_id, technique_tag, gear_realm, gear_grade, gear_item_id
+                FROM player_equipment
+                WHERE item_id IS NOT NULL AND (gear_item_id IS NULL OR gear_item_id = 0)
+                """
+            )
+        ).fetchall()
+        for (
+            eq_id,
+            player_id,
+            slot,
+            item_id,
+            stat_power,
+            stat_defense,
+            stat_fortune,
+            stat_insight,
+            affix_id,
+            technique_tag,
+            gear_realm,
+            gear_grade,
+            _gear_item_id,
+        ) in rows:
+            result = conn.execute(
+                text(
+                    """
+                    INSERT INTO player_gear_items
+                    (player_id, slot, item_id, stat_power, stat_defense, stat_fortune, stat_insight,
+                     affix_id, technique_tag, gear_realm, gear_grade, equipped_in_slot)
+                    VALUES
+                    (:player_id, :slot, :item_id, :stat_power, :stat_defense, :stat_fortune, :stat_insight,
+                     :affix_id, :technique_tag, :gear_realm, :gear_grade, :equipped_in_slot)
+                    """
+                ),
+                {
+                    "player_id": player_id,
+                    "slot": slot,
+                    "item_id": item_id,
+                    "stat_power": stat_power or 0,
+                    "stat_defense": stat_defense or 0,
+                    "stat_fortune": stat_fortune or 0,
+                    "stat_insight": stat_insight or 0,
+                    "affix_id": affix_id,
+                    "technique_tag": technique_tag,
+                    "gear_realm": gear_realm or 0,
+                    "gear_grade": gear_grade or "external",
+                    "equipped_in_slot": slot,
+                },
+            )
+            gear_item_id = result.lastrowid
+            conn.execute(
+                text("UPDATE player_equipment SET gear_item_id = :gear_item_id WHERE id = :eq_id"),
+                {"gear_item_id": gear_item_id, "eq_id": eq_id},
+            )
+        conn.commit()
 
 
 def _migrate_effect_columns(engine) -> None:
@@ -216,6 +296,14 @@ def _migrate_effect_columns(engine) -> None:
         engine,
         "player_effects",
         {"value_int": "INTEGER"},
+    )
+
+
+def _migrate_player_technique_columns(engine) -> None:
+    _migrate_table_columns(
+        engine,
+        "player_techniques",
+        {"rank": "INTEGER DEFAULT 1"},
     )
 
 
@@ -357,9 +445,12 @@ def init_db() -> None:
     engine = get_engine()
     Base.metadata.create_all(engine)
     _migrate_clan_rename(engine)
+    _migrate_drop_legacy_stamina_columns(engine)
     _migrate_player_columns(engine)
     _migrate_equipment_columns(engine)
+    _migrate_gear_stash(engine)
     _migrate_effect_columns(engine)
+    _migrate_player_technique_columns(engine)
     _migrate_game_sect_columns(engine)
     _migrate_clan_invite_columns(engine)
     _migrate_karma_from_moral_path(engine)

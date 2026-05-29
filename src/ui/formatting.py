@@ -28,6 +28,24 @@ OUTCOME_EMOJI = {
     "fled": "🏃",
 }
 
+
+def format_compact_number(value: int | float) -> str:
+    num = float(value)
+    sign = "-" if num < 0 else ""
+    num = abs(num)
+    units = (
+        (1_000_000_000_000, "T"),
+        (1_000_000_000, "B"),
+        (1_000_000, "M"),
+        (1_000, "K"),
+    )
+    for threshold, suffix in units:
+        if num >= threshold:
+            scaled = num / threshold
+            text = f"{scaled:.1f}".rstrip("0").rstrip(".")
+            return f"{sign}{text}{suffix}"
+    return f"{int(value)}"
+
 RARE_EVENT_FLAIR: dict[str, tuple[str, str]] = {
     "hidden_herb_patch": ("🌿", "Hidden Herb Patch"),
     "wandering_elder": ("🧙", "Wandering Elder"),
@@ -64,9 +82,10 @@ def format_hp_block(
     bar_fill: str = "🟩",
     include_header: bool = True,
 ) -> str:
-    pct = 0 if max_hp <= 0 else int(hp / max_hp * 100)
-    bar = format_hp_bar(hp, max_hp, fill=bar_fill)
-    body = f"{bar} **{hp}/{max_hp}** ({pct}%)"
+    shown_hp = max(0, hp)
+    pct = 0 if max_hp <= 0 else int(shown_hp / max_hp * 100)
+    bar = format_hp_bar(shown_hp, max_hp, fill=bar_fill)
+    body = f"{bar} **{format_compact_number(shown_hp)}/{format_compact_number(max_hp)}** ({pct}%)"
     if include_header:
         return f"{icon} **{name}**\n{body}"
     return body

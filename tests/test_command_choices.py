@@ -6,7 +6,7 @@ import pytest
 
 from src.command_choices import (
     can_bind_technique_manual,
-    list_affixable_slots,
+    list_affixable_gear,
     list_craftable_recipes,
     list_recipe_options,
     list_enterable_dungeons,
@@ -71,31 +71,35 @@ def test_list_craftable_recipes_only_when_materials_present(session, player):
 def test_list_forgeable_slots_requires_inputs(session, player):
     assert list_forgeable_slots(session, player.id) == []
 
-    add_item(session, player.id, "spirit_iron_shard", 2)
-    add_item(session, player.id, "minor_beast_core", 1)
+    add_item(session, player.id, "minor_beast_core", 2)
+    add_item(session, player.id, "green_dew_herb", 1)
     session.commit()
 
     slots = list_forgeable_slots(session, player.id)
-    assert any(slot == "weapon" for slot, _ in slots)
+    assert any(slot.startswith("weapon|") for slot, _ in slots)
 
 
-def test_list_affixable_slots_requires_stone_and_gear(session, player):
-    assert list_affixable_slots(session, player.id) == []
+def test_list_affixable_gear_shows_stash_and_worn(session, player):
+    assert list_affixable_gear(session, player.id) == []
+
+    from src.forge import forge_and_equip
+
+    add_item(session, player.id, "minor_beast_core", 2)
+    add_item(session, player.id, "green_dew_herb", 1)
+    session.commit()
+    forge_and_equip(session, player, "weapon", rng=random.Random(1))
+    session.commit()
+
+    slots = list_affixable_gear(session, player.id)
+    assert len(slots) == 1
+    assert slots[0][0].isdigit()
+    assert any("need Affix Stone" in label for _, label in slots)
 
     add_item(session, player.id, "affix_stone", 1)
     session.commit()
-    assert list_affixable_slots(session, player.id) == []
-
-    from src.forge import forge_equipment
-
-    add_item(session, player.id, "spirit_iron_shard", 2)
-    add_item(session, player.id, "minor_beast_core", 1)
-    session.commit()
-    forge_equipment(session, player.id, "weapon", rng=random.Random(1))
-    session.commit()
-
-    slots = list_affixable_slots(session, player.id)
-    assert any(slot == "weapon" for slot, _ in slots)
+    ready_slots = list_affixable_gear(session, player.id)
+    assert len(ready_slots) == 1
+    assert all("need Affix Stone" not in label for _, label in ready_slots)
 
 
 def test_list_equippable_techniques_filters_by_realm(session, player):
@@ -117,9 +121,9 @@ def test_list_unlocked_areas_shows_danger_labels(session, player):
     player.realm_index = 0
     session.commit()
     areas = {area_id: label for area_id, label in list_unlocked_areas(player)}
-    assert "bamboo_grove" in areas
-    assert "moonwell_ruins" in areas
-    assert "deadly" in areas["moonwell_ruins"].lower()
+    assert "mortal_grove" in areas
+    assert "foundation_ruins" in areas
+    assert "deadly" in areas["foundation_ruins"].lower()
 
 
 def test_list_enterable_dungeons_requires_key_and_realm(session, player):

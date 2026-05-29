@@ -20,6 +20,7 @@ from src.game import (
     qi_cap,
     sync_passive_qi_bank,
     to_utc,
+    update_daily_streak,
 )
 from src.models import Player
 
@@ -185,5 +186,22 @@ def test_daily_rewards_scale_with_streak(player: Player):
     stones, qi = compute_daily_rewards(player)
     assert stones == 50 + 10  # base + streak bonus (min(20, streak*2))
     assert qi == 10 + player.realm_index * 2
+
+
+def test_daily_streak_increments_by_claim_window(player: Player):
+    first = datetime(2026, 5, 27, 23, 30, tzinfo=timezone.utc)
+    second = first + timedelta(hours=25)
+
+    assert update_daily_streak(player, first) == 1
+    assert player.last_daily_streak_claimed_at == first
+    assert update_daily_streak(player, second) == 2
+
+
+def test_daily_streak_resets_after_grace_window(player: Player):
+    first = datetime(2026, 5, 27, 12, 0, tzinfo=timezone.utc)
+    late = first + timedelta(hours=49)
+
+    assert update_daily_streak(player, first) == 1
+    assert update_daily_streak(player, late) == 1
 
 

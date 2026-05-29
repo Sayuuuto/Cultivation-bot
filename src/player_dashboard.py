@@ -13,7 +13,11 @@ from .combat.loadout import (
     get_learned_technique_ids,
     get_learned_techniques,
     get_loadout,
+    validate_pvp_loadout,
 )
+from .combat.rules import load_combat_rules
+from .notifications import format_profile_progression_flags
+from .realms import get_technique_load_budget
 from .combat.catalog import get_technique
 from .combat_stats import PlayerCombatStats, format_combat_stats_block
 from .command_choices import can_bind_technique_manual, list_player_manuals
@@ -99,12 +103,31 @@ def format_martial_dao_summary(session: Session, player: Player) -> str:
     ]
     if manuals:
         lines.append(f"**Manuals** — {len(manuals)} unread scroll(s) ready to study")
-    elif can_bind_technique_manual(session, player.id):
-        lines.append("**Manuals** — all binding materials ready; use **`/craft manual`**")
-    else:
-        bind_progress = format_manual_bind_progress(session, player.id)
-        if bind_progress:
-            lines.append(bind_progress)
+    progression = format_profile_progression_flags(session, player)
+    for flag in progression:
+        lines.append(flag)
+    if load_combat_rules().enabled("technique_load_budget"):
+        from .combat.loadout import _load_totals
+        from .combat.catalog import load_technique_catalog
+
+        budget = get_technique_load_budget(player.realm_index)
+        totals = _load_totals(load_technique_catalog(), loadout)
+        lines.append(
+            f"**Load** — active **{totals['active']}/{budget['active']}** · "
+            f"passive **{totals['passive']}/{budget['passive']}** · "
+            f"total **{totals['total']}/{budget['total']}**"
+        )
+    if load_combat_rules().enabled("pvp_legality_checks"):
+        ok, _ = validate_pvp_loadout(session, player)
+        if ok:
+            lines.append("**Arena** — loadout legal for duels")
+    if not manuals:
+        if can_bind_technique_manual(session, player.id):
+            lines.append("**Manuals** — all binding materials ready; use **`/craft manual`**")
+        else:
+            bind_progress = format_manual_bind_progress(session, player.id)
+            if bind_progress:
+                lines.append(bind_progress)
 
     return "\n".join(lines)
 
@@ -286,6 +309,6 @@ def build_techniques_embed(session: Session, player: Player) -> discord.Embed:
         color=discord.Color.dark_purple(),
     )
     embed.set_footer(
-        text="Use /technique <name> for art type & combat details · /equip-technique for active slots 1–4 or passive"
+        text="Use /techniques for your loadout, skill library, unlock manuals, and equip"
     )
     return embed

@@ -1,367 +1,187 @@
 {
-  "bamboo_grove": {
-    "name": "Whispering Bamboo Grove",
+  "mortal_grove": {
+    "name": "Mortal Grove",
     "difficulty": "easy",
     "min_realm": 0,
-    "recommended_text": "Mortal \u2192 Qi Refining",
+    "recommended_text": "Mortal",
     "base_success": 0.78,
     "drops": [
-      {
-        "item_id": "green_dew_herb",
-        "min": 1,
-        "max": 3,
-        "rarity": "common"
-      },
-      {
-        "item_id": "bamboo_resin",
-        "min": 1,
-        "max": 2,
-        "rarity": "uncommon"
-      },
-      {
-        "item_id": "qi_gathering_pill",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "meridian_surge_pill",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "flow_pill",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "clarity_pill",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "minor_beast_core",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "technique_fragment",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary"
-      }
+      {"item_id": "green_dew_herb", "min": 1, "max": 3, "rarity": "common"},
+      {"item_id": "bamboo_resin", "min": 1, "max": 2, "rarity": "uncommon"},
+      {"item_id": "minor_beast_core", "min": 1, "max": 1, "rarity": "rare"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "rarity": "legendary"}
     ],
     "rare_event_chance": 0.1,
     "rare_events": [
-      {
-        "id": "hidden_herb_patch",
-        "weight": 50,
-        "message": "You discover a hidden herb patch shimmering with dew."
-      },
-      {
-        "id": "wandering_elder",
-        "weight": 30,
-        "message": "A wandering elder nods at you and vanishes into the mist."
-      },
-      {
-        "id": "ancient_cache",
-        "weight": 20,
-        "message": "An ancient cache lies half-buried beneath the roots."
-      }
+      {"id": "hidden_herb_patch", "weight": 50, "message": "You discover a hidden herb patch shimmering with dew."},
+      {"id": "wandering_elder", "weight": 30, "message": "A wandering elder nods at you and vanishes into the mist."},
+      {"id": "ancient_cache", "weight": 20, "message": "An ancient cache lies half-buried beneath the roots."},
+      {"id": "cursed_shrine", "weight": 10, "message": "A cracked shrine pulses with forbidden power at the grove edge."}
     ]
   },
-  "ashen_cliff": {
-    "name": "Ashen Cliff Pass",
+  "qi_refining_cliffs": {
+    "name": "Qi Refining Cliffs",
     "difficulty": "medium",
     "min_realm": 1,
-    "recommended_text": "Qi Refining \u2192 Foundation",
-    "base_success": 0.68,
+    "recommended_text": "Qi Refining",
+    "base_success": 0.7,
     "drops": [
-      {
-        "item_id": "ember_moss",
-        "min": 1,
-        "max": 2,
-        "rarity": "common"
-      },
-      {
-        "item_id": "spirit_iron_shard",
-        "min": 1,
-        "max": 2,
-        "rarity": "common"
-      },
-      {
-        "item_id": "bandit_token",
-        "min": 1,
-        "max": 1,
-        "rarity": "uncommon"
-      },
-      {
-        "item_id": "technique_fragment",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary"
-      }
+      {"item_id": "ember_moss", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "spirit_iron_shard", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "bandit_token", "min": 1, "max": 1, "rarity": "uncommon"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "rarity": "legendary"}
     ],
-    "rare_event_chance": 0.08,
+    "rare_event_chance": 0.09,
     "rare_events": [
-      {
-        "id": "ambush",
-        "weight": 40,
-        "message": "Bandits ambush you from the cliffside smoke."
-      },
-      {
-        "id": "abandoned_cart",
-        "weight": 45,
-        "message": "An abandoned cart still holds sealed crates."
-      },
-      {
-        "id": "ancient_cache",
-        "weight": 15,
-        "message": "Scorched stone reveals a hidden compartment."
-      }
+      {"id": "ambush", "weight": 40, "message": "Bandits ambush you from the cliffside smoke."},
+      {"id": "abandoned_cart", "weight": 45, "message": "An abandoned cart still holds sealed crates."},
+      {"id": "ancient_cache", "weight": 15, "message": "Scorched stone reveals a hidden compartment."}
     ]
   },
-  "moonwell_ruins": {
-    "name": "Moonwell Ruins",
+  "foundation_ruins": {
+    "name": "Foundation Ruins",
     "difficulty": "hard",
     "min_realm": 2,
-    "recommended_text": "Foundation+",
-    "base_success": 0.58,
+    "recommended_text": "Foundation Establishment",
+    "base_success": 0.62,
     "drops": [
-      {
-        "item_id": "moonlotus",
-        "min": 1,
-        "max": 2,
-        "rarity": "common"
-      },
-      {
-        "item_id": "ancient_dust",
-        "min": 1,
-        "max": 2,
-        "rarity": "common"
-      },
-      {
-        "item_id": "refined_beast_core",
-        "min": 1,
-        "max": 1,
-        "rarity": "uncommon"
-      },
-      {
-        "item_id": "script_shard",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary"
-      }
+      {"item_id": "moonlotus", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "ancient_dust", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "refined_beast_core", "min": 1, "max": 1, "rarity": "uncommon"},
+      {"item_id": "script_shard", "min": 1, "max": 1, "rarity": "legendary"}
     ],
     "rare_event_chance": 0.12,
     "rare_events": [
-      {
-        "id": "hidden_moonwell",
-        "weight": 45,
-        "message": "Moonlight reveals a forgotten well of spirit water."
-      },
-      {
-        "id": "inheritance_fragment",
-        "weight": 15,
-        "message": "A fragment of inheritance pulses in the ruins."
-      },
-      {
-        "id": "ancient_cache",
-        "weight": 40,
-        "message": "Ancient dust swirls into the shape of a sealed vault."
-      }
+      {"id": "hidden_moonwell", "weight": 45, "message": "Moonlight reveals a forgotten well of spirit water."},
+      {"id": "inheritance_fragment", "weight": 15, "message": "A fragment of inheritance pulses in the ruins."},
+      {"id": "ancient_cache", "weight": 40, "message": "Ancient dust swirls into the shape of a sealed vault."}
     ]
   },
-  "mistwood_village": {
-    "name": "Mistwood Village",
-    "difficulty": "easy",
-    "min_realm": 0,
-    "recommended_text": "Mortal cultivators",
-    "base_success": 0.8,
-    "drops": [
-      {
-        "item_id": "village_herb",
-        "min": 1,
-        "max": 3,
-        "rarity": "common"
-      },
-      {
-        "item_id": "green_dew_herb",
-        "min": 1,
-        "max": 2,
-        "rarity": "uncommon"
-      },
-      {
-        "item_id": "qi_gathering_pill",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "meridian_surge_pill",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "flow_pill",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "clarity_pill",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "minor_beast_core",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "technique_fragment",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary"
-      }
-    ],
-    "rare_event_chance": 0.09,
-    "rare_events": [
-      {
-        "id": "market_day",
-        "weight": 45,
-        "message": "Village merchants spread rare herbs on woven mats."
-      },
-      {
-        "id": "lost_child",
-        "weight": 35,
-        "message": "A child points you toward a qi-rich grove behind the inn."
-      },
-      {
-        "id": "cursed_shrine",
-        "weight": 10,
-        "message": "A cracked shrine pulses with forbidden power at the village edge."
-      },
-      {
-        "id": "ancient_cache",
-        "weight": 10,
-        "message": "An old storage cellar hides sealed crates beneath the floorboards."
-      }
-    ]
-  },
-  "verdant_depths": {
-    "name": "Verdant Depths",
-    "difficulty": "medium",
-    "min_realm": 2,
-    "recommended_text": "Foundation Establishment",
-    "base_success": 0.64,
-    "drops": [
-      {
-        "item_id": "pine_resin",
-        "min": 1,
-        "max": 2,
-        "rarity": "common"
-      },
-      {
-        "item_id": "spirit_iron_shard",
-        "min": 1,
-        "max": 2,
-        "rarity": "common"
-      },
-      {
-        "item_id": "refined_beast_core",
-        "min": 1,
-        "max": 1,
-        "rarity": "uncommon"
-      },
-      {
-        "item_id": "technique_fragment",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary"
-      }
-    ],
-    "rare_event_chance": 0.09,
-    "rare_events": [
-      {
-        "id": "deep_grove",
-        "weight": 45,
-        "message": "Ancient trees part to reveal a sunlit clearing rich with resin."
-      },
-      {
-        "id": "cursed_shrine",
-        "weight": 15,
-        "message": "A moss-covered shrine whispers promises of power."
-      },
-      {
-        "id": "ancient_cache",
-        "weight": 40,
-        "message": "Roots twist aside to expose a buried cultivator's stash."
-      }
-    ]
-  },
-  "cursed_swamp": {
-    "name": "Cursed Swamp",
+  "core_formation_swamp": {
+    "name": "Core Formation Swamp",
     "difficulty": "hard",
     "min_realm": 3,
-    "recommended_text": "Core Formation+",
-    "base_success": 0.52,
+    "recommended_text": "Core Formation",
+    "base_success": 0.56,
     "drops": [
-      {
-        "item_id": "swamp_moss",
-        "min": 1,
-        "max": 2,
-        "rarity": "common"
-      },
-      {
-        "item_id": "bog_iron",
-        "min": 1,
-        "max": 2,
-        "rarity": "common"
-      },
-      {
-        "item_id": "hollow_pearl",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "refined_beast_core",
-        "min": 1,
-        "max": 1,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "script_shard",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary"
-      }
+      {"item_id": "swamp_moss", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "bog_iron", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "hollow_pearl", "min": 1, "max": 1, "rarity": "rare"},
+      {"item_id": "script_shard", "min": 1, "max": 1, "rarity": "legendary"}
     ],
     "rare_event_chance": 0.14,
     "rare_events": [
-      {
-        "id": "sinking_road",
-        "weight": 35,
-        "message": "The path sinks \u2014 something valuable glints in the murk below."
-      },
-      {
-        "id": "cursed_shrine",
-        "weight": 25,
-        "message": "A black obelisk rises from the bog, offering a dark bargain."
-      },
-      {
-        "id": "ancient_cache",
-        "weight": 40,
-        "message": "A sunken chest bobs to the surface, sealed in bog iron."
-      }
+      {"id": "sinking_road", "weight": 35, "message": "The path sinks and something valuable glints in the murk below."},
+      {"id": "cursed_shrine", "weight": 25, "message": "A black obelisk rises from the bog, offering a dark bargain."},
+      {"id": "ancient_cache", "weight": 40, "message": "A sunken chest bobs to the surface, sealed in bog iron."}
+    ]
+  },
+  "nascent_soul_peak": {
+    "name": "Nascent Soul Peak",
+    "difficulty": "severe",
+    "min_realm": 4,
+    "recommended_text": "Nascent Soul",
+    "base_success": 0.54,
+    "drops": [
+      {"item_id": "nascent_soul_core", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "souljade_leaf", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "script_shard", "min": 1, "max": 1, "rarity": "rare"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "rarity": "legendary"}
+    ],
+    "rare_event_chance": 0.12,
+    "rare_events": [
+      {"id": "inheritance_fragment", "weight": 30, "message": "An old soul mark opens a hidden inheritance chamber."},
+      {"id": "ancient_cache", "weight": 45, "message": "A frost-sealed cache cracks beneath Nascent Soul pressure."}
+    ]
+  },
+  "spirit_severing_abyss": {
+    "name": "Spirit Severing Abyss",
+    "difficulty": "severe",
+    "min_realm": 5,
+    "recommended_text": "Spirit Severing",
+    "base_success": 0.52,
+    "drops": [
+      {"item_id": "severing_silk", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "abyssal_bone", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "nascent_soul_core", "min": 1, "max": 1, "rarity": "uncommon"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "rarity": "legendary"}
+    ],
+    "rare_event_chance": 0.13,
+    "rare_events": [
+      {"id": "cursed_shrine", "weight": 25, "message": "A severed shrine whispers from the abyss wall."},
+      {"id": "ancient_cache", "weight": 45, "message": "A suspended coffin opens to reveal abyssal materials."}
+    ]
+  },
+  "void_refinement_expanse": {
+    "name": "Void Refinement Expanse",
+    "difficulty": "deadly",
+    "min_realm": 6,
+    "recommended_text": "Void Refinement",
+    "base_success": 0.5,
+    "drops": [
+      {"item_id": "void_dust", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "void_crystal", "min": 1, "max": 1, "rarity": "uncommon"},
+      {"item_id": "severing_silk", "min": 1, "max": 1, "rarity": "uncommon"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "rarity": "legendary"}
+    ],
+    "rare_event_chance": 0.13,
+    "rare_events": [
+      {"id": "ancient_cache", "weight": 50, "message": "A folded pocket of space opens around a sealed cache."},
+      {"id": "inheritance_fragment", "weight": 20, "message": "An inheritance mark flickers in the empty horizon."}
+    ]
+  },
+  "immortal_ascension_gate": {
+    "name": "Immortal Ascension Gate",
+    "difficulty": "deadly",
+    "min_realm": 7,
+    "recommended_text": "Immortal Ascension",
+    "base_success": 0.48,
+    "drops": [
+      {"item_id": "ascendant_ichor", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "immortal_jade", "min": 1, "max": 1, "rarity": "uncommon"},
+      {"item_id": "void_crystal", "min": 1, "max": 1, "rarity": "uncommon"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "rarity": "legendary"}
+    ],
+    "rare_event_chance": 0.14,
+    "rare_events": [
+      {"id": "ancient_cache", "weight": 50, "message": "A gate guardian's old offering bowl shines with immortal jade."},
+      {"id": "wandering_elder", "weight": 20, "message": "An ascendant elder tests your breath and leaves a quiet blessing."}
+    ]
+  },
+  "heavenly_transcendence_domain": {
+    "name": "Heavenly Transcendence Domain",
+    "difficulty": "mythic",
+    "min_realm": 8,
+    "recommended_text": "Heavenly Transcendence",
+    "base_success": 0.46,
+    "drops": [
+      {"item_id": "heavenly_silk", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "transcendence_pearl", "min": 1, "max": 1, "rarity": "uncommon"},
+      {"item_id": "immortal_jade", "min": 1, "max": 1, "rarity": "uncommon"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "rarity": "legendary"}
+    ],
+    "rare_event_chance": 0.15,
+    "rare_events": [
+      {"id": "ancient_cache", "weight": 55, "message": "A heavenly seal breaks and reveals transcendent materials."},
+      {"id": "inheritance_fragment", "weight": 20, "message": "A starlit inheritance fragment answers your dao heart."}
+    ]
+  },
+  "immortal_monarch_court": {
+    "name": "Immortal Monarch Court",
+    "difficulty": "mythic",
+    "min_realm": 9,
+    "recommended_text": "Immortal Monarch",
+    "base_success": 0.44,
+    "drops": [
+      {"item_id": "monarch_jade", "min": 1, "max": 2, "rarity": "common"},
+      {"item_id": "imperial_beast_core", "min": 1, "max": 1, "rarity": "uncommon"},
+      {"item_id": "transcendence_pearl", "min": 1, "max": 1, "rarity": "uncommon"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "rarity": "legendary"}
+    ],
+    "rare_event_chance": 0.16,
+    "rare_events": [
+      {"id": "ancient_cache", "weight": 55, "message": "An imperial vault recognizes your pressure and opens."},
+      {"id": "wandering_elder", "weight": 15, "message": "A monarch's shadow leaves behind a jade command seal."}
     ]
   }
 }

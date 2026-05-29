@@ -21,6 +21,31 @@ if TYPE_CHECKING:
     from ..adventure import AdventureResult, PendingAdventure
 
 
+def _choice_hint(choice) -> str:
+    if getattr(choice, "route_tag", None):
+        tone = getattr(choice, "route_tone", None)
+        tone_hint = f" · {tone.title()} route" if tone else ""
+        return f"Route{tone_hint}"
+    risk = "Low risk"
+    if getattr(choice, "fail_chance", 0.0) >= 0.16:
+        risk = "High risk"
+    elif getattr(choice, "fail_chance", 0.0) >= 0.1:
+        risk = "Medium risk"
+    reward = "steady rewards"
+    if getattr(choice, "drop_mult", 1.0) >= 1.25 or getattr(choice, "spirit_stones", 0) > 0:
+        reward = "richer rewards"
+    elif getattr(choice, "drop_mult", 1.0) < 0.9:
+        reward = "safer rewards"
+    return f"{risk} · {reward}"
+
+
+def _choice_hint_lines(pending: PendingAdventure) -> list[str]:
+    return [
+        f"**{choice.label}** — {_choice_hint(choice)}"
+        for choice in pending.choices[:4]
+    ]
+
+
 def build_cultivate_embed(
     res: CultivateResult,
     player: Player,
@@ -129,6 +154,11 @@ def build_adventure_embed_from_pending(pending: PendingAdventure) -> discord.Emb
         value=pending.prompt,
         inline=False,
     )
+    if pending.route_label:
+        embed.add_field(name="Route", value=f"**{pending.route_label}**", inline=True)
+    hints = _choice_hint_lines(pending)
+    if hints and pending.encounter_type != "combat":
+        embed.add_field(name="Path choices", value="\n".join(hints), inline=False)
     if pending.encounter_type == "combat" and pending.monster_name:
         player_hp = format_hp_block("You", pending.player_hp or 0, pending.player_max_hp or 1, bar_fill="🟩")
         foe_hp = format_hp_block(
@@ -139,7 +169,7 @@ def build_adventure_embed_from_pending(pending: PendingAdventure) -> discord.Emb
             bar_fill="🟥",
         )
         embed.add_field(name="⚔️ Combat", value=f"{player_hp}\n\n{foe_hp}", inline=False)
-        embed.set_footer(text="✨ Techniques · 🏃 Flee · ✅ Finish")
+        embed.set_footer(text="✨ Techniques · ⏭ Pass Turn · 🏃 Flee")
     else:
         embed.set_footer(text="Choose wisely — risky paths can fail the run or boost loot.")
     return embed
@@ -168,7 +198,11 @@ def build_adventure_embed_from_result(res: AdventureResult, qi: int) -> discord.
         value=f"{outcome_icon} **{res.outcome.title()}**",
         inline=True,
     )
-    embed.add_field(name="Segments", value=f"**{res.segments_cleared}/2** cleared", inline=True)
+    embed.add_field(
+        name="Segments",
+        value=f"**{res.segments_cleared}/{res.target_segments}** cleared",
+        inline=True,
+    )
     cap_hint = f"**{qi}** Qi"
     if res.qi_delta:
         cap_hint += f" _(+{res.qi_delta} this run)_"
@@ -177,6 +211,13 @@ def build_adventure_embed_from_result(res: AdventureResult, qi: int) -> discord.
         embed.add_field(
             name="🎁 Loot",
             value=format_loot_lines(res.drops, get_item_name),
+            inline=False,
+        )
+    if res.route_label:
+        steps = " → ".join(res.route_steps[:5]) if res.route_steps else "Path completed"
+        embed.add_field(
+            name="Route",
+            value=f"**{res.route_label}**\n{steps}",
             inline=False,
         )
     if res.rare_events:

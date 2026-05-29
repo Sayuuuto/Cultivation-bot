@@ -7,9 +7,11 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
+from .combat_stats import realm_baseline_stats
 from .drop_sources import format_missing_materials_message
 from .inventory import get_item_name, get_item_quantity, remove_item
 from .models import Player
+from .realms import get_realm_name
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "foundation.json"
 
@@ -68,6 +70,36 @@ def _meridian_cap(stat: str, realm_index: int) -> int:
     return base + max(0, realm_index) * per
 
 
+def body_stack_value(stat: str, realm_index: int) -> int:
+    cfg = _load_cfg()
+    rates = cfg.get("body_stack_rates", {})
+    rate = float(rates.get(stat, rates.get("external_strength", 0.005)))
+    baseline = realm_baseline_stats(realm_index, 0)
+    key = "hp" if stat == "hp" else stat
+    base_val = max(1, int(baseline.get(key, baseline.get("external_strength", 1))))
+    return max(1, int(round(base_val * rate)))
+
+
+def meridian_stack_value(stat: str, realm_index: int) -> int:
+    cfg = _load_cfg()
+    rates = cfg.get("meridian_stack_rates", {})
+    rate = float(rates.get(stat, rates.get("internal_strength", 0.006)))
+    baseline = realm_baseline_stats(realm_index, 0)
+    key = "hp" if stat == "hp" else stat
+    base_val = max(1, int(baseline.get(key, baseline.get("internal_strength", 1))))
+    return max(1, int(round(base_val * rate)))
+
+
+def _body_inputs_for(stat: str, realm_index: int) -> dict[str, int]:
+    cfg = _load_cfg()
+    tiers = cfg.get("body_input_tiers", [])
+    chosen: dict = {}
+    for tier in tiers:
+        if int(tier.get("min_realm", 0)) <= realm_index:
+            chosen = tier
+    return dict(chosen.get(stat, {}))
+
+
 def body_stat_choices() -> list[str]:
     return list(_load_cfg()["body_stats"].keys())
 
@@ -85,23 +117,28 @@ def meridian_stat_label(stat: str) -> str:
 
 
 def apply_foundation_bonuses(player: Player, stats: dict[str, int]) -> None:
-    cfg = _load_cfg()
+    realm = max(0, player.realm_index)
     body = get_body_bonuses(player)
     meridian = get_meridian_bonuses(player)
 
     for stat, stacks in body.items():
+        per_stack = body_stack_value(stat, realm)
         if stat == "hp":
-            hp_per = int(cfg["body_stats"].get("hp", {}).get("hp_per_stack", 8))
-            stats["hp"] = stats.get("hp", 0) + stacks * hp_per
+            stats["hp"] = stats.get("hp", 0) + stacks * per_stack
         elif stat in stats:
-            stats[stat] = stats.get(stat, 0) + stacks
+            stats[stat] = stats.get(stat, 0) + stacks * per_stack
 
     for stat, stacks in meridian.items():
+        per_stack = meridian_stack_value(stat, realm)
         if stat == "hp":
-            hp_per = int(cfg["meridian_stats"].get("hp", {}).get("hp_per_stack", 5))
-            stats["hp"] = stats.get("hp", 0) + stacks * hp_per
+            stats["hp"] = stats.get("hp", 0) + stacks * per_stack
         elif stat in stats:
-            stats[stat] = stats.get(stat, 0) + stacks
+            stats[stat] = stats.get(stat, 0) + stacks * per_stack
+
+
+def foundation_stack_gain_label(stat: str, realm_index: int, *, meridian: bool = False) -> str:
+    value = meridian_stack_value(stat, realm_index) if meridian else body_stack_value(stat, realm_index)
+    return f"+{value}"
 
 
 @dataclass(frozen=True)
@@ -175,6 +212,8 @@ def temper_body(
             "Break through to raise the ceiling.",
         )
 
+    gain = body_stack_value(stat, realm)
+
     if use_charge:
         charges = int(getattr(player, "body_temper_charges", 0))
         if charges <= 0:
@@ -187,7 +226,9 @@ def temper_body(
     else:
         if session is None or player_id is None:
             return FoundationActionResult(False, "Materials could not be verified.")
-        inputs: dict[str, int] = dict(body_defs[stat].get("inputs", {}))
+        inputs: dict[str, int] = _body_inputs_for(stat, realm)
+        if not inputs:
+            return FoundationActionResult(False, "No temper materials are configured for your realm.")
         short = any(get_item_quantity(session, player_id, item_id) < qty for item_id, qty in inputs.items())
         if short:
             return FoundationActionResult(
@@ -204,7 +245,7 @@ def temper_body(
     via = "refined essence" if use_charge else "demon cores and herbs"
     return FoundationActionResult(
         True,
-        f"Your body hardens — **{label}** +1 ({bonuses[stat]}/{cap}) via {via}.",
+        f"Your body hardens — **{label}** {foundation_stack_gain_label(stat, realm)} ({bonuses[stat]}/{cap}) via {via}.",
     )
 
 
@@ -235,14 +276,15 @@ def spend_meridian_point(player: Player, stat: str) -> FoundationActionResult:
             f"**{meridian_stat_label(stat)}** meridians are fully opened ({current}/{cap}) at this realm.",
         )
 
+    gain = meridian_stack_value(stat, realm)
     player.meridian_points = points - cost
     bonuses[stat] = current + 1
     player.foundation_meridian_json = _save_bonus_json(bonuses)
     label = meridian_stat_label(stat)
     return FoundationActionResult(
         True,
-        f"A hidden channel opens — **{label}** +1 ({bonuses[stat]}/{cap}). "
-        f"**{player.meridian_points}** meridian point(s) remain.",
+        f"A hidden channel opens — **{label}** {foundation_stack_gain_label(stat, realm, meridian=True)} "
+        f"({bonuses[stat]}/{cap}). **{player.meridian_points}** meridian point(s) remain.",
     )
 
 
@@ -271,14 +313,16 @@ def format_foundation_summary(player: Player) -> str:
     body = get_body_bonuses(player)
     meridian = get_meridian_bonuses(player)
     realm = max(0, player.realm_index)
-    lines = ["**Foundation**"]
+    realm_name = get_realm_name(realm)
+    lines = [f"**Foundation** — tuned for **{realm_name}**"]
 
     if body:
         bits = []
         for stat in body_stat_choices():
             stacks = body.get(stat, 0)
             if stacks:
-                bits.append(f"{body_stat_label(stat)} {stacks}/{_body_cap(stat, realm)}")
+                per = body_stack_value(stat, realm)
+                bits.append(f"{body_stat_label(stat)} {stacks}/{_body_cap(stat, realm)} (+{per * stacks})")
         if bits:
             lines.append("Body tempering — " + " · ".join(bits))
     else:
@@ -291,7 +335,8 @@ def format_foundation_summary(player: Player) -> str:
         for stat in meridian_stat_choices():
             stacks = meridian.get(stat, 0)
             if stacks:
-                bits.append(f"{meridian_stat_label(stat)} {stacks}/{_meridian_cap(stat, realm)}")
+                per = meridian_stack_value(stat, realm)
+                bits.append(f"{meridian_stat_label(stat)} {stacks}/{_meridian_cap(stat, realm)} (+{per * stacks})")
         if bits:
             lines.append("Meridians — " + " · ".join(bits))
     else:

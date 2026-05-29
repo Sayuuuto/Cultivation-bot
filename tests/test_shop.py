@@ -73,7 +73,7 @@ def test_buy_insufficient_stones(session, player, cfg):
     assert "need" in message.lower()
 
 
-def test_buy_equipment_equips_slot(session, player, cfg):
+def test_buy_equipment_goes_to_stash(session, player, cfg):
     player.spirit_stones = 500
     session.add(player)
     session.commit()
@@ -81,6 +81,10 @@ def test_buy_equipment_equips_slot(session, player, cfg):
     ok, _ = buy_from_shop(session, player, "shop_spirit_blade", 1)
     assert ok is True
 
-    rows = {eq.slot: eq for eq in get_player_equipment(session, player.id)}
-    assert rows["weapon"].item_id == "spirit_blade"
-    assert rows["weapon"].stat_power == 6
+    from src.gear_stash import list_stash
+
+    stash = list_stash(session, player.id, slot="weapon")
+    assert len(stash) == 1
+    assert stash[0].item_id == "spirit_blade"
+    assert stash[0].gear_realm == 0
+    assert stash[0].stat_power > 0

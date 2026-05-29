@@ -13,7 +13,7 @@ from .loadout import ensure_starter_techniques, get_equipped_passive
 
 COMBAT_EXPIRY_MINUTES = 30
 
-COMBAT_BUSY_MESSAGE = "You are already in combat. Finish or flee first."
+COMBAT_BUSY_MESSAGE = "You are already in combat. Win the fight or flee first."
 
 
 def _utcnow() -> datetime:

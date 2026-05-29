@@ -3,13 +3,8 @@ from __future__ import annotations
 import random
 
 from src.combat_stats import compute_combat_stats
-from src.foundation import (
-    apply_foundation_bonuses,
-    get_body_bonuses,
-    grant_meridian_points,
-    spend_meridian_point,
-    temper_body,
-)
+from src.content import load_all_content
+from src.foundation import apply_foundation_bonuses, body_stack_value, get_body_bonuses, grant_meridian_points, spend_meridian_point, temper_body
 from src.inventory import add_item
 from src.models import Player
 
@@ -22,7 +17,8 @@ def test_body_temper_increases_combat_stat(session, player):
     res = temper_body(player, "external_strength", session=session, player_id=player.id)
     assert res.success
     after = compute_combat_stats(player, session).external_strength
-    assert after == before + 1
+    gain = body_stack_value("external_strength", player.realm_index)
+    assert after == before + gain
     assert get_body_bonuses(player)["external_strength"] == 1
 
 
@@ -50,11 +46,12 @@ def test_meridian_spend_costs_points(session, player):
 
 
 def test_foundation_hp_stacks(session, player):
-    bonuses = {"hp": 2}
+    load_all_content()
     player.foundation_body_json = '{"hp": 2}'
     stats = {"hp": 100, "internal_strength": 10, "external_strength": 10}
     apply_foundation_bonuses(player, stats)
-    assert stats["hp"] == 116
+    per_stack = body_stack_value("hp", player.realm_index)
+    assert stats["hp"] == 100 + 2 * per_stack
 
 
 def test_grant_meridian_points(session, player):

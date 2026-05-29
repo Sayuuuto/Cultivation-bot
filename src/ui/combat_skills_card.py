@@ -97,8 +97,14 @@ def _wrap_text(draw: ImageDraw.ImageDraw, text: str, font, max_width: int) -> li
     return lines[:3]
 
 
-def build_combat_skills_card_data(session: Session, player: Player) -> CombatSkillsCardData:
-    ensure_starter_techniques(session, player.id)
+def build_combat_skills_card_data(
+    session: Session,
+    player: Player,
+    *,
+    ensure_starter: bool = True,
+) -> CombatSkillsCardData:
+    if ensure_starter:
+        ensure_starter_techniques(session, player.id)
     loadout = get_loadout(session, player.id)
     slots: list[SkillSlotView] = []
 

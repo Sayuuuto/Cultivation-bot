@@ -169,6 +169,25 @@ def find_party_for_player(
     return None
 
 
+def cancel_party_for_player(
+    session: Session,
+    guild_id: str,
+    discord_id: str,
+    *,
+    now: datetime | None = None,
+) -> tuple[bool, str]:
+    party = find_party_for_player(session, guild_id, discord_id)
+    if party is None:
+        return False, "No dungeon expedition binds you."
+    dungeon = get_cooperative_dungeon(party.dungeon_id)
+    name = dungeon.name if dungeon else "your dungeon expedition"
+    cancel_party(party, now=now)
+    session.add(party)
+    if party.status == "in_combat":
+        return True, f"Withdrew from **{name}**. The expedition is closed."
+    return True, f"Cancelled **{name}**. The expedition is closed."
+
+
 def create_party_with_invites(
     session: Session,
     *,
@@ -290,7 +309,7 @@ def expedition_busy_message(party: ActiveDungeonParty, discord_id: str) -> str:
         )
         return (
             f"**{name}** is already underway.{channel_hint} "
-            "Take your turn there. If the fight went quiet, wait a few minutes and try **`/dungeon`** again."
+            "Take your turn there, or use **`/dungeon-cancel`** if the expedition is stuck."
         )
     if discord_id in invited_discord_ids(party):
         return (
@@ -302,15 +321,15 @@ def expedition_busy_message(party: ActiveDungeonParty, discord_id: str) -> str:
             return (
                 f"You are leading **{name}** and allies still need to **Accept**. "
                 "Find that expedition message in this channel. "
-                "If everyone has left, wait about **5 minutes**, then run **`/dungeon`** again."
+                "Use **`/dungeon-cancel`** if everyone has left."
             )
         return (
             f"**{name}** is forming under your banner — it should open shortly. "
-            "If nothing happens, wait about **5 minutes**, then run **`/dungeon`** again."
+            "Use **`/dungeon-cancel`** if nothing happens."
         )
     return (
         f"You are marked on **{name}**. Find the party's expedition message or dungeon channel. "
-        "After about **5 minutes** without progress, you may run **`/dungeon`** again."
+        "Use **`/dungeon-cancel`** if the expedition is stuck."
     )
 
 

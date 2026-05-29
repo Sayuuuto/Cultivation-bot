@@ -22,8 +22,8 @@ _gifts_cache: dict | None = None
 TRIAL_STEPS: list[tuple[str, str]] = [
     ("daily", "Claim **`/daily`** stipend"),
     ("cultivate", "Cultivate qi once (`/cultivate` or profile button)"),
-    ("hunt", "Win a **`/hunt`** in Whispering Bamboo Grove"),
-    ("learn", "Study your origin manual with **`/learn`**"),
+    ("hunt", "Win a **`/hunt`** in Mortal Grove"),
+    ("learn", "Study your origin manual in **`/techniques`** → **Unlock Skill**"),
     ("adventure", "Complete your first **`/adventure`** (sage's trial)"),
     ("breakthrough", "Attempt **`/breakthrough`** when qi is full"),
 ]
@@ -271,7 +271,7 @@ def on_cultivated(player: Player) -> list[str]:
     player.novice_trial_step = 2
     return [
         "🎋 **Outer Disciple Trial — Step 2 complete.** "
-        "Your meridians stir — try **`/hunt`** in the Bamboo Grove."
+        "Your meridians stir — try **`/hunt`** in Mortal Grove."
     ]
 
 
@@ -281,7 +281,7 @@ def on_hunt_victory(player: Player) -> list[str]:
     player.novice_trial_step = 3
     return [
         "🎋 **Outer Disciple Trial — Step 3 complete.** "
-        "Study your origin manual with **`/learn`**, then **`/equip-technique`**."
+        "Study your origin manual in **`/techniques`** → **Unlock Skill**, then **Equip Skill**."
     ]
 
 
@@ -330,7 +330,7 @@ def on_adventure_completed(session: Session, player: Player, *, segments_cleared
     elif was_first and segments_cleared > 0:
         messages.append(
             "_Your first journey is unfinished — the sage's trial still awaits. "
-            "Use **`/adventure continue`** or start fresh in the Bamboo Grove._"
+            "Use **`/adventure continue`** or start fresh with **`/adventure`**._"
         )
     return messages, waive_cd
 

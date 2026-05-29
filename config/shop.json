@@ -43,7 +43,7 @@
     "name": "Clarity Pill",
     "category": "pill",
     "price": 48,
-    "description": "Steadies the mind for **+5%** breakthrough success on one attempt.",
+    "description": "Steadies the mind for **+14%** breakthrough stability per charge — all charges apply on your next **`/breakthrough`**.",
     "item_id": "clarity_pill",
     "quantity": 1
   },
@@ -67,7 +67,7 @@
     "name": "Affix Stone",
     "category": "supply",
     "price": 120,
-    "description": "Imprint a random affix onto forged gear (`/equip`).",
+    "description": "Imprint a random affix onto forged gear (`/affix`).",
     "item_id": "affix_stone",
     "quantity": 1
   },

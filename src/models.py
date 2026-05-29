@@ -112,6 +112,7 @@ class Player(Base):
     clan: Mapped[Clan | None] = relationship(back_populates="members")
     inventory_items: Mapped[list["InventoryItem"]] = relationship(back_populates="player")
     equipment: Mapped[list["PlayerEquipment"]] = relationship(back_populates="player")
+    gear_items: Mapped[list["PlayerGearItem"]] = relationship(back_populates="player")
     effects: Mapped[list["PlayerEffect"]] = relationship(back_populates="player")
 
     __table_args__ = (
@@ -137,6 +138,26 @@ class InventoryItem(Base):
 EQUIPMENT_SLOTS = ("weapon", "armor", "accessory", "talisman")
 
 
+class PlayerGearItem(Base):
+    __tablename__ = "player_gear_items"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    slot: Mapped[str] = mapped_column(String(16))
+    item_id: Mapped[str] = mapped_column(String(64))
+    stat_power: Mapped[int] = mapped_column(Integer, default=0)
+    stat_defense: Mapped[int] = mapped_column(Integer, default=0)
+    stat_fortune: Mapped[int] = mapped_column(Integer, default=0)
+    stat_insight: Mapped[int] = mapped_column(Integer, default=0)
+    affix_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    technique_tag: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    gear_realm: Mapped[int] = mapped_column(Integer, default=0)
+    gear_grade: Mapped[str] = mapped_column(String(16), default="external")
+    equipped_in_slot: Mapped[str | None] = mapped_column(String(16), nullable=True)
+
+    player: Mapped[Player] = relationship(back_populates="gear_items")
+
+
 class PlayerEquipment(Base):
     __tablename__ = "player_equipment"
 
@@ -150,8 +171,12 @@ class PlayerEquipment(Base):
     stat_insight: Mapped[int] = mapped_column(Integer, default=0)
     affix_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
     technique_tag: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    gear_realm: Mapped[int] = mapped_column(Integer, default=0)
+    gear_grade: Mapped[str] = mapped_column(String(16), default="external")
+    gear_item_id: Mapped[int | None] = mapped_column(ForeignKey("player_gear_items.id"), nullable=True)
 
     player: Mapped[Player] = relationship(back_populates="equipment")
+    gear_item: Mapped["PlayerGearItem | None"] = relationship(foreign_keys=[gear_item_id])
 
     __table_args__ = (
         UniqueConstraint("player_id", "slot", name="uq_equipment_player_slot"),
@@ -287,6 +312,7 @@ class PlayerTechnique(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
     technique_id: Mapped[str] = mapped_column(String(64))
+    rank: Mapped[int] = mapped_column(Integer, default=1)
     learned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     __table_args__ = (
@@ -305,6 +331,32 @@ class TechniqueLoadout(Base):
     __table_args__ = (
         UniqueConstraint("player_id", "slot", name="uq_technique_loadout_slot"),
     )
+
+
+class PvpTelemetry(Base):
+    __tablename__ = "pvp_telemetry"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    match_id: Mapped[int] = mapped_column(ForeignKey("active_pvp_matches.id"), index=True)
+    winner_player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    loser_player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    winner_realm_index: Mapped[int] = mapped_column(Integer, default=0)
+    loser_realm_index: Mapped[int] = mapped_column(Integer, default=0)
+    turn_count: Mapped[int] = mapped_column(Integer, default=0)
+    winner_techniques_json: Mapped[str] = mapped_column(String(2048), default="[]")
+    loser_techniques_json: Mapped[str] = mapped_column(String(2048), default="[]")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class PlayerNotification(Base):
+    __tablename__ = "player_notifications"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    kind: Mapped[str] = mapped_column(String(32))
+    payload_json: Mapped[str] = mapped_column(String(1024), default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    dismissed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class PlayerReminder(Base):

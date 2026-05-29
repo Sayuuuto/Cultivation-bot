@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 
+import discord
 import pytest
 
 from src.auto_combat import BeastTemplate
@@ -42,7 +43,13 @@ from src.combat.session import (
     process_combat_action,
 )
 from src.combat_stats import PlayerCombatStats
-from src.hunt import finalize_hunt_combat, start_hunt_combat
+from src.combat.discord_ui import build_hunt_combat_embed
+from src.hunt import (
+    finalize_hunt_combat,
+    get_hunt_beast_def,
+    hunt_elite_encounter_warning,
+    start_hunt_combat,
+)
 from src.inventory import add_item
 
 
@@ -144,6 +151,21 @@ def test_basic_strike_works_while_sealed():
     )
     assert allowed.error is None
     assert allowed.state.opponent.hp < beast.hp
+
+
+def test_pass_turn_works_while_sealed():
+    stats = _stats()
+    beast = BeastTemplate("hare", "Hare", hp=40, attack=5, defense=2)
+    state = create_combat_state(stats, opponent_from_beast(beast))
+    apply_status(state.player, "seal")
+    state.player.sealed = True
+
+    result = execute_turn(state, stats, None, None, "pass", rng=random.Random(1))
+
+    assert result.error is None
+    assert result.state.opponent.hp == beast.hp
+    assert result.state.turn == 2
+    assert any("passes the turn" in line for line in result.state.log)
 
 
 def test_combat_state_roundtrip_json():
@@ -264,6 +286,32 @@ def test_hunt_combat_finish_grants_drops_on_victory(session, player):
         )
         session.commit()
         assert hunt_res.success
+
+
+def test_hunt_elite_encounter_warning(session, player, monkeypatch):
+    elite = get_hunt_beast_def("bamboo_grove", "mist_fang_wolf")
+    assert elite is not None
+    assert elite.combat_tier == "elite"
+
+    def _always_elite(beasts, rng):
+        return elite
+
+    monkeypatch.setattr("src.hunt._pick_beast", _always_elite)
+    player.realm_index = 1
+    session.commit()
+
+    start, err = start_hunt_combat(session, player, "bamboo_grove", rng=random.Random(3))
+    assert err is None and start is not None
+    assert start.combat_tier == "elite"
+
+    active = get_active_combat(session, player.id)
+    state = load_combat_state(active)
+    warning = hunt_elite_encounter_warning(elite.name)
+    assert any(warning in line for line in state.log)
+
+    embed = build_hunt_combat_embed(start)
+    assert "Elite prey" in (embed.description or "")
+    assert embed.color == discord.Color.gold()
 
 
 @pytest.mark.parametrize("status_id", ["burn", "bleed", "poison", "stun", "fear", "seal"])

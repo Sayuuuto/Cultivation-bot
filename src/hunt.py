@@ -26,7 +26,8 @@ from .combat.engine import create_combat_state, opponent_from_beast
 
 from .combat.session import COMBAT_BUSY_MESSAGE, create_active_combat, get_active_combat
 
-from .combat_stats import compute_combat_stats
+from .combat_stats import compute_combat_stats, scale_monster_stats
+from .ui.formatting import format_compact_number
 
 from .area_risk import (
     apply_drop_quantity_bonus,
@@ -34,7 +35,7 @@ from .area_risk import (
     underleveled_drop_bonus,
     underleveled_entry_message,
 )
-from .content import AreaDef, get_area
+from .content import AreaDef, get_area, resolve_area_id
 
 from .loot import LootDropEntry, parse_loot_table, roll_creature_loot
 
@@ -49,12 +50,16 @@ from .models import Player
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "hunt_targets.json"
 
 ELITE_MANUAL_POOLS: dict[str, str] = {
-    "bamboo_grove": "hunt_bamboo_elite",
-    "ashen_cliff": "hunt_ashen_elite",
-    "moonwell_ruins": "hunt_moonwell_elite",
-    "mistwood_village": "hunt_mistwood_elite",
-    "verdant_depths": "hunt_verdant_elite",
-    "cursed_swamp": "hunt_swamp_elite",
+    "mortal_grove": "hunt_bamboo_elite",
+    "qi_refining_cliffs": "hunt_ashen_elite",
+    "foundation_ruins": "hunt_moonwell_elite",
+    "core_formation_swamp": "hunt_swamp_elite",
+    "nascent_soul_peak": "hunt_verdant_elite",
+    "spirit_severing_abyss": "hunt_swamp_elite",
+    "void_refinement_expanse": "hunt_moonwell_elite",
+    "immortal_ascension_gate": "hunt_verdant_elite",
+    "heavenly_transcendence_domain": "hunt_ashen_elite",
+    "immortal_monarch_court": "hunt_swamp_elite",
 }
 
 ELITE_MANUAL_CHANCE = 0.85
@@ -146,6 +151,16 @@ class HuntCombatStart:
 
     beast_id: str
 
+    combat_tier: str = "normal"
+
+
+def hunt_elite_encounter_warning(beast_name: str) -> str:
+    """Player-facing line when /hunt rolls an elite-tier beast."""
+    return (
+        f"⚠️ **Elite prey** — **{beast_name}** is far deadlier than the beasts you "
+        "usually face here. Fight carefully."
+    )
+
 
 
 
@@ -221,8 +236,8 @@ def get_hunt_areas() -> dict[str, HuntAreaDef]:
 
 
 def get_hunt_area(area_id: str) -> HuntAreaDef | None:
-
-    return get_hunt_areas().get(area_id)
+    resolved = resolve_area_id(area_id)
+    return get_hunt_areas().get(resolved or area_id)
 
 
 
@@ -253,6 +268,24 @@ def _pick_beast(beasts: tuple[HuntBeastDef, ...], rng: random.Random) -> HuntBea
             return beast
 
     return beasts[-1]
+
+
+def scale_hunt_beast_for_area(beast: HuntBeastDef, area: AreaDef) -> BeastTemplate:
+    scaled = scale_monster_stats(
+        beast.hp,
+        beast.attack,
+        beast.defense,
+        realm_index=area.min_realm,
+        combat_tier=beast.combat_tier,
+    )
+    return BeastTemplate(
+        beast_id=beast.beast_id,
+        name=beast.name,
+        hp=scaled["hp"],
+        attack=scaled["attack"],
+        defense=scaled["defense"],
+        traits=beast.traits,
+    )
 
 
 
@@ -312,11 +345,30 @@ def _roll_hunt_drops(
     return drops
 
 
-
+def _ensure_hunt_victory_drop(drops: dict[str, int], beast: HuntBeastDef) -> dict[str, int]:
+    """Hunt wins should never feel empty; guarantee one basic material if rolls miss."""
+    if drops:
+        return drops
+    fallback = next(
+        (
+            entry
+            for entry in beast.drops
+            if entry.rarity == "common" and not entry.item_id.startswith("manual_")
+        ),
+        None,
+    )
+    if fallback is None:
+        fallback = next(
+            (entry for entry in beast.drops if not entry.item_id.startswith("manual_")),
+            None,
+        )
+    if fallback is None:
+        return drops
+    return {fallback.item_id: max(1, fallback.min_qty)}
 
 
 def get_hunt_beast_def(area_id: str, beast_id: str) -> HuntBeastDef | None:
-
+    area_id = resolve_area_id(area_id) or area_id
     hunt_def = get_hunt_area(area_id)
 
     if hunt_def is None:
@@ -361,6 +413,9 @@ def beast_matches_sect_tag(beast_id: str, tag: str) -> bool:
     needle = tag.lower()
     if needle in beast_id.lower():
         return True
+    inferred = _beast_tag_set(beast_id, beast_id.replace("_", " "), ())
+    if needle in inferred:
+        return True
     found = find_hunt_beast_by_id(beast_id)
     if found is None:
         return False
@@ -395,6 +450,7 @@ def start_hunt_combat(
 ) -> tuple[HuntCombatStart | None, str | None]:
 
     rng = rng or random.Random()
+    area_id = resolve_area_id(area_id) or area_id
 
     area, err = _validate_area(player, area_id)
 
@@ -430,21 +486,7 @@ def start_hunt_combat(
 
     stats = compute_combat_stats(player, session, mod)
 
-    beast = BeastTemplate(
-
-        beast_id=beast_def.beast_id,
-
-        name=beast_def.name,
-
-        hp=beast_def.hp,
-
-        attack=beast_def.attack,
-
-        defense=beast_def.defense,
-
-        traits=beast_def.traits,
-
-    )
+    beast = scale_hunt_beast_for_area(beast_def, area)
 
     opponent = opponent_from_beast(beast)
 
@@ -461,9 +503,13 @@ def start_hunt_combat(
     )
 
     state.log.insert(0, hunt_def.flavor)
+    log_idx = 1
+    if beast_def.combat_tier == "elite":
+        state.log.insert(log_idx, hunt_elite_encounter_warning(beast_def.name))
+        log_idx += 1
     gap = realm_gap(player, area)
     if gap > 0:
-        state.log.insert(1, underleveled_entry_message(area, gap))
+        state.log.insert(log_idx, underleveled_entry_message(area, gap))
     active = create_active_combat(session, player, state, context="hunt", context_key=area_id)
 
 
@@ -478,7 +524,7 @@ def start_hunt_combat(
 
             beast_name=beast_def.name,
 
-            beast_hp=beast_def.hp,
+            beast_hp=beast.hp,
 
             player_hp=stats.hp,
 
@@ -489,6 +535,8 @@ def start_hunt_combat(
             area_id=area_id,
 
             beast_id=beast_def.beast_id,
+
+            combat_tier=beast_def.combat_tier,
 
         ),
 
@@ -517,6 +565,7 @@ def finalize_hunt_combat(
 ) -> HuntResult:
 
     rng = rng or random.Random()
+    area_id = resolve_area_id(area_id) or area_id
 
     area, err = _validate_area(player, area_id)
 
@@ -559,6 +608,7 @@ def finalize_hunt_combat(
         )
 
         drops = normalize_manual_drops(session, player.id, drops)
+        drops = _ensure_hunt_victory_drop(drops, beast_def)
         gap = realm_gap(player, area)
         drops = apply_drop_quantity_bonus(drops, gap)
 
@@ -635,6 +685,7 @@ def run_hunt(
 
 
     rng = rng or random.Random()
+    area_id = resolve_area_id(area_id) or area_id
 
     area, err = _validate_area(player, area_id)
 
@@ -682,21 +733,7 @@ def run_hunt(
 
         )
 
-    beast = BeastTemplate(
-
-        beast_id=beast_def.beast_id,
-
-        name=beast_def.name,
-
-        hp=beast_def.hp,
-
-        attack=beast_def.attack,
-
-        defense=beast_def.defense,
-
-        traits=beast_def.traits,
-
-    )
+    beast = scale_hunt_beast_for_area(beast_def, area)
 
 
 
@@ -712,7 +749,7 @@ def run_hunt(
     messages = [hunt_def.flavor]
     if gap > 0:
         messages.append(underleveled_entry_message(area, gap))
-    messages.append(f"You encounter **{beast.name}** (HP {beast.hp}).")
+    messages.append(f"You encounter **{beast.name}** (HP {format_compact_number(beast.hp)}).")
 
     messages.extend(combat.log_lines)
 
@@ -727,6 +764,7 @@ def run_hunt(
         )
 
         drops = normalize_manual_drops(session, player.id, drops)
+        drops = _ensure_hunt_victory_drop(drops, beast_def)
         drops = apply_drop_quantity_bonus(drops, gap)
 
         for item_id, qty in drops.items():

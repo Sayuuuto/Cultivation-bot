@@ -1,274 +1,132 @@
 {
-  "bamboo_grove": {
-    "flavor": "You wander the misty bamboo paths, searching for spirit herbs.",
+  "mortal_grove": {
+    "flavor": "You search the Mortal Grove for herbs and low-grade spirit traces.",
     "nodes": [
-      {
-        "item_id": "green_dew_herb",
-        "min": 1,
-        "max": 3,
-        "weight": 50,
-        "rarity": "common"
-      },
-      {
-        "item_id": "bamboo_resin",
-        "min": 1,
-        "max": 2,
-        "weight": 30,
-        "rarity": "uncommon"
-      },
-      {
-        "item_id": "spirit_iron_shard",
-        "min": 1,
-        "max": 1,
-        "weight": 10,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "blank_scroll",
-        "min": 1,
-        "max": 1,
-        "weight": 8,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "spirit_ink",
-        "min": 1,
-        "max": 1,
-        "weight": 6,
-        "rarity": "rare"
-      }
+      {"item_id": "green_dew_herb", "min": 1, "max": 3, "weight": 50, "rarity": "common"},
+      {"item_id": "bamboo_resin", "min": 1, "max": 2, "weight": 30, "rarity": "uncommon"},
+      {"item_id": "blank_scroll", "min": 1, "max": 1, "weight": 8, "rarity": "rare"},
+      {"item_id": "spirit_ink", "min": 1, "max": 1, "weight": 6, "rarity": "rare"}
     ],
     "rare_node_chance": 0.06,
     "rare_nodes": [
-      {
-        "item_id": "moonlotus",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary",
-        "message": "Moonlight glints on a hidden **Moonlotus** patch."
-      }
+      {"item_id": "minor_beast_core", "min": 1, "max": 1, "rarity": "legendary", "message": "A hidden burrow holds a **Minor Beast Core**."}
     ]
   },
-  "ashen_cliff": {
-    "flavor": "You scour scorched cliffside crevices for ore and moss.",
+  "qi_refining_cliffs": {
+    "flavor": "You scour qi-lit cliffside crevices for ore and moss.",
     "nodes": [
-      {
-        "item_id": "ember_moss",
-        "min": 1,
-        "max": 2,
-        "weight": 40,
-        "rarity": "common"
-      },
-      {
-        "item_id": "spirit_iron_shard",
-        "min": 1,
-        "max": 2,
-        "weight": 35,
-        "rarity": "common"
-      },
-      {
-        "item_id": "bandit_token",
-        "min": 1,
-        "max": 1,
-        "weight": 12,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "spirit_ink",
-        "min": 1,
-        "max": 1,
-        "weight": 8,
-        "rarity": "rare"
-      }
+      {"item_id": "ember_moss", "min": 1, "max": 2, "weight": 40, "rarity": "common"},
+      {"item_id": "spirit_iron_shard", "min": 1, "max": 2, "weight": 35, "rarity": "common"},
+      {"item_id": "bandit_token", "min": 1, "max": 1, "weight": 10, "rarity": "rare"},
+      {"item_id": "spirit_ink", "min": 1, "max": 1, "weight": 8, "rarity": "rare"}
     ],
     "rare_node_chance": 0.05,
     "rare_nodes": [
-      {
-        "item_id": "refined_beast_core",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary",
-        "message": "A vein of spirit ore pulses beneath the ash \u2014 **Refined Beast Core** materializes."
-      }
+      {"item_id": "refined_beast_core", "min": 1, "max": 1, "rarity": "legendary", "message": "A spirit ore vein pulses into a **Refined Beast Core**."}
     ]
   },
-  "moonwell_ruins": {
-    "flavor": "You sift through collapsed moonwell stones for ancient reagents.",
+  "foundation_ruins": {
+    "flavor": "You sift through Foundation Ruins for old reagents and scriptwork.",
     "nodes": [
-      {
-        "item_id": "moonlotus",
-        "min": 1,
-        "max": 2,
-        "weight": 32,
-        "rarity": "uncommon"
-      },
-      {
-        "item_id": "ancient_dust",
-        "min": 1,
-        "max": 2,
-        "weight": 40,
-        "rarity": "common"
-      },
-      {
-        "item_id": "refined_beast_core",
-        "min": 1,
-        "max": 1,
-        "weight": 12,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "script_shard",
-        "min": 1,
-        "max": 1,
-        "weight": 10,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "blank_scroll",
-        "min": 1,
-        "max": 1,
-        "weight": 6,
-        "rarity": "rare"
-      }
+      {"item_id": "ancient_dust", "min": 1, "max": 2, "weight": 38, "rarity": "common"},
+      {"item_id": "moonlotus", "min": 1, "max": 2, "weight": 32, "rarity": "uncommon"},
+      {"item_id": "script_shard", "min": 1, "max": 1, "weight": 12, "rarity": "rare"},
+      {"item_id": "blank_scroll", "min": 1, "max": 1, "weight": 6, "rarity": "rare"}
     ],
     "rare_node_chance": 0.08,
     "rare_nodes": [
-      {
-        "item_id": "affix_stone",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary",
-        "message": "An intact inscription stone hums in the ruins \u2014 an **Affix Stone**."
-      }
+      {"item_id": "affix_stone", "min": 1, "max": 1, "rarity": "legendary", "message": "An intact inscription stone hums in the ruins — an **Affix Stone**."}
     ]
   },
-  "mistwood_village": {
-    "flavor": "You wander the misty lanes between village gardens and spirit herb stalls.",
+  "core_formation_swamp": {
+    "flavor": "You wade through black water where Core Formation qi coils beneath the surface.",
     "nodes": [
-      {
-        "item_id": "village_herb",
-        "min": 1,
-        "max": 3,
-        "weight": 50,
-        "rarity": "common"
-      },
-      {
-        "item_id": "green_dew_herb",
-        "min": 1,
-        "max": 2,
-        "weight": 30,
-        "rarity": "uncommon"
-      },
-      {
-        "item_id": "blank_scroll",
-        "min": 1,
-        "max": 1,
-        "weight": 10,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "spirit_ink",
-        "min": 1,
-        "max": 1,
-        "weight": 8,
-        "rarity": "rare"
-      }
-    ],
-    "rare_node_chance": 0.05,
-    "rare_nodes": [
-      {
-        "item_id": "minor_beast_core",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary",
-        "message": "A merchant's hidden stash yields a **Minor Beast Core**."
-      }
-    ]
-  },
-  "verdant_depths": {
-    "flavor": "You push through towering pines where spirit beasts nest in the canopy.",
-    "nodes": [
-      {
-        "item_id": "pine_resin",
-        "min": 1,
-        "max": 2,
-        "weight": 45,
-        "rarity": "common"
-      },
-      {
-        "item_id": "spirit_iron_shard",
-        "min": 1,
-        "max": 2,
-        "weight": 30,
-        "rarity": "uncommon"
-      },
-      {
-        "item_id": "refined_beast_core",
-        "min": 1,
-        "max": 1,
-        "weight": 12,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "script_shard",
-        "min": 1,
-        "max": 1,
-        "weight": 8,
-        "rarity": "rare"
-      }
-    ],
-    "rare_node_chance": 0.06,
-    "rare_nodes": [
-      {
-        "item_id": "affix_stone",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary",
-        "message": "Sunlight catches an inscription stone wedged in an ancient trunk \u2014 **Affix Stone**."
-      }
-    ]
-  },
-  "cursed_swamp": {
-    "flavor": "You wade through black water where corrupted qi coils beneath the surface.",
-    "nodes": [
-      {
-        "item_id": "swamp_moss",
-        "min": 1,
-        "max": 2,
-        "weight": 42,
-        "rarity": "common"
-      },
-      {
-        "item_id": "bog_iron",
-        "min": 1,
-        "max": 2,
-        "weight": 35,
-        "rarity": "common"
-      },
-      {
-        "item_id": "hollow_pearl",
-        "min": 1,
-        "max": 1,
-        "weight": 10,
-        "rarity": "rare"
-      },
-      {
-        "item_id": "refined_beast_core",
-        "min": 1,
-        "max": 1,
-        "weight": 8,
-        "rarity": "rare"
-      }
+      {"item_id": "swamp_moss", "min": 1, "max": 2, "weight": 42, "rarity": "common"},
+      {"item_id": "bog_iron", "min": 1, "max": 2, "weight": 35, "rarity": "common"},
+      {"item_id": "hollow_pearl", "min": 1, "max": 1, "weight": 10, "rarity": "rare"},
+      {"item_id": "refined_beast_core", "min": 1, "max": 1, "weight": 8, "rarity": "rare"}
     ],
     "rare_node_chance": 0.07,
     "rare_nodes": [
-      {
-        "item_id": "script_shard",
-        "min": 1,
-        "max": 1,
-        "rarity": "legendary",
-        "message": "A sunken tablet surfaces \u2014 a **Script Shard** etched in forbidden script."
-      }
+      {"item_id": "script_shard", "min": 1, "max": 1, "rarity": "legendary", "message": "A sunken tablet surfaces — a **Script Shard** etched in forbidden script."}
+    ]
+  },
+  "nascent_soul_peak": {
+    "flavor": "You climb soul-bright stone where Nascent Soul herbs grow in thin air.",
+    "nodes": [
+      {"item_id": "souljade_leaf", "min": 1, "max": 2, "weight": 42, "rarity": "common"},
+      {"item_id": "nascent_soul_core", "min": 1, "max": 1, "weight": 24, "rarity": "uncommon"},
+      {"item_id": "script_shard", "min": 1, "max": 1, "weight": 12, "rarity": "rare"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "weight": 6, "rarity": "rare"}
+    ],
+    "rare_node_chance": 0.07,
+    "rare_nodes": [
+      {"item_id": "affix_stone", "min": 1, "max": 1, "rarity": "legendary", "message": "A soul-stone inscription yields an **Affix Stone**."}
+    ]
+  },
+  "spirit_severing_abyss": {
+    "flavor": "You descend into an abyss where severed spirit threads drift in the dark.",
+    "nodes": [
+      {"item_id": "severing_silk", "min": 1, "max": 2, "weight": 42, "rarity": "common"},
+      {"item_id": "abyssal_bone", "min": 1, "max": 2, "weight": 30, "rarity": "common"},
+      {"item_id": "nascent_soul_core", "min": 1, "max": 1, "weight": 10, "rarity": "rare"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "weight": 6, "rarity": "rare"}
+    ],
+    "rare_node_chance": 0.08,
+    "rare_nodes": [
+      {"item_id": "void_dust", "min": 1, "max": 1, "rarity": "legendary", "message": "A tear in the abyss leaves behind **Void Dust**."}
+    ]
+  },
+  "void_refinement_expanse": {
+    "flavor": "You cross empty ground where void crystals flicker in and out of sight.",
+    "nodes": [
+      {"item_id": "void_dust", "min": 1, "max": 2, "weight": 44, "rarity": "common"},
+      {"item_id": "void_crystal", "min": 1, "max": 1, "weight": 28, "rarity": "uncommon"},
+      {"item_id": "severing_silk", "min": 1, "max": 1, "weight": 10, "rarity": "rare"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "weight": 6, "rarity": "rare"}
+    ],
+    "rare_node_chance": 0.08,
+    "rare_nodes": [
+      {"item_id": "affix_stone", "min": 1, "max": 1, "rarity": "legendary", "message": "A folded pocket of space reveals an **Affix Stone**."}
+    ]
+  },
+  "immortal_ascension_gate": {
+    "flavor": "You gather at the Ascension Gate where immortal pressure condenses into jade.",
+    "nodes": [
+      {"item_id": "ascendant_ichor", "min": 1, "max": 2, "weight": 40, "rarity": "common"},
+      {"item_id": "immortal_jade", "min": 1, "max": 1, "weight": 30, "rarity": "uncommon"},
+      {"item_id": "void_crystal", "min": 1, "max": 1, "weight": 10, "rarity": "rare"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "weight": 6, "rarity": "rare"}
+    ],
+    "rare_node_chance": 0.09,
+    "rare_nodes": [
+      {"item_id": "transcendence_pearl", "min": 1, "max": 1, "rarity": "legendary", "message": "A gate bell rings and reveals a **Transcendence Pearl**."}
+    ]
+  },
+  "heavenly_transcendence_domain": {
+    "flavor": "You move through heavenly light, gathering materials from floating spirit nests.",
+    "nodes": [
+      {"item_id": "heavenly_silk", "min": 1, "max": 2, "weight": 40, "rarity": "common"},
+      {"item_id": "transcendence_pearl", "min": 1, "max": 1, "weight": 28, "rarity": "uncommon"},
+      {"item_id": "immortal_jade", "min": 1, "max": 1, "weight": 10, "rarity": "rare"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "weight": 6, "rarity": "rare"}
+    ],
+    "rare_node_chance": 0.1,
+    "rare_nodes": [
+      {"item_id": "imperial_beast_core", "min": 1, "max": 1, "rarity": "legendary", "message": "A heavenly nest hides an **Imperial Beast Core**."}
+    ]
+  },
+  "immortal_monarch_court": {
+    "flavor": "You search the Monarch Court beneath crushing imperial qi.",
+    "nodes": [
+      {"item_id": "monarch_jade", "min": 1, "max": 2, "weight": 40, "rarity": "common"},
+      {"item_id": "imperial_beast_core", "min": 1, "max": 1, "weight": 28, "rarity": "uncommon"},
+      {"item_id": "transcendence_pearl", "min": 1, "max": 1, "weight": 10, "rarity": "rare"},
+      {"item_id": "technique_fragment", "min": 1, "max": 1, "weight": 6, "rarity": "rare"}
+    ],
+    "rare_node_chance": 0.1,
+    "rare_nodes": [
+      {"item_id": "affix_stone", "min": 1, "max": 1, "rarity": "legendary", "message": "An imperial seal yields an **Affix Stone**."}
     ]
   }
 }

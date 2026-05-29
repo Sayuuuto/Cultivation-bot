@@ -1,0 +1,27 @@
+{
+  "load_budget": {
+    "summary": "Each realm caps how much **load** your equipped arts can carry. Actives, passives, and total load must stay within your realm budget.",
+    "equip_fail": "This build exceeds your load cap — remove a heavy art or raise your realm before equipping.",
+    "hub_line": "Load **{active_used}/{active_cap}** active · **{passive_used}/{passive_cap}** passive · **{total_used}/{total_cap}** total"
+  },
+  "technique_rank": {
+    "summary": "Temper learned arts with spirit stones and category materials. Rank **5** and **10** sharpen the art's pattern; your realm sets the rank cap.",
+    "upgrade_fail": "Gather the listed materials, then temper this art from **My Skills** or **`/upgrade-technique`**.",
+    "hub_line": "Rank upgrades spend spirit stones + category materials + technique fragments at higher ranks."
+  },
+  "sealed_manual": {
+    "summary": "Some manuals arrive **sealed** when they are above your realm. Break through or raise your realm, then study them with **`/learn`**.",
+    "ready_line": "A sealed manual in your ring can now be studied — use **`/learn`**.",
+    "inventory_sealed": "Sealed — raise realm to study",
+    "inventory_ready": "Ready to learn"
+  },
+  "pvp_legality": {
+    "summary": "Arena duels enforce load budget plus caps on legendary arts, control, shields, healing, and survival passives.",
+    "duel_footer": "Illegal builds cannot enter the arena. Check load budget and PvP limits in **My Skills**.",
+    "profile_flag": "Loadout illegal for duels — open **My Skills** to fix violations."
+  },
+  "fragment_economy": {
+    "summary": "Technique Fragments drop from cultivation, hunts, adventures, and duplicate manuals. Spend them on **`/craft manual`**, rank upgrades, and passive tempering.",
+    "item_description": "Imprinted qi from a fallen art. Spend on **`/craft manual`** (3× + scroll + ink), **`/upgrade-technique`**, or duplicate manual conversion (2× per duplicate)."
+  }
+}

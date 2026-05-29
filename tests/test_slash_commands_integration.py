@@ -174,6 +174,10 @@ def test_hunt_combat_view_unique_custom_ids_with_duplicate_loadout(
         technique_cooldowns={},
     )
     assert_discord_view_valid(view, context="hunt duplicate loadout")
+    assert any(
+        "Pass Turn" in (getattr(child, "label", "") or "")
+        for child in view.children
+    )
 
 
 def test_hunt_full_workflow_strike_until_finish(integration_env, ready_player, session):
@@ -206,13 +210,37 @@ def test_hunt_full_workflow_strike_until_finish(integration_env, ready_player, s
 
         assert_response_ok(turn_capture)
         captured = turn_capture
+        turns += 1
         if captured.edit and captured.edit.get("view") is None:
             break
         if "defeated" in captured.text.lower() or "flees" in captured.text.lower():
             break
-        turns += 1
 
     assert turns > 0
+
+
+def test_dungeon_cancel_clears_ongoing_expedition(integration_env, ready_player, session):
+    from src.dungeon_party import create_party_with_invites, find_party_for_player
+
+    party, err = create_party_with_invites(
+        session,
+        guild_id=ready_player.guild_id,
+        leader=ready_player,
+        dungeon_id="mortal_catacomb",
+        invitees=[],
+    )
+    assert party is not None
+    assert err == ""
+    party.status = "in_combat"
+    session.add(party)
+    session.commit()
+
+    interaction = make_mock_interaction(client=bot)
+    captured = run_async(invoke_slash(bot.tree, "dungeon-cancel", interaction))
+
+    assert_response_ok(captured)
+    assert "closed" in captured.text.lower()
+    assert find_party_for_player(session, ready_player.guild_id, ready_player.discord_id) is None
 
 
 def test_techniques_command_sends_card_or_embed(integration_env, ready_player, session):
@@ -233,15 +261,7 @@ def test_use_command_defers_and_responds(integration_env, ready_player, session)
 
 def test_adventure_start_and_continue_workflow(integration_env, ready_player, session):
     interaction = make_mock_interaction(client=bot)
-    captured = run_async(
-        invoke_slash(
-            bot.tree,
-            "adventure",
-            interaction,
-            area="bamboo_grove",
-            stance=app_commands.Choice(name="Balanced", value="balanced"),
-        )
-    )
+    captured = run_async(invoke_slash(bot.tree, "adventure", interaction))
     assert_response_ok(captured)
     if captured.view is not None:
         assert_discord_view_valid(captured.view, context="adventure choices")

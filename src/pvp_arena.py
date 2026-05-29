@@ -174,7 +174,7 @@ def build_pvp_combat_embed(state: PvpCombatState) -> discord.Embed:
     embed = build_combat_embed(
         f"Duel — {actor.dao_name} vs {defender.dao_name}",
         cs,
-        footer=f"✨ Techniques · 🏃 Yield · ✅ Finish · {footer}",
+        footer=f"✨ Techniques · ⏭ Pass Turn · 🏃 Yield · {footer}",
     )
     embed.set_field_at(
         0,

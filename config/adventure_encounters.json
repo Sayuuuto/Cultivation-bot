@@ -1,6 +1,92 @@
 {
   "bamboo_grove": [
     {
+      "id": "bamboo_route_choice",
+      "type": "route_choice",
+      "prompt": "Mist parts around two roads through the bamboo. Lantern smoke curls from a paved trail, while older stalks groan deeper in the forest.",
+      "choices": [
+        {"id": "village_road", "label": "Follow the paved road toward lantern smoke", "route_tag": "merchant_village", "route_label": "Merchant Village Road", "route_tone": "neutral", "success_bonus": 0.0, "drop_mult": 1.0, "fail_chance": 0.0},
+        {"id": "deep_forest", "label": "Push deeper beneath the old bamboo", "route_tag": "deep_forest", "route_label": "Deep Bamboo Forest", "route_tone": "reckless", "success_bonus": 0.0, "drop_mult": 1.0, "fail_chance": 0.0}
+      ]
+    },
+    {
+      "id": "village_lantern_toll",
+      "type": "choice",
+      "route_tags": ["merchant_village"],
+      "segment_role": "complication",
+      "prompt": "The paved road reaches a lantern toll. Merchants argue with armed collectors while herb crates wait in the rain.",
+      "choices": [
+        {"id": "mediate", "label": "Settle the toll dispute before tempers flare", "karma_delta": 6, "reputation_delta": 5, "success_bonus": 0.07, "drop_mult": 0.9, "fail_chance": 0.07},
+        {"id": "guard_crates", "label": "Guard the herb crates for a fair payment", "karma_delta": 2, "reputation_delta": 3, "success_bonus": 0.02, "drop_mult": 1.15, "fail_chance": 0.1, "spirit_stones": 8},
+        {"id": "shake_down", "label": "Pressure both sides and take a hidden purse", "karma_delta": -10, "reputation_delta": -6, "success_bonus": -0.03, "drop_mult": 1.35, "fail_chance": 0.16, "spirit_stones": 14}
+      ]
+    },
+    {
+      "id": "village_apothecary_request",
+      "type": "choice",
+      "route_tags": ["merchant_village"],
+      "segment_role": "complication",
+      "prompt": "Past the toll, a village apothecary begs for help sorting rain-soaked herbs before a fever ward runs dry.",
+      "choices": [
+        {"id": "sort_herbs", "label": "Sort the herbs by scent and qi flow", "karma_delta": 7, "reputation_delta": 6, "success_bonus": 0.08, "drop_mult": 0.9, "fail_chance": 0.07, "manual_pool": "neutral_wanderer", "manual_chance": 0.25},
+        {"id": "sell_extras", "label": "Sell the extra herbs before anyone notices", "karma_delta": -8, "reputation_delta": -5, "success_bonus": -0.02, "drop_mult": 1.3, "fail_chance": 0.14, "spirit_stones": 10},
+        {"id": "carry_medicine", "label": "Carry the medicine through the crowded ward", "karma_delta": 5, "reputation_delta": 4, "success_bonus": 0.03, "drop_mult": 1.0, "fail_chance": 0.09}
+      ]
+    },
+    {
+      "id": "village_market_climax",
+      "type": "choice",
+      "route_tags": ["merchant_village"],
+      "segment_role": "climax",
+      "prompt": "Lanterns brighten at the village gate as a masked thief bolts through the market with a stolen spirit pouch.",
+      "choices": [
+        {"id": "catch_thief", "label": "Chase the thief across the market roofs", "karma_delta": 8, "reputation_delta": 8, "success_bonus": 0.04, "drop_mult": 1.1, "fail_chance": 0.12, "manual_pool": "righteous_elder", "manual_chance": 0.35},
+        {"id": "protect_stalls", "label": "Shield the stalls from the panicked crowd", "karma_delta": 10, "reputation_delta": 6, "success_bonus": 0.08, "drop_mult": 0.85, "fail_chance": 0.08},
+        {"id": "cut_purse", "label": "Let the thief run and empty a noble's sleeve", "karma_delta": -14, "reputation_delta": -10, "success_bonus": -0.05, "drop_mult": 1.45, "fail_chance": 0.18, "spirit_stones": 18}
+      ]
+    },
+    {
+      "id": "deep_bamboo_whispers",
+      "type": "choice",
+      "route_tags": ["deep_forest"],
+      "segment_role": "complication",
+      "prompt": "The old bamboo closes behind you. Whispering talismans sway from cracked stalks, pointing toward a hidden spirit nest.",
+      "choices": [
+        {"id": "read_talismans", "label": "Study the talismans before moving on", "karma_delta": 3, "success_bonus": 0.08, "drop_mult": 0.95, "fail_chance": 0.08, "manual_pool": "neutral_wanderer", "manual_chance": 0.3},
+        {"id": "raid_nest", "label": "Raid the spirit nest and draw out its guardian", "karma_delta": -9, "success_bonus": -0.04, "drop_mult": 1.4, "fail_chance": 0.18, "next_encounter_id": "deep_bamboo_nest_guardian"},
+        {"id": "leave_offering", "label": "Leave incense and ask the grove for passage", "karma_delta": 7, "success_bonus": 0.02, "drop_mult": 1.0, "fail_chance": 0.1}
+      ]
+    },
+    {
+      "id": "deep_bamboo_moonlit_pool",
+      "type": "choice",
+      "route_tags": ["deep_forest"],
+      "segment_role": "complication",
+      "prompt": "Moonlight pools between ancient roots. A wounded grove fox laps at the water while a pearl-bright herb blooms nearby.",
+      "choices": [
+        {"id": "heal_fox", "label": "Heal the fox before touching the herb", "karma_delta": 8, "success_bonus": 0.06, "drop_mult": 0.9, "fail_chance": 0.08, "manual_pool": "righteous_elder", "manual_chance": 0.3},
+        {"id": "take_herb", "label": "Take the herb while the fox is weak", "karma_delta": -10, "success_bonus": -0.02, "drop_mult": 1.35, "fail_chance": 0.15},
+        {"id": "share_water", "label": "Share clean water and wait for the roots to part", "karma_delta": 5, "success_bonus": 0.04, "drop_mult": 1.0, "fail_chance": 0.09}
+      ]
+    },
+    {
+      "id": "deep_bamboo_nest_guardian",
+      "type": "combat",
+      "route_tags": ["deep_forest"],
+      "segment_role": "complication",
+      "prompt": "The nest shudders. A bamboo specter tears free from the roots and strikes back.",
+      "monster_id": "bamboo_specter"
+    },
+    {
+      "id": "deep_bamboo_heart_climax",
+      "type": "combat",
+      "route_tags": ["deep_forest"],
+      "segment_role": "climax",
+      "prompt": "At the grove's heart, a bamboo specter rises from moonlit roots to test your intent.",
+      "monster_id": "bamboo_specter",
+      "is_boss": true
+    },
+    {
       "id": "injured_elder",
       "type": "choice",
       "prompt": "A bloodied elder cultivator slumps against bamboo roots, whispering for help. His storage ring glints in the mud.",

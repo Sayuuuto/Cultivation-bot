@@ -43,9 +43,9 @@ def _format_trial_steps() -> str:
 
 def _no_cooldown_commands() -> str:
     return (
-        "/profile · /techniques · /learn · /equip-technique · /inventory · /item · "
+        "/profile · /techniques · /inventory · /item · "
         "/loadout · /stats · /recipes · /roots · /breakthrough · /craft · /forge · "
-        "/shop · /use · /equip · /help · /cooldown · /remind · /areas · "
+        "/shop · /use · /affix · /help · /cooldown · /remind · /areas · "
         "/adventure-continue · /adventure-abandon · /reset"
     )
 
@@ -255,12 +255,12 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "Resource commands",
                     "**`/gather`** — herbs, scroll ink, inscription stone (autocomplete areas)\n"
                     "**`/hunt`** — spirit beasts with **button combat**\n"
-                    f"{subtext('5 min hunt cooldown starts when the fight ends (Finish or Flee), not when you engage')}",
+                    f"{subtext('5 min hunt cooldown starts when the fight ends, not when you engage')}",
                 ),
                 (
                     "Hunt combat",
                     quote(
-                        "Engage → technique buttons (cooldowns on buttons) → **Flee** or **Finish**.\n"
+                        "Engage → technique buttons (cooldowns on buttons) → **Pass Turn** or **Flee**.\n"
                         "HP bars, status badges, emoji combat logs.\n"
                         "Prepare with `/techniques` — 4 active slots + 1 passive."
                     ),
@@ -268,7 +268,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                 (
                     "What you are farming",
                     "• **Beast cores** → Tempering pills\n"
-                    f"• **Technique fragments** → `/craft manual` ({FRAGMENTS_FOR_MANUAL}× + scroll + ink)\n"
+                    f"• **Technique fragments** → `/craft manual`, **`/upgrade-technique`**, duplicate manuals ({FRAGMENTS_FOR_MANUAL}× + scroll + ink to bind)\n"
                     "• **Manual drops** from elite beasts (Mist Fang Wolf, Fire Mantis, Ruin Devourer)\n"
                     f"{subtext('See the Scripture Pavilion library channel for the full manual list')}",
                 ),
@@ -285,10 +285,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
             [
                 (
                     "Study & equip",
-                    "**`/techniques`** — loadout, art types, study/equip **menus**\n"
-                    "**`/technique`** — read what an art does before you study it\n"
-                    "**`/learn`** — consume a manual from your bag (autocomplete)\n"
-                    "**`/equip-technique`** — **active slots 1–4** or **passive slot** (autocomplete labels the type)\n"
+                    "**`/techniques`** — equipped loadout, skill library, unlock manuals, equip, upgrade\n"
                     f"{subtext('Everyone starts with Basic Strike — manuals expand your arsenal')}",
                 ),
                 (
@@ -306,6 +303,17 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "Scripture Pavilion",
                     "Admins run **`/post-library`** in your manual channel for the "
                     "**full catalog** — obtain paths, art types, and karma pools.",
+                ),
+                (
+                    "Load, ranks & arena rules",
+                    "**Load budget** — each realm caps active, passive, and total load on equipped arts. "
+                    "Heavy builds fail equip until you trim arts or break through.\n"
+                    "**`/upgrade-technique`** — temper learned arts with spirit stones, category materials, "
+                    "and technique fragments at higher ranks.\n"
+                    "**Sealed manuals** — over-realm drops stay sealed until your realm opens them; "
+                    "then study it in **`/techniques`** → **Unlock Skill**.\n"
+                    "**Duels** — arena fights check load budget plus caps on legendary, control, shield, "
+                    "healing, and survival passives. Fix violations in **`/techniques`** before **`/duel`**.",
                 ),
             ],
             author="Chapter 7 · Techniques",
@@ -389,7 +397,8 @@ def build_tutorial_pages() -> list[discord.Embed]:
             [
                 (
                     "Forge & equip",
-                    "**`/forge`** — weapon, armor, accessory, or talisman\n"
+                    "**`/forge`** — weapon, armor, accessory, or talisman (lands in your stash)\n"
+                    "**`/equip`** · **`/recycle`** — wear or break down old pieces\n"
                     "Costs adventure materials · random **stats**:\n"
                     "• **Power** — adventure success & PvP\n"
                     "• **Defense** — adventure survivability\n"
@@ -398,7 +407,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                 ),
                 (
                     "Affixes",
-                    "**`/equip`** — spend **Affix Stone** on **forged** gear only\n"
+                    "**`/affix`** — spend **Affix Stone** on stash or worn gear\n"
                     "Stones drop from rare adventure events and dungeons\n"
                     "**`/loadout`** — gear, affixes, active pill effects\n"
                     "**`/stats`** — Power / Defense / Fortune / Insight from forged gear\n\n"
@@ -437,9 +446,9 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "Duels (technique combat)",
                     "**`/duel @player`** — public challenge with **Accept / Decline** buttons.\n"
                     "On accept, the bot opens a private arena — same **technique buttons** as `/hunt`: "
-                    "equipped actives, passives, status effects, **Yield**, and **Finish**.\n"
+                    "equipped actives, passives, status effects, **Pass Turn**, and **Yield**.\n"
                     "Opponent has **2 minutes** to respond. Winner gains **spirit stones**.\n"
-                    f"{chip('2 hr')} cooldown for both · `/techniques` and `/equip-technique` set your arena loadout",
+                    f"{chip('2 hr')} cooldown for both · `/techniques` sets your arena loadout",
                 ),
                 (
                     "Clans & sects",
@@ -472,7 +481,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "In-game guidance",
                     "**`/help`** — personal guide with contextual next steps\n"
                     "**`/cooldown`** — live timers + pill haste reductions\n"
-                    "**`/reset`** — rewrite your character (requires confirmation)\n\n"
+                    "**`/reset`** — erase your character (`confirm=true`), then **`/start`** again\n\n"
                     f"{quote('Most commands attach a What happens next hint after you use them.')}",
                 ),
             ],
@@ -523,7 +532,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                 "3. **`/techniques`** — study origin manual, equip your loadout\n"
                 "4. **`/hunt`** & **`/adventure`** — button combat & karma choices\n"
                 "5. **`/recipes`** → craft pills or bind manuals · **`/shop`** for supplies\n"
-                "6. **`/forge`** & **`/equip`** when affix stones drop\n"
+                "6. **`/forge`** → **`/equip`** · **`/recycle`** old gear · **`/affix`** when stones drop\n"
                 "7. **`/remind on activity:all`** if you want DM timer pings\n\n"
                 f"{quote('Questions? `/help` and `/cooldown` are always available in-game.')}\n\n"
                 "*May your meridians stay clear and your breakthroughs succeed.*"

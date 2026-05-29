@@ -1,243 +1,196 @@
-# Combat, Techniques & Karma Design
+# Combat, Techniques, And Karma Design
 
-Data-driven combat with synergy lanes, earned karma, and alignment-weighted manual drops.
+Combat is data-driven, turn based, and shared by hunts, adventures, dungeons,
+and PvP duels. The system should grow by adding JSON definitions and generic
+effect handlers, not by adding one-off branches for individual martial arts.
 
-## Activity lanes
+For lower-level implementation rules, see `docs/COMBAT_PROGRESSION.md`.
 
-| Lane | Commands | Cooldown | Purpose |
-|------|----------|----------|---------|
-| Cultivation | `/cultivate`, `/breakthrough` | 15m / on demand | Qi, realm progression |
-| Resource | `/gather`, `/hunt` | 5m each | Herbs, cores, beast parts, manuals |
-| Story | `/adventure`, `/dungeon` | 20m / 2h | Branching runs, moral choices, bosses |
+## Activity Lanes
 
-Each lane has **distinct primary drops** to avoid spamming the shortest cooldown.
+- Cultivation: `/cultivate` and `/breakthrough` drive qi and realm progress.
+- Resources: `/gather` and `/hunt` provide herbs, ore, cores, beast parts, and manuals.
+- Story: `/adventure` and `/dungeon` provide choices, moral shifts, bosses, and rarer drops.
+- Builds: `/techniques`, `/technique`, `/learn`, and `/equip-technique` manage manuals and loadout.
+- PvP: `/duel` runs turn-based arena combat after loadout legality checks.
 
-## Primary stats (computed from realm + gear + modifiers)
+Each lane has distinct primary rewards so short cooldown loops do not dominate
+all progression.
 
-| Stat | Role |
-|------|------|
-| HP / Max HP | Survival in combat |
-| Internal Strength | Technique / qi-based damage |
-| External Strength | Physical strikes |
-| Agility | Speed, dodge |
-| Spiritual Sense | Crit, detection |
-| Defense | Damage reduction |
-| Comprehension | Gather yields, learning |
-| Luck | Rare drops, crit assist |
+## Stats
 
-**Derived:** Crit Chance, Dodge (from Spiritual Sense, Agility, Luck).
+Primary combat stats come from realm, root, cultivation progress, equipment,
+active effects, and modifiers:
 
-Realm growth is defined in `config/realm_stats.json`. Gear maps: Power → internal+external, Defense → defense, Fortune → luck, Insight → spiritual sense + comprehension.
+- HP and max HP for survival.
+- Internal strength for qi-based techniques.
+- External strength for physical strikes.
+- Agility for speed and dodge.
+- Spiritual sense for crit and detection.
+- Defense for damage reduction.
+- Comprehension for gathering and learning support.
+- Luck for rare drops and crit support.
 
-## Trigger engine (`src/combat/triggers.py`)
+Realm growth is defined in `config/realm_stats.json`. Realm names, qi caps, load
+budgets, and rank caps are defined in `config/realms.json`.
 
-Techniques declare **`effects[]`** (active) and **`passive_triggers[]`** (passive) in `config/techniques.json`. The engine resolves them instead of hardcoded per-technique branches.
+## Technique Runtime
 
-### Supported events
+Techniques declare active `effects` and passive `passive_triggers` in
+`config/techniques.json`. `src/combat/catalog.py` parses those definitions into
+`TechniqueDef`, while `src/combat/effect_defs.py` defines the small runtime
+objects used by combat resolution.
 
-| Event | When fired |
-|-------|------------|
-| `on_use` | Technique resolves (damage, heal, status, lifesteal, shield, cleanse, dodge) |
-| `on_hit` | After damage dealt (e.g. Hemorrhage Art bleed bonus) |
-| `on_crit` | Critical strike confirmed (e.g. Mirror Nimbus reflect) |
-| `on_status_applied` | Status successfully applied |
-| `on_turn_start` / `on_turn_end` | Per combatant (e.g. Blood Feast heal) |
-| `on_hp_threshold` | Cross below/above % HP once per fight (Lotus Revival) |
-| `on_cc_received` | Stun/seal/fear applied to self (Iron Will) |
-| `on_fatal` | Would drop to 0 HP (Undying Vow) |
+Supported event families include:
 
-### Combat state extensions
+- `on_use`: active technique resolution.
+- `on_hit`: after damage lands.
+- `on_crit`: after a critical strike.
+- `on_status_applied`: after a status is applied.
+- `on_turn_start` and `on_turn_end`: per-combatant turn hooks.
+- `on_hp_threshold`: threshold passives such as emergency healing.
+- `on_cc_received`: control counterplay.
+- `on_fatal`: survival passives.
 
-- `technique_cooldowns` — per-active CD (shown on CombatView buttons)
-- `passive_cooldowns` — fight-scoped CD for emergency passives (Iron Will, Lotus Revival)
-- `consecutive_hits` — tempo stack for Rising Tempo (resets on no-damage turn)
-- `triggered_once` — once-per-fight flags (Undying Vow)
-- `shield_hp` — absorb layer before HP (Mountain Guard, Iron Will)
-- `opponent_traits` — monster kit tags from hunt/adventure foes
+Supported effect families include damage, multi-hit, status application, heal,
+lifesteal, shield, cleanse, dodge, execute, reflect, cooldown adjustment, and
+conditional bonuses.
 
-### Effect types
+Catalog fallbacks still parse older passive fields into trigger definitions so
+existing content keeps working while entries are normalized.
 
-`damage`, `multi_hit`, `apply_status`, `lifesteal`, `heal`, `shield`, `cleanse`, `dodge_next`, conditional bonuses via `requires_status`, `bonus_vs_status`, `bonus_below_hp_pct`, etc.
+## Status Rules
 
-Legacy fields (`passive_crit_bonus`, `passive_burn_bonus`, `passive_on_bleed`) are still supported via catalog fallbacks.
+Status metadata lives in `config/combat_rules.json` and is loaded by
+`src/combat/rules.py`.
 
-## Status effects
+Current status roles:
 
-| Status | Role | Counter |
-|--------|------|---------|
-| **Bleed** | Stackable physical DoT; enables lifesteal/heal passives | Cleanse, burst before stacks |
-| **Burn** | Single-stack burst DoT; amplifiable | Cleanse, high defense |
-| **Poison** | Long low DoT; soul lane | Cleanse, heal over time |
-| **Stun** | Hard skip turn | Iron Will passive |
-| **Seal** | Blocks techniques only; Basic Strike still works | Basic Strike, Meridian counter-builds |
-| **Fear** | Player damage −25% | Purifying Breath, tempo builds |
+- `bleed`: stackable physical damage over time; enables lifesteal and bleed payoffs.
+- `burn`: damage over time with spread and fire payoff hooks.
+- `poison`: longer attrition and anti-heal support.
+- `stun`: hard turn cancel.
+- `seal`: damage reduction/control pressure.
+- `fear`: chance to skip turns.
 
-Formulas in `config/combat_rules.json`.
+Status entries can carry tags such as `dot`, `control`, `cleanseable`, and
+`anti_heal`. Control statuses also define diminishing-return metadata.
 
-## Technique rarity & realm tiers
+## Loadout And PvP Rules
 
-Each technique has a **realm tier** (Mortal / Earth — when you can equip) and a **rarity** (power + acquisition exclusivity):
+Players equip four active techniques and one passive technique. Slot count stays
+stable while load budgets limit total build weight by realm.
 
-| Rarity | Power | Typical sources |
-|--------|-------|-----------------|
-| **Common** | Baseline | Shop pamphlets, Unidentified Scroll, `/craft manual` (Mortal), Wandering Elder |
-| **Uncommon** | +6% active damage | Scroll gamble, Earth craft, moral choices, hunt elites |
-| **Rare** | +12% active damage | Breakthrough, inheritance events, dungeon bonus, hunt elites |
-| **Legendary** | +20% active damage | Alignment moral choices, weekly dungeon boss, **never** shop |
+`src/combat/loadout.py` owns:
 
-Legendary passives (Iron Will, Lotus Revival, Undying Vow) and Heaven's Cleave are **exclusive** to moral paths, breakthrough alignment, and Blackwind Cavern.
+- learned technique lookup
+- starter technique grants
+- equip validation
+- realm load budget checks
+- PvP legality checks
+- technique rank lookup
 
-## Technique roster (~29 techniques)
+PvP legality checks currently cap legendary techniques, control tools, shield
+tools, healing tools, and survival passives. Tuning values live in
+`config/combat_rules.json`.
 
-Every manual technique has **`alignment`** (righteous / demonic / neutral), **`role`** (applier / finisher / control / sustain / utility), and synergy hints on `/techniques`.
+## Technique Rarity And Sources
 
-### Active lanes
+Technique rarity affects active damage and acquisition exclusivity:
 
-| Lane | Core actives | Signature combo |
-|------|--------------|-----------------|
-| **Sword / Bleed** | Swift Slash, Iron Cleave, Sanguine Drain, Rending Flurry | Hemorrhage Art → bleed → Sanguine Drain lifesteal |
-| **Fire / Burn** | Ember Palm, Flame Burst, Cinder Lance | Ember Heart → burn → Cinder Lance finisher |
-| **Body / Control** | Iron Body, Meridian Strike, Mountain Guard | Seal → Basic Strike bypass |
-| **Soul / Attrition** | Soul Needle, Void Pulse, Soul Siphon | Poison → Soul Siphon; **Venom Weave** amplifies poison |
-| **Utility** | Qi Barrier, Mist Step, Purifying Breath | Cleanse + sustain |
-| **Sword / Finisher** | Iron Cleave, **Heaven's Cleave** (Legendary) | Bleed setup → ultimate finisher |
+- `common`: baseline arts from early shops, common pools, and craft routes.
+- `uncommon`: stronger arts from gambles, moral pools, sect routes, and upgraded craft routes.
+- `rare`: higher-impact arts from breakthroughs, rare events, dungeon rewards, and elite hunts.
+- `legendary`: high-impact arts reserved for strict reward paths.
 
-### Passive highlights
+Source-specific rarity caps live in `src/combat/rarity.py`. Manual drop pools
+live in `config/manual_pools.json`; shop and sect routes live in `config/shop.json`
+and `config/sect_shops.json`.
 
-| ID | Trigger | Effect |
-|----|---------|--------|
-| Keen Focus | passive | +5% crit |
-| Ember Heart | on_use (burn) | +15% burn technique damage |
-| Blood Feast | on_turn_end | Heal 5% max HP if foe bleeding |
-| Hemorrhage Art | on_hit | +15% bleed chance on all attacks |
-| Mirror Nimbus | on_crit | Reflect 30% damage dealt |
-| Rising Tempo | on_hit | +5% damage per consecutive hit |
-| Merciful Edge | on_use | +12% crit vs targets below 30% HP |
-| Undying Vow | on_fatal | Survive at 1 HP; +40% damage 2 turns (once/fight) |
-| Iron Will | on_cc_received | Cleanse stun; shield 15% max HP (CD 5) |
-| Lotus Revival | on_hp_threshold | Below 30% HP: heal 30% max HP (CD 10) |
-| Venom Weave | on_use (poison) | +12% poison technique damage |
+## Build Archetypes
 
-### Discoverable build archetypes
+The current roster supports discoverable build lanes:
 
-| Build | Core loadout | Weak to |
-|-------|--------------|---------|
-| Blood Predator | Hemorrhage Art + Swift Slash + Sanguine Drain | Purifying Breath, burst |
-| Ember Executioner | Ember Heart + Ember Palm + Cinder Lance | Cleanse, high defense |
-| Seal Breaker | Meridian Strike + Basic Strike + Rising Tempo | Stun, Iron Will |
-| Mirror Sage | Mirror Nimbus + Keen Focus + Qi Barrier | Poison attrition, seal |
-| Lotus Guardian | Lotus Revival + Iron Will + Purifying Breath | Seal + sustained DPS |
-| Undying Berserker | Undying Vow + Rending Flurry + Blood Feast | Burst before proc |
-| Venom Ascendant | Venom Weave + Void Pulse + Soul Siphon | Cleanse-resistant attrition |
+- Sword and bleed: apply bleed, then convert it into sustain or finishers.
+- Fire and burn: apply burn, amplify fire damage, then cash out with a finisher.
+- Body and control: use shield, stun, seal, and Basic Strike pressure.
+- Soul and attrition: poison and soul techniques pressure long fights.
+- Utility and cleanse: remove statuses, dodge, shield, and survive burst windows.
+- Critical tempo: stack crit, reflect, and consecutive-hit payoffs.
 
-**Loadout:** 4 active + 1 passive slots (`/techniques`, `/equip-technique`, `/learn`).
+Use `synergy_hint`, `role`, `category`, `tags`, and effect primitives to make
+these identities visible in `/techniques` and maintainable in config.
 
-## Turn-based combat
-
-- Shared engine in `src/combat/` for hunt, adventure fights, duels
-- Speed from agility (player) and attack (beasts); turn cap ~8 with **Finish** auto-resolve
-- Hunt/adventure open Discord **CombatView** buttons: techniques (with CD labels; Basic Strike highlighted), Flee, Finish
-- Combat sessions persist in `active_combats` until victory, defeat, flee, or expiry
-- Rich embeds: HP bars, status badges, emoji combat log (`src/ui/`)
+## Combat Flow
 
 ```mermaid
 flowchart TD
-  engage[Engage beast or adventure combat]
-  view[Discord CombatView buttons]
-  turn[Player action: technique / strike / flee / finish]
-  triggers[Resolve effects and passive triggers]
-  beast[Opponent turn + status ticks + monster traits]
-  endCheck{HP or turn cap?}
-  engage --> view --> turn --> triggers --> beast --> endCheck
-  endCheck -->|no| view
-  endCheck -->|yes| rewards[Grant drops / advance adventure]
+  engage[Engage combat]
+  view[Discord combat buttons]
+  player[Player action]
+  resolve[Resolve effects and passive triggers]
+  foe[Opponent action and status ticks]
+  finish{Finished?}
+  reward[Grant rewards or record result]
+  engage --> view --> player --> resolve --> foe --> finish
+  finish -->|No| view
+  finish -->|Yes| reward
 ```
 
-## Monster counterplay
+Combat sessions persist until victory, defeat, flee, finish, expiry, or duel
+completion. Discord views show HP bars, statuses, technique cooldowns, Basic
+Strike, flee, and finish actions.
 
-Hunt beasts and adventure monsters can carry **traits** in config:
+## Karma
 
-| Trait | Player answer |
-|-------|---------------|
-| `bleed_immune` | Burn, poison, control |
-| `cleanse_every_3_turns` | Burst windows, not long DoT |
-| `seal_on_hit` | Basic Strike loadout |
-| `high_stun_chance` | Iron Will, Mountain Guard |
+Karma ranges from `-100` to `+100` and begins neutral. Adventure choices shift
+karma through `karma_delta` values in `config/adventure_encounters.json`.
 
-Defined in `config/hunt_targets.json` and `config/monsters.json`.
+Karma affects:
 
-## Karma system
+- breakthrough odds and setback tuning
+- cultivation flavor
+- manual pool weights
+- profile tier display
 
-Karma replaces the old `/start` moral path choice. It is **earned through play**, not chosen at creation.
+Manual pool weighting is handled by `pick_manual_from_pool()` in
+`src/manuals.py`, using `manual_weight_multiplier()` from `src/karma.py`.
 
-| Stat | Value |
-|------|-------|
-| Range | −100 to +100 (starts at 0) |
-| Righteous tier | ≥ +30 |
-| Neutral tier | −29 to +29 |
-| Demonic tier | ≤ −30 |
+## Manuals
 
-### Karma effects
+Manual acquisition is intentionally spread across activities:
 
-| System | Effect |
-|--------|--------|
-| **Breakthrough** | Success +0.04% per karma point (cap ±5%); fail setback scales ±0.1% per point (cap ±25%) |
-| **Cultivation flavor** | Text from karma tier |
-| **Manual pools** | Alignment-weighted selection (see below) |
-| **Profile** | Karma bar + tier label on `/profile` |
-| **Combat** | No direct stat bonus — identity via techniques and drops |
+- cultivate and breakthrough rewards
+- adventure moral pools and rare events
+- hunt and dungeon drops
+- shop listings and manual gambles
+- craft/manual fragment routes
+- sect shops and sect progression
 
-### Adventure moral choices
+Duplicate known manuals convert into technique fragments. Manuals above the
+player's realm become sealed when the `sealed_manuals` flag is enabled and open
+when the player reaches the required realm.
 
-Encounters in `config/adventure_encounters.json` can offer choices with `karma_delta`, `manual_pool`, and distinct loot. Examples: injured elder, wounded rival, corrupt disciple, trapped spirit beast. Karma change is reported in adventure embeds.
+## Skill Ideas
 
-Existing players migrate from legacy `moral_path`: righteous → +40, demonic → −40, neutral → 0.
+`scripts/extract_skill_ideas.py` converts draft skill ideas into
+`config/skill_idea_mapping.json` for review. The generated file maps source
+codes, sect aliases, categories, roles, rarity, realm requirements, manual IDs,
+and backlog reasons.
 
-## Manual pools
-
-Pools in `config/manual_pools.json`. When rolling a manual, `pick_manual_from_pool()` in `src/manuals.py` applies karma bias:
-
-```
-righteous manual + righteous karma (≥30):  weight × 1.8
-demonic manual + demonic karma (≤−30):     weight × 1.8
-neutral manual:                            weight × 1.1
-misaligned (righteous player, demonic manual): weight × 0.6  (never zero)
-```
-
-Notable pools:
-
-| Pool | Source | Bias |
-|------|--------|------|
-| `righteous_elder` | Adventure moral event | Purifying Breath, Iron Will, Lotus Revival, Mountain Guard |
-| `demonic_elder` | Adventure moral event | Sanguine Drain, Hemorrhage Art, Undying Vow, Soul Siphon |
-| `neutral_wanderer` | General drops | Swift Slash, Mist Step, Rising Tempo, Keen Focus |
-| `righteous_breakthrough` / `demonic_breakthrough` | High/low karma breakthrough | Alignment passives/actives |
-
-**Drop philosophy:** Common actives from shop/craft/cultivate; Uncommon from gamble and Earth craft; Rare from breakthrough, inheritance, and hunt elites; **Legendary only from moral choices, alignment breakthrough, and weekly dungeon** — never shop.
-
-## Adventure combat
-
-- Encounters use `"type": "choice" | "combat"`
-- Combat segments launch the same engine; monsters in `config/monsters.json`
-- **Soft pity** for rare events: +5% gate per segment without rare, cap +25%
-- `/adventure-continue` resumes mid-combat if Discord times out
-
-## Config files
-
-| File | Purpose |
-|------|---------|
-| `config/realm_stats.json` | Per-realm base stat growth |
-| `config/techniques.json` | Technique defs, effects, passive triggers, alignment, role |
-| `config/combat_rules.json` | Turn cap, status formulas |
-| `config/manual_pools.json` | Manual drop pools with alignment mix |
-| `config/hunt_targets.json` | Beasts, traits, drops |
-| `config/monsters.json` | Adventure combat foes and traits |
-| `config/adventure_encounters.json` | Choice/combat segments, moral events |
-| `config/gather_nodes.json` | Herbs/ores per area |
-| `config/items.json` | Manual items for new techniques |
+Promote an idea into runtime by adding or updating entries in the repo-owned
+config files. Keep external schemas out of combat runtime code.
 
 ## Tests
 
-- `tests/test_combat_triggers_and_karma.py` — trigger resolution, karma tiers, manual weight bias
-- `tests/test_combat_engine.py` — turn flow, status, finish
-- Integration tests cover adventure moral encounters and expanded technique catalog
+Focused combat checks:
+
+```powershell
+py -m pytest tests/test_combat_engine.py -v
+py -m pytest tests/test_combat_triggers_and_karma.py -v
+py -m pytest tests/test_pvp_combat.py -v
+py -m pytest tests/test_manual_acquisition.py -v
+```
+
+Add test coverage when changing effect order, status behavior, manual weights,
+sealed manual behavior, load budgets, or PvP caps.

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from .character import get_character_modifiers
 from .combat.catalog import get_technique
-from .combat.targeting import technique_hits_all_enemies
+from .combat.targeting import technique_hits_all_enemies, technique_needs_manual_target
 from .combat.effects import (
     CombatantState,
     has_status,
@@ -33,6 +33,7 @@ from .cooperative_dungeons import (
 )
 from .dungeon_party import PartyMember
 from .models import Player
+from .ui.formatting import format_compact_number
 
 
 def _combatant_to_dict(c: CombatantState) -> dict:
@@ -72,6 +73,8 @@ class DungeonFighter:
     technique_cooldowns: dict[str, int] = field(default_factory=dict)
     enemy_template_id: str | None = None
     combat_tier: str = "normal"
+    shield: int = 0
+    shield_turns: int = 0
 
     def alive(self) -> bool:
         return self.combatant.hp > 0
@@ -90,6 +93,8 @@ class DungeonFighter:
             "technique_cooldowns": self.technique_cooldowns,
             "enemy_template_id": self.enemy_template_id,
             "combat_tier": self.combat_tier,
+            "shield": self.shield,
+            "shield_turns": self.shield_turns,
         }
 
     @classmethod
@@ -107,6 +112,8 @@ class DungeonFighter:
             technique_cooldowns={str(k): int(v) for k, v in data.get("technique_cooldowns", {}).items()},
             enemy_template_id=data.get("enemy_template_id"),
             combat_tier=str(data.get("combat_tier", "normal")),
+            shield=int(data.get("shield", 0)),
+            shield_turns=int(data.get("shield_turns", 0)),
         )
 
 
@@ -438,10 +445,20 @@ def _enemy_attack(
     mult = attacker_damage_multiplier(actor.combatant)
     if mult < 1.0:
         damage = max(1, int(damage * mult))
+    absorbed = 0
+    if target.shield > 0:
+        absorbed = min(target.shield, damage)
+        target.shield -= absorbed
+        damage -= absorbed
     target.combatant.hp = max(0, target.combatant.hp - damage)
+    if absorbed > 0:
+        absorbed_text = format_compact_number(absorbed)
+        state.log.append(f"**{target.name}**'s shield absorbs **{absorbed_text}** damage.")
+    damage_text = format_compact_number(damage)
+    hp_text = format_compact_number(max(0, target.combatant.hp))
     state.log.append(
-        f"**{actor.name}** strikes **{target.name}** for **{damage}** "
-        f"(**{max(0, target.combatant.hp)}** HP)."
+        f"**{actor.name}** strikes **{target.name}** for **{damage_text}** "
+        f"(**{hp_text}** HP)."
     )
 
 
@@ -475,6 +492,10 @@ def _tick_fighters_after_action(state: DungeonCombatState, rng: random.Random) -
             continue
         for line in tick_statuses(fighter.combatant):
             state.log.append(f"({fighter.name}) {line}")
+        if fighter.shield_turns > 0:
+            fighter.shield_turns -= 1
+            if fighter.shield_turns <= 0:
+                fighter.shield = 0
         if fighter.is_enemy and has_status(fighter.combatant, "burn"):
             others = _burn_spread_targets(state, fighter.fighter_id)
             for line in spread_burn(fighter.combatant, fighter.name, others, rng):
@@ -522,6 +543,8 @@ def _resolve_player_technique(
         context="dungeon",
         player_label=actor.name,
     )
+    slice_state.player_shield = actor.shield
+    slice_state.shield_turns = actor.shield_turns
     slice_state.player.sealed = actor.combatant.sealed
     slice_state.player.feared = actor.combatant.feared
     slice_state.opponent.sealed = target.combatant.sealed
@@ -556,6 +579,8 @@ def _resolve_player_technique(
     actor.combatant.dodge_next = slice_state.player.dodge_next
     actor.combatant.sealed = slice_state.player.sealed
     actor.technique_cooldowns = slice_state.technique_cooldowns
+    actor.shield = slice_state.player_shield
+    actor.shield_turns = slice_state.shield_turns
 
     target.combatant.hp = slice_state.opponent.hp
     target.combatant.statuses = slice_state.opponent.statuses
@@ -570,6 +595,75 @@ def _resolve_player_technique(
         others = _burn_spread_targets(state, target.fighter_id)
         for line in spread_burn(target.combatant, target.name, others, rng):
             state.log.append(line)
+    return None
+
+
+def _resolve_player_self_technique(
+    session: Session,
+    state: DungeonCombatState,
+    actor: DungeonFighter,
+    technique_id: str,
+    rng: random.Random,
+) -> str | None:
+    player = session.get(Player, actor.player_id)
+    if player is None:
+        return "Cultivator not found."
+    mod = get_character_modifiers(session, player)
+    stats = compute_combat_stats(player, session, mod)
+    passive = get_equipped_passive(session, player.id)
+    context_foe = next(iter(state.living_enemies()), None)
+    opponent = (
+        CombatantState(
+            hp=context_foe.combatant.hp,
+            max_hp=context_foe.combatant.max_hp,
+            statuses=list(context_foe.combatant.statuses),
+            dodge_next=context_foe.combatant.dodge_next,
+        )
+        if context_foe is not None
+        else CombatantState(hp=1, max_hp=1)
+    )
+    slice_state = CombatState(
+        turn=state.round_num,
+        player=CombatantState(
+            hp=actor.combatant.hp,
+            max_hp=actor.combatant.max_hp,
+            statuses=list(actor.combatant.statuses),
+            dodge_next=actor.combatant.dodge_next,
+        ),
+        opponent=opponent,
+        opponent_id=context_foe.fighter_id if context_foe else "self",
+        opponent_name=context_foe.name if context_foe else actor.name,
+        opponent_attack=context_foe.attack if context_foe else 0,
+        opponent_defense=context_foe.defense if context_foe else 0,
+        opponent_speed=context_foe.agility if context_foe else 0,
+        technique_cooldowns=dict(actor.technique_cooldowns),
+        log=[],
+        context="dungeon",
+        player_label=actor.name,
+    )
+    slice_state.player_shield = actor.shield
+    slice_state.shield_turns = actor.shield_turns
+    slice_state.player.sealed = actor.combatant.sealed
+    slice_state.player.feared = actor.combatant.feared
+    if context_foe is not None:
+        slice_state.opponent.sealed = context_foe.combatant.sealed
+        slice_state.opponent.feared = context_foe.combatant.feared
+
+    err = resolve_technique(slice_state, stats, passive, technique_id, rng)
+    if err:
+        return err
+
+    actor.combatant.hp = slice_state.player.hp
+    actor.combatant.statuses = slice_state.player.statuses
+    actor.combatant.dodge_next = slice_state.player.dodge_next
+    actor.combatant.sealed = slice_state.player.sealed
+    actor.combatant.feared = slice_state.player.feared
+    actor.technique_cooldowns = slice_state.technique_cooldowns
+    actor.shield = slice_state.player_shield
+    actor.shield_turns = slice_state.shield_turns
+
+    for line in slice_state.log:
+        state.log.append(line)
     return None
 
 
@@ -643,6 +737,28 @@ def select_technique(
             needs_target=False,
         )
 
+    if not technique_needs_manual_target(tech):
+        skip = turn_skip_message(actor.combatant, actor.name, rng)
+        if skip is None:
+            err = _resolve_player_self_technique(session, state, actor, technique_id, rng)
+            if err:
+                return DungeonActionResult(False, err, state)
+            _tick_fighters_after_action(state, rng)
+        else:
+            state.log.append(skip)
+        state.pending_technique = None
+        _check_end(state, rng)
+        if not state.finished:
+            actor.technique_cooldowns = _decay_cooldowns(actor.technique_cooldowns)
+            _advance_turn(state, rng)
+            _process_npc_turns(session, state, rng)
+        return DungeonActionResult(
+            True,
+            state.log[-1] if state.log else f"**{label}** flows inward.",
+            state,
+            needs_target=False,
+        )
+
     state.pending_technique = technique_id
     state.log.append(f"**{actor.name}** readies **{label}** — pick a foe below.")
     return DungeonActionResult(
@@ -651,6 +767,37 @@ def select_technique(
         state,
         needs_target=True,
     )
+
+
+def pass_turn(
+    session: Session,
+    state: DungeonCombatState,
+    actor_discord_id: str,
+    rng: random.Random | None = None,
+) -> DungeonActionResult:
+    _ = session
+    rng = rng or random.Random()
+    if state.finished:
+        return DungeonActionResult(False, "This fight has ended.", state)
+    actor = state.current_actor()
+    if actor is None or actor.fighter_id != actor_discord_id:
+        return DungeonActionResult(False, "Wait for your turn.", state)
+    if actor.is_enemy:
+        return DungeonActionResult(False, "Only daoists can pass their turn.", state)
+
+    skip = turn_skip_message(actor.combatant, actor.name, rng)
+    if skip:
+        state.log.append(skip)
+    else:
+        state.log.append(f"**{actor.name}** steadies their breath and passes the turn.")
+        _tick_fighters_after_action(state, rng)
+    state.pending_technique = None
+    _check_end(state, rng)
+    if not state.finished:
+        actor.technique_cooldowns = _decay_cooldowns(actor.technique_cooldowns)
+        _advance_turn(state, rng)
+        _process_npc_turns(session, state, rng)
+    return DungeonActionResult(True, state.log[-1] if state.log else "Turn passed.", state)
 
 
 def select_target(

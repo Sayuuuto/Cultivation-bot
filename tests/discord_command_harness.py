@@ -16,6 +16,29 @@ TEST_GUILD_ID = 986320746710183937
 TEST_USER_ID = 900001001001001001
 TEST_OPPONENT_ID = 900002002002002002
 
+# Sentinel for kwargs discord.py treats as "not passed" (see discord.utils.MISSING).
+_MISSING = object()
+
+
+def validate_discord_message_kwargs(
+    *,
+    embed: Any = _MISSING,
+    embeds: Any = _MISSING,
+    file: Any = _MISSING,
+    files: Any = _MISSING,
+    attachments: Any = _MISSING,
+) -> None:
+    """Mirror discord.py webhook/message param validation used on real API calls."""
+    if embed is not _MISSING and embeds is not _MISSING:
+        raise TypeError("Cannot mix embed and embeds keyword arguments.")
+    if file is not _MISSING and files is not _MISSING:
+        raise TypeError("Cannot mix file and files keyword arguments.")
+    if attachments is not _MISSING and file is not _MISSING:
+        raise TypeError("Cannot mix attachments and file keyword arguments.")
+    if attachments is not _MISSING and files is not _MISSING:
+        raise TypeError("Cannot mix attachments and files keyword arguments.")
+
+
 # 1x1 PNG
 _MINIMAL_PNG = (
     b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
@@ -82,22 +105,24 @@ class _MockResponse:
         self,
         content: str | None = None,
         *,
-        embed: discord.Embed | None = None,
-        embeds: list[discord.Embed] | None = None,
+        embed: Any = _MISSING,
+        embeds: Any = _MISSING,
         view: discord.ui.View | None = None,
-        file: discord.File | None = None,
-        files: list[discord.File] | None = None,
+        file: Any = _MISSING,
+        files: Any = _MISSING,
         ephemeral: bool = False,
         **kwargs: Any,
     ) -> None:
+        validate_discord_message_kwargs(embed=embed, embeds=embeds, file=file, files=files)
         self.captured.content = content
-        self.captured.embed = embed
-        if embeds:
+        if embed is not _MISSING:
+            self.captured.embed = embed
+        if embeds is not _MISSING and embeds:
             self.captured.embeds = list(embeds)
         self.captured.view = view
-        if file is not None:
+        if file is not _MISSING and file is not None:
             self.captured.files.append(file)
-        if files:
+        if files is not _MISSING and files:
             self.captured.files.extend(files)
         self.captured.ephemeral = ephemeral
         self._done = True
@@ -107,24 +132,41 @@ class _MockResponse:
         self,
         *,
         content: str | None = None,
-        embed: discord.Embed | None = None,
+        embed: Any = _MISSING,
+        embeds: Any = _MISSING,
         view: discord.ui.View | None = None,
-        attachments: Any = None,
+        attachments: Any = _MISSING,
+        file: Any = _MISSING,
         **kwargs: Any,
     ) -> None:
-        self.captured.edit = {
-            "content": content,
-            "embed": embed,
-            "view": view,
-            "attachments": attachments,
-            **kwargs,
-        }
+        validate_discord_message_kwargs(
+            embed=embed,
+            embeds=embeds,
+            file=file,
+            attachments=attachments,
+        )
+        edit_payload: dict[str, Any] = {"view": view, **kwargs}
+        if content is not None:
+            edit_payload["content"] = content
+        if embed is not _MISSING:
+            edit_payload["embed"] = embed
+        if embeds is not _MISSING:
+            edit_payload["embeds"] = list(embeds) if embeds else []
+        if attachments is not _MISSING:
+            edit_payload["attachments"] = attachments
+        if file is not _MISSING:
+            edit_payload["file"] = file
+        self.captured.edit = edit_payload
         if view is not None:
             self.captured.view = view
-        if embed is not None:
+        if embed is not _MISSING and embed is not None:
             self.captured.embed = embed
+        if embeds is not _MISSING and embeds:
+            self.captured.embeds = list(embeds)
         if content is not None:
             self.captured.content = content
+        if file is not _MISSING and file is not None:
+            self.captured.files.append(file)
         self._done = True
 
 
@@ -138,12 +180,24 @@ class _MockFollowup:
         *,
         embed: discord.Embed | None = None,
         view: discord.ui.View | None = None,
+        file: discord.File | None = None,
         ephemeral: bool = False,
         **kwargs: Any,
     ) -> None:
         self._captured.followup_messages.append(
-            {"content": content, "embed": embed, "view": view, "ephemeral": ephemeral, **kwargs}
+            {
+                "content": content,
+                "embed": embed,
+                "view": view,
+                "file": file,
+                "ephemeral": ephemeral,
+                **kwargs,
+            }
         )
+        if view is not None:
+            self._captured.view = view
+        if file is not None:
+            self._captured.files.append(file)
 
 
 def make_mock_user(
@@ -220,6 +274,7 @@ def install_bot_db_patch(session: Session, monkeypatch: Any) -> None:
     monkeypatch.setattr("src.bot.get_session", _test_session)
     monkeypatch.setattr("src.dungeon_discord.get_session", _test_session)
     monkeypatch.setattr("src.autocomplete_cache.get_session", _test_session)
+    monkeypatch.setattr("src.combat.technique_ui.get_session", _test_session)
 
 
 def install_discord_stubs(monkeypatch: Any) -> None:
@@ -250,11 +305,7 @@ def install_discord_stubs(monkeypatch: Any) -> None:
     async def _noop_post_log(*args: Any, **kwargs: Any) -> None:
         return None
 
-    async def _noop_sync_ui(*args: Any, **kwargs: Any) -> None:
-        return None
-
     monkeypatch.setattr("src.dungeon_discord._post_new_log_lines", _noop_post_log)
-    monkeypatch.setattr("src.dungeon_discord._sync_combat_ui", _noop_sync_ui)
 
 
 def resolve_slash_command(tree: app_commands.CommandTree, qualified_name: str) -> app_commands.Command:
@@ -306,7 +357,9 @@ def assert_response_ok(
     *,
     must_respond: bool = True,
     forbidden_substrings: list[str] | None = None,
+    context: str = "",
 ) -> None:
+    prefix = f"{context}: " if context else ""
     if must_respond:
         assert (
             captured.deferred
@@ -316,14 +369,16 @@ def assert_response_ok(
             or captured.files
             or captured.followup_messages
             or captured.edit
-        ), "Command produced no Discord response"
+        ), f"{prefix}Command produced no Discord response"
     text = captured.text.lower()
     for bad in forbidden_substrings or ():
-        assert bad.lower() not in text, f"Unexpected error text containing {bad!r}: {captured.text[:300]}"
-    assert "something went wrong" not in text
-    assert "check the bot logs" not in text
+        assert bad.lower() not in text, (
+            f"{prefix}Unexpected error text containing {bad!r}: {captured.text[:300]}"
+        )
+    assert "something went wrong" not in text, f"{prefix}{captured.text[:300]}"
+    assert "check the bot logs" not in text, f"{prefix}{captured.text[:300]}"
     if captured.view is not None:
-        assert_discord_view_valid(captured.view)
+        assert_discord_view_valid(captured.view, context=context)
 
 
 def _coerce_slash_kwargs(cmd: app_commands.Command, kwargs: dict[str, Any]) -> dict[str, Any]:
@@ -379,8 +434,95 @@ async def click_view_button(
                 client=interaction.client,
             )
             await item.callback(fresh)  # type: ignore[misc]
-            return fresh._captured  # type: ignore[attr-defined]
+            captured = fresh._captured  # type: ignore[attr-defined]
+            assert_response_ok(captured, context=f"button id~{custom_id_contains!r}")
+            return captured
     raise AssertionError(f"No button with custom_id containing {custom_id_contains!r}")
+
+
+def _fresh_interaction_from(interaction: discord.Interaction) -> MagicMock:
+    return make_mock_interaction(
+        user=interaction.user,
+        guild_id=interaction.guild.id,  # type: ignore[union-attr]
+        client=interaction.client,
+    )
+
+
+async def click_view_button_label(
+    view: discord.ui.View,
+    interaction: discord.Interaction,
+    *,
+    label: str,
+) -> CapturedInteractionPayload:
+    for item in view.children:
+        if isinstance(item, discord.ui.Button) and item.label == label:
+            fresh = _fresh_interaction_from(interaction)
+            await item.callback(fresh)  # type: ignore[misc]
+            captured = fresh._captured  # type: ignore[attr-defined]
+            assert_response_ok(captured, context=f"button {label!r}")
+            return captured
+    labels = [getattr(c, "label", None) for c in view.children if isinstance(c, discord.ui.Button)]
+    raise AssertionError(f"No button with label {label!r}; have {labels!r}")
+
+
+async def click_view_button_label_contains(
+    view: discord.ui.View,
+    interaction: discord.Interaction,
+    *,
+    substring: str,
+) -> CapturedInteractionPayload:
+    for item in view.children:
+        if isinstance(item, discord.ui.Button) and item.label and substring in item.label:
+            fresh = _fresh_interaction_from(interaction)
+            await item.callback(fresh)  # type: ignore[misc]
+            captured = fresh._captured  # type: ignore[attr-defined]
+            assert_response_ok(captured, context=f"button containing {substring!r}")
+            return captured
+    labels = [getattr(c, "label", None) for c in view.children if isinstance(c, discord.ui.Button)]
+    raise AssertionError(f"No button label containing {substring!r}; have {labels!r}")
+
+
+async def select_view_option(
+    view: discord.ui.View,
+    interaction: discord.Interaction,
+    *,
+    option_value: str,
+    select_index: int = 0,
+) -> CapturedInteractionPayload:
+    from unittest.mock import PropertyMock, patch
+
+    selects = [c for c in view.children if isinstance(c, discord.ui.Select)]
+    if not selects:
+        raise AssertionError("No select menu on view")
+    item = selects[select_index]
+    fresh = _fresh_interaction_from(interaction)
+    with patch.object(type(item), "values", new_callable=PropertyMock, return_value=[option_value]):
+        await item.callback(fresh)  # type: ignore[misc]
+    captured = fresh._captured  # type: ignore[attr-defined]
+    assert_response_ok(captured, context=f"select {option_value!r}")
+    return captured
+
+
+def view_from_capture(captured: CapturedInteractionPayload) -> discord.ui.View | None:
+    """Active view after a slash command, button click, or select."""
+    if captured.view is not None:
+        return captured.view
+    for msg in captured.followup_messages:
+        if msg.get("view") is not None:
+            return msg["view"]
+    if captured.edit and captured.edit.get("view") is not None:
+        return captured.edit["view"]
+    return None
+
+
+def enable_production_card_ui(monkeypatch: Any) -> None:
+    """PNG skill cards + profile cards — default player-facing UI in production."""
+    monkeypatch.setattr("src.combat.technique_ui.card_images_enabled", lambda: True)
+    monkeypatch.setattr("src.combat.technique_ui.card_fonts_available", lambda: True)
+
+
+def hub_view_from_captured(captured: CapturedInteractionPayload) -> discord.ui.View | None:
+    return view_from_capture(captured)
 
 
 def run_async(coro: Any) -> Any:

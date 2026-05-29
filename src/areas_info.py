@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import discord
 
-from .adventure import SEGMENTS_PER_RUN, STANCES
+from .adventure import SEGMENTS_PER_RUN
 from .content import AreaDef, get_area, get_areas
 from .game import REALMS
 from .inventory import get_item_name
@@ -33,14 +33,6 @@ def _format_drops(area: AreaDef) -> str:
         rarity = _drop_rarity_label(drop.weight)
         lines.append(f"• **{name}** {qty} ({rarity})")
     return "\n".join(lines)
-
-
-def _format_stances() -> str:
-    return (
-        "**Cautious** — +success, −15% loot · safer farming\n"
-        "**Balanced** — standard risk and rewards\n"
-        "**Reckless** — −success, +25% loot · higher risk"
-    )
 
 
 from .area_risk import player_realm_status as _player_realm_status
@@ -78,17 +70,15 @@ def build_areas_embed(player: Player | None, area_id: str | None = None) -> disc
             value="\n".join(rare_lines) if rare_lines else "None configured.",
             inline=False,
         )
-        embed.add_field(name="Stances", value=_format_stances(), inline=False)
-        embed.set_footer(text="Run `/gather` or `/hunt` (5 min) · `/adventure` for story runs · `/areas` for details")
+        embed.set_footer(text="Run `/gather` or `/hunt` (5 min) · `/adventure` follows your realm · `/areas` for details")
         return embed
 
     embed = discord.Embed(
         title="Adventure Areas",
         description=(
             "Each area has different materials used for **pill crafting** and **dungeon keys**. "
-            "You may wander into higher zones at your own risk — the beasts there are far stronger, "
-            "but rare triumphs pay extra.\n\n"
-            + _format_stances()
+            "Higher-realm zones hold stronger beasts and richer materials. "
+            "`/adventure` chooses the area that matches your current realm."
         ),
         color=discord.Color.dark_green(),
     )
@@ -103,9 +93,9 @@ def build_areas_embed(player: Player | None, area_id: str | None = None) -> disc
     embed.add_field(
         name="Quick crafting guide",
         value=(
-            "**Bamboo Grove** → **Qi Gathering** (3 herbs from `/gather`) · **Tempering** (2 cores from `/hunt`)\n"
-            "**Ashen Cliff** → Swiftwind & Blood Ember pills; iron for keys\n"
-            "**Moonwell Ruins** → Clarity, Moonwell Tonic, Root Reforging pill"
+            "**Mortal Grove** → early herbs, cores, and scroll supplies\n"
+            "**Qi Refining Cliffs** → ember moss, spirit iron, and cliff beast cores\n"
+            "**Foundation Ruins+** → higher realm materials, script shards, and rare inscriptions"
         ),
         inline=False,
     )

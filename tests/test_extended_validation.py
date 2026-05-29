@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from src.auto_combat import BeastTemplate, resolve_auto_combat
 from src.combat_stats import PlayerCombatStats, compute_combat_stats
 from src.config import Config
-from src.content import get_areas, load_all_content
+from src.content import CANONICAL_REALM_AREAS, get_areas, load_all_content, resolve_area_id
 from src.cooldown_haste import consume_haste_for_activity, get_haste_reduction_seconds
 from src.drop_sources import get_drop_sources
 from src.gather import get_gather_areas, run_gather
@@ -46,6 +46,23 @@ def test_config_areas_and_items_aligned():
             assert beast.hp > 0 and beast.attack > 0
             for drop in beast.drops:
                 assert drop.item_id in items
+
+
+def test_canonical_realm_areas_cover_all_realms_once():
+    areas = get_areas()
+    assert tuple(areas.keys()) == CANONICAL_REALM_AREAS
+    assert sorted(area.min_realm for area in areas.values()) == list(range(10))
+    assert set(get_gather_areas()) == set(areas)
+    assert set(get_hunt_areas()) == set(areas)
+
+
+def test_old_area_ids_resolve_to_canonical_areas():
+    assert resolve_area_id("bamboo_grove") == "mortal_grove"
+    assert resolve_area_id("mistwood_village") == "mortal_grove"
+    assert resolve_area_id("ashen_cliff") == "qi_refining_cliffs"
+    assert resolve_area_id("moonwell_ruins") == "foundation_ruins"
+    assert resolve_area_id("verdant_depths") == "foundation_ruins"
+    assert resolve_area_id("cursed_swamp") == "core_formation_swamp"
 
 
 @pytest.mark.parametrize("seed", range(100))
@@ -86,7 +103,7 @@ def test_auto_combat_player_always_attacks_when_rounds_fought(session, player):
     assert any("You strike" in line for line in result.log_lines)
 
 
-@pytest.mark.parametrize("area_id", ["bamboo_grove", "ashen_cliff", "moonwell_ruins"])
+@pytest.mark.parametrize("area_id", CANONICAL_REALM_AREAS)
 @pytest.mark.parametrize("seed", range(20))
 def test_gather_all_areas(session, player, area_id: str, seed: int):
     player.realm_index = max(get_areas()[area_id].min_realm, player.realm_index)
@@ -96,7 +113,7 @@ def test_gather_all_areas(session, player, area_id: str, seed: int):
     assert len(res.drops) >= 1
 
 
-@pytest.mark.parametrize("area_id", ["bamboo_grove", "ashen_cliff", "moonwell_ruins"])
+@pytest.mark.parametrize("area_id", CANONICAL_REALM_AREAS)
 @pytest.mark.parametrize("seed", range(20))
 def test_hunt_all_areas(session, player, area_id: str, seed: int):
     player.realm_index = max(get_areas()[area_id].min_realm, player.realm_index)

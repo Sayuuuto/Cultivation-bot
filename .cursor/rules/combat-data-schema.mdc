@@ -1,0 +1,42 @@
+---
+description: Declarative combat technique data — no per-skill ID branches
+globs:
+  - config/techniques.json
+  - config/combat_rules.json
+  - src/combat/**
+---
+
+# Combat data schema
+
+Techniques are **declarative** in `config/techniques.json`. Runtime resolves effects via `EffectDef` types in `src/combat/triggers.py` — not `if technique_id == ...` branches.
+
+## Required patterns
+
+- New effect behavior → add an `effect.type` handler in `_resolve_effect`, document in `docs/COMBAT_PROGRESSION.md`.
+- Passive behavior → `passive_triggers` entries, not hard-coded technique names.
+- PvP limits → `config/combat_rules.json` `pvp_legality` + `validate_pvp_loadout()`.
+
+## Forbidden
+
+```python
+# ❌ Per-skill branching in engine code
+if technique_id == "blood_feast":
+    ...
+```
+
+```python
+# ✅ Declarative effect
+{"trigger": "on_use", "type": "lifesteal", "ratio": 0.25, "requires_status": "bleed"}
+```
+
+## Good / bad player copy (equip errors)
+
+```text
+❌ "Load budget validation failed (technique_load_budget flag)."
+✅ "This build exceeds your load cap — remove a heavy art or raise your realm (**active 5/4**)."
+```
+
+```text
+❌ "PvP legality check returned false."
+✅ "Your duel loadout exceeds PvP limits: **legendary 2/1** — Heaven's Cleave, Void Annihilation."
+```

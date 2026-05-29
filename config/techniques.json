@@ -419,6 +419,7 @@
     "tier": "mortal",
     "min_realm": 0,
     "slot_type": "active",
+    "targeting": "self",
     "damage_type": "none",
     "base_damage": 0,
     "scaling_stat": "defense",
@@ -426,17 +427,23 @@
     "cooldown": 3,
     "status_id": null,
     "status_chance": 0.0,
-    "heal_ratio": 0.08,
+    "heal_ratio": 0.04,
     "alignment": "righteous",
     "role": "sustain",
-    "description": "Brief barrier that restores vitality.",
+    "description": "Raise a qi barrier and restore a little vitality.",
     "synergy_hint": "Emergency sustain in long fights.",
     "manual_item_id": "manual_qi_barrier",
     "effects": [
       {
         "trigger": "on_use",
+        "type": "shield",
+        "shield_pct": 0.12,
+        "turns": 2
+      },
+      {
+        "trigger": "on_use",
         "type": "heal",
-        "ratio": 0.08
+        "ratio": 0.04
       }
     ],
     "rarity": "common"

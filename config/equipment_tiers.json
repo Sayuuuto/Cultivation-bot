@@ -1,0 +1,135 @@
+{
+  "paths": ["internal", "external", "crit"],
+  "path_labels": {
+    "internal": "Inner Channel",
+    "external": "Vanguard",
+    "crit": "Heaven's Eye"
+  },
+  "path_blurbs": {
+    "internal": "Channels qi inward — Internal Strength and Spirit Sense.",
+    "external": "Tempered for the front line — External Strength and Defense.",
+    "crit": "Reads the flow of battle — Luck and Spirit Sense for critical strikes."
+  },
+  "legacy_grade_to_path": {
+    "common": "internal",
+    "fine": "external",
+    "exalted": "crit"
+  },
+  "forge_inputs": {"primary": 2, "secondary": 1},
+  "path_gear_mapping": {
+    "internal": {
+      "power_internal_ratio": 0.85,
+      "power_external_ratio": 0.15,
+      "insight_spiritual_sense_ratio": 1.15,
+      "insight_comprehension_ratio": 1.1
+    },
+    "external": {
+      "power_internal_ratio": 0.15,
+      "power_external_ratio": 0.85,
+      "defense_per_point": 1.15
+    },
+    "crit": {
+      "fortune_luck_ratio": 1.25,
+      "insight_spiritual_sense_ratio": 1.35,
+      "insight_comprehension_ratio": 1.0
+    }
+  },
+  "path_slot_templates": {
+    "internal": {
+      "weapon": {
+        "name": "Inner Channel Blade",
+        "item_id": "spirit_blade",
+        "technique_tag": "sword",
+        "stat_ranges": {"power": [5, 11], "defense": [0, 1], "fortune": [0, 1], "insight": [1, 3]}
+      },
+      "armor": {
+        "name": "Qiwoven Vest",
+        "item_id": "mistwoven_vest",
+        "technique_tag": "body",
+        "stat_ranges": {"power": [0, 2], "defense": [3, 8], "fortune": [0, 1], "insight": [1, 3]}
+      },
+      "accessory": {
+        "name": "Meridian Talisman",
+        "item_id": "bandit_talisman",
+        "technique_tag": "fire",
+        "stat_ranges": {"power": [1, 3], "defense": [0, 1], "fortune": [2, 6], "insight": [2, 5]}
+      },
+      "talisman": {
+        "name": "Soulwell Pendant",
+        "item_id": "moonwell_pendant",
+        "technique_tag": "soul",
+        "stat_ranges": {"power": [2, 5], "defense": [1, 3], "fortune": [1, 3], "insight": [5, 10]}
+      }
+    },
+    "external": {
+      "weapon": {
+        "name": "Vanguard Blade",
+        "item_id": "spirit_blade",
+        "technique_tag": "sword",
+        "stat_ranges": {"power": [6, 12], "defense": [0, 2], "fortune": [0, 1], "insight": [0, 1]}
+      },
+      "armor": {
+        "name": "Ironheart Vest",
+        "item_id": "mistwoven_vest",
+        "technique_tag": "body",
+        "stat_ranges": {"power": [0, 1], "defense": [5, 11], "fortune": [0, 1], "insight": [0, 1]}
+      },
+      "accessory": {
+        "name": "Warband Talisman",
+        "item_id": "bandit_talisman",
+        "technique_tag": "fire",
+        "stat_ranges": {"power": [2, 4], "defense": [1, 3], "fortune": [3, 7], "insight": [0, 2]}
+      },
+      "talisman": {
+        "name": "Bulwark Pendant",
+        "item_id": "moonwell_pendant",
+        "technique_tag": "soul",
+        "stat_ranges": {"power": [2, 4], "defense": [2, 5], "fortune": [1, 3], "insight": [1, 4]}
+      }
+    },
+    "crit": {
+      "weapon": {
+        "name": "Precision Blade",
+        "item_id": "spirit_blade",
+        "technique_tag": "sword",
+        "stat_ranges": {"power": [3, 7], "defense": [0, 1], "fortune": [1, 3], "insight": [1, 2]}
+      },
+      "armor": {
+        "name": "Shadowweave Vest",
+        "item_id": "mistwoven_vest",
+        "technique_tag": "body",
+        "stat_ranges": {"power": [0, 1], "defense": [3, 7], "fortune": [1, 2], "insight": [0, 2]}
+      },
+      "accessory": {
+        "name": "Fortune Talisman",
+        "item_id": "bandit_talisman",
+        "technique_tag": "fire",
+        "stat_ranges": {"power": [0, 2], "defense": [0, 1], "fortune": [6, 11], "insight": [2, 4]}
+      },
+      "talisman": {
+        "name": "Heaven's Eye Pendant",
+        "item_id": "moonwell_pendant",
+        "technique_tag": "soul",
+        "stat_ranges": {"power": [0, 2], "defense": [0, 2], "fortune": [3, 6], "insight": [5, 9]}
+      }
+    }
+  },
+  "stat_scale_keys": {
+    "power": "external_strength",
+    "defense": "defense",
+    "fortune": "luck",
+    "insight": "spiritual_sense"
+  },
+  "realm_materials": [
+    {"min_realm": 0, "primary": "minor_beast_core", "secondary": "green_dew_herb", "tertiary": "bamboo_resin"},
+    {"min_realm": 1, "primary": "refined_beast_core", "secondary": "spirit_iron_shard", "tertiary": "ember_moss"},
+    {"min_realm": 2, "primary": "refined_beast_core", "secondary": "ancient_dust", "tertiary": "moonlotus"},
+    {"min_realm": 3, "primary": "hollow_pearl", "secondary": "bog_iron", "tertiary": "swamp_moss"},
+    {"min_realm": 4, "primary": "nascent_soul_core", "secondary": "souljade_leaf", "tertiary": "script_shard"},
+    {"min_realm": 5, "primary": "abyssal_bone", "secondary": "severing_silk", "tertiary": "refined_beast_core"},
+    {"min_realm": 6, "primary": "void_crystal", "secondary": "void_dust", "tertiary": "ancient_dust"},
+    {"min_realm": 7, "primary": "ascendant_ichor", "secondary": "immortal_jade", "tertiary": "void_crystal"},
+    {"min_realm": 8, "primary": "transcendence_pearl", "secondary": "heavenly_silk", "tertiary": "ascendant_ichor"},
+    {"min_realm": 9, "primary": "imperial_beast_core", "secondary": "monarch_jade", "tertiary": "transcendence_pearl"}
+  ]
+}

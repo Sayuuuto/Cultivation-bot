@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from src.combat.catalog import get_technique
 from src.combat.loadout import learn_technique
 from src.inventory import add_item
 from src.item_info import build_item_detail_embed
@@ -7,8 +8,10 @@ from src.technique_info import (
     build_technique_detail_embed,
     format_art_type_label,
     format_technique_combat_summary,
+    format_technique_base_power,
     list_technique_inspect_options,
     resolve_technique_inspect_target,
+    technique_base_power,
 )
 
 
@@ -55,6 +58,21 @@ def test_technique_detail_shows_art_type_not_synergy(session, player):
     assert "💡 Synergy & pairings" not in field_names
     assert "Active art" in format_art_type_label(tech)
     assert "bleed" in format_technique_combat_summary(tech).lower()
+    assert "Base power **10**" in format_technique_combat_summary(tech)
+    assert technique_base_power(tech) == 10
+
+
+def test_technique_detail_shows_base_power_for_iron_cleave(session, player):
+    learn_technique(session, player.id, "iron_cleave")
+    session.commit()
+    tech = get_technique("iron_cleave")
+    assert tech is not None
+    summary = format_technique_combat_summary(tech)
+    assert "Base power **20**" in summary
+    assert "bleeding" in summary.lower()
+    assert format_technique_base_power(tech) == (
+        "Base power **20** · +**0.55** per **External Strength** · **+25% vs bleeding**"
+    )
 
 
 def test_item_detail_manual_shows_art_type(session, player):

@@ -1,0 +1,2851 @@
+{
+  "idea_count": 120,
+  "ideas": [
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_source"
+      ],
+      "category": "body",
+      "description": "Deals 6\u201310 external damage.",
+      "manual_item_id": "manual_basic_strike",
+      "min_realm": 0,
+      "name": "Basic Strike",
+      "rarity": "starter",
+      "role": "damage",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "STARTER",
+          "reason": "unknown_source",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "basic_strike",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 12\u201318 external damage.",
+      "manual_item_id": "manual_sword_slash",
+      "min_realm": 0,
+      "name": "Sword Slash",
+      "rarity": "common",
+      "role": "damage",
+      "slot_type": "active",
+      "sources": [
+        {
+          "channel": "direct",
+          "raw": "SHOP-M",
+          "taxonomy": "shop"
+        },
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "sword_slash",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "fire",
+      "description": "Deals 8\u201314 external damage. 25% chance to apply Burn for 2 turns.",
+      "manual_item_id": "manual_ember_palm",
+      "min_realm": 0,
+      "name": "Ember Palm",
+      "rarity": "common",
+      "role": "applier",
+      "slot_type": "active",
+      "sources": [
+        {
+          "channel": "direct",
+          "raw": "SHOP-M",
+          "taxonomy": "shop"
+        },
+        {
+          "raw": "SECT-ELEMENTS",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "ember_palm",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "body",
+      "description": "Deals 10\u201316 external damage. If you have Shield, deals +6 damage.",
+      "manual_item_id": "manual_iron_palm",
+      "min_realm": 0,
+      "name": "Iron Palm",
+      "rarity": "common",
+      "role": "damage",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "m",
+          "raw": "CRAFT-M",
+          "taxonomy": "craft"
+        },
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "iron_palm",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 9\u201313 external damage. If used twice in a row, second use deals +5 damage.",
+      "manual_item_id": "manual_quick_thrust",
+      "min_realm": 0,
+      "name": "Quick Thrust",
+      "rarity": "common",
+      "role": "tempo",
+      "slot_type": "active",
+      "sources": [
+        {
+          "channel": "direct",
+          "raw": "SHOP-M",
+          "taxonomy": "shop"
+        }
+      ],
+      "technique_id": "quick_thrust",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "fire",
+      "description": "Deals 7\u201312 internal damage. If target has Burn, applies Weaken for 1 turn.",
+      "manual_item_id": "manual_spark_finger",
+      "min_realm": 0,
+      "name": "Spark Finger",
+      "rarity": "common",
+      "role": "damage",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "m",
+          "raw": "CRAFT-M",
+          "taxonomy": "craft"
+        }
+      ],
+      "technique_id": "spark_finger",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "utility",
+      "description": "Gain 24 Shield and reduce next incoming damage by 30%.",
+      "manual_item_id": "manual_qi_barrier",
+      "min_realm": 0,
+      "name": "Qi Barrier",
+      "rarity": "uncommon",
+      "role": "defense",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "r",
+          "raw": "ADV-R",
+          "taxonomy": "adventure"
+        },
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "qi_barrier",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "utility",
+      "description": "Cleanses all debuffs. If at least one debuff is removed, heals 6% max HP.",
+      "manual_item_id": "manual_cleanse_breath",
+      "min_realm": 0,
+      "name": "Cleanse Breath",
+      "rarity": "uncommon",
+      "role": "cleanse",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "r",
+          "raw": "ADV-R",
+          "taxonomy": "adventure"
+        },
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "cleanse_breath",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "utility",
+      "description": "Gain Evasion for 1 turn: 40% chance to dodge next attack.",
+      "manual_item_id": "manual_mist_step",
+      "min_realm": 0,
+      "name": "Mist Step",
+      "rarity": "uncommon",
+      "role": "evasion",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "n",
+          "raw": "ADV-N",
+          "taxonomy": "adventure"
+        },
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "mist_step",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "blood",
+      "description": "Deals 7\u201312 external damage and applies Bleed for 3 turns.",
+      "manual_item_id": "manual_hemorrhage_needle",
+      "min_realm": 0,
+      "name": "Hemorrhage Needle",
+      "rarity": "uncommon",
+      "role": "applier",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "d",
+          "raw": "ADV-D",
+          "taxonomy": "adventure"
+        },
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "hemorrhage_needle",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "soul",
+      "description": "Charge for 1 turn, then deals 42\u201358 internal damage. Interrupted by Stun or Seal.",
+      "manual_item_id": "manual_condensed_qi",
+      "min_realm": 0,
+      "name": "Condensed Qi",
+      "rarity": "rare",
+      "role": "finisher",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "n",
+          "raw": "BT-N",
+          "taxonomy": "breakthrough"
+        },
+        {
+          "pool": "n",
+          "raw": "ADV-N",
+          "taxonomy": "adventure"
+        }
+      ],
+      "technique_id": "condensed_qi",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "healing",
+      "description": "Heals 14% max HP.",
+      "manual_item_id": "manual_minor_healing_mantra",
+      "min_realm": 0,
+      "name": "Minor Healing Mantra",
+      "rarity": "uncommon",
+      "role": "heal",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "pool": "r",
+          "raw": "ADV-R",
+          "taxonomy": "adventure"
+        }
+      ],
+      "technique_id": "minor_healing_mantra",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "body",
+      "description": "Deals 13\u201319 external damage. 20% chance to apply Vulnerable for 1 turn.",
+      "manual_item_id": "manual_bone_splinter_hit",
+      "min_realm": 0,
+      "name": "Bone Splinter Hit",
+      "rarity": "uncommon",
+      "role": "damage",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "d",
+          "raw": "ADV-D",
+          "taxonomy": "adventure"
+        }
+      ],
+      "technique_id": "bone_splinter_hit",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "utility",
+      "description": "Reduce all current cooldowns by 1 turn. Cannot reduce ultimate cooldowns.",
+      "manual_item_id": "manual_calm_mind",
+      "min_realm": 0,
+      "name": "Calm Mind",
+      "rarity": "common",
+      "role": "cooldown",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "n",
+          "raw": "ADV-N",
+          "taxonomy": "adventure"
+        },
+        {
+          "pool": "m",
+          "raw": "CRAFT-M",
+          "taxonomy": "craft"
+        }
+      ],
+      "technique_id": "calm_mind",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "fire",
+      "description": "Deals 10\u201315 external damage. If target is Burning, deals +6 damage.",
+      "manual_item_id": "manual_ash_kick",
+      "min_realm": 0,
+      "name": "Ash Kick",
+      "rarity": "common",
+      "role": "payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "HUNT-Fire Mantis",
+          "target": "Fire Mantis",
+          "taxonomy": "hunt"
+        }
+      ],
+      "technique_id": "ash_kick",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "body",
+      "description": "Deals 11\u201317 external damage and removes 12 Shield.",
+      "manual_item_id": "manual_guard_breaker",
+      "min_realm": 0,
+      "name": "Guard Breaker",
+      "rarity": "uncommon",
+      "role": "anti_shield",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "m",
+          "raw": "CRAFT-M",
+          "taxonomy": "craft"
+        }
+      ],
+      "technique_id": "guard_breaker",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 10\u201316 external damage. If target is below 25% HP, heals you for 5% max HP.",
+      "manual_item_id": "manual_mercy_strike",
+      "min_realm": 0,
+      "name": "Mercy Strike",
+      "rarity": "common",
+      "role": "damage",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "r",
+          "raw": "ADV-R",
+          "taxonomy": "adventure"
+        }
+      ],
+      "technique_id": "mercy_strike",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 10\u201316 external damage. If target is below 25% HP, applies Bleed for 2 turns.",
+      "manual_item_id": "manual_cruel_cut",
+      "min_realm": 0,
+      "name": "Cruel Cut",
+      "rarity": "common",
+      "role": "execute",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "d",
+          "raw": "ADV-D",
+          "taxonomy": "adventure"
+        }
+      ],
+      "technique_id": "cruel_cut",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "soul",
+      "description": "Deals 9\u201315 internal damage.",
+      "manual_item_id": "manual_spirit_pebble",
+      "min_realm": 0,
+      "name": "Spirit Pebble",
+      "rarity": "common",
+      "role": "damage",
+      "slot_type": "active",
+      "sources": [
+        {
+          "channel": "direct",
+          "raw": "SHOP-M",
+          "taxonomy": "shop"
+        }
+      ],
+      "technique_id": "spirit_pebble",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "utility",
+      "description": "Gain Guard for 2 turns, reducing incoming damage by 20%.",
+      "manual_item_id": "manual_rooting_stance",
+      "min_realm": 0,
+      "name": "Rooting Stance",
+      "rarity": "uncommon",
+      "role": "defense",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "rooting_stance",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "poison",
+      "description": "Deals 6\u201310 external damage and applies Poison for 3 turns. Poison reduces healing by 15%.",
+      "manual_item_id": "manual_shadow_jab",
+      "min_realm": 0,
+      "name": "Shadow Jab",
+      "rarity": "uncommon",
+      "role": "applier",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "shadow_jab",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "body",
+      "description": "Deals 8\u201314 external damage and gains 25% Evasion for 1 turn.",
+      "manual_item_id": "manual_beggar_flip",
+      "min_realm": 0,
+      "name": "Beggar Flip",
+      "rarity": "uncommon",
+      "role": "evasion",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "beggar_flip",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "utility",
+      "description": "Remove Weaken, Root, and Vulnerable. Gain 8 Shield for each removed status.",
+      "manual_item_id": "manual_clear_meridian",
+      "min_realm": 0,
+      "name": "Clear Meridian",
+      "rarity": "uncommon",
+      "role": "cleanse",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "clear_meridian",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "blood",
+      "description": "Lose 6% current HP. Deals 24\u201334 internal damage and applies Bleed for 2 turns.",
+      "manual_item_id": "manual_blood_tithe",
+      "min_realm": 0,
+      "name": "Blood Tithe",
+      "rarity": "rare",
+      "role": "sacrifice",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "blood_tithe",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 16\u201324 external damage. If you have no debuffs, cooldown is reduced by 1.",
+      "manual_item_id": "manual_still_water_cut",
+      "min_realm": 0,
+      "name": "Still Water Cut",
+      "rarity": "rare",
+      "role": "tempo",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "still_water_cut",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 20\u201330 external damage. If faster than target, deals +20%.",
+      "manual_item_id": "manual_swift_slash",
+      "min_realm": 1,
+      "name": "Swift Slash",
+      "rarity": "common",
+      "role": "tempo",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "HUNT-Mist Fang Wolf",
+          "target": "Mist Fang Wolf",
+          "taxonomy": "hunt"
+        },
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "swift_slash",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "fire",
+      "description": "Deals 18\u201326 internal damage and applies Burn for 2 turns. If target is already Burning, deals +12 damage.",
+      "manual_item_id": "manual_flame_burst",
+      "min_realm": 1,
+      "name": "Flame Burst",
+      "rarity": "uncommon",
+      "role": "payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "HUNT-Fire Mantis",
+          "target": "Fire Mantis",
+          "taxonomy": "hunt"
+        },
+        {
+          "raw": "SECT-ELEMENTS",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "flame_burst",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "body",
+      "description": "Deals 24\u201334 external damage and ignores 20% Shield.",
+      "manual_item_id": "manual_iron_cleave",
+      "min_realm": 1,
+      "name": "Iron Cleave",
+      "rarity": "uncommon",
+      "role": "anti_shield",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "HUNT-Fire Mantis",
+          "target": "Fire Mantis",
+          "taxonomy": "hunt"
+        }
+      ],
+      "technique_id": "iron_cleave",
+      "tier": "earth"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "utility",
+      "description": "Cleanses all debuffs and grants Guard 25% for 2 turns.",
+      "manual_item_id": "manual_purifying_breath",
+      "min_realm": 1,
+      "name": "Purifying Breath",
+      "rarity": "rare",
+      "role": "cleanse",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "purifying_breath",
+      "tier": "earth"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "utility",
+      "description": "Gain 45 Shield and reflect 20% external damage for 2 turns.",
+      "manual_item_id": "manual_mountain_guard",
+      "min_realm": 1,
+      "name": "Mountain Guard",
+      "rarity": "rare",
+      "role": "defense",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "mountain_guard",
+      "tier": "earth"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "blood",
+      "description": "Deals 18\u201328 internal damage. If target has Bleed, heal 50% of damage dealt.",
+      "manual_item_id": "manual_sanguine_drain",
+      "min_realm": 1,
+      "name": "Sanguine Drain",
+      "rarity": "rare",
+      "role": "sustain",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        },
+        {
+          "pool": "d",
+          "raw": "ADV-D",
+          "taxonomy": "adventure"
+        }
+      ],
+      "technique_id": "sanguine_drain",
+      "tier": "earth"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "soul",
+      "description": "Deals 22\u201332 internal damage. 30% chance to Seal for 1 turn.",
+      "manual_item_id": "manual_void_pulse",
+      "min_realm": 1,
+      "name": "Void Pulse",
+      "rarity": "rare",
+      "role": "control",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "HUNT-Ruin Devourer",
+          "target": "Ruin Devourer",
+          "taxonomy": "hunt"
+        },
+        {
+          "raw": "SECT-GHOST",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "void_pulse",
+      "tier": "earth"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "poison",
+      "description": "Deals 14\u201320 external damage. Applies Poison for 4 turns. Poisoned target receives -20% healing.",
+      "manual_item_id": "manual_poisoned_star",
+      "min_realm": 1,
+      "name": "Poisoned Star",
+      "rarity": "rare",
+      "role": "anti_heal",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "poisoned_star",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "body",
+      "description": "Enter Counter stance for 1 turn. Next enemy hit triggers 18\u201326 external retaliation.",
+      "manual_item_id": "manual_drunken_counter",
+      "min_realm": 1,
+      "name": "Drunken Counter",
+      "rarity": "uncommon",
+      "role": "counter",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "drunken_counter",
+      "tier": "earth"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "healing",
+      "description": "Heals 30% max HP. If below 35% HP, cleanses one debuff.",
+      "manual_item_id": "manual_lotus_revival",
+      "min_realm": 1,
+      "name": "Lotus Revival",
+      "rarity": "epic",
+      "role": "heal",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "lotus_revival",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 26\u201338 external damage. If target has Shield, applies Vulnerable for 1 turn.",
+      "manual_item_id": "manual_piercing_sword_qi",
+      "min_realm": 1,
+      "name": "Piercing Sword Qi",
+      "rarity": "rare",
+      "role": "anti_shield",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "piercing_sword_qi",
+      "tier": "earth"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "body",
+      "description": "Deals 24\u201336 external damage. 25% chance to Stun for 1 turn.",
+      "manual_item_id": "manual_earthshaker_palm",
+      "min_realm": 1,
+      "name": "Earthshaker Palm",
+      "rarity": "rare",
+      "role": "control",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "earthshaker_palm",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "fire",
+      "description": "Deals 16\u201324 internal damage. If target is Burning, increases Burn duration by +1 turn.",
+      "manual_item_id": "manual_ember_chain",
+      "min_realm": 1,
+      "name": "Ember Chain",
+      "rarity": "uncommon",
+      "role": "dot_support",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-ELEMENTS",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "ember_chain",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "frost",
+      "description": "Deals 18\u201326 internal damage and applies Root for 1 turn.",
+      "manual_item_id": "manual_frost_pin",
+      "min_realm": 1,
+      "name": "Frost Pin",
+      "rarity": "uncommon",
+      "role": "control",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "e",
+          "raw": "CRAFT-E",
+          "taxonomy": "craft"
+        }
+      ],
+      "technique_id": "frost_pin",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "lightning",
+      "description": "Deals 20\u201328 internal damage and reduces one random cooldown by 1.",
+      "manual_item_id": "manual_storm_step",
+      "min_realm": 1,
+      "name": "Storm Step",
+      "rarity": "rare",
+      "role": "cooldown",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-ELEMENTS",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "storm_step",
+      "tier": "earth"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "poison",
+      "description": "Deals 12\u201318 external damage and applies Poison for 3 turns. If target is already Poisoned, applies Weaken.",
+      "manual_item_id": "manual_black_needle",
+      "min_realm": 1,
+      "name": "Black Needle",
+      "rarity": "uncommon",
+      "role": "applier",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "black_needle",
+      "tier": "earth"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "blood",
+      "description": "Applies Blood Mark for 3 turns. Your attacks against marked target heal you for 8% damage dealt.",
+      "manual_item_id": "manual_blood_mark",
+      "min_realm": 1,
+      "name": "Blood Mark",
+      "rarity": "rare",
+      "role": "setup",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "blood_mark",
+      "tier": "earth"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "soul",
+      "description": "Deals 18\u201326 internal damage and applies Root for 2 turns. Rooted targets cannot gain Evasion.",
+      "manual_item_id": "manual_ghost_bind",
+      "min_realm": 1,
+      "name": "Ghost Bind",
+      "rarity": "rare",
+      "role": "control",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-GHOST",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "ghost_bind",
+      "tier": "earth"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "utility",
+      "description": "Gain Guard 30% for 2 turns. If Burning or Poisoned, cleanse one of them.",
+      "manual_item_id": "manual_jade_skin",
+      "min_realm": 1,
+      "name": "Jade Skin",
+      "rarity": "uncommon",
+      "role": "defense",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "r",
+          "raw": "ADV-R",
+          "taxonomy": "adventure"
+        }
+      ],
+      "technique_id": "jade_skin",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "body",
+      "description": "Deals 20\u201328 external damage. 20% chance to gain Haste for 1 turn.",
+      "manual_item_id": "manual_wandering_kick",
+      "min_realm": 1,
+      "name": "Wandering Kick",
+      "rarity": "common",
+      "role": "tempo",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "wandering_kick",
+      "tier": "earth"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Gain 30% damage reduction against next attack. If hit by external damage, counter for 22\u201330 external.",
+      "manual_item_id": "manual_flowing_parry",
+      "min_realm": 1,
+      "name": "Flowing Parry",
+      "rarity": "rare",
+      "role": "counter",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "flowing_parry",
+      "tier": "earth"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "fire",
+      "description": "Deals 20\u201330 internal damage. If target is Burning, converts Burn into 20 immediate true damage.",
+      "manual_item_id": "manual_yin_flame",
+      "min_realm": 1,
+      "name": "Yin Flame",
+      "rarity": "rare",
+      "role": "dot_payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "d",
+          "raw": "ADV-D",
+          "taxonomy": "adventure"
+        },
+        {
+          "raw": "SECT-ELEMENTS",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "yin_flame",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "soul",
+      "description": "Deals 16\u201324 internal damage. 40% chance to increase target\u2019s longest cooldown by 1 turn.",
+      "manual_item_id": "manual_spirit_lock",
+      "min_realm": 1,
+      "name": "Spirit Lock",
+      "rarity": "rare",
+      "role": "cooldown_control",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-GHOST",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "spirit_lock",
+      "tier": "earth"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "utility",
+      "description": "Gain 60 Shield. While shield remains, Stun chance against you is reduced by 50%.",
+      "manual_item_id": "manual_golden_bell",
+      "min_realm": 1,
+      "name": "Golden Bell",
+      "rarity": "epic",
+      "role": "defense",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "golden_bell",
+      "tier": "earth"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "blood",
+      "description": "Deals 30\u201344 external damage. If target has Bleed, applies Vulnerable for 2 turns.",
+      "manual_item_id": "manual_red_mist_cut",
+      "min_realm": 1,
+      "name": "Red Mist Cut",
+      "rarity": "epic",
+      "role": "payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "red_mist_cut",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 48\u201368 external damage. If target is Vulnerable, deals +30%.",
+      "manual_item_id": "manual_heaven_splitting_slash",
+      "min_realm": 3,
+      "name": "Heaven-Splitting Slash",
+      "rarity": "rare",
+      "role": "burst",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "heaven_splitting_slash",
+      "tier": "sky"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "fire",
+      "description": "Deals 36\u201350 internal damage and applies Burn for 3 turns. If target is already Burning, applies Vulnerable for 1 turn.",
+      "manual_item_id": "manual_nine_suns_palm",
+      "min_realm": 3,
+      "name": "Nine Suns Palm",
+      "rarity": "epic",
+      "role": "burn_payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-ELEMENTS",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "nine_suns_palm",
+      "tier": "sky"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "body",
+      "description": "Deals 30\u201342 external damage. 35% chance to Stun for 1 turn. Against Demonic targets, Stun chance becomes 50%.",
+      "manual_item_id": "manual_vajra_suppression",
+      "min_realm": 3,
+      "name": "Vajra Suppression",
+      "rarity": "rare",
+      "role": "control",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "vajra_suppression",
+      "tier": "sky"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "healing",
+      "description": "Cleanses all debuffs, heals 22% max HP, and grants Seal immunity for 1 turn.",
+      "manual_item_id": "manual_thousand_lotus_cleanse",
+      "min_realm": 3,
+      "name": "Thousand Lotus Cleanse",
+      "rarity": "epic",
+      "role": "cleanse",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "thousand_lotus_cleanse",
+      "tier": "sky"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "poison",
+      "description": "Deals 24\u201334 external damage. Applies Poison and Bleed for 3 turns.",
+      "manual_item_id": "manual_black_needle_rain",
+      "min_realm": 3,
+      "name": "Black Needle Rain",
+      "rarity": "epic",
+      "role": "dot_applier",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "black_needle_rain",
+      "tier": "sky"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "soul",
+      "description": "Seals target for 1 turn. If target is Weakened, also deals 35 internal damage.",
+      "manual_item_id": "manual_ghost_valley_seal",
+      "min_realm": 3,
+      "name": "Ghost Valley Seal",
+      "rarity": "epic",
+      "role": "control",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-GHOST",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "ghost_valley_seal",
+      "tier": "sky"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "body",
+      "description": "Deals 28\u201342 external damage. Randomly gain Evasion, Guard, or +25% next damage.",
+      "manual_item_id": "manual_drunken_dragon_roll",
+      "min_realm": 3,
+      "name": "Drunken Dragon Roll",
+      "rarity": "rare",
+      "role": "tempo",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "drunken_dragon_roll",
+      "tier": "sky"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "blood",
+      "description": "Lose 10% current HP. Deals 70\u201395 internal damage and applies Bleed to self and target.",
+      "manual_item_id": "manual_blood_moon_offering",
+      "min_realm": 3,
+      "name": "Blood Moon Offering",
+      "rarity": "epic",
+      "role": "sacrifice_burst",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "blood_moon_offering",
+      "tier": "sky"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 38\u201354 external damage twice. Each hit has 20% chance to reduce enemy Shield by 20.",
+      "manual_item_id": "manual_azure_sword_rain",
+      "min_realm": 3,
+      "name": "Azure Sword Rain",
+      "rarity": "epic",
+      "role": "multi_hit",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "azure_sword_rain",
+      "tier": "sky"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "utility",
+      "description": "Applies Root and Weaken for 2 turns. If target is Demonic, also removes one buff.",
+      "manual_item_id": "manual_lotus_thread_bind",
+      "min_realm": 3,
+      "name": "Lotus Thread Bind",
+      "rarity": "rare",
+      "role": "control",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "lotus_thread_bind",
+      "tier": "sky"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "body",
+      "description": "Deals 42\u201358 external damage. If you have Evasion, consume it to deal +35%.",
+      "manual_item_id": "manual_white_tiger_pounce",
+      "min_realm": 3,
+      "name": "White Tiger Pounce",
+      "rarity": "rare",
+      "role": "evasion_payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "white_tiger_pounce",
+      "tier": "sky"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "fire",
+      "description": "Deals 32\u201346 internal damage and applies Burn for 2 turns. If target has Poison, Burn damage dealt by this skill is increased by 50%.",
+      "manual_item_id": "manual_hellspark_array",
+      "min_realm": 3,
+      "name": "Hellspark Array",
+      "rarity": "rare",
+      "role": "dot_synergy",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-ELEMENTS",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "hellspark_array",
+      "tier": "sky"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "lightning",
+      "description": "Deals 44\u201360 internal damage. Reduces all your active cooldowns by 1 turn.",
+      "manual_item_id": "manual_thunder_meridian",
+      "min_realm": 3,
+      "name": "Thunder Meridian",
+      "rarity": "epic",
+      "role": "cooldown",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-ELEMENTS",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "thunder_meridian",
+      "tier": "sky"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "frost",
+      "description": "Gain 50 Shield. If this Shield breaks before your next turn, attacker is Rooted for 1 turn.",
+      "manual_item_id": "manual_ice_mirror",
+      "min_realm": 3,
+      "name": "Ice Mirror",
+      "rarity": "rare",
+      "role": "defense",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "s",
+          "raw": "CRAFT-S",
+          "taxonomy": "craft"
+        }
+      ],
+      "technique_id": "ice_mirror",
+      "tier": "sky"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "soul",
+      "description": "Deals 38\u201352 internal damage. Reveals target\u2019s passive and applies Weaken for 2 turns.",
+      "manual_item_id": "manual_soul_lantern",
+      "min_realm": 3,
+      "name": "Soul Lantern",
+      "rarity": "rare",
+      "role": "debuff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-GHOST",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "soul_lantern",
+      "tier": "sky"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "poison",
+      "description": "Consumes Poison on target. Deals 22 true damage per remaining Poison turn.",
+      "manual_item_id": "manual_venom_bloom",
+      "min_realm": 3,
+      "name": "Venom Bloom",
+      "rarity": "epic",
+      "role": "dot_payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "venom_bloom",
+      "tier": "sky"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "blood",
+      "description": "If below 50% HP, deals 50\u201370 internal damage and heals 20% of damage dealt. Otherwise, deals 30\u201342 internal damage.",
+      "manual_item_id": "manual_blood_reversal",
+      "min_realm": 3,
+      "name": "Blood Reversal",
+      "rarity": "rare",
+      "role": "low_hp_sustain",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "blood_reversal",
+      "tier": "sky"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "utility",
+      "description": "Gain Guard 50% and Stun immunity for 2 turns. Cannot gain Evasion while active.",
+      "manual_item_id": "manual_immovable_vajra",
+      "min_realm": 3,
+      "name": "Immovable Vajra",
+      "rarity": "epic",
+      "role": "defense",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "immovable_vajra",
+      "tier": "sky"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 36\u201350 external damage and gains Haste for 1 turn.",
+      "manual_item_id": "manual_wind_sword_step",
+      "min_realm": 3,
+      "name": "Wind Sword Step",
+      "rarity": "rare",
+      "role": "tempo",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "wind_sword_step",
+      "tier": "sky"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "fire",
+      "description": "Deals 34\u201348 internal damage. If your karma is Righteous, cleanses one debuff and applies Burn for 2 turns.",
+      "manual_item_id": "manual_karma_flame",
+      "min_realm": 3,
+      "name": "Karma Flame",
+      "rarity": "epic",
+      "role": "karma_payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "r",
+          "raw": "BT-R",
+          "taxonomy": "breakthrough"
+        }
+      ],
+      "technique_id": "karma_flame",
+      "tier": "sky"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "body",
+      "description": "Deals 46\u201364 external damage. If target is Bleeding, applies Weaken for 2 turns.",
+      "manual_item_id": "manual_demon_claw",
+      "min_realm": 3,
+      "name": "Demon Claw",
+      "rarity": "rare",
+      "role": "bleed_payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "d",
+          "raw": "ADV-D",
+          "taxonomy": "adventure"
+        }
+      ],
+      "technique_id": "demon_claw",
+      "tier": "sky"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "utility",
+      "description": "Gain Evasion for 2 turns. Your next damaging skill deals -15% damage.",
+      "manual_item_id": "manual_wandering_immortal_step",
+      "min_realm": 3,
+      "name": "Wandering Immortal Step",
+      "rarity": "epic",
+      "role": "evasion",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "wandering_immortal_step",
+      "tier": "sky"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "poison",
+      "description": "Deals 26\u201338 external damage. 35% chance to Seal for 1 turn if target is Poisoned.",
+      "manual_item_id": "manual_silent_meridian_needle",
+      "min_realm": 3,
+      "name": "Silent Meridian Needle",
+      "rarity": "rare",
+      "role": "control",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "silent_meridian_needle",
+      "tier": "sky"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "healing",
+      "description": "Heals 18% max HP and gains 30 Shield. If you have no debuffs, cooldown is reduced by 1.",
+      "manual_item_id": "manual_pure_body_resonance",
+      "min_realm": 3,
+      "name": "Pure Body Resonance",
+      "rarity": "rare",
+      "role": "sustain",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        },
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "pure_body_resonance",
+      "tier": "sky"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "soul",
+      "description": "Repeats 35% of the last internal damage you dealt to this target. Minimum 25 damage.",
+      "manual_item_id": "manual_void_echo",
+      "min_realm": 3,
+      "name": "Void Echo",
+      "rarity": "epic",
+      "role": "internal_payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-GHOST",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "void_echo",
+      "tier": "sky"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 95\u2013135 external damage. If target is below 35% HP, deals +25%.",
+      "manual_item_id": "manual_ten_thousand_sword_return",
+      "min_realm": 4,
+      "name": "Ten Thousand Sword Return",
+      "rarity": "legendary",
+      "role": "ultimate",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "ten_thousand_sword_return",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "body",
+      "description": "Deals 70\u201390 internal damage, Seals for 1 turn, and grants Guard 30% for 2 turns.",
+      "manual_item_id": "manual_buddha_palm_seal",
+      "min_realm": 4,
+      "name": "Buddha Palm Seal",
+      "rarity": "legendary",
+      "role": "control_defense",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "buddha_palm_seal",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "fire",
+      "description": "Deals 75\u2013105 internal damage and applies Burn for 4 turns. Burning targets take +15% internal damage for 2 turns.",
+      "manual_item_id": "manual_hellfire_lotus",
+      "min_realm": 4,
+      "name": "Hellfire Lotus",
+      "rarity": "legendary",
+      "role": "burn_ultimate",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-ELEMENTS",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "hellfire_lotus",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "blood",
+      "description": "Deals 85\u2013120 internal damage and heals 35% of damage dealt. If target has Bleed, also Seals for 1 turn.",
+      "manual_item_id": "manual_soul_devouring_scripture",
+      "min_realm": 4,
+      "name": "Soul-Devouring Scripture",
+      "rarity": "legendary",
+      "role": "drain_ultimate",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "soul_devouring_scripture",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "poison",
+      "description": "Deals 60\u201380 external damage. If target has Poison, Bleed, or Vulnerable, repeat at 40% damage.",
+      "manual_item_id": "manual_shadowless_killing_formation",
+      "min_realm": 4,
+      "name": "Shadowless Killing Formation",
+      "rarity": "legendary",
+      "role": "assassin_ultimate",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "shadowless_killing_formation",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "soul",
+      "description": "Removes all buffs from target, then deals 65\u201390 internal damage.",
+      "manual_item_id": "manual_dao_severing_pulse",
+      "min_realm": 4,
+      "name": "Dao-Severing Pulse",
+      "rarity": "legendary",
+      "role": "buff_removal",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-GHOST",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "pool": "n",
+          "raw": "BT-N",
+          "taxonomy": "breakthrough"
+        }
+      ],
+      "technique_id": "dao_severing_pulse",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "healing",
+      "description": "Heals 42% max HP and cleanses all debuffs. Cannot be used above 60% HP.",
+      "manual_item_id": "manual_immortal_lotus_return",
+      "min_realm": 4,
+      "name": "Immortal Lotus Return",
+      "rarity": "legendary",
+      "role": "major_heal",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "immortal_lotus_return",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "body",
+      "description": "Deals 80\u2013110 external damage. If you dodged since your last turn, deals +40%.",
+      "manual_item_id": "manual_beggar_king_reversal",
+      "min_realm": 4,
+      "name": "Beggar King Reversal",
+      "rarity": "legendary",
+      "role": "evasion_payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "beggar_king_reversal",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "For 3 turns, your sword skills deal +25% damage and apply Vulnerable for 1 turn on crit.",
+      "manual_item_id": "manual_primordial_sword_domain",
+      "min_realm": 4,
+      "name": "Primordial Sword Domain",
+      "rarity": "legendary",
+      "role": "domain",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "primordial_sword_domain",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "body",
+      "description": "Gain 120 Shield and Guard 40% for 2 turns. While active, your damage dealt is reduced by 20%.",
+      "manual_item_id": "manual_vajra_world_body",
+      "min_realm": 4,
+      "name": "Vajra World Body",
+      "rarity": "epic",
+      "role": "major_defense",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "vajra_world_body",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "fire",
+      "description": "Deals 50\u201370 internal damage. If target has Burn, Root, or Weaken, consumes them to deal +30 damage each.",
+      "manual_item_id": "manual_five_elements_collapse",
+      "min_realm": 4,
+      "name": "Five Elements Collapse",
+      "rarity": "legendary",
+      "role": "status_consume",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-ELEMENTS",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "five_elements_collapse",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "poison",
+      "description": "Applies Poison for 5 turns, Root for 1 turn, and healing received -35% for 3 turns.",
+      "manual_item_id": "manual_thousand_venom_cage",
+      "min_realm": 4,
+      "name": "Thousand Venom Cage",
+      "rarity": "legendary",
+      "role": "anti_heal_control",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "thousand_venom_cage",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "blood",
+      "description": "Lose 15% current HP. For 3 turns, your attacks apply Bleed and heal 15% of damage dealt.",
+      "manual_item_id": "manual_blood_sea_avatar",
+      "min_realm": 4,
+      "name": "Blood Sea Avatar",
+      "rarity": "legendary",
+      "role": "self_buff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "blood_sea_avatar",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "soul",
+      "description": "Deals 80\u2013105 internal damage. If target is Sealed, extends Seal by 1 turn and applies Weaken for 2 turns.",
+      "manual_item_id": "manual_ghost_king_edict",
+      "min_realm": 4,
+      "name": "Ghost King Edict",
+      "rarity": "legendary",
+      "role": "seal_payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-GHOST",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "ghost_king_edict",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "healing",
+      "description": "Cleanses all debuffs from self. For each debuff cleansed, heals 8% max HP, up to 32%.",
+      "manual_item_id": "manual_white_lotus_absolution",
+      "min_realm": 4,
+      "name": "White Lotus Absolution",
+      "rarity": "epic",
+      "role": "cleanse_heal",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "white_lotus_absolution",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "utility",
+      "description": "Gain Evasion for 2 turns and reduce all cooldowns by 1. Cannot be used twice within 6 turns.",
+      "manual_item_id": "manual_wandering_star_step",
+      "min_realm": 4,
+      "name": "Wandering Star Step",
+      "rarity": "epic",
+      "role": "evasion_cooldown",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "wandering_star_step",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "fire",
+      "description": "Deals 70\u201395 internal damage. If your karma is Righteous, also applies Burn and Weaken for 2 turns.",
+      "manual_item_id": "manual_skyfire_edict",
+      "min_realm": 4,
+      "name": "Skyfire Edict",
+      "rarity": "epic",
+      "role": "karma_payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "r",
+          "raw": "BT-R",
+          "taxonomy": "breakthrough"
+        }
+      ],
+      "technique_id": "skyfire_edict",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "blood",
+      "description": "Deals 70\u201395 internal damage. If your karma is Demonic, applies Bleed for 3 turns and heals 20% damage dealt.",
+      "manual_item_id": "manual_nether_blood_edict",
+      "min_realm": 4,
+      "name": "Nether Blood Edict",
+      "rarity": "epic",
+      "role": "karma_payoff",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "d",
+          "raw": "BT-D",
+          "taxonomy": "breakthrough"
+        }
+      ],
+      "technique_id": "nether_blood_edict",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "sword",
+      "description": "Deals 78\u2013108 external damage. Ignores karma-based damage reduction and reflection.",
+      "manual_item_id": "manual_neutral_dao_cut",
+      "min_realm": 4,
+      "name": "Neutral Dao Cut",
+      "rarity": "epic",
+      "role": "anti_karma",
+      "slot_type": "active",
+      "sources": [
+        {
+          "pool": "n",
+          "raw": "BT-N",
+          "taxonomy": "breakthrough"
+        }
+      ],
+      "technique_id": "neutral_dao_cut",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "soul",
+      "description": "Deals 55\u201375 internal damage and removes one offensive buff. If target is Demonic, removes two offensive buffs.",
+      "manual_item_id": "manual_soul_quieting_bell",
+      "min_realm": 4,
+      "name": "Soul-Quieting Bell",
+      "rarity": "epic",
+      "role": "buff_removal",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "soul_quieting_bell",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "soul",
+      "description": "Deals 90\u2013125 internal damage. You become Weakened for 2 turns after use.",
+      "manual_item_id": "manual_black_sun_meridian",
+      "min_realm": 4,
+      "name": "Black Sun Meridian",
+      "rarity": "legendary",
+      "role": "high_risk_burst",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-GHOST",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "black_sun_meridian",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "lightning",
+      "description": "Deals 85\u2013115 internal damage. 30% chance to Stun for 1 turn. Against Demonic targets, Stun chance increases by 20%.",
+      "manual_item_id": "manual_heavenly_thunder_judgment",
+      "min_realm": 4,
+      "name": "Heavenly Thunder Judgment",
+      "rarity": "legendary",
+      "role": "control_burst",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-ELEMENTS",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "pool": "r",
+          "raw": "BT-R",
+          "taxonomy": "breakthrough"
+        }
+      ],
+      "technique_id": "heavenly_thunder_judgment",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "utility",
+      "description": "Cleanses Root, Stun, and Seal. Gain Evasion for 1 turn.",
+      "manual_item_id": "manual_formless_ghost_escape",
+      "min_realm": 4,
+      "name": "Formless Ghost Escape",
+      "rarity": "epic",
+      "role": "cleanse_evasion",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "SECT-GHOST",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "formless_ghost_escape",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_source"
+      ],
+      "category": "sword",
+      "description": "Charge for 1 turn, then deals 150\u2013210 external damage. Interrupted by Stun, Seal, or Root.",
+      "manual_item_id": "manual_immortal_sword_breath",
+      "min_realm": 4,
+      "name": "Immortal Sword Breath",
+      "rarity": "legendary",
+      "role": "charged_ultimate",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "RARE-Nascent Inheritance",
+          "reason": "unknown_source",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "immortal_sword_breath",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_source"
+      ],
+      "category": "soul",
+      "description": "Deals 70\u2013100 true damage. If target\u2019s alignment opposes yours, deals +30 true damage.",
+      "manual_item_id": "manual_karma_extinction_art",
+      "min_realm": 4,
+      "name": "Karma Extinction Art",
+      "rarity": "legendary",
+      "role": "true_damage",
+      "slot_type": "active",
+      "sources": [
+        {
+          "raw": "RARE-Dao Enlightenment",
+          "reason": "unknown_source",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "karma_extinction_art",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "passive",
+      "description": "Status application chance +8%.",
+      "manual_item_id": "manual_keen_focus",
+      "min_realm": 0,
+      "name": "Keen Focus",
+      "rarity": "common",
+      "role": "status_support",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "HUNT-Mist Fang Wolf",
+          "target": "Mist Fang Wolf",
+          "taxonomy": "hunt"
+        },
+        {
+          "channel": "direct",
+          "raw": "SHOP-M",
+          "taxonomy": "shop"
+        }
+      ],
+      "technique_id": "keen_focus",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "passive",
+      "description": "First debuff each fight has 35% chance to be resisted.",
+      "manual_item_id": "manual_iron_will",
+      "min_realm": 0,
+      "name": "Iron Will",
+      "rarity": "uncommon",
+      "role": "anti_debuff",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "pool": "r",
+          "raw": "ADV-R",
+          "taxonomy": "adventure"
+        },
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "iron_will",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "passive",
+      "description": "Negates Stun once every 3 turns. If Stun is negated, heals 8% max HP.",
+      "manual_item_id": "manual_beggars_mettle",
+      "min_realm": 0,
+      "name": "Beggar's Mettle",
+      "rarity": "rare",
+      "role": "control_counter",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "pool": "n",
+          "raw": "ADV-N",
+          "taxonomy": "adventure"
+        }
+      ],
+      "technique_id": "beggars_mettle",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "passive",
+      "description": "Gain 20% lifesteal against targets with Bleed.",
+      "manual_item_id": "manual_demonic_feast",
+      "min_realm": 0,
+      "name": "Demonic Feast",
+      "rarity": "rare",
+      "role": "sustain",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "pool": "d",
+          "raw": "ADV-D",
+          "taxonomy": "adventure"
+        },
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "demonic_feast",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "passive",
+      "description": "Once per fight, when HP falls to 30% or lower, heal 26% max HP.",
+      "manual_item_id": "manual_heavenly_healing",
+      "min_realm": 0,
+      "name": "Heavenly Healing",
+      "rarity": "rare",
+      "role": "sustain",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "pool": "r",
+          "raw": "BT-R",
+          "taxonomy": "breakthrough"
+        },
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "heavenly_healing",
+      "tier": "mortal"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "passive",
+      "description": "Every third active technique deals +20% damage.",
+      "manual_item_id": "manual_rising_tempo",
+      "min_realm": 1,
+      "name": "Rising Tempo",
+      "rarity": "uncommon",
+      "role": "tempo",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "pool": "n",
+          "raw": "ADV-N",
+          "taxonomy": "adventure"
+        },
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "rising_tempo",
+      "tier": "earth"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "passive",
+      "description": "External damage taken -10%; internal damage taken +5%.",
+      "manual_item_id": "manual_stone_body_sutra",
+      "min_realm": 1,
+      "name": "Stone Body Sutra",
+      "rarity": "rare",
+      "role": "defense",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        },
+        {
+          "pool": "e",
+          "raw": "CRAFT-E",
+          "taxonomy": "craft"
+        }
+      ],
+      "technique_id": "stone_body_sutra",
+      "tier": "earth"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "passive",
+      "description": "Poison and Bleed you apply last +1 turn. Direct healing received -10%.",
+      "manual_item_id": "manual_shadow_veins",
+      "min_realm": 1,
+      "name": "Shadow Veins",
+      "rarity": "rare",
+      "role": "dot_support",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        },
+        {
+          "pool": "d",
+          "raw": "ADV-D",
+          "taxonomy": "adventure"
+        }
+      ],
+      "technique_id": "shadow_veins",
+      "tier": "earth"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "passive",
+      "description": "Healing received +15%. Debuff durations on self are reduced by 1 turn, minimum 1.",
+      "manual_item_id": "manual_lotus_heart",
+      "min_realm": 1,
+      "name": "Lotus Heart",
+      "rarity": "rare",
+      "role": "sustain",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "pool": "r",
+          "raw": "BT-R",
+          "taxonomy": "breakthrough"
+        }
+      ],
+      "technique_id": "lotus_heart",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_source"
+      ],
+      "category": "passive",
+      "description": "Once per fight, survive fatal damage at 1 HP and gain +60% internal/external damage for 2 turns.",
+      "manual_item_id": "manual_last_resort",
+      "min_realm": 1,
+      "name": "Last Resort",
+      "rarity": "epic",
+      "role": "comeback",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "RARE-Inheritance",
+          "reason": "unknown_source",
+          "taxonomy": "backlog"
+        },
+        {
+          "pool": "n",
+          "raw": "BT-N",
+          "taxonomy": "breakthrough"
+        }
+      ],
+      "technique_id": "last_resort",
+      "tier": "earth"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [],
+      "category": "passive",
+      "description": "Sword skills gain +12% crit chance. Sword crits reduce one random sword cooldown by 1 turn.",
+      "manual_item_id": "manual_sword_heart",
+      "min_realm": 3,
+      "name": "Sword Heart",
+      "rarity": "epic",
+      "role": "sword_crit",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "SECT-WUDANG",
+          "sect_id": "wudang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "sword_heart",
+      "tier": "sky"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [],
+      "category": "passive",
+      "description": "Once per fight, reduce incoming damage by 50% if the hit would deal at least 30% max HP.",
+      "manual_item_id": "manual_vajra_body",
+      "min_realm": 3,
+      "name": "Vajra Body",
+      "rarity": "epic",
+      "role": "defense",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "vajra_body",
+      "tier": "sky"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "passive",
+      "description": "Poison damage you apply +25%. Your direct non-poison damage -8%.",
+      "manual_item_id": "manual_venom_sovereign_veins",
+      "min_realm": 3,
+      "name": "Venom Sovereign Veins",
+      "rarity": "epic",
+      "role": "poison_support",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "SECT-TANG",
+          "sect_id": "tang",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "venom_sovereign_veins",
+      "tier": "sky"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "passive",
+      "description": "First time HP falls below 50%, gain Evasion for 1 turn and cleanse Root/Stun.",
+      "manual_item_id": "manual_ghost_step",
+      "min_realm": 3,
+      "name": "Ghost Step",
+      "rarity": "epic",
+      "role": "evasion",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "SECT-GHOST",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "raw": "SECT-BEGGAR",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "ghost_step",
+      "tier": "sky"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "passive",
+      "description": "While below 40% HP, internal damage +15%. Healing received -15%.",
+      "manual_item_id": "manual_demonic_meridian",
+      "min_realm": 3,
+      "name": "Demonic Meridian",
+      "rarity": "epic",
+      "role": "low_hp_damage",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        },
+        {
+          "pool": "d",
+          "raw": "BT-D",
+          "taxonomy": "breakthrough"
+        }
+      ],
+      "technique_id": "demonic_meridian",
+      "tier": "sky"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_source"
+      ],
+      "category": "passive",
+      "description": "Once per fight, survive fatal damage at 1 HP and gain +80% damage for 2 turns. Does not trigger while Poisoned.",
+      "manual_item_id": "manual_true_last_resort",
+      "min_realm": 4,
+      "name": "True Last Resort",
+      "rarity": "legendary",
+      "role": "comeback",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "RARE-Nascent Inheritance",
+          "reason": "unknown_source",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "true_last_resort",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "passive",
+      "description": "Once per fight at 25% HP or lower, cleanse all debuffs and heal 28% max HP.",
+      "manual_item_id": "manual_heavenly_mandate",
+      "min_realm": 4,
+      "name": "Heavenly Mandate",
+      "rarity": "legendary",
+      "role": "cleanse_sustain",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "pool": "r",
+          "raw": "BT-R",
+          "taxonomy": "breakthrough"
+        },
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "heavenly_mandate",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "demonic",
+      "backlog_reasons": [],
+      "category": "passive",
+      "description": "Lifesteal +18%. Whenever you are cleansed, your next damage dealt is reduced by 20%.",
+      "manual_item_id": "manual_blood_demon_body",
+      "min_realm": 4,
+      "name": "Blood Demon Body",
+      "rarity": "legendary",
+      "role": "lifesteal",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "pool": "d",
+          "raw": "BT-D",
+          "taxonomy": "breakthrough"
+        },
+        {
+          "raw": "SECT-BLOOD",
+          "sect_id": "blood_lotus",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "blood_demon_body",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "neutral",
+      "backlog_reasons": [
+        "unknown_source"
+      ],
+      "category": "passive",
+      "description": "Immune to the first Stun or Seal each fight. When triggered, all current cooldowns increase by 1.",
+      "manual_item_id": "manual_unshaken_dao_heart",
+      "min_realm": 4,
+      "name": "Unshaken Dao Heart",
+      "rarity": "legendary",
+      "role": "anti_control",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "pool": "n",
+          "raw": "BT-N",
+          "taxonomy": "breakthrough"
+        },
+        {
+          "raw": "RARE-Dao Enlightenment",
+          "reason": "unknown_source",
+          "taxonomy": "backlog"
+        }
+      ],
+      "technique_id": "unshaken_dao_heart",
+      "tier": "nascent"
+    },
+    {
+      "alignment": "righteous",
+      "backlog_reasons": [
+        "unknown_sect"
+      ],
+      "category": "passive",
+      "description": "Against Demonic enemies, reflect 12% damage taken and reduce Burn/Bleed duration by 1.",
+      "manual_item_id": "manual_lotus_karma_mirror",
+      "min_realm": 4,
+      "name": "Lotus Karma Mirror",
+      "rarity": "legendary",
+      "role": "anti_demonic",
+      "slot_type": "passive",
+      "sources": [
+        {
+          "raw": "SECT-EMEI",
+          "reason": "unknown_sect",
+          "taxonomy": "backlog"
+        },
+        {
+          "raw": "SECT-SHAOLIN",
+          "sect_id": "shaolin",
+          "taxonomy": "sect"
+        }
+      ],
+      "technique_id": "lotus_karma_mirror",
+      "tier": "nascent"
+    }
+  ],
+  "schema_version": "1.0",
+  "sect_aliases": {
+    "BLOOD": "blood_lotus",
+    "BLOOD_LOTUS": "blood_lotus",
+    "HUA": "mount_hua",
+    "IMPERIAL": "imperial_guard",
+    "IMPERIAL_GUARD": "imperial_guard",
+    "KUNLUN": "kunlun",
+    "MOUNT_HUA": "mount_hua",
+    "SHADOW": "shadow_pavilion",
+    "SHADOW_PAVILION": "shadow_pavilion",
+    "SHAOLIN": "shaolin",
+    "TANG": "tang",
+    "WUDANG": "wudang"
+  },
+  "source_file": "C:\\Users\\Adnan\\Downloads\\allskills.json",
+  "source_taxonomy_counts": {
+    "adventure": 19,
+    "backlog": 55,
+    "breakthrough": 14,
+    "craft": 7,
+    "hunt": 6,
+    "sect": 53,
+    "shop": 5
+  }
+}

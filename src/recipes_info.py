@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import discord
 
-from .consumables import PILL_EFFECTS
 from .content import RecipeDef, get_recipes
-from .effects import EFFECT_DESCRIPTIONS, HASTE_EFFECTS
-from .forge import get_forge_recipes
+from .pill_recipes import pill_effect_description, resolve_recipe_inputs
 from .inventory import get_item_name
 from .manuals import MANUAL_CRAFT_INPUTS
 
@@ -20,8 +18,17 @@ def _format_inputs(inputs: dict[str, int]) -> str:
 
 
 def _pill_effect_text(item_id: str) -> str:
+    from .consumables import PILL_EFFECTS
+    from .effects import EFFECT_DESCRIPTIONS, HASTE_EFFECTS
+
+    desc = pill_effect_description(item_id)
+    if desc:
+        return desc
     if item_id in PILL_EFFECTS:
         effect_id = str(PILL_EFFECTS[item_id]["effect_id"])
+        cfg_desc = pill_effect_description(item_id, effect_id=effect_id)
+        if cfg_desc:
+            return cfg_desc
         return EFFECT_DESCRIPTIONS.get(effect_id, effect_id.replace("_", " ").title())
     if item_id in HASTE_EFFECTS:
         meta = HASTE_EFFECTS[item_id]
@@ -36,9 +43,9 @@ def _pill_effect_text(item_id: str) -> str:
     return "Special item."
 
 
-def _format_recipe_line(recipe: RecipeDef) -> str:
+def _format_recipe_line(recipe: RecipeDef, *, realm_index: int = 0) -> str:
     pct = int(recipe.success_chance * 100)
-    inputs = _format_inputs(recipe.inputs)
+    inputs = _format_inputs(resolve_recipe_inputs(recipe, realm_index))
     effect = _pill_effect_text(recipe.output_item_id)
     byproduct = ""
     if recipe.byproduct_item_id:
@@ -112,16 +119,27 @@ def build_recipes_embed(recipe_type: str | None = None) -> discord.Embed:
         _add_chunked_fields(embed, "Other", [_format_recipe_line(r) for r in other])
 
     if recipe_type in (None, "forge"):
-        forge = get_forge_recipes()
+        from .equipment_tiers import GEAR_PATHS, path_label, resolve_equipment_tier
+        from .models import EQUIPMENT_SLOTS
+
         forge_lines: list[str] = []
-        for slot, data in forge.items():
-            inputs = _format_inputs(data["inputs"])
-            ranges = data["stat_ranges"]
-            range_text = ", ".join(f"{k} {v[0]}–{v[1]}" for k, v in ranges.items())
-            forge_lines.append(
-                f"**{data['name']}** ({slot})\nIn: {inputs}\nStats: {range_text}"
-            )
-        _add_chunked_fields(embed, "Equipment forging (`/forge`)", forge_lines)
+        sample_realm = 0
+        for slot in EQUIPMENT_SLOTS:
+            for path in GEAR_PATHS:
+                entry = resolve_equipment_tier(sample_realm, slot, path)
+                if entry is None:
+                    continue
+                inputs = _format_inputs(entry.inputs)
+                ranges = entry.stat_ranges
+                range_text = ", ".join(f"{k} {v[0]}–{v[1]}" for k, v in ranges.items())
+                forge_lines.append(
+                    f"**{entry.name}** ({slot}, {path_label(path)})\nIn: {inputs}\nStats scale with your realm — Mortal sample: {range_text}"
+                )
+        _add_chunked_fields(
+            embed,
+            "Equipment forging (`/forge`) — stats scale to your realm",
+            forge_lines,
+        )
 
     if recipe_type is None:
         manual_inputs = _format_inputs(MANUAL_CRAFT_INPUTS)

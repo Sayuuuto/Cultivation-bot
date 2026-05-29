@@ -1,0 +1,39 @@
+---
+description: Fragment sinks, rank materials, sealed manuals, and economy copy
+globs:
+  - config/technique_upgrade.json
+  - config/player_guides/**
+  - src/manuals.py
+  - src/combat/ranks.py
+  - src/notifications.py
+  - docs/FRAGMENT_ECONOMY.md
+---
+
+# Progression economy
+
+## Fragment sinks (must stay in sync)
+
+1. `/craft manual` — `MANUAL_CRAFT_INPUTS`
+2. `/upgrade-technique` — `config/technique_upgrade.json` + `rank_cost()`
+3. Duplicate manuals — 2× fragment in `grant_manual_drop`
+
+Update `config/player_guides/combat_progression.json` `fragment_economy` and `/item` description when adding a sink.
+
+## Rank materials
+
+Category → item mapping lives in `config/technique_upgrade.json` `category_materials`. Farm hints come from `src/drop_sources.py` — add sources when introducing new materials.
+
+## Sealed manuals
+
+- Drop conversion: `manual_drop_item_for_player()` → `sealed_*` item id
+- Unseal gate: `can_unseal_manual()` (realm)
+- Surfacing: `refresh_sealed_manual_notification()` on breakthrough / sect join
+
+```text
+❌ "Manual is sealed until feature enabled."
+✅ "A sealed manual in your ring can now be studied — use **`/learn`**."
+```
+
+## Karma from techniques
+
+Default: **no** karma shift in combat (`combat_rules.json` `karma_policy.techniques_shift_karma_in_combat: false`). Moral weight stays on `/adventure` unless a technique tags `karma_on_use` and policy is enabled.

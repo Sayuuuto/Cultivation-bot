@@ -1,15 +1,15 @@
 {
   "realms": [
-    {"name": "Mortal", "base_qi_cap": 100},
-    {"name": "Qi Refining", "base_qi_cap": 250},
-    {"name": "Foundation Establishment", "base_qi_cap": 600},
-    {"name": "Core Formation", "base_qi_cap": 1400},
-    {"name": "Nascent Soul", "base_qi_cap": 3200},
-    {"name": "Spirit Severing", "base_qi_cap": 7200},
-    {"name": "Void Refinement", "base_qi_cap": 16000},
-    {"name": "Immortal Ascension", "base_qi_cap": 36000},
-    {"name": "Heavenly Transcendence", "base_qi_cap": 82000},
-    {"name": "Immortal Monarch", "base_qi_cap": 180000}
+    {"name": "Mortal", "base_qi_cap": 100, "technique_load_budget": {"active": 8, "passive": 3, "total": 10}, "technique_rank_cap": 3},
+    {"name": "Qi Refining", "base_qi_cap": 250, "technique_load_budget": {"active": 10, "passive": 4, "total": 13}, "technique_rank_cap": 4},
+    {"name": "Foundation Establishment", "base_qi_cap": 600, "technique_load_budget": {"active": 12, "passive": 5, "total": 16}, "technique_rank_cap": 5},
+    {"name": "Core Formation", "base_qi_cap": 1400, "technique_load_budget": {"active": 15, "passive": 6, "total": 20}, "technique_rank_cap": 6},
+    {"name": "Nascent Soul", "base_qi_cap": 3200, "technique_load_budget": {"active": 18, "passive": 7, "total": 24}, "technique_rank_cap": 7},
+    {"name": "Spirit Severing", "base_qi_cap": 7200, "technique_load_budget": {"active": 21, "passive": 8, "total": 28}, "technique_rank_cap": 8},
+    {"name": "Void Refinement", "base_qi_cap": 16000, "technique_load_budget": {"active": 24, "passive": 9, "total": 32}, "technique_rank_cap": 9},
+    {"name": "Immortal Ascension", "base_qi_cap": 36000, "technique_load_budget": {"active": 27, "passive": 10, "total": 36}, "technique_rank_cap": 10},
+    {"name": "Heavenly Transcendence", "base_qi_cap": 82000, "technique_load_budget": {"active": 30, "passive": 11, "total": 40}, "technique_rank_cap": 10},
+    {"name": "Immortal Monarch", "base_qi_cap": 180000, "technique_load_budget": {"active": 34, "passive": 12, "total": 44}, "technique_rank_cap": 10}
   ],
   "substages": ["early", "mid", "late"],
   "substage_multipliers": [1.0, 1.5, 2.2],

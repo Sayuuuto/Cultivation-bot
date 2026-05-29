@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from .combat.catalog import get_technique_by_manual, load_technique_catalog
 from .combat.rarity import SOURCE_MAX_RARITY, rarity_rank
+from .combat.rules import load_combat_rules
 from .karma import karma_tier, manual_weight_multiplier
 from .combat.loadout import get_learned_technique_ids
 from .drop_sources import format_missing_materials_message
@@ -20,6 +21,7 @@ from .models import DungeonRun, Player, utcnow
 MANUAL_POOLS_PATH = Path(__file__).resolve().parent.parent / "config" / "manual_pools.json"
 
 FRAGMENT_ITEM_ID = "technique_fragment"
+SEALED_PREFIX = "sealed_"
 WEEKLY_MANUAL_DAYS = 7
 
 MANUAL_CRAFT_INPUTS = {
@@ -123,12 +125,46 @@ def pick_manual_from_pool(
     return _pick_weighted_manual(weighted, rng)
 
 
+def sealed_manual_item_id(manual_item_id: str) -> str:
+    return f"{SEALED_PREFIX}{manual_item_id}"
+
+
+def unseal_manual_item_id(item_id: str) -> str:
+    return item_id.removeprefix(SEALED_PREFIX)
+
+
+def is_sealed_manual(item_id: str) -> bool:
+    return item_id.startswith(SEALED_PREFIX) and get_technique_by_manual(unseal_manual_item_id(item_id)) is not None
+
+
+def manual_drop_item_for_player(player: Player | None, manual_item_id: str) -> str:
+    if player is None or not load_combat_rules().enabled("sealed_manuals"):
+        return manual_item_id
+    tech = get_technique_by_manual(manual_item_id)
+    if tech is None:
+        return manual_item_id
+    if tech.min_realm <= player.realm_index:
+        return manual_item_id
+    return sealed_manual_item_id(manual_item_id)
+
+
+def can_unseal_manual(player: Player, sealed_item_id: str) -> tuple[bool, str]:
+    manual_id = unseal_manual_item_id(sealed_item_id)
+    tech = get_technique_by_manual(manual_id)
+    if tech is None:
+        return False, "That sealed scripture has no known technique."
+    if player.realm_index < tech.min_realm:
+        return False, f"**{tech.name}** requires a higher realm before its scripture will open."
+    return True, ""
+
+
 def grant_manual_drop(
     session: Session,
     player_id: int,
     manual_item_id: str,
     drops: dict[str, int],
 ) -> str:
+    player = session.get(Player, player_id)
     tech = get_technique_by_manual(manual_item_id)
     if tech is not None and tech.technique_id in get_learned_technique_ids(session, player_id):
         drops[FRAGMENT_ITEM_ID] = drops.get(FRAGMENT_ITEM_ID, 0) + 2
@@ -137,7 +173,10 @@ def grant_manual_drop(
             f"**{get_item_name(FRAGMENT_ITEM_ID)}**."
         )
 
-    drops[manual_item_id] = drops.get(manual_item_id, 0) + 1
+    item_id = manual_drop_item_for_player(player, manual_item_id)
+    drops[item_id] = drops.get(item_id, 0) + 1
+    if item_id != manual_item_id and tech is not None:
+        return f"You obtained **{get_item_name(item_id)}**. Its pages answer at a higher realm."
     return f"You obtained **{get_item_name(manual_item_id)}**."
 
 
@@ -165,12 +204,15 @@ def roll_manual_pool_reward(
 def normalize_manual_drops(session: Session, player_id: int, drops: dict[str, int]) -> dict[str, int]:
     """Convert duplicate manuals in a drop dict into fragments."""
     normalized: dict[str, int] = {}
+    player = session.get(Player, player_id)
     for item_id, qty in drops.items():
-        tech = get_technique_by_manual(item_id)
+        manual_item_id = unseal_manual_item_id(item_id) if is_sealed_manual(item_id) else item_id
+        tech = get_technique_by_manual(manual_item_id)
         if tech is not None and tech.technique_id in get_learned_technique_ids(session, player_id):
             normalized[FRAGMENT_ITEM_ID] = normalized.get(FRAGMENT_ITEM_ID, 0) + qty * 2
             continue
-        normalized[item_id] = normalized.get(item_id, 0) + qty
+        target_id = item_id if is_sealed_manual(item_id) else manual_drop_item_for_player(player, item_id)
+        normalized[target_id] = normalized.get(target_id, 0) + qty
     return normalized
 
 
@@ -360,5 +402,9 @@ def roll_shop_unidentified_manual(
 
     drops: dict[str, int] = {}
     note = grant_manual_drop(session, player.id, manual_id, drops)
-    add_item(session, player.id, manual_id, 1)
+    if any(is_sealed_manual(item_id) for item_id in drops):
+        add_item(session, player.id, manual_id, 1)
+        return manual_id, f"The scroll reveals **{get_item_name(manual_id)}**."
+    for item_id, qty in drops.items():
+        add_item(session, player.id, item_id, qty)
     return manual_id, note or f"The scroll reveals **{get_item_name(manual_id)}**."

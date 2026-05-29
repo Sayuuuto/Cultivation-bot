@@ -39,7 +39,7 @@ def get_character_modifiers(session: Session, player: Player) -> CharacterModifi
     affix_vals = get_player_affix_modifiers(session, player.id)
     _apply_additive(mod, affix_vals)
 
-    gear_stats = get_total_equipment_stats(session, player.id)
+    gear_stats = get_total_equipment_stats(session, player.id, player_realm_index=player.realm_index)
     _apply_additive(mod, equipment_stats_to_modifiers(gear_stats))
 
     apply_effects_from_db(session, mod, player.id)

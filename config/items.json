@@ -52,7 +52,7 @@
   "affix_stone": {
     "name": "Affix Stone",
     "category": "special",
-    "description": "Can imprint an affix onto equipment."
+    "description": "Imprint a random affix onto forged gear with `/affix`."
   },
   "pill_ash": {
     "name": "Pill Ash",
@@ -277,17 +277,17 @@
   "technique_fragment": {
     "name": "Technique Fragment",
     "category": "material",
-    "description": "Imprinted qi from a fallen art. You need 3 fragments + 1 Blank Scroll + 1 Spirit Ink to bind a random manual with /craft manual. Buy blank scrolls at /shop; farm ink from /gather."
+    "description": "Imprinted qi from a fallen art. Spend on /craft manual (3× + scroll + ink), /upgrade-technique rank tempering, or duplicate manual conversion (2× per duplicate)."
   },
   "blank_scroll": {
     "name": "Blank Scroll",
     "category": "material",
-    "description": "Unmarked parchment for inscribing techniques. Required for /craft manual (with 3 fragments and spirit ink). Buy at /shop or gather from Bamboo Grove, Mistwood Village, and Moonwell Ruins."
+    "description": "Unmarked parchment for inscribing techniques. Required for /craft manual (with 3 fragments and spirit ink). Buy at /shop or gather from Mortal Grove and Foundation Ruins."
   },
   "spirit_ink": {
     "name": "Spirit Ink",
     "category": "material",
-    "description": "Ink that holds qi script without fading. Required for /craft manual. Gather from Bamboo Grove or Ashen Cliff Pass."
+    "description": "Ink that holds qi script without fading. Required for /craft manual. Gather from Mortal Grove or Qi Refining Cliffs."
   },
   "script_shard": {
     "name": "Script Shard",
@@ -297,26 +297,86 @@
   "village_herb": {
     "name": "Village Herb",
     "category": "material",
-    "description": "Common herbs traded in Mistwood Village markets."
+    "description": "Common herbs traded by mortal village markets."
   },
   "pine_resin": {
     "name": "Pine Resin",
     "category": "material",
-    "description": "Thick resin harvested from ancient pines in the Verdant Depths."
+    "description": "Thick resin harvested from ancient pines."
   },
   "swamp_moss": {
     "name": "Swamp Moss",
     "category": "material",
-    "description": "Qi-soaked moss from the Cursed Swamp's black waters."
+    "description": "Qi-soaked moss from Core Formation swamp waters."
   },
   "bog_iron": {
     "name": "Bog Iron",
     "category": "material",
-    "description": "Ore pulled from sunken paths in the Cursed Swamp."
+    "description": "Ore pulled from sunken Core Formation paths."
   },
   "hollow_pearl": {
     "name": "Hollow Pearl",
     "category": "material",
     "description": "A pearl formed around corrupt qi — prized by swamp hunters."
+  },
+  "nascent_soul_core": {
+    "name": "Nascent Soul Core",
+    "category": "material",
+    "description": "A condensed soul core harvested from Nascent Soul beasts."
+  },
+  "souljade_leaf": {
+    "name": "Souljade Leaf",
+    "category": "material",
+    "description": "A jade-veined leaf that resonates with soul qi."
+  },
+  "severing_silk": {
+    "name": "Severing Silk",
+    "category": "material",
+    "description": "Thread spun in regions where spirit and body divide."
+  },
+  "abyssal_bone": {
+    "name": "Abyssal Bone",
+    "category": "material",
+    "description": "A blackened bone from beasts tempered by severing qi."
+  },
+  "void_dust": {
+    "name": "Void Dust",
+    "category": "material",
+    "description": "Fine dust that bends sight around its edges."
+  },
+  "void_crystal": {
+    "name": "Void Crystal",
+    "category": "material",
+    "description": "A fractured crystal holding traces of empty space."
+  },
+  "ascendant_ichor": {
+    "name": "Ascendant Ichor",
+    "category": "material",
+    "description": "Golden beast blood that refuses to dull."
+  },
+  "immortal_jade": {
+    "name": "Immortal Jade",
+    "category": "material",
+    "description": "Jade warmed by the first pressure of immortality."
+  },
+  "heavenly_silk": {
+    "name": "Heavenly Silk",
+    "category": "material",
+    "description": "Radiant thread gathered from transcendent spirit nests."
+  },
+  "transcendence_pearl": {
+    "name": "Transcendence Pearl",
+    "category": "material",
+    "description": "A luminous pearl that hums above mortal perception."
+  },
+  "monarch_jade": {
+    "name": "Monarch Jade",
+    "category": "material",
+    "description": "Imperial jade formed under Immortal Monarch pressure."
+  },
+  "imperial_beast_core": {
+    "name": "Imperial Beast Core",
+    "category": "material",
+    "description": "A supreme beast core used in monarch-grade work."
   }
 }

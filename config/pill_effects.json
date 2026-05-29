@@ -1,0 +1,42 @@
+{
+  "qi_gathering": {
+    "label": "Qi Gathering",
+    "description": "+55% qi from cultivation (stacks charges per pill)"
+  },
+  "tempering": {
+    "label": "Tempering",
+    "description": "+12% adventure defense (1 run)"
+  },
+  "clarity": {
+    "label": "Clarity",
+    "description": "+14% breakthrough stability per charge (stacks; consumed on attempt)"
+  },
+  "swiftwind": {
+    "label": "Swiftwind",
+    "description": "+10% adventure success (1 run)"
+  },
+  "blood_ember": {
+    "label": "Blood Ember",
+    "description": "+15% dungeon damage (1 run)"
+  },
+  "moonwell_tonic": {
+    "label": "Moonwell attunement",
+    "description": "+35% rare event chance (1 run)"
+  },
+  "flow_pill": {
+    "label": "Flow Meridian",
+    "description": "Shaves 15 min off your next 2 command cooldowns (stackable)"
+  },
+  "meridian_surge_pill": {
+    "label": "Meridian Surge",
+    "description": "Shaves 15 min off your next 3 command cooldowns (stackable)"
+  },
+  "gatebreaker_dust": {
+    "label": "Gatebreaker Dust",
+    "description": "Shaves 40 min off your next 2 command cooldowns (stackable)"
+  },
+  "void_pulse_pill": {
+    "label": "Void Pulse",
+    "description": "Shaves 60 min off your next 2 command cooldowns (stackable)"
+  }
+}

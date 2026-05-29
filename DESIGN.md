@@ -1,184 +1,145 @@
-# Cultivation Discord Bot (MVP) - Design
+# Cultivation Discord Bot Design
 
-## High-level goal
-Ship ASAP a serious xianxia-themed cultivation game bot with casual pacing: players cultivate toward immortality, with early PvP elements and a minimal sect (world) system.
+## Product Goal
 
-## MVP scope (what players can do)
-1. `/start` to create a cultivator
-2. `/profile` to view realm, Qi, spirit stones, stamina, and streak
-3. `/cultivate` plus a “Cultivate” button from profile
-4. Stamina/energy regenerates passively; cultivate consumes stamina
-5. Realm progression via `/breakthrough` plus a button on profile
-6. `/daily` once per UTC day for spirit stones (with streak bonuses)
-7. `/leaderboard` (server-only) for realm/Qi
-8. Early PvP: `/duel` with basic matchmaking rules + a cooldown
-9. Minimal **clan** system (player guilds):
-   - `/clan-create`
-   - `/clan-join`
-   - `/clan-leave`
-   - `/clan` to view clan info
-10. **Martial sects** (fixed in-world factions): `/sect-list`, `/sect-join`, `/sect-leave`, `/sect`
+Build a serious xianxia Discord game with casual daily pacing, long-term realm
+growth, expressive martial builds, cooperative and competitive combat, and
+config-driven content that can be tuned without rewriting command code.
 
-## Non-goals for MVP
-- No shop in MVP.
-- No crafting/inventory system.
-- No complex multi-stage PvP combat simulation.
-- No paid mechanics (pay-to-cultivate faster) in MVP; reserved as a future extension.
+The player fantasy is simple: begin as a mortal cultivator, gather resources,
+study manuals, make moral choices, join or leave social orders, and climb toward
+immortality.
 
-## Tone & flavor
-- Serious xianxia tone, second-person narrative voice (“You…”, “Your…”).
-- “Real terms” (qi, dantian, realm names as standard novel tiers).
-- Dry wit is allowed sparingly.
-- All-ages safe.
+## Player Experience
 
-## Monetization plan (explicitly deferred)
-- MVP is free: no payments, no shop.
-- Future: pay-to-cultivate faster via additional cooldown reduction or reward multipliers.
+Core player loops:
 
-## Design decisions (your chosen items)
-- Player fantasy: cultivate to be immortal.
-- Server target: friends-sized but scalable.
-- Growth focus: personal progression + clans + martial sects.
-- PvP: early PvP elements; expanded later.
-- Narrative voice: second person.
-- Realm tiers: standard novel tiers (see `REALMS` below).
-- Fail states: setbacks only (no deaths/permadeath).
-- Moral alignment: **karma** (−100…+100), earned through adventure choices — not chosen at `/start`.
-- Spirit root/aptitude: rerollable.
-- Character reset: allowed.
-- Inactive players: frozen forever (no offline progression beyond partial cap).
-- Public stats: yes.
-- Explicit `/start`.
-- `/cultivate` via both command and button.
-- Cultivate cooldown: 15 minutes.
-- Daily reset: UTC.
-- Offline progress: partial cap.
-- Session target: ~15 minutes/day for typical play.
-- Catch-up: streak bonuses.
-- Energy/stamina separate from cooldown.
-- Action limits per day: primarily driven by cooldown (not hard daily action caps).
-- Failure feel: forgiving.
-- Breakthrough pacing: every few days (emergent from Qi caps + stamina/cooldowns).
-- Max realms at launch: 10 named realms.
-- Sub-stages: early/mid/late within each realm.
+- Begin a character with `/start`, then follow `/profile` and guidance hints.
+- Cultivate qi through `/daily`, `/cultivate`, and `/breakthrough`.
+- Gather materials with `/gather`, hunt beasts with `/hunt`, and explore story
+  encounters with `/adventure`.
+- Study martial manuals through `/learn`, shape a build with `/techniques` and
+  `/equip-technique`, and inspect art details with `/technique`.
+- Craft pills, dungeon keys, equipment, and manuals through `/recipes`, `/craft`,
+  `/forge`, and `/equip`.
+- Challenge other cultivators with `/duel`.
+- Create player clans through `/clan-*` commands.
+- Join fixed martial sects through `/sect-list`, `/sect-join`, `/sect-task`,
+  `/sect-shop`, and `/sect-buy`.
 
-## Defaults for everything else (MVP)
-- Language: English only, with i18n structure from day one (i18n keys; English strings initially).
-- Bot commands: Slash commands + buttons (discord.py app_commands).
-- Persistence: SQLite (MVP) via SQLAlchemy.
-- Migrations: `create_all()` on startup for MVP (no Alembic yet).
-- Realm/Qi model:
-  - Each realm contains 3 sub-stages: early/mid/late.
-  - When Qi reaches the realm+substage cap, breakthrough attempts may advance.
-  - Success/failure:
-    - Success advances to next sub-stage; after late -> next realm early.
-    - Failure applies a setback (Qi loss) without death.
-- Offline partial progress:
-  - When a player performs an action after being inactive, they gain some Qi based on elapsed time, capped to a small amount.
-  - Offline Qi never exceeds what they could reasonably get from multiple normal cultivates.
-- Energy/stamina:
-  - Energy regenerates passively over time.
-  - Cultivation consumes energy, influencing Qi gain multiplier.
+The target session is short daily play with optional deeper sessions for
+dungeons, build tuning, and PvP.
 
-## Realm configuration (10 named realms)
-Realms (index 0..9):
-1. Mortal
-2. Qi Refining
-3. Foundation Establishment
-4. Core Formation
-5. Nascent Soul
-6. Spirit Severing
-7. Void Refinement
-8. Immortal Ascension
-9. Heavenly Transcendence
-10. Immortal Monarch
+## Tone And Copy
 
-Sub-stages: `early`, `mid`, `late`.
+- Serious xianxia tone, second-person voice, all-ages safe.
+- Use terms such as qi, dantian, realm, sect, manual, meridian, and dao.
+- Player-facing strings should say what is true and what to do next.
+- Design rationale belongs in Markdown docs or code comments.
 
-## Karma (affects breakthrough modestly)
-- Earned through **`/adventure`** moral choices (−100…+100), not chosen at `/start`.
-- High karma (Righteous tier):
-  - Slightly higher breakthrough success, smaller setback.
-- Low karma (Demonic tier):
-  - Slightly higher breakthrough success, larger setback (more risk/reward).
-- Neutral karma (~0):
-  - Baseline success and setback.
+The copy guardrail lives in `.cursor/rules/player-facing-copy.mdc` and is tested
+by `tests/test_player_facing_copy.py`.
 
-## Stamina and offline defaults (MVP constants)
-- Stamina max: 100
-- Stamina regen: 10 per hour (passive, computed on next interaction)
-- Stamina cost per cultivate: 8
-- Cultivate energy multiplier: 0.7..1.3 based on current stamina fraction
-- Offline Qi:
-  - Gains up to `OFFLINE_CAP_MINUTES` worth of Qi (default 120 minutes).
-  - Offline Qi rate is proportional to the player’s current realm.
+## Progression Model
 
-## PvP defaults (early)
-- PvP model: Duel with auto-resolve (no complex combat).
-- Preconditions:
-  - Both players exist, are not in cooldown, and are not the same user.
-  - Optional: disallow duels during breakthrough attempt if desired later.
-- Strength:
-  - Strength is computed from realm index + sub-stage + Qi ratio.
-- Stakes:
-  - Forgiving outcome: reward/loss is primarily spirit stones and a small Qi transfer.
-- PvP cooldown: separate from cultivate cooldown.
+Players advance through ten named realms, each with `early`, `mid`, and `late`
+substages. Realm data is loaded from `config/realms.json` through `src/realms.py`.
 
-## Clan system defaults (MVP)
-- A **clan** is a player-created guild scoped to one Discord server.
-- Players can create/join/leave a clan.
-- Clan stats are derived from membership and accumulated contribution.
-- Contribution increases when members cultivate (percentage of Qi gain).
+Realm config owns:
 
-## Martial sect system (scaffold)
-- **Sects** are fixed in-world orders (Wudang, Shaolin, etc.) in `config/sects.json`.
-- Join requirements: karma tier, realm, and invitations for secret sects.
-- Sect merit, daily tasks, and sect shop scaffolded for upcoming phases.
+- display names
+- base qi caps
+- substage multipliers
+- breakthrough odds tuning
+- technique load budgets
+- technique rank caps
 
-## i18n approach
-- Use message keys internally (e.g. `msg.profile.title`).
-- English strings only in MVP but structure is ready for future locales.
+Breakthrough success advances the player to the next substage or realm.
+Breakthrough failure applies a setback without permadeath.
 
----
+## Karma
 
-## Phase 1 PvE & Crafting (implementation checklist)
+Karma ranges from `-100` to `+100` and starts neutral. Moral choices in
+`/adventure` shift it over time.
 
-Detailed design: see `PHASE1_PVE_DESIGN.md`. High-level implementation steps:
+Karma influences:
 
-1. **Inventory & items**
-   - Add `inventory_items` table in models.
-   - Implement inventory service in a new module (e.g. `src/inventory.py`).
-   - Add `/inventory` command in `bot.py`.
+- breakthrough success and setback tuning
+- cultivation flavor
+- manual pool weights for righteous, neutral, and demonic arts
+- profile display and guidance
 
-2. **Config for areas, items, recipes, dungeons**
-   - Create config files for:
-     - Areas (drop tables, rare events).
-     - Items (materials, pills, keys, affix stones).
-     - Pill/Key recipes.
-   - Add a loader module (e.g. `src/content.py`) to read and cache configs.
+Combat stats come from realm, techniques, gear, modifiers, and combat rules.
 
-3. **Adventure command**
-   - Implement `/adventure area:<name> stance:<cautious|balanced|reckless>`.
-   - Resolve 2 segments, using config-driven tables from `PHASE1_PVE_DESIGN.md`.
-   - Award materials into `inventory_items`.
+## Combat And Techniques
 
-4. **Crafting**
-   - Implement a generic `craft_item(player, recipe_id, amount)` in a new `crafting` module.
-   - Wire `/craft pill:<name>` and `/craft key dungeon:blackwind` to recipes.
-   - Handle success/failure, side-effects (pills), and byproduct (`Pill Ash`).
+Combat is turn based and shared across hunts, adventures, dungeons, and duels.
+Players use four active technique slots and one passive slot. Technique load
+budgets constrain how heavy a build can be for the player's realm.
 
-5. **Dungeon**
-   - Implement `/dungeon start name:blackwind mode:solo`.
-   - Consume `Blackwind Key`, simulate 3 steps + boss, and add rewards.
-   - Record results in `dungeon_runs`.
+Technique data is defined in `config/techniques.json` and parsed by
+`src/combat/catalog.py`. Effects and passive triggers are represented as data and
+interpreted by generic combat code.
 
-6. **Equipment & affixes**
-   - Add `player_equipment` and a minimal `equipment` service.
-   - Implement `/equip` and `/loadout` commands.
-   - Integrate affix effects into existing game logic (power/defense/luck).
+See `COMBAT_DESIGN.md` for the combat system overview and
+`docs/COMBAT_PROGRESSION.md` for the maintainer contract.
 
-7. **Rare events**
-   - Implement rare event rolls inside adventure resolution.
-   - Use effects defined in `PHASE1_PVE_DESIGN.md` (herb patch, cache, elder, shrine, inheritance).
+## PvE, Crafting, And Economy
 
+The PvE layer is config-first:
 
+- areas and adventure drops in `config/areas.json`
+- gathering nodes in `config/gather_nodes.json`
+- hunt targets in `config/hunt_targets.json`
+- dungeons in `config/dungeons.json` and `config/cooperative_dungeons.json`
+- items in `config/items.json`
+- recipes in `config/recipes.json`
+- shop listings in `config/shop.json`
+
+Inventory, crafting, pills, equipment affixes, dungeon keys, and manual crafting
+are part of the core economy. For details, see `PHASE1_PVE_DESIGN.md`.
+
+## Social Systems
+
+Clans are player-created guilds scoped to a Discord server. Clan commands handle
+creation, joining, leaving, invites, contribution, and status.
+
+Sects are fixed in-world orders defined in `config/sects.json`. Sect logic uses
+karma, realm, invitation gates, merit, daily tasks, and sect shops. Keep sect IDs
+stable because skill idea imports and reward mappings depend on them.
+
+## Persistence
+
+The bot uses SQLite through SQLAlchemy. `create_all()` creates missing tables on
+startup. Local and Railway deployments use the same schema, with deployment
+database seeding handled by scripts under `scripts/`.
+
+Major persisted concepts include players, inventory items, learned techniques,
+technique loadouts, combat sessions, active PvP matches, dungeon runs, effects,
+clans, and sect state.
+
+## Configuration Standards
+
+- Prefer JSON config for content, rewards, tuning, and gates.
+- Add loader accessors instead of reading JSON directly in command handlers.
+- Preserve migration-safe defaults when adding optional fields.
+- Keep external draft content out of runtime schemas.
+- Add schema or behavior tests when changing required config fields.
+
+## Test Strategy
+
+Run the full suite before broad content or progression changes:
+
+```powershell
+py -m pytest tests -v
+```
+
+Focused checks:
+
+- `tests/test_slash_commands_integration.py` for command wiring and views.
+- `tests/test_player_facing_copy.py` for Discord-facing language.
+- `tests/test_combat_engine.py` and `tests/test_combat_triggers_and_karma.py` for combat.
+- `tests/test_manual_acquisition.py` for manuals, pools, and sealed drops.
+- `tests/test_realms_config.py` for realm config access.
+
+When adding a slash command, update `tests/slash_command_specs.py`.

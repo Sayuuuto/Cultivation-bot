@@ -55,22 +55,27 @@ def build_combat_embed(
             outcome = f"{OUTCOME_EMOJI['defeat']} **Defeat**"
         embed.add_field(name="Outcome", value=outcome, inline=False)
 
-    embed.set_footer(
-        text=footer or "✨ Techniques · 🏃 Flee · ✅ Finish when the foe falls."
-    )
+    embed.set_footer(text=footer or "✨ Techniques · ⏭ Pass Turn · 🏃 Flee")
     return embed
 
 
 def build_hunt_combat_embed(start, state: CombatState | None = None) -> discord.Embed:
     if state is None:
+        is_elite = getattr(start, "combat_tier", "normal") == "elite"
+        elite_line = ""
+        if is_elite:
+            from ..hunt import hunt_elite_encounter_warning
+
+            elite_line = f"\n\n{hunt_elite_encounter_warning(start.beast_name)}\n"
         embed = discord.Embed(
             title=f"🐺 Hunt — {start.area_name}",
             description=(
-                f"_{start.flavor}_\n\n"
+                f"_{start.flavor}_"
+                f"{elite_line}\n"
                 f"👹 **{start.beast_name}** emerges from the wild!\n"
                 f"{format_hp_block(start.beast_name, start.beast_hp, start.beast_hp, icon='👹', bar_fill='🟥')}"
             ),
-            color=discord.Color.dark_green(),
+            color=discord.Color.gold() if is_elite else discord.Color.dark_green(),
         )
         embed.add_field(
             name="❤️ Your HP",

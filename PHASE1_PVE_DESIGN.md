@@ -1,244 +1,183 @@
-# Phase 1 PvE & Crafting Design
+# PvE, Crafting, And Economy Design
 
-This document specifies the first PvE + crafting expansion that fits the current bot architecture.
+This document captures the current PvE and crafting layer that grew out of the
+first expansion design. It is now part of the core game loop alongside combat
+and realm progression.
 
-## Summary
+## Goals
 
-Add:
-- Solo adventures in themed areas with drops and rare events.
-- A single key-gated dungeon (solo enabled, party-ready).
-- Basic inventory + items.
-- Pills crafted from drops (with side effects).
-- Simple equipment affixes that influence PvE and breakthroughs.
+- Give every cooldown lane distinct rewards.
+- Keep content and tuning in JSON config.
+- Make inventory, crafting, dungeons, equipment, and manuals feed technique
+  progression.
+- Keep command output action-oriented and in-world.
 
-All data should be driven from config (JSON/YAML) where possible, with SQLite using generic tables like `inventory_items`, `recipes`, and `dungeon_runs`.
+## Content Files
 
----
+- `config/areas.json`: adventure zones, realm gates, drops, and rare events.
+- `config/adventure_encounters.json`: choice and combat segments, including karma choices.
+- `config/gather_nodes.json`: gatherable herbs, ore, and rare nodes by area.
+- `config/hunt_targets.json`: hunt areas, beasts, traits, drops, and manual routes.
+- `config/monsters.json`: reusable combat foes for adventures and dungeons.
+- `config/dungeons.json`: dungeon access, encounters, guaranteed drops, and bonus rewards.
+- `config/cooperative_dungeons.json`: party dungeon definitions.
+- `config/items.json`: materials, keys, pills, manuals, fragments, equipment helpers, and reward items.
+- `config/recipes.json`: pill, key, forge, and manual recipes.
+- `config/equipment_forge.json`: forgeable equipment and stat ranges.
+- `config/affixes.json`: equipment affix definitions.
+- `config/shop.json`: spirit stone shop listings.
+- `config/drop_rarity.json`: rarity and drop tuning.
 
-## Areas (adventure content)
+Loaders and services should expose typed helpers to command code rather than
+letting commands parse config directly.
 
-### Area: Whispering Bamboo Grove (Easy)
-- **Theme**: Beasts and herbs, soft entry point.
-- **Recommended**: Mortal → Qi Refining.
-- **Primary drops**:
-  - `Green Dew Herb`
-  - `Bamboo Resin`
-  - `Minor Beast Core`
-- **Rare events**:
-  - Hidden Herb Patch (extra herbs).
-  - Wandering Elder (small buff for next cultivate).
+## Areas And Adventures
 
-### Area: Ashen Cliff Pass (Medium)
-- **Theme**: Bandits, fire remnants, harsher terrain.
-- **Recommended**: Qi Refining → Foundation.
-- **Primary drops**:
-  - `Ember Moss`
-  - `Spirit Iron Shard`
-  - `Bandit Token`
-- **Rare events**:
-  - Ambush (risk of temporary debuff, higher rewards).
-  - Abandoned Cart (key materials / affix stone chance).
+Adventure zones are defined in config and surfaced through `/areas` and
+`/adventure`. Each run uses a stance, resolves configured segments, can grant
+materials or manuals, and can trigger moral choices that shift karma.
 
-### Area: Moonwell Ruins (Hard)
-- **Theme**: Ancient constructs, moonlight and forgotten pools.
-- **Recommended**: Foundation+.
-- **Primary drops**:
-  - `Moonlotus`
-  - `Ancient Dust`
-  - `Refined Beast Core`
-- **Rare events**:
-  - Hidden Moonwell (rare pill ingredients).
-  - Inheritance Fragment (unlock or discount rare recipes).
+Supported adventure concepts:
 
-### Adventure parameters (Phase 1)
-- Command: `/adventure area:<name> stance:<cautious|balanced|reckless>`.
-- Cooldown: 20 minutes between adventures.
-- Segments per run: 2 encounter rolls (3 later).
-- Stances:
-  - `cautious`: +success chance, −drop quantity.
-  - `balanced`: baseline.
-  - `reckless`: +drop quantity, +failure/penalty chance.
+- realm-gated areas
+- cautious, balanced, and reckless stance tuning
+- rare events
+- choice rewards and penalties
+- combat encounters using monsters from config
+- paused runs that resume through `/adventure-continue`
+- abandoned runs through `/adventure-abandon`
 
----
+Adventure rewards should flow through inventory services and drop-source helpers
+so `/item` can tell players where to seek materials.
 
-## Dungeon: Blackwind Cavern (Phase 1)
+## Gathering And Hunting
 
-- **Access**: Requires `Blackwind Key`.
-- **Mode**: Solo supported; party hooks ready (party composition handled later).
-- **Structure**:
-  - 3 encounter steps (from a small table).
-  - 1 boss check with win/lose outcome.
-- **Cooldown**: 2 hours per player between completions.
-- **Base rewards**:
-  - Guaranteed:
-    - 1× high-tier material (e.g. `Refined Beast Core` or `Ancient Dust`).
-  - Chance:
-    - 1× `Affix Stone`.
-    - Unlock or duplicate of a pill recipe.
+`/gather` provides material income from configured nodes and rare nodes.
+`/hunt` launches beast combat and grants cores, parts, and occasional manuals.
 
-### Dungeon key
+Keep gathering and hunting reward pools distinct:
 
-**Blackwind Key** (crafted):
-- Recipe: `3 × Spirit Iron Shard` + `2 × Ancient Dust` + `1 × Minor Beast Core`.
-- Consumed on dungeon start (regardless of fail/success in Phase 1).
+- gathering should be strongest for herbs, ore, ink, and crafting materials
+- hunting should be strongest for beast parts, cores, combat drops, and some manuals
+- both should point players toward `/item` for acquisition hints
 
----
+## Dungeons
 
-## Items (Phase 1)
+Dungeons are keyed, cooldown-limited PvE runs with configured steps, boss checks,
+guaranteed rewards, and bonus drops. Cooperative dungeons build on the same
+reward and combat concepts with party state.
 
-### Materials
-- `Green Dew Herb`
-- `Bamboo Resin`
-- `Minor Beast Core`
-- `Ember Moss`
-- `Spirit Iron Shard`
-- `Bandit Token`
-- `Moonlotus`
-- `Ancient Dust`
-- `Refined Beast Core`
+Dungeon rewards can include:
 
-### Derived / system items
-- `Blackwind Key` (dungeon access).
-- `Affix Stone` (applies a random affix to one equipment piece).
-- `Pill Ash` (byproduct of failed pill crafting; low-value filler).
+- high-tier materials
+- manual drops
+- affix or forge materials
+- keys and progression items
+- weekly boss rewards
 
----
+When a dungeon drops a manual, run it through manual normalization so duplicate
+known manuals become fragments and high-realm manuals can become sealed.
 
-## Pills (Phase 1)
+## Inventory And Items
 
-Crafted via `/craft pill:<name> amount:<n>`, consuming materials from inventory.
+Inventory is the central store for materials, pills, keys, manuals, fragments,
+and reward items. `src/inventory.py` owns add, remove, quantity, and display
+helpers.
 
-1. **Qi Gathering Pill**
-   - Effect: Next 3 `/cultivate` actions grant +X% qi (tuned, e.g. +30%).
-   - Side effect: −Y% breakthrough chance for 30 minutes.
-   - Purpose: Farm qi faster at the cost of breakthrough comfort.
+`/inventory` groups items by type. `/item` displays effects, crafting uses, and
+where to obtain more. Drop source hints come from `src/drop_sources.py` and
+should stay command-focused.
 
-2. **Tempering Pill**
-   - Effect: +Defense / survivability in adventures and dungeons for 1 run.
-   - Side effect: Stamina regeneration −Z% for 30 minutes (slightly slower loop).
-   - Purpose: Help undergeared builds survive higher areas.
+## Crafting
 
-3. **Clarity Pill**
-   - Effect: +small flat breakthrough success chance on the next attempt.
-   - Side effect: No spirit stones drop from the next `/cultivate`.
-   - Purpose: “Push breakthrough now” button.
+Crafting uses config-defined recipes and inventory checks.
 
-4. **Swiftwind Pill**
-   - Effect: Higher success chance for adventure checks (fewer failed segments).
-   - Side effect: Slightly reduced drop quantity per segment.
-   - Purpose: Safer farming when pushing into a harder area.
+Player commands:
 
-5. **Blood Ember Pill**
-   - Effect: +offensive power in dungeons for 1 run (higher damage scaling).
-   - Side effect: If the dungeon is failed, apply an extra qi loss penalty.
-   - Purpose: Glass-cannon tool for confident players.
+- `/recipes`: browse available recipes by category.
+- `/craft pill`: brew consumables from materials.
+- `/craft key`: craft dungeon keys.
+- `/craft manual`: bind technique fragments into a manual.
+- `/forge`: forge equipment.
 
-6. **Moonwell Tonic**
-   - Effect: +rare event chance for next solo adventure.
-   - Side effect: Reduced effective combat power for that run.
-   - Purpose: Target farming for rare materials/recipes.
+Crafting messages should name missing materials, show current quantities, and
+point to gather, shop, dungeon, or item inspection commands as appropriate.
 
-Recipes should live in config, mapping required items → output pill(s), plus success/failure odds and byproduct (ash).
+## Pills And Effects
 
----
+Consumables are defined in item and recipe config and applied through
+`src/consumables.py` and active effect state. Pill design should keep a clear
+trade-off:
 
-## Equipment & Affixes (Phase 1)
+- qi acceleration
+- breakthrough stability
+- adventure safety
+- dungeon offense or defense
+- rare event targeting
 
-### Slots
-- Weapon
-- Armor
-- Accessory
-- Talisman
+Temporary effects should have explicit duration, charges, or activity scope, and
+should be visible through profile or loadout displays when relevant.
 
-### Affixes
+## Equipment And Affixes
 
-Numeric and single-purpose for MVP:
+Equipment supports forgeable slots and affixes that modify combat, adventure,
+dungeon, cultivation, drop, and breakthrough values.
 
-- `Keen`:
-  - +Power (affects PvE damage / duel strength).
-- `Guarding`:
-  - +Defense (reduces effective damage in adventures/dungeons).
-- `Flowing`:
-  - Better stamina efficiency (consume slightly less or regen slightly more).
-- `Fortunate`:
-  - Slightly higher item drop chance / rarity in adventures.
-- `Steady`:
-  - Increased breakthrough stability (less qi loss on fail).
-- `Ravenous`:
-  - Increased dungeon damage but slightly higher penalties from failure.
+Important modules:
 
-Affixes are applied via `Affix Stone` (and/or rare drops from dungeons).
+- `src/equipment.py`
+- `src/forge.py`
+- `src/modifiers.py`
+- `src/combat_stats.py`
+- `src/stats.py`
 
----
+`/stats` and `/loadout` should explain derived modifiers clearly enough for a
+player to decide what to upgrade next.
 
-## Rare Events (Phase 1)
+## Manuals And Technique Progression
 
-### Trigger model
-- Each adventure segment has a base rare-event chance, e.g. 8%.
-- Area and pills can modify it:
-  - `Moonwell Ruins`: +2%.
-  - `Moonwell Tonic`: +X%.
+Manuals are both items and technique unlocks. They connect PvE content to combat
+builds through:
 
-### Example rare events
+- manual pools
+- shop listings
+- sect shops
+- dungeon and adventure rewards
+- cultivation and breakthrough rewards
+- manual crafting from fragments
 
-- **Hidden Herb Patch**:
-  - Extra herbs from area’s herb pool.
-- **Ancient Cache**:
-  - Small chance to drop `Affix Stone` or key material.
-- **Wandering Elder**:
-  - Temporary buff (e.g. +qi gain for the rest of the day or +breakthrough success for one attempt).
-- **Cursed Shrine**:
-  - Player chooses:
-    - Accept boon (small power buff) + add a temporary debuff.
-    - Decline with no effect.
-- **Inheritance Fragment** (low chance in `Moonwell Ruins`):
-  - Unlocks a rare pill recipe or grants a one-time high-value consumable.
+Manual handling belongs in `src/manuals.py`. Keep duplicate handling, sealed
+manual conversion, and unlearned-manual preference centralized there.
 
-Implementation: rare event selection should be driven by tables per area.
+## Data Model
 
----
-
-## Commands (Phase 1)
-
-Add the following commands (names can be refined but should be clear):
-
-1. `/adventure area:<name> stance:<cautious|balanced|reckless>`
-   - Resolves 2 segments, awards items + xp-esque rewards.
-
-2. `/inventory`
-   - Shows items (materials, pills, keys, affix stones) and quantities.
-
-3. `/craft pill:<name> amount:<n>`
-   - Consumes materials, applies craft success/failure logic.
-
-4. `/craft key dungeon:blackwind`
-   - Crafts `Blackwind Key` from its recipe if the player has materials.
-
-5. `/dungeon start name:blackwind mode:<solo>`
-   - Checks key, difficulty, and starts a run.
-
-6. `/equip slot:<weapon|armor|accessory|talisman> item:<id-or-name>`
-   - Phase 1: simple stat application; no UI for comparing gear yet.
-
-7. `/loadout`
-   - Shows current stats including affix effects and core derived numbers (power, defense, luck, etc. when implemented).
-
----
-
-## Data Model Additions (high-level)
-
-At minimum:
+Relevant persisted state includes:
 
 - `inventory_items`
-  - `id`, `player_id`, `item_id`, `quantity`
-- `recipes`
-  - `id`, `recipe_type` (pill/key/other), `output_item_id`, `output_quantity`, `inputs_json`, `success_chance`, `byproduct_item_id`
+- `player_effects`
 - `player_equipment`
-  - `id`, `player_id`, `slot`, `item_id`, `affix_id`
 - `dungeon_runs`
-  - `id`, `leader_player_id`, `dungeon_id`, `mode`, `outcome`, `rewards_json`, `created_at`
 - `adventure_runs`
-  - `id`, `player_id`, `area_id`, `stance`, `outcome`, `rewards_json`, `created_at`
+- `active_combats`
+- `player_techniques`
+- `technique_loadouts`
 
-Areas, dungeons, items, and recipes can be described in JSON files loaded on startup.
+Use JSON config for content and SQLAlchemy models for player state,
+transactions, cooldowns, and run history.
 
+## Tests
+
+Focused checks:
+
+```powershell
+py -m pytest tests/test_inventory.py -v
+py -m pytest tests/test_manual_acquisition.py -v
+py -m pytest tests/test_gather_hunt.py -v
+py -m pytest tests/test_adventure_events.py -v
+py -m pytest tests/test_dungeon_party.py -v
+py -m pytest tests/test_item_info.py -v
+py -m pytest tests/test_recipes_info.py -v
+```
+
+Add tests when changing recipe inputs, reward normalization, drop-source hints,
+manual acquisition, dungeon rewards, or equipment modifiers.

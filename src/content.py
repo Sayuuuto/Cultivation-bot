@@ -6,6 +6,28 @@ from pathlib import Path
 
 CONFIG_DIR = Path(__file__).resolve().parent.parent / "config"
 
+CANONICAL_REALM_AREAS: tuple[str, ...] = (
+    "mortal_grove",
+    "qi_refining_cliffs",
+    "foundation_ruins",
+    "core_formation_swamp",
+    "nascent_soul_peak",
+    "spirit_severing_abyss",
+    "void_refinement_expanse",
+    "immortal_ascension_gate",
+    "heavenly_transcendence_domain",
+    "immortal_monarch_court",
+)
+
+AREA_ALIASES: dict[str, str] = {
+    "bamboo_grove": "mortal_grove",
+    "mistwood_village": "mortal_grove",
+    "ashen_cliff": "qi_refining_cliffs",
+    "moonwell_ruins": "foundation_ruins",
+    "verdant_depths": "foundation_ruins",
+    "cursed_swamp": "core_formation_swamp",
+}
+
 
 @dataclass(frozen=True)
 class DropEntry:
@@ -47,6 +69,7 @@ class RecipeDef:
     inputs: dict[str, int]
     success_chance: float
     byproduct_item_id: str | None
+    min_realm: int = 0
 
 
 @dataclass(frozen=True)
@@ -139,6 +162,7 @@ def load_all_content() -> None:
             inputs=dict(data["inputs"]),
             success_chance=data.get("success_chance", 1.0),
             byproduct_item_id=data.get("byproduct_item_id"),
+            min_realm=int(data.get("min_realm", 0)),
         )
     _recipes = recipes
 
@@ -210,8 +234,59 @@ def get_areas() -> dict[str, AreaDef]:
     return _areas
 
 
+def resolve_area_id(area_id: str | None) -> str | None:
+    if area_id is None:
+        return None
+    normalized = area_id.strip().lower().replace(" ", "_").replace("-", "_")
+    if not normalized:
+        return None
+    areas = get_areas()
+    if normalized in areas:
+        return normalized
+    alias = AREA_ALIASES.get(normalized)
+    if alias in areas:
+        return alias
+
+    matches = [
+        candidate_id
+        for candidate_id, area in areas.items()
+        if area.name.lower() == area_id.strip().lower()
+    ]
+    if len(matches) == 1:
+        return matches[0]
+
+    tokens = [part for part in normalized.replace("_", " ").split() if part]
+    fuzzy = [
+        candidate_id
+        for candidate_id, area in areas.items()
+        if tokens
+        and all(
+            token in f"{candidate_id.replace('_', ' ')} {area.name}".lower()
+            for token in tokens
+        )
+    ]
+    if len(fuzzy) == 1:
+        return fuzzy[0]
+    return None
+
+
+def area_for_realm(realm_index: int) -> AreaDef:
+    areas = get_areas()
+    for area_id in CANONICAL_REALM_AREAS:
+        area = areas.get(area_id)
+        if area is not None and area.min_realm == realm_index:
+            return area
+    eligible = [area for area in areas.values() if area.min_realm <= realm_index]
+    if eligible:
+        return max(eligible, key=lambda area: area.min_realm)
+    return min(areas.values(), key=lambda area: area.min_realm)
+
+
 def get_area(area_id: str) -> AreaDef | None:
-    return get_areas().get(area_id)
+    resolved = resolve_area_id(area_id)
+    if resolved is None:
+        return None
+    return get_areas().get(resolved)
 
 
 def get_recipes() -> dict[str, RecipeDef]:

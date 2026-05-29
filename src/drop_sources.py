@@ -104,13 +104,20 @@ def _build_item_sources() -> dict[str, list[DropSource]]:
                     DropSource(label="Unidentified Scroll (shop gamble)", via="`/shop buy`"),
                 )
 
+    from .combat.ranks import category_material
     from .manuals import FRAGMENT_ITEM_ID, MANUAL_CRAFT_INPUTS
 
     _add_source(
         index,
         FRAGMENT_ITEM_ID,
-        DropSource(label="Enlightenment & hunts", via="`/cultivate` · `/hunt` · `/adventure`"),
+        DropSource(label="Enlightenment & hunts", via="`/cultivate` · `/hunt` · `/adventure` · `/upgrade-technique`"),
     )
+    for material_id in set(category_material(cat) for cat in ("sword", "body", "fire", "soul", "poison", "utility")):
+        _add_source(
+            index,
+            material_id,
+            DropSource(label="Rank tempering", via="`/hunt` · `/gather` · `/dungeon` · `/upgrade-technique`"),
+        )
     for item_id in MANUAL_CRAFT_INPUTS:
         if item_id != FRAGMENT_ITEM_ID:
             _add_source(
@@ -121,7 +128,7 @@ def _build_item_sources() -> dict[str, list[DropSource]]:
     _add_source(
         index,
         "script_shard",
-        DropSource(label="Moonwell Ruins", via="`/gather` · `/adventure`"),
+        DropSource(label="Foundation Ruins", via="`/gather` · `/adventure`"),
     )
     for manual_id in _manual_item_ids():
         _add_source(
@@ -191,6 +198,8 @@ def format_missing_materials_message(
         header = "You don't have enough materials to **brew this pill**."
     elif action == "manual":
         header = "To **bind a technique manual** (`/craft manual`), you still need:"
+    elif action == "rank_upgrade":
+        header = "To **temper this art** (`/upgrade-technique`), you still need:"
     else:
         header = "You don't have enough materials to **craft** this recipe."
 

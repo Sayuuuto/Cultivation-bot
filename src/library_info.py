@@ -12,6 +12,7 @@ from .technique_info import format_art_type_label, format_technique_combat_summa
 from .content import get_areas, get_dungeons, load_all_content
 from .inventory import load_item_catalog
 from .karma import KARMA_DEMONIC_THRESHOLD, KARMA_RIGHTEOUS_THRESHOLD
+from .player_guides import guide_text
 from .manuals import (
     BREAKTHROUGH_FAIL_FRAGMENT_CHANCE,
     BREAKTHROUGH_MANUAL_CHANCE,
@@ -96,12 +97,12 @@ POOL_SUMMARY: dict[str, str] = {
     "craft_earth": "`/craft manual` binding pool (Earth realm+)",
     "shop_unidentified": "**Unidentified Scroll** — `/shop buy` (75 stones, **Common–Uncommon** only)",
     "dungeon_earth": "**Blackwind Cavern** weekly boss manual (once per 7 days, Earth pool)",
-    "hunt_bamboo_elite": "**Mist Fang Wolf** elite `/hunt` pool (Bamboo Grove)",
-    "hunt_ashen_elite": "**Fire Mantis** elite `/hunt` pool (Ashen Cliff)",
-    "hunt_moonwell_elite": "**Ruin Devourer** elite `/hunt` pool (Moonwell Ruins)",
-    "hunt_mistwood_elite": "**Mist Hound** elite `/hunt` pool (Mistwood Village)",
-    "hunt_verdant_elite": "**Canopy Serpent** elite `/hunt` pool (Verdant Depths)",
-    "hunt_swamp_elite": "**Swamp Hollow King** elite `/hunt` pool (Cursed Swamp)",
+    "hunt_bamboo_elite": "**Mist Fang Wolf** elite `/hunt` pool (Mortal Grove)",
+    "hunt_ashen_elite": "**Fire Mantis** elite `/hunt` pool (Qi Refining Cliffs)",
+    "hunt_moonwell_elite": "**Ruin Devourer** elite `/hunt` pool (Foundation Ruins)",
+    "hunt_mistwood_elite": "**Mist Hound** elite `/hunt` pool (Mortal Grove)",
+    "hunt_verdant_elite": "**Canopy Serpent** elite `/hunt` pool (Nascent Soul Peak)",
+    "hunt_swamp_elite": "**Swamp Hollow King** elite `/hunt` pool (Core Formation Swamp)",
 }
 
 
@@ -193,12 +194,16 @@ def _build_manual_source_index() -> dict[str, list[str]]:
             if beast.get("combat_tier") != "elite":
                 continue
             pool_id = {
-                "bamboo_grove": "hunt_bamboo_elite",
-                "ashen_cliff": "hunt_ashen_elite",
-                "moonwell_ruins": "hunt_moonwell_elite",
-                "mistwood_village": "hunt_mistwood_elite",
-                "verdant_depths": "hunt_verdant_elite",
-                "cursed_swamp": "hunt_swamp_elite",
+                "mortal_grove": "hunt_bamboo_elite",
+                "qi_refining_cliffs": "hunt_ashen_elite",
+                "foundation_ruins": "hunt_moonwell_elite",
+                "core_formation_swamp": "hunt_swamp_elite",
+                "nascent_soul_peak": "hunt_verdant_elite",
+                "spirit_severing_abyss": "hunt_swamp_elite",
+                "void_refinement_expanse": "hunt_moonwell_elite",
+                "immortal_ascension_gate": "hunt_verdant_elite",
+                "heavenly_transcendence_domain": "hunt_ashen_elite",
+                "immortal_monarch_court": "hunt_swamp_elite",
             }.get(area_id)
             if not pool_id:
                 continue
@@ -292,7 +297,8 @@ def _technique_tags(entry: ManualEntry) -> str:
     dao = ALIGNMENT_EMOJI.get(tech.alignment, "⚖️")
     role = ROLE_LABEL.get(getattr(tech, "role", ""), "")
     role_bit = f" · {_chip(role)}" if role else ""
-    return f"{rarity_emoji} {_chip(rarity)} · {_chip(tier)} · {_chip(slot)}{role_bit} · {dao}"
+    realm_bit = f" · realm **{tech.min_realm}+**"
+    return f"{rarity_emoji} {_chip(rarity)} · {_chip(tier)} · {_chip(slot)}{role_bit}{realm_bit} · {dao}"
 
 
 def _technique_field_name(entry: ManualEntry) -> str:
@@ -319,6 +325,12 @@ def _technique_card(entry: ManualEntry, *, include_obtain: bool = True) -> str:
             obtain = "1. `/shop buy` · `/hunt` elites · `/adventure` · `/dungeon` · `/craft manual`"
         lines.append(f"**Obtain**\n{obtain}")
         lines.append(_subtext("Duplicate manuals you already know become 2× Technique Fragment."))
+    if tech.min_realm > 0:
+        lines.append(
+            _subtext(
+                f"Above your realm, drops may arrive **sealed** — {guide_text('sealed_manual', 'summary')}"
+            )
+        )
     return _truncate("\n\n".join(lines), 1024)
 
 
@@ -462,22 +474,22 @@ def build_elite_hunt_embed() -> discord.Embed:
     )
     embed.add_field(
         name="🐺 Mist Fang Wolf",
-        value="**Area:** Bamboo Grove\n**Manuals:** __Swift Slash__, __Keen Focus__",
+        value="**Area:** Mortal Grove\n**Manuals:** __Swift Slash__, __Keen Focus__",
         inline=True,
     )
     embed.add_field(
         name="🦗 Fire Mantis",
-        value="**Area:** Ashen Cliff\n**Manuals:** __Flame Burst__, __Iron Cleave__",
+        value="**Area:** Qi Refining Cliffs\n**Manuals:** __Flame Burst__, __Iron Cleave__",
         inline=True,
     )
     embed.add_field(
         name="👁️ Ruin Devourer",
-        value="**Area:** Moonwell Ruins\n**Manuals:** __Void Pulse__, __Blood Feast__",
+        value="**Area:** Foundation Ruins\n**Manuals:** __Void Pulse__, __Blood Feast__",
         inline=True,
     )
     embed.add_field(
         name="Quick tip",
-        value=_quote("Finish the fight — manuals roll on **victory**, not on engage or flee."),
+        value=_quote("Win the fight — manuals roll on **victory**, not on engage or flee."),
         inline=False,
     )
     embed.set_footer(text="Use /techniques in-game for your personal loadout and unread manuals.")
@@ -498,7 +510,7 @@ def build_library_intro_markdown() -> str:
         "• **`/equip-technique`** — **active slots 1–4** or **passive slot** (labels show art type)\n"
         "• **`/techniques`** — full build view with art types and study/equip menus\n\n"
         "### Button combat (`/hunt` & `/adventure` fights)\n"
-        "> Engage with your technique buttons, **Flee**, or **Finish**.\n"
+        "> Engage with your technique buttons, **Pass Turn**, or **Flee**.\n"
         "> Loadout matters — passives and status combos define your build.\n\n"
         "### Duplicates\n"
         "If you already know a technique, duplicate manuals crumble into **2× Technique Fragment**.\n\n"
@@ -643,7 +655,7 @@ def build_library_embeds() -> list[discord.Embed]:
         description=(
             "**Basic Strike** is free. All other arts need a **manual** scroll.\n\n"
             f"{_quote('`/learn` study · `/equip-technique` slot · `/techniques` review your build')}\n"
-            f"{_subtext('Hunt & adventure fights use button combat — techniques, Flee, Finish.')}"
+            f"{_subtext('Hunt & adventure fights use button combat — techniques, Pass Turn, Flee.')}"
         ),
         color=discord.Color.dark_purple(),
     )

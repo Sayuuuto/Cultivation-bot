@@ -8,7 +8,7 @@ from src.combat.catalog import get_technique, invalidate_technique_catalog_cache
 from src.combat.effects import apply_status, has_status
 from src.combat.engine import create_combat_state, execute_turn, opponent_from_beast
 from src.combat.loadout import learn_technique
-from src.combat.triggers import resolve_technique
+from src.combat.triggers import _apply_shield_damage, resolve_technique
 from src.combat_stats import PlayerCombatStats
 from src.auto_combat import BeastTemplate
 from src.karma import (
@@ -43,6 +43,13 @@ def reload_techniques():
     invalidate_technique_catalog_cache()
     yield
     invalidate_technique_catalog_cache()
+
+
+def test_apply_shield_damage_zero_pool_reports_no_absorption():
+    hp, shield, absorbed = _apply_shield_damage(100, 0, 7)
+    assert absorbed == 0
+    assert shield == 0
+    assert hp == 93
 
 
 def test_technique_catalog_expanded():

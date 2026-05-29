@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 
 from .combat.catalog import TechniqueDef, get_technique, get_technique_by_manual
 from .combat.loadout import PASSIVE_SLOT, get_learned_technique_ids, get_learned_techniques, get_loadout
-from .combat.rarity import RARITY_EMOJI, RARITY_LABEL
+from .combat.rarity import RARITY_EMOJI, RARITY_LABEL, rarity_damage_multiplier
+from .combat.triggers import get_technique_effects
 from .drop_sources import get_drop_sources
 from .inventory import get_item_def, get_item_name, get_item_quantity
 from .ui.formatting import TECHNIQUE_EMOJI
@@ -28,17 +29,101 @@ _STAT_LABELS = {
 }
 
 
+_DAMAGE_EFFECT_TYPES = frozenset({"damage", "multi_hit", "lifesteal", "steal_stack_if_status"})
+
+
+def _technique_damage_effects(tech: TechniqueDef) -> list:
+    return [effect for effect in get_technique_effects(tech) if effect.type in _DAMAGE_EFFECT_TYPES]
+
+
+def technique_base_power(tech: TechniqueDef) -> int | None:
+    """Comparable base hit power before stat scaling and defense mitigation."""
+    if tech.slot_type == "passive":
+        return None
+    if tech.damage_type == "none" and tech.base_damage <= 0 and not _technique_damage_effects(tech):
+        return None
+
+    power = float(tech.base_damage) * rarity_damage_multiplier(tech.rarity)
+    for effect in get_technique_effects(tech):
+        if effect.type == "multi_hit":
+            hits = int(effect.params.get("hits", 2))
+            hit_ratio = float(effect.params.get("hit_ratio", 0.55))
+            power *= hits * hit_ratio
+            break
+
+    if power <= 0:
+        return None
+    return max(1, int(round(power)))
+
+
+def _format_scaling_fragment(tech: TechniqueDef, *, markdown: bool) -> str:
+    if tech.scaling_ratio <= 0:
+        return ""
+    stat = _STAT_LABELS.get(tech.scaling_stat, tech.scaling_stat.replace("_", " ").title())
+    ratio = f"{tech.scaling_ratio:g}"
+    if markdown:
+        return f" · +**{ratio}** per **{stat}**"
+    return f" · +{ratio} per {stat}"
+
+
+def _format_damage_bonus_notes(tech: TechniqueDef, *, markdown: bool) -> list[str]:
+    notes: list[str] = []
+    for effect in get_technique_effects(tech):
+        if effect.type == "multi_hit":
+            hits = int(effect.params.get("hits", 2))
+            hit_pct = int(round(float(effect.params.get("hit_ratio", 0.55)) * 100))
+            note = f"{hits} hits × {hit_pct}% each"
+            notes.append(f"**{note}**" if markdown else note)
+            continue
+        bonus = effect.params.get("bonus_ratio")
+        if not bonus:
+            continue
+        pct = int(round(float(bonus) * 100))
+        if effect.params.get("requires_bleeding") or effect.params.get("requires_status") == "bleed":
+            note = f"+{pct}% vs bleeding"
+        elif effect.params.get("requires_burning"):
+            note = f"+{pct}% vs burning"
+        elif effect.params.get("requires_status") == "poison":
+            note = f"+{pct}% vs poison"
+        else:
+            note = f"+{pct}% bonus damage"
+        notes.append(f"**{note}**" if markdown else note)
+    return notes
+
+
+def format_technique_base_power(tech: TechniqueDef, *, markdown: bool = True) -> str | None:
+    """Player-facing base power line for comparing technique strength."""
+    power = technique_base_power(tech)
+    if power is None:
+        return None
+
+    scaling = _format_scaling_fragment(tech, markdown=markdown)
+    notes = _format_damage_bonus_notes(tech, markdown=markdown)
+    note_text = ""
+    if notes:
+        joiner = " · " if markdown else " · "
+        note_text = joiner + joiner.join(notes)
+
+    if markdown:
+        return f"Base power **{power}**{scaling}{note_text}"
+    return f"Base power {power}{scaling}{note_text}"
+
+
 def format_art_type_label(tech: TechniqueDef) -> str:
     """Player-facing active vs passive distinction."""
     if tech.slot_type == "passive":
-        return (
+        base = (
             "**Passive art** — always on while equipped in your **passive slot**. "
             "You do not press a button to use it in combat."
         )
-    return (
-        "**Active art** — equip to **slots 1–4**. "
-        "You choose when to use it in combat; each active has its own cooldown."
-    )
+    else:
+        base = (
+            "**Active art** — equip to **slots 1–4**. "
+            "You choose when to use it in combat; each active has its own cooldown."
+        )
+    if tech.karma_on_use:
+        base += " Using this art outside adventures can shift your karma."
+    return base
 
 
 def format_technique_combat_summary(tech: TechniqueDef) -> str:
@@ -53,7 +138,10 @@ def format_technique_combat_summary(tech: TechniqueDef) -> str:
             f"**Manual use in combat** — {'no cooldown' if cd <= 0 else f'**{cd}**-turn cooldown after use'}."
         )
 
-    if tech.damage_type and tech.damage_type != "none":
+    base_power = format_technique_base_power(tech, markdown=True)
+    if base_power:
+        lines.append(base_power)
+    elif tech.damage_type and tech.damage_type != "none":
         stat = _STAT_LABELS.get(tech.scaling_stat, tech.scaling_stat.replace("_", " ").title())
         lines.append(f"Deals **{tech.damage_type}** damage scaling with **{stat}**.")
 
@@ -140,7 +228,10 @@ def format_technique_effect_plain(tech: TechniqueDef) -> str:
         return desc if desc else "Passive effect while equipped in the passive slot."
 
     parts: list[str] = []
-    if tech.damage_type and tech.damage_type != "none":
+    base_power = format_technique_base_power(tech, markdown=False)
+    if base_power:
+        parts.append(f"{base_power}.")
+    elif tech.damage_type and tech.damage_type != "none":
         stat = _STAT_LABELS.get(tech.scaling_stat, tech.scaling_stat.replace("_", " ").title())
         parts.append(f"Deals {tech.damage_type} damage scaling with {stat}.")
     if tech.status_id and tech.status_chance > 0:
@@ -190,7 +281,7 @@ def _player_technique_status(
     if learned:
         parts.append("✅ **Studied** — you know this art.")
     elif qty > 0:
-        parts.append(f"📜 **Manual in bag** (×{qty}) — use **`/learn`** when ready.")
+        parts.append(f"📜 **Manual in bag** (×{qty}) — unlock it from **`/techniques`**.")
     else:
         parts.append("❓ **Not studied** — find a manual first.")
 
@@ -201,13 +292,9 @@ def _player_technique_status(
             parts.append(f"⚔️ **Equipped** in **active slot {slot}** (manual use in combat).")
     elif learned:
         if tech.slot_type == "passive":
-            parts.append(
-                "Not equipped — use **`/equip-technique`** → **Passive slot**, or the **`/techniques`** menu."
-            )
+            parts.append("Not equipped — open **`/techniques`** → **Equip Skill** → **passive slot**.")
         else:
-            parts.append(
-                "Not equipped — use **`/equip-technique`** → **slots 1–4**, or the **`/techniques`** menu."
-            )
+            parts.append("Not equipped — open **`/techniques`** → **Equip Skill** → **slots 1–4**.")
 
     return "\n".join(parts)
 
@@ -256,10 +343,7 @@ def build_technique_detail_embed(
             obtain = "\n".join(f"• **{src.label}** — {src.via}" for src in sources[:4])
             embed.add_field(name="📍 How to find more manuals", value=obtain, inline=False)
 
-    footer_bits = ["`/technique` for any art you know or hold"]
-    if manual_item_id and get_item_quantity(session, player_id, manual_item_id) > 0:
-        footer_bits.append(f"Study with **`/learn {get_item_name(manual_item_id)}`**")
-    embed.set_footer(text=" · ".join(footer_bits))
+    embed.set_footer(text="`/techniques` — equip, unlock manuals, and manage your library")
     return embed
 
 

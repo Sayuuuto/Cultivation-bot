@@ -20,6 +20,7 @@ from .combat.loadout import ensure_starter_techniques, get_equipped_passive
 from .combat.rules import load_combat_rules
 from .combat_stats import compute_combat_stats
 from .models import Player
+from .ui.formatting import format_compact_number
 
 PVP_MAX_TURNS = load_combat_rules().max_turns
 
@@ -160,6 +161,7 @@ def _combatant_to_dict(combatant: CombatantState) -> dict[str, Any]:
         "sealed": combatant.sealed,
         "feared": combatant.feared,
         "dodge_next": combatant.dodge_next,
+        "control_dr": dict(combatant.control_dr),
     }
 
 
@@ -178,6 +180,7 @@ def _combatant_from_dict(data: dict[str, Any]) -> CombatantState:
         sealed=bool(data.get("sealed", False)),
         feared=bool(data.get("feared", False)),
         dodge_next=bool(data.get("dodge_next", False)),
+        control_dr={str(k): int(v) for k, v in data.get("control_dr", {}).items()},
     )
     combatant.sealed = combatant.sealed or has_status(combatant, "seal")
     combatant.feared = combatant.feared or has_status(combatant, "fear")
@@ -384,7 +387,7 @@ def _run_combat_action(
         result = attempt_pvp_yield(cs)
     elif action == "finish":
         result = auto_finish_pvp_combat(cs, stats, mod, rng)
-    elif action in {"technique", "strike"}:
+    elif action in {"technique", "strike", "pass"}:
         result = execute_pvp_turn(
             cs,
             stats,
@@ -453,9 +456,13 @@ def build_match_summary(state: PvpCombatState) -> str:
     lines = []
     for fighter in state.fighters.values():
         hp_pct = int(round(100 * fighter.combatant.hp / fighter.combatant.max_hp)) if fighter.combatant.max_hp else 0
+        hp = format_compact_number(fighter.combatant.hp)
+        max_hp = format_compact_number(fighter.combatant.max_hp)
+        dealt = format_compact_number(fighter.damage_dealt)
+        taken = format_compact_number(fighter.damage_taken)
         lines.append(
-            f"**{fighter.dao_name}** — HP **{fighter.combatant.hp}/{fighter.combatant.max_hp}** ({hp_pct}%) · "
-            f"dealt **{fighter.damage_dealt}** · took **{fighter.damage_taken}** · "
+            f"**{fighter.dao_name}** — HP **{hp}/{max_hp}** ({hp_pct}%) · "
+            f"dealt **{dealt}** · took **{taken}** · "
             f"actions **{fighter.actions_taken}**"
         )
     return "\n".join(lines)

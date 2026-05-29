@@ -7,7 +7,6 @@ from pathlib import Path
 import discord
 from sqlalchemy.orm import Session
 
-from .equipment import get_or_create_slot
 from .inventory import add_item, get_item_name
 from .manuals import roll_shop_unidentified_manual
 from .models import Player
@@ -93,7 +92,7 @@ def build_shop_embed(player: Player) -> discord.Embed:
         description=(
             f"Your balance: **{player.spirit_stones}** spirit stones.\n"
             "Buy with **`/shop buy item:<name>`** · haste pills stack with `/use` · "
-            "gear replaces that slot with fixed shop stats."
+            "gear lands in your stash — **`/equip`** to wear it."
         ),
         color=discord.Color.gold(),
     )
@@ -147,20 +146,36 @@ def buy_from_shop(
 
     if listing.listing_type == "equipment":
         assert listing.slot and listing.item_id and listing.stats is not None
-        row = get_or_create_slot(session, player.id, listing.slot)
-        row.item_id = listing.item_id
-        row.stat_power = int(listing.stats.get("power", 0))
-        row.stat_defense = int(listing.stats.get("defense", 0))
-        row.stat_fortune = int(listing.stats.get("fortune", 0))
-        row.stat_insight = int(listing.stats.get("insight", 0))
-        session.add(row)
+        from .equipment_tiers import resolve_equipment_tier
+        from .gear_stash import create_gear_item_from_shop
+
+        entry = resolve_equipment_tier(player.realm_index, listing.slot, "external")
+        if entry is not None:
+            scaled_stats = {
+                stat: (rng[0] + rng[1]) // 2
+                for stat, rng in entry.stat_ranges.items()
+            }
+            technique_tag = entry.technique_tag
+        else:
+            scaled_stats = dict(listing.stats)
+            technique_tag = None
+        gear_item = create_gear_item_from_shop(
+            session,
+            player.id,
+            slot=listing.slot,
+            item_id=listing.item_id,
+            stats=scaled_stats,
+            realm_index=player.realm_index,
+            grade="external",
+            technique_tag=technique_tag,
+        )
         player.spirit_stones -= total_cost
         session.add(player)
-        stats_text = _format_stats(listing.stats)
+        stats_text = _format_stats(scaled_stats)
         return True, (
             f"You purchase **{listing.name}** for **{total_cost}** spirit stones. "
-            f"It is equipped in your **{listing.slot}** slot ({stats_text}). "
-            f"Balance: **{player.spirit_stones}** stones."
+            f"Stored in your gear stash (**#{gear_item.id}**, {stats_text}). "
+            f"**`/equip`** to wear it. Balance: **{player.spirit_stones}** stones."
         )
 
     if listing.listing_type == "manual_gamble":

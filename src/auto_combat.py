@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 
 from .combat_stats import PlayerCombatStats
 from .modifiers import CharacterModifiers
+from .ui.formatting import format_compact_number
 
 
 MAX_AUTO_COMBAT_ROUNDS = 3
@@ -41,7 +42,7 @@ def _player_attack_damage(
     *,
     crit: bool = False,
 ) -> int:
-    base = stats.internal_strength + stats.external_strength
+    base = (stats.internal_strength + stats.external_strength) * 0.45
     variance = rng.uniform(0.88, 1.12)
     raw = base * variance
     if crit:
@@ -89,7 +90,8 @@ def resolve_auto_combat(
         damage = _player_attack_damage(stats, beast.defense, rng, crit=is_crit)
         beast_hp -= damage
         crit_note = " **Critical!**" if is_crit else ""
-        log.append(f"**Turn {round_num}** — You strike **{beast.name}** for **{damage}** damage.{crit_note}")
+        damage_text = format_compact_number(damage)
+        log.append(f"**Turn {round_num}** — You strike **{beast.name}** for **{damage_text}** damage.{crit_note}")
 
         if beast_hp <= 0:
             victory = True
@@ -101,7 +103,9 @@ def resolve_auto_combat(
         else:
             taken = _beast_attack_damage(beast.attack, stats, mod, rng)
             player_hp -= taken
-            log.append(f"**{beast.name}** hits you for **{taken}** damage. (**{max(0, player_hp)}** HP left)")
+            taken_text = format_compact_number(taken)
+            hp_text = format_compact_number(max(0, player_hp))
+            log.append(f"**{beast.name}** hits you for **{taken_text}** damage. (**{hp_text}** HP left)")
 
             if player_hp <= 0:
                 log.append("Your vision darkens — you withdraw before the beast finishes you.")

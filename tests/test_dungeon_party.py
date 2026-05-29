@@ -21,6 +21,7 @@ from src.dungeon_party import (
     MIN_PARTY_SIZE,
     PARTY_LOBBY_TIMEOUT_SECONDS,
     accept_invite,
+    cancel_party_for_player,
     create_party_with_invites,
     expire_stale_dungeon_parties,
     find_party_for_player,
@@ -114,6 +115,29 @@ def test_expire_stale_lobby_unlocks_player(session, player):
     )
     assert party is not None
     assert err == ""
+
+
+def test_cancel_party_for_player_clears_active_combat(session, player):
+    party, err = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[],
+    )
+    assert party is not None
+    assert err == ""
+    party.status = "in_combat"
+    session.add(party)
+    session.commit()
+
+    ok, message = cancel_party_for_player(session, player.guild_id, player.discord_id)
+    session.commit()
+
+    assert ok
+    assert "closed" in message.lower()
+    assert party.status == "cancelled"
+    assert find_party_for_player(session, player.guild_id, player.discord_id) is None
 
 
 def test_start_room_spawns_enemies_and_players(session, player, player_two):

@@ -50,6 +50,10 @@ class GameSectDef:
     description: str
     shop_id: str
     task_pool_id: str
+    identity_tags: tuple[str, ...] = ()
+    preferred_categories: tuple[str, ...] = ()
+    merit_loss_pct: float = SECT_LEAVE_MERIT_PENALTY
+    leave_cooldown_hours: int = 24
 
 
 @dataclass(frozen=True)
@@ -69,6 +73,7 @@ class SectShopEntry:
     item_id: str
     merit_cost: int
     min_realm_index: int = 0
+    tier: str = "outer"
 
 
 @dataclass(frozen=True)
@@ -105,6 +110,7 @@ def _parse_task(entry: dict) -> SectTaskDef:
 
 
 def _parse_sect(sect_id: str, raw: dict) -> GameSectDef:
+    leave_penalty = raw.get("leave_penalty", {})
     return GameSectDef(
         sect_id=sect_id,
         name=str(raw["name"]),
@@ -116,6 +122,10 @@ def _parse_sect(sect_id: str, raw: dict) -> GameSectDef:
         description=str(raw.get("description", "")),
         shop_id=str(raw.get("shop_id", "")),
         task_pool_id=str(raw.get("task_pool_id", "")),
+        identity_tags=tuple(str(tag) for tag in raw.get("identity_tags", [])),
+        preferred_categories=tuple(str(category) for category in raw.get("preferred_categories", [])),
+        merit_loss_pct=float(leave_penalty.get("merit_loss_pct", SECT_LEAVE_MERIT_PENALTY)),
+        leave_cooldown_hours=int(leave_penalty.get("cooldown_hours", 24)),
     )
 
 
@@ -157,6 +167,7 @@ def load_sect_shops() -> dict[str, SectShopDef]:
                 item_id=str(row["item_id"]),
                 merit_cost=int(row["merit_cost"]),
                 min_realm_index=int(row.get("min_realm_index", 0)),
+                tier=str(row.get("tier", "outer")),
             )
             for row in data.get("entries", [])
         )
@@ -323,6 +334,10 @@ def _pick_daily_task(player: Player, today: str) -> SectTaskDef | None:
     tasks = _tasks_for_player(player)
     if not tasks:
         return None
+    if player.realm_index == 0:
+        cultivate_task = next((task for task in tasks if task.task_type == "cultivate"), None)
+        if cultivate_task is not None:
+            return cultivate_task
     rng = random.Random(f"{player.id}:{player.game_sect_id}:{today}")
     return rng.choice(tasks)
 
@@ -529,7 +544,7 @@ def _shop_entry_allowed(item_id: str) -> bool:
     tech = get_technique_by_manual(item_id)
     if tech is None:
         return True
-    return rarity_at_most(tech.rarity, "uncommon")
+    return rarity_at_most(tech.rarity, "legendary")
 
 
 def buy_from_sect_shop(
@@ -621,7 +636,13 @@ def join_game_sect(session: Session, player: Player, sect_id: str) -> tuple[bool
     player.sect_daily_task_progress = 0
     player.sect_daily_task_date = None
     session.add(player)
-    return True, f"You kneel before **{sect.name}** and are accepted as an outer disciple."
+    msg = f"You kneel before **{sect.name}** and are accepted as an outer disciple."
+    from .notifications import refresh_sealed_manual_notification
+
+    sealed_line = refresh_sealed_manual_notification(session, player)
+    if sealed_line:
+        msg += f"\n{sealed_line}"
+    return True, msg
 
 
 def leave_game_sect(session: Session, player: Player) -> tuple[bool, str, int]:
@@ -630,7 +651,8 @@ def leave_game_sect(session: Session, player: Player) -> tuple[bool, str, int]:
 
     sect = get_sect_def(player.game_sect_id)
     name = sect.name if sect else player.game_sect_id
-    merit_lost = int(player.sect_merit * SECT_LEAVE_MERIT_PENALTY)
+    penalty_pct = sect.merit_loss_pct if sect else SECT_LEAVE_MERIT_PENALTY
+    merit_lost = int(player.sect_merit * penalty_pct)
     player.sect_merit = max(0, player.sect_merit - merit_lost)
     remaining = player.sect_merit
 
@@ -640,7 +662,8 @@ def leave_game_sect(session: Session, player: Player) -> tuple[bool, str, int]:
     player.sect_daily_task_id = None
     player.sect_daily_task_progress = 0
     player.sect_daily_task_date = None
-    player.sect_leave_cooldown_until = utcnow() + SECT_REJOIN_COOLDOWN
+    cooldown = timedelta(hours=sect.leave_cooldown_hours) if sect else SECT_REJOIN_COOLDOWN
+    player.sect_leave_cooldown_until = utcnow() + cooldown
     session.add(player)
 
     msg = (
@@ -670,7 +693,7 @@ def format_sect_list_entry(
         invited = " · **invitation in hand**"
     return (
         f"**{sect.name}** (`{sect.sect_id}`) — {sect.tagline}\n"
-        f"_{karma_req} · {realm_note}{invite}{invited}_"
+        f"_{karma_req} · {realm_note} · {', '.join(sect.identity_tags) or sect.theme}{invite}{invited}_"
     )
 
 
@@ -690,6 +713,7 @@ def format_player_sect_status(player: Player) -> str:
     lines = [
         f"**{sect.name}** — {sect.tagline}",
         f"**Sect merit:** {player.sect_merit}",
+        f"**Path:** {', '.join(sect.identity_tags) or sect.theme}",
         sect.description,
         format_sect_task_status(player),
         "Use **`/sect-shop`** and **`/sect-buy`** to spend merit on manuals.",
@@ -709,5 +733,7 @@ def format_sect_shop_listing(player: Player) -> str:
     lines = [f"**{shop.name}** — your merit: **{player.sect_merit}**"]
     for entry in entries:
         name = get_item_name(entry.item_id)
-        lines.append(f"• **{name}** — **{entry.merit_cost}** merit · `/sect-buy` `{entry.item_id}`")
+        lines.append(
+            f"• **{name}** — **{entry.merit_cost}** merit · {entry.tier.title()} · `/sect-buy` `{entry.item_id}`"
+        )
     return "\n".join(lines)

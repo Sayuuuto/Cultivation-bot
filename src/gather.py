@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from .character import get_character_modifiers
 from .combat_stats import compute_combat_stats, gather_quantity_bonus, gather_rare_bonus
 from .loot import load_drop_rarity_config, parse_loot_table, roll_bonus_loot, roll_weighted_loot_pool
-from .content import get_area
+from .content import get_area, resolve_area_id
 from .inventory import add_item, get_item_name
 from .models import Player
 
@@ -91,7 +91,8 @@ def get_gather_areas() -> dict[str, GatherAreaDef]:
 
 
 def get_gather_area(area_id: str) -> GatherAreaDef | None:
-    return get_gather_areas().get(area_id)
+    resolved = resolve_area_id(area_id)
+    return get_gather_areas().get(resolved or area_id)
 
 
 def _validate_area(player: Player, area_id: str) -> tuple[str | None, str | None]:
@@ -130,6 +131,7 @@ def run_gather(
     rng: random.Random | None = None,
 ) -> GatherResult:
     rng = rng or random.Random()
+    area_id = resolve_area_id(area_id) or area_id
     area_name, err = _validate_area(player, area_id)
     if err:
         return GatherResult(success=False, area_name=area_id, drops={}, messages=[err])

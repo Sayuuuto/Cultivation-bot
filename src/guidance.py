@@ -37,7 +37,7 @@ def get_welcome_intro() -> str:
         "Gather qi, break through realms, explore for materials, craft pills, "
         "and challenge other daoists.\n\n"
         "**Your first session:** claim your daily stipend, cultivate qi, and "
-        "venture into the **Whispering Bamboo Grove** when you are ready."
+        "venture into **Mortal Grove** when you are ready."
     )
 
 
@@ -46,8 +46,8 @@ def get_start_next_steps() -> str:
         "1. **`/daily`** — claim spirit stones and qi (starts the **Outer Disciple Trial**).\n"
         "2. **`/profile`** — dashboard, trial step, timers, **Cultivate** button.\n"
         "3. **`/cultivate`** once when ready (or use the profile button).\n"
-        "4. **`/hunt`** in Whispering Bamboo Grove — win your first beast fight.\n"
-        "5. **`/learn`** — study the origin manual in your bag, then **`/equip-technique`**.\n"
+        "4. **`/hunt`** in Mortal Grove — win your first beast fight.\n"
+        "5. **`/techniques`** — unlock your origin manual, equip arts, read your library.\n"
         "6. **`/adventure`** — complete the sage's trial (karma choice).\n"
         "7. **`/breakthrough`** when qi is full · **`/help`** anytime.\n\n"
         "Not happy with your spirit root? **`/reroll_root`** once for free."
@@ -93,11 +93,8 @@ def get_help_sections() -> list[tuple[str, str]]:
         ),
         (
             "Martial techniques",
-            "`/techniques` — loadout, study & equip menus\n"
-            "`/technique` — read what an art does (manual in bag or already learned)\n"
+            "`/techniques` — equipped loadout, skill library, unlock manuals, equip, upgrade\n"
             "`/item` — full item card; manuals show art type and combat effect\n"
-            "`/learn` — study a manual from inventory (autocomplete)\n"
-            "`/equip-technique` — **active slots 1–4** for manual arts · **passive slot** for always-on arts\n"
             "Manuals from **hunt**, **adventure**, **cultivate**, **breakthrough**, **dungeon**, **shop**, **`/craft manual`**",
         ),
         (
@@ -116,7 +113,7 @@ def get_help_sections() -> list[tuple[str, str]]:
         (
             "Dungeons & gear",
             "`/dungeon` — realm dungeon alone, or tag up to **3** allies who **Accept**\n"
-            "`/forge` · `/equip` — craft gear and apply affix stones (autocomplete)\n"
+            "`/forge` — craft gear into your stash · `/equip` · `/recycle` · `/affix`\n"
             "`/loadout` · `/stats` — foundation, gear, and combat stat breakdown\n"
             "`/temper` — permanent body stats from beast cores and herbs\n"
             "`/meridian` — spend meridian points from cultivate and gather\n"
@@ -131,7 +128,7 @@ def get_help_sections() -> list[tuple[str, str]]:
         ),
         (
             "Other",
-            "`/reset` — rewrite your character (requires confirm)\n\n"
+            "`/reset` — erase your character (`confirm=true`), then **`/start`** again\n\n"
             "**Tips:** **Karma** (earned in adventures) shifts breakthrough risk and manual drops. "
             "Origin and spirit root passively shape your dao.",
         ),
@@ -149,9 +146,9 @@ COOLDOWN_COMMANDS: list[tuple[str, str, str]] = [
 ]
 
 NO_COOLDOWN_COMMANDS = (
-    "/profile · /inventory · /item · /technique · /loadout · /stats · /recipes · /roots · /breakthrough · "
-    "/techniques · /learn · /equip-technique · /craft pill · /craft key · /craft manual · "
-    "/forge · /shop · /use · /equip · /help · /cooldown · /remind · /leaderboard · /clan · /sect · "
+    "/profile · /inventory · /item · /loadout · /stats · /recipes · /roots · /breakthrough · "
+    "/techniques · /craft pill · /craft key · /craft manual · "
+    "/forge · /equip · /recycle · /affix · /shop · /use · /help · /cooldown · /remind · /leaderboard · /clan · /sect · "
     "/areas · /adventure-continue · /adventure-abandon · /reset"
 )
 
@@ -268,7 +265,7 @@ def get_next_steps(
         if hunt_ready:
             hints.append("**`/hunt`** — spirit beasts for cores and parts.")
         if adv_ready:
-            hints.append("**`/adventure`** — try Whispering Bamboo Grove for materials.")
+            hints.append("**`/adventure`** — follow the area matched to your realm.")
         if player.qi >= cap:
             hints.append("Your qi is full — consider **`/breakthrough`**.")
         if not hints:
@@ -293,24 +290,10 @@ def get_next_steps(
 
     if command == "techniques":
         return (
-            "Use the **menus** to study manuals or equip techniques. "
-            "Use **`/technique <name>`** to see whether an art is **active** (slots 1–4) or **passive** (always on). "
-            "Farm manuals via **`/hunt`**, **`/adventure`**, **`/dungeon`**, or **`/shop`**. "
-            "Bind fragments with **`/craft manual`**."
-        )
-
-    if command == "technique":
-        return (
-            "When you **`/learn`** a manual, equip it with **`/equip-technique`**. "
-            "**Active** arts go in slots **1–4**; **passive** arts go in the **passive slot**. "
-            "Test the art in **`/hunt`** or **`/adventure`** combat."
-        )
-
-    if command == "learn":
-        return (
-            "Read the manual first with **`/technique`** if you are unsure. "
-            "After studying, **`/equip-technique`**: actives → slots **1–4**, passives → **passive slot**. "
-            "**`/hunt`** to test it in combat."
+            "**Equip Skill** assigns slots 1–4 (active) or the passive slot. "
+            "**Skill Library** shows every art you know — pick one to read full details. "
+            "**Unlock Skill** consumes manuals from your bag. "
+            "Farm manuals via **`/hunt`**, **`/adventure`**, **`/dungeon`**, or **`/shop`**."
         )
 
     if command == "inventory":
@@ -319,12 +302,11 @@ def get_next_steps(
     if command == "item":
         return (
             "Manuals show **art type** (active vs passive) and combat details here. "
-            "Study with **`/learn`**, then **`/equip-technique`**. "
-            "Or use **`/technique <name>`** for the same scripture card."
+            "Open **`/techniques`** to unlock and equip them."
         )
 
     if command == "craft_manual":
-        return "Study the bound manual with **`/learn`**, then **`/equip-technique`**. **`/techniques`** shows your full build."
+        return "Bind the manual, then open **`/techniques`** → **Unlock Skill** to study it."
 
     if command == "cultivate":
         if player.qi >= cap:
@@ -368,7 +350,22 @@ def get_next_steps(
         return "Farm materials with **`/adventure`**, then **`/craft pill`**. Cooldown pills stack before a busy session."
 
     if command == "forge":
-        return "Apply **`/equip`** with an Affix Stone on forged gear. Check **`/stats`** for totals."
+        return (
+            "Your new piece is in your gear stash. **`/equip`** to wear it — "
+            "**`/recycle`** breaks down pieces you no longer need."
+        )
+
+    if command == "equip":
+        return "Check **`/stats`** or **`/gear`** for active totals. **`/affix`** optional on stash or worn gear."
+
+    if command == "recycle":
+        return "Spirit stones returned. Outgrown pieces after breakthrough are good **`/recycle`** targets."
+
+    if command == "unequip":
+        return "Gear moved to stash. **`/equip`** another piece or **`/recycle`** what you do not need."
+
+    if command == "gear":
+        return "Swap loadout with **`/equip`**. Clear old realm gear with **`/recycle`** for spirit stones."
 
     if command == "stats":
         return "Higher **Fortune** and **Insight** improve adventure drops and rare events. **`/loadout`** for details."
@@ -383,7 +380,7 @@ def get_next_steps(
         return "Compare farming spots with **`/areas`**. Craft via **`/craft pill`** or **`/craft key`**."
 
     if command == "areas":
-        return "Ready? **`/adventure`** with the area that matches your realm. Check **`/inventory`** after."
+        return "Ready? **`/adventure`** follows your current realm. Check **`/inventory`** after."
 
     if command == "shop":
         return "Use **`/use`** on haste pills before your next run. **`/loadout`** to see purchased gear."
@@ -391,7 +388,7 @@ def get_next_steps(
     if command == "use":
         return "Active effects show on **`/loadout`**. **`/cultivate`** or **`/adventure`** to use them."
 
-    if command == "equip":
+    if command == "affix":
         return "Affix applied. **`/stats`** and **`/loadout`** show your full bonuses."
 
     if command == "loadout":

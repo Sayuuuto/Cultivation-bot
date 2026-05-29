@@ -40,6 +40,27 @@ class TechniqueDef:
     passive_triggers: tuple[PassiveTriggerDef, ...] = ()
     synergy_hint: str = ""
     targeting: str = "single"
+    load: int = 1
+    tags: tuple[str, ...] = ()
+    rank_effects: dict[int, dict[str, Any]] = field(default_factory=dict)
+
+    @property
+    def karma_on_use(self) -> bool:
+        return "karma_on_use" in self.tags or any(effect.type == "adjust_karma" for effect in self.effects)
+
+
+RARITY_LOAD_DEFAULTS = {
+    "common": 1,
+    "uncommon": 2,
+    "rare": 3,
+    "legendary": 5,
+}
+
+
+def _default_load(data: dict[str, Any], rarity: str) -> int:
+    if data.get("slot_type") == "passive":
+        return max(1, RARITY_LOAD_DEFAULTS.get(rarity, 1) + 1)
+    return max(1, RARITY_LOAD_DEFAULTS.get(rarity, 1))
 
 
 def _parse_effects(raw: list[dict] | None) -> tuple[EffectDef, ...]:
@@ -83,12 +104,13 @@ def load_technique_catalog() -> dict[str, TechniqueDef]:
         passive_triggers = _parse_passive_triggers(data.get("passive_triggers"))
         if not passive_triggers:
             passive_triggers = _legacy_passive_triggers(data)
+        rarity = normalize_rarity(data.get("rarity"))
         catalog[technique_id] = TechniqueDef(
             technique_id=technique_id,
             name=data["name"],
             category=data["category"],
             tier=data["tier"],
-            rarity=normalize_rarity(data.get("rarity")),
+            rarity=rarity,
             min_realm=int(data.get("min_realm", 0)),
             slot_type=data["slot_type"],
             damage_type=data.get("damage_type", "physical"),
@@ -110,6 +132,9 @@ def load_technique_catalog() -> dict[str, TechniqueDef]:
             passive_triggers=passive_triggers,
             synergy_hint=str(data.get("synergy_hint", "")),
             targeting=str(data.get("targeting", "single")),
+            load=int(data.get("load", _default_load(data, rarity))),
+            tags=tuple(str(tag) for tag in data.get("tags", [])),
+            rank_effects={int(k): dict(v) for k, v in data.get("rank_effects", {}).items()},
         )
     return catalog
 

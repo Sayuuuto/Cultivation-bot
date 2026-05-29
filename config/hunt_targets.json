@@ -1,614 +1,82 @@
 {
-  "bamboo_grove": {
-    "flavor": "You track spirit beasts through the bamboo thicket.",
+  "mortal_grove": {
+    "flavor": "You track low-grade spirit beasts through the Mortal Grove.",
     "beasts": [
-      {
-        "beast_id": "spirit_hare",
-        "name": "Spirit Hare",
-        "weight": 45,
-        "hp": 35,
-        "attack": 7,
-        "defense": 2,
-        "drops": [
-          {
-            "item_id": "minor_beast_core",
-            "rarity": "common",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "green_dew_herb",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "qi_gathering_pill",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "meridian_surge_pill",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "flow_pill",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "clarity_pill",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "legendary",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "bamboo_serpent",
-        "name": "Bamboo Serpent",
-        "weight": 35,
-        "hp": 55,
-        "attack": 12,
-        "defense": 4,
-        "traits": [
-          "bleed_immune"
-        ],
-        "drops": [
-          {
-            "item_id": "minor_beast_core",
-            "rarity": "common",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "bamboo_resin",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "qi_gathering_pill",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "meridian_surge_pill",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "clarity_pill",
-            "rarity": "legendary",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "legendary",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "mist_fang_wolf",
-        "name": "Mist Fang Wolf",
-        "weight": 20,
-        "combat_tier": "elite",
-        "hp": 80,
-        "attack": 16,
-        "defense": 6,
-        "traits": [
-          "seal_on_hit"
-        ],
-        "drops": [
-          {
-            "item_id": "minor_beast_core",
-            "rarity": "common",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "spirit_iron_shard",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      }
+      {"beast_id": "spirit_hare", "name": "Spirit Hare", "weight": 45, "hp": 35, "attack": 7, "defense": 2, "drops": [{"item_id": "minor_beast_core", "rarity": "common", "min": 1, "max": 1}, {"item_id": "green_dew_herb", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "technique_fragment", "rarity": "legendary", "min": 1, "max": 1}]},
+      {"beast_id": "bamboo_serpent", "name": "Bamboo Serpent", "weight": 35, "hp": 55, "attack": 12, "defense": 4, "traits": ["bleed_immune"], "drops": [{"item_id": "minor_beast_core", "rarity": "common", "min": 1, "max": 2}, {"item_id": "bamboo_resin", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "mist_fang_wolf", "name": "Mist Fang Wolf", "weight": 10, "combat_tier": "elite", "hp": 80, "attack": 16, "defense": 6, "traits": ["seal_on_hit"], "tags": ["wolf"], "drops": [{"item_id": "minor_beast_core", "rarity": "common", "min": 1, "max": 2}, {"item_id": "spirit_iron_shard", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]}
     ]
   },
-  "ashen_cliff": {
-    "flavor": "Ember-scarred predators stalk the cliff pass.",
+  "qi_refining_cliffs": {
+    "flavor": "Qi Refining beasts prowl along the spirit-lit cliffs.",
     "beasts": [
-      {
-        "beast_id": "ash_scorpion",
-        "name": "Ash Scorpion",
-        "weight": 40,
-        "hp": 70,
-        "attack": 14,
-        "defense": 5,
-        "drops": [
-          {
-            "item_id": "ember_moss",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "minor_beast_core",
-            "rarity": "common",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "cliff_bandit_beast",
-        "name": "Bandit War Hound",
-        "weight": 35,
-        "hp": 95,
-        "attack": 18,
-        "defense": 7,
-        "drops": [
-          {
-            "item_id": "bandit_token",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "refined_beast_core",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "fire_mantis",
-        "name": "Fire Mantis",
-        "weight": 25,
-        "combat_tier": "elite",
-        "hp": 110,
-        "attack": 22,
-        "defense": 8,
-        "drops": [
-          {
-            "item_id": "refined_beast_core",
-            "rarity": "common",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "spirit_iron_shard",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      }
+      {"beast_id": "ash_scorpion", "name": "Ash Scorpion", "weight": 40, "hp": 70, "attack": 14, "defense": 5, "tags": ["scorpion"], "drops": [{"item_id": "ember_moss", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "minor_beast_core", "rarity": "common", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "cliff_war_hound", "name": "Cliff War Hound", "weight": 35, "hp": 95, "attack": 18, "defense": 7, "tags": ["hound", "wolf"], "drops": [{"item_id": "bandit_token", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "refined_beast_core", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "fire_mantis", "name": "Fire Mantis", "weight": 10, "combat_tier": "elite", "hp": 110, "attack": 22, "defense": 8, "drops": [{"item_id": "refined_beast_core", "rarity": "common", "min": 1, "max": 1}, {"item_id": "spirit_iron_shard", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]}
     ]
   },
-  "moonwell_ruins": {
-    "flavor": "Cursed constructs and moonlit predators haunt the ruins.",
+  "foundation_ruins": {
+    "flavor": "Foundation Establishment predators and constructs haunt the ruins.",
     "beasts": [
-      {
-        "beast_id": "moonwell_shade",
-        "name": "Moonwell Shade",
-        "weight": 40,
-        "hp": 120,
-        "attack": 20,
-        "defense": 10,
-        "drops": [
-          {
-            "item_id": "ancient_dust",
-            "rarity": "common",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "refined_beast_core",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "lotus_guardian",
-        "name": "Lotus Guardian",
-        "weight": 35,
-        "hp": 150,
-        "attack": 24,
-        "defense": 12,
-        "drops": [
-          {
-            "item_id": "moonlotus",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "refined_beast_core",
-            "rarity": "common",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "ruin_devourer",
-        "name": "Ruin Devourer",
-        "weight": 25,
-        "combat_tier": "elite",
-        "hp": 200,
-        "attack": 30,
-        "defense": 14,
-        "drops": [
-          {
-            "item_id": "refined_beast_core",
-            "rarity": "common",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "ancient_dust",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      }
+      {"beast_id": "moonwell_shade", "name": "Moonwell Shade", "weight": 40, "hp": 120, "attack": 20, "defense": 10, "drops": [{"item_id": "ancient_dust", "rarity": "common", "min": 1, "max": 2}, {"item_id": "refined_beast_core", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "lotus_guardian", "name": "Lotus Guardian", "weight": 35, "hp": 150, "attack": 24, "defense": 12, "drops": [{"item_id": "moonlotus", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "refined_beast_core", "rarity": "common", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "ruin_devourer", "name": "Ruin Devourer", "weight": 10, "combat_tier": "elite", "hp": 200, "attack": 30, "defense": 14, "tags": ["devourer"], "drops": [{"item_id": "refined_beast_core", "rarity": "common", "min": 1, "max": 2}, {"item_id": "ancient_dust", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]}
     ]
   },
-  "mistwood_village": {
-    "flavor": "Spirit hounds and village pests lurk at the forest edge.",
+  "core_formation_swamp": {
+    "flavor": "Core Formation beasts rise from the black swamp water.",
     "beasts": [
-      {
-        "beast_id": "garden_pheasant",
-        "name": "Garden Pheasant",
-        "weight": 45,
-        "hp": 30,
-        "attack": 6,
-        "defense": 2,
-        "drops": [
-          {
-            "item_id": "village_herb",
-            "rarity": "common",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "minor_beast_core",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "legendary",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "lane_fox",
-        "name": "Lane Fox",
-        "weight": 35,
-        "hp": 48,
-        "attack": 10,
-        "defense": 3,
-        "drops": [
-          {
-            "item_id": "village_herb",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "green_dew_herb",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "mist_hound",
-        "name": "Mist Hound",
-        "weight": 20,
-        "combat_tier": "elite",
-        "hp": 72,
-        "attack": 14,
-        "defense": 5,
-        "traits": [
-          "bleed_immune"
-        ],
-        "drops": [
-          {
-            "item_id": "minor_beast_core",
-            "rarity": "common",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "village_herb",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      }
+      {"beast_id": "bog_leech", "name": "Bog Leech", "weight": 40, "hp": 140, "attack": 22, "defense": 9, "drops": [{"item_id": "swamp_moss", "rarity": "common", "min": 1, "max": 2}, {"item_id": "refined_beast_core", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "mire_hound", "name": "Mire Hound", "weight": 35, "hp": 175, "attack": 27, "defense": 12, "traits": ["high_stun_chance"], "tags": ["hound", "wolf"], "drops": [{"item_id": "bog_iron", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "swamp_moss", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "swamp_hollow_king", "name": "Swamp Hollow King", "weight": 10, "combat_tier": "elite", "hp": 260, "attack": 34, "defense": 16, "traits": ["seal_on_hit", "high_stun_chance", "cleanse_every_3_turns"], "drops": [{"item_id": "hollow_pearl", "rarity": "common", "min": 1, "max": 1}, {"item_id": "bog_iron", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]}
     ]
   },
-  "verdant_depths": {
-    "flavor": "Predators stalk the deep forest where sunlight barely reaches the floor.",
+  "nascent_soul_peak": {
+    "flavor": "Nascent Soul beasts circle the peak where soul qi gathers.",
     "beasts": [
-      {
-        "beast_id": "pine_stalker",
-        "name": "Pine Stalker",
-        "weight": 40,
-        "hp": 95,
-        "attack": 17,
-        "defense": 7,
-        "drops": [
-          {
-            "item_id": "pine_resin",
-            "rarity": "common",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "refined_beast_core",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "thornback_boar",
-        "name": "Thornback Boar",
-        "weight": 35,
-        "hp": 125,
-        "attack": 21,
-        "defense": 10,
-        "traits": [
-          "bleed_immune"
-        ],
-        "drops": [
-          {
-            "item_id": "pine_resin",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "spirit_iron_shard",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "canopy_serpent",
-        "name": "Canopy Serpent",
-        "weight": 25,
-        "combat_tier": "elite",
-        "hp": 165,
-        "attack": 26,
-        "defense": 11,
-        "traits": [
-          "seal_on_hit",
-          "high_stun_chance"
-        ],
-        "drops": [
-          {
-            "item_id": "refined_beast_core",
-            "rarity": "common",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "pine_resin",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      }
+      {"beast_id": "souljade_crane", "name": "Souljade Crane", "weight": 40, "hp": 150, "attack": 24, "defense": 10, "drops": [{"item_id": "souljade_leaf", "rarity": "common", "min": 1, "max": 2}, {"item_id": "nascent_soul_core", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "peak_soul_tiger", "name": "Peak Soul Tiger", "weight": 35, "hp": 190, "attack": 29, "defense": 13, "traits": ["high_stun_chance"], "drops": [{"item_id": "nascent_soul_core", "rarity": "common", "min": 1, "max": 1}, {"item_id": "souljade_leaf", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "nascent_soul_roc", "name": "Nascent Soul Roc", "weight": 10, "combat_tier": "elite", "hp": 280, "attack": 36, "defense": 16, "traits": ["seal_on_hit"], "drops": [{"item_id": "nascent_soul_core", "rarity": "common", "min": 1, "max": 2}, {"item_id": "script_shard", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]}
     ]
   },
-  "cursed_swamp": {
-    "flavor": "Corrupted beasts rise from the bog to devour careless cultivators.",
+  "spirit_severing_abyss": {
+    "flavor": "Severing beasts stalk the abyss where spirit threads snap.",
     "beasts": [
-      {
-        "beast_id": "bog_leech",
-        "name": "Bog Leech",
-        "weight": 40,
-        "hp": 140,
-        "attack": 22,
-        "defense": 9,
-        "drops": [
-          {
-            "item_id": "swamp_moss",
-            "rarity": "common",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "refined_beast_core",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "mire_hound",
-        "name": "Mire Hound",
-        "weight": 35,
-        "hp": 175,
-        "attack": 27,
-        "defense": 12,
-        "traits": [
-          "high_stun_chance"
-        ],
-        "drops": [
-          {
-            "item_id": "bog_iron",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "swamp_moss",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      },
-      {
-        "beast_id": "swamp_hollow_king",
-        "name": "Swamp Hollow King",
-        "weight": 25,
-        "combat_tier": "elite",
-        "hp": 260,
-        "attack": 34,
-        "defense": 16,
-        "traits": [
-          "seal_on_hit",
-          "high_stun_chance",
-          "cleanse_every_3_turns"
-        ],
-        "drops": [
-          {
-            "item_id": "hollow_pearl",
-            "rarity": "common",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "bog_iron",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 2
-          },
-          {
-            "item_id": "refined_beast_core",
-            "rarity": "uncommon",
-            "min": 1,
-            "max": 1
-          },
-          {
-            "item_id": "technique_fragment",
-            "rarity": "rare",
-            "min": 1,
-            "max": 1
-          }
-        ]
-      }
+      {"beast_id": "abyssal_wraith", "name": "Abyssal Wraith", "weight": 40, "hp": 170, "attack": 26, "defense": 11, "drops": [{"item_id": "severing_silk", "rarity": "common", "min": 1, "max": 2}, {"item_id": "abyssal_bone", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "severing_bone_serpent", "name": "Severing Bone Serpent", "weight": 35, "hp": 220, "attack": 32, "defense": 14, "traits": ["bleed_immune"], "tags": ["serpent"], "drops": [{"item_id": "abyssal_bone", "rarity": "common", "min": 1, "max": 2}, {"item_id": "severing_silk", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "abyss_thread_queen", "name": "Abyss Thread Queen", "weight": 10, "combat_tier": "elite", "hp": 320, "attack": 40, "defense": 18, "traits": ["seal_on_hit"], "drops": [{"item_id": "severing_silk", "rarity": "common", "min": 1, "max": 2}, {"item_id": "nascent_soul_core", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]}
+    ]
+  },
+  "void_refinement_expanse": {
+    "flavor": "Void Refinement beasts flicker across impossible distances.",
+    "beasts": [
+      {"beast_id": "void_moth", "name": "Void Moth", "weight": 40, "hp": 190, "attack": 30, "defense": 12, "drops": [{"item_id": "void_dust", "rarity": "common", "min": 1, "max": 2}, {"item_id": "void_crystal", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "rift_devourer", "name": "Rift Devourer", "weight": 35, "hp": 250, "attack": 36, "defense": 16, "tags": ["devourer"], "drops": [{"item_id": "void_crystal", "rarity": "common", "min": 1, "max": 1}, {"item_id": "void_dust", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "void_crowned_serpent", "name": "Void-Crowned Serpent", "weight": 10, "combat_tier": "elite", "hp": 360, "attack": 46, "defense": 20, "traits": ["seal_on_hit", "cleanse_every_3_turns"], "tags": ["serpent"], "drops": [{"item_id": "void_crystal", "rarity": "common", "min": 1, "max": 2}, {"item_id": "severing_silk", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]}
+    ]
+  },
+  "immortal_ascension_gate": {
+    "flavor": "Ascendant beasts guard the gate with immortal blood and jade.",
+    "beasts": [
+      {"beast_id": "ascendant_lion", "name": "Ascendant Lion", "weight": 40, "hp": 220, "attack": 34, "defense": 14, "drops": [{"item_id": "ascendant_ichor", "rarity": "common", "min": 1, "max": 2}, {"item_id": "immortal_jade", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "jade_gate_hound", "name": "Jade Gate Hound", "weight": 35, "hp": 280, "attack": 42, "defense": 18, "tags": ["hound", "wolf"], "drops": [{"item_id": "immortal_jade", "rarity": "common", "min": 1, "max": 1}, {"item_id": "ascendant_ichor", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "gate_ascension_drake", "name": "Gate Ascension Drake", "weight": 10, "combat_tier": "elite", "hp": 420, "attack": 54, "defense": 24, "traits": ["seal_on_hit", "high_stun_chance"], "drops": [{"item_id": "ascendant_ichor", "rarity": "common", "min": 1, "max": 2}, {"item_id": "void_crystal", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]}
+    ]
+  },
+  "heavenly_transcendence_domain": {
+    "flavor": "Heavenly beasts nest in radiant clouds above the domain.",
+    "beasts": [
+      {"beast_id": "heavenly_silk_moth", "name": "Heavenly Silk Moth", "weight": 40, "hp": 240, "attack": 38, "defense": 16, "drops": [{"item_id": "heavenly_silk", "rarity": "common", "min": 1, "max": 2}, {"item_id": "transcendence_pearl", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "transcendent_stag", "name": "Transcendent Stag", "weight": 35, "hp": 310, "attack": 48, "defense": 20, "drops": [{"item_id": "transcendence_pearl", "rarity": "common", "min": 1, "max": 1}, {"item_id": "heavenly_silk", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "heaven_domain_qilin", "name": "Heaven Domain Qilin", "weight": 10, "combat_tier": "elite", "hp": 470, "attack": 60, "defense": 28, "traits": ["seal_on_hit", "cleanse_every_3_turns"], "drops": [{"item_id": "transcendence_pearl", "rarity": "common", "min": 1, "max": 2}, {"item_id": "immortal_jade", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]}
+    ]
+  },
+  "immortal_monarch_court": {
+    "flavor": "Monarch beasts answer only to supreme imperial pressure.",
+    "beasts": [
+      {"beast_id": "monarch_jade_tiger", "name": "Monarch Jade Tiger", "weight": 40, "hp": 280, "attack": 44, "defense": 18, "drops": [{"item_id": "monarch_jade", "rarity": "common", "min": 1, "max": 2}, {"item_id": "imperial_beast_core", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "imperial_court_drake", "name": "Imperial Court Drake", "weight": 35, "hp": 360, "attack": 55, "defense": 24, "drops": [{"item_id": "imperial_beast_core", "rarity": "common", "min": 1, "max": 1}, {"item_id": "monarch_jade", "rarity": "uncommon", "min": 1, "max": 2}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]},
+      {"beast_id": "monarch_court_phoenix", "name": "Monarch Court Phoenix", "weight": 10, "combat_tier": "elite", "hp": 540, "attack": 70, "defense": 32, "traits": ["seal_on_hit", "high_stun_chance", "cleanse_every_3_turns"], "drops": [{"item_id": "imperial_beast_core", "rarity": "common", "min": 1, "max": 2}, {"item_id": "transcendence_pearl", "rarity": "uncommon", "min": 1, "max": 1}, {"item_id": "technique_fragment", "rarity": "rare", "min": 1, "max": 1}]}
     ]
   }
 }

@@ -39,12 +39,25 @@ class AbodeProvisionResult:
     role_error: str | None
 
 
+def _everyone_overwrite_target(guild: discord.Guild) -> discord.Role | discord.Object:
+    """@everyone may be missing from cache; Object(id=guild.id) is valid for overwrites."""
+    role = guild.default_role
+    if role is not None:
+        return role
+    return discord.Object(id=guild.id)
+
+
+def _bot_can_manage_channels(guild: discord.Guild) -> bool:
+    me = guild.me
+    return me is not None and me.guild_permissions.manage_channels
+
+
 def _abode_overwrites(
     guild: discord.Guild,
     member: discord.Member,
 ) -> dict[discord.abc.Snowflake, discord.PermissionOverwrite]:
     overwrites: dict[discord.abc.Snowflake, discord.PermissionOverwrite] = {
-        guild.default_role: discord.PermissionOverwrite(view_channel=False),
+        _everyone_overwrite_target(guild): discord.PermissionOverwrite(view_channel=False),
         member: discord.PermissionOverwrite(
             view_channel=True,
             send_messages=True,
@@ -125,6 +138,12 @@ async def _post_abode_welcome(
         )
 
 
+_ABODE_PERMISSION_HINT = (
+    "Your abode could not be opened — grant the bot **Manage Channels** "
+    "and permission to create private channels."
+)
+
+
 async def create_abode_channel(
     guild: discord.Guild,
     member: discord.Member,
@@ -132,6 +151,9 @@ async def create_abode_channel(
     *,
     category_id: str | None = None,
 ) -> tuple[discord.TextChannel | None, str | None]:
+    if not _bot_can_manage_channels(guild):
+        return None, _ABODE_PERMISSION_HINT
+
     channel_name = _unique_abode_name(guild, abode_channel_slug(dao_name))
     category = await resolve_abode_category(guild, category_id)
     overwrites = _abode_overwrites(guild, member)
@@ -146,36 +168,30 @@ async def create_abode_channel(
         await _post_abode_welcome(channel, member, dao_name)
         return channel, None
     except discord.Forbidden:
-        return None, (
-            "Your abode could not be opened — the bot needs **Manage Channels** "
-            "and permission to create private channels."
-        )
+        return None, _ABODE_PERMISSION_HINT
     except discord.HTTPException as exc:
         logger.exception("Abode channel creation failed guild=%s user=%s", guild.id, member.id)
         return None, f"Your abode could not be opened: {exc.text}"
 
 
-async def ensure_realm_roles(guild: discord.Guild) -> dict[str, discord.Role]:
-    """Ensure one Discord role exists per cultivation realm name."""
-    by_name = {role.name: role for role in guild.roles}
-    result: dict[str, discord.Role] = {}
-    for name in get_realm_names():
-        role = by_name.get(name)
-        if role is None:
-            try:
-                role = await guild.create_role(
-                    name=name,
-                    mentionable=False,
-                    reason="Cultivation realm rank",
-                )
-            except discord.Forbidden:
-                logger.warning("Cannot create realm role %r in guild=%s", name, guild.id)
-                continue
-            except discord.HTTPException:
-                logger.exception("Failed to create realm role %r in guild=%s", name, guild.id)
-                continue
-        result[name] = role
-    return result
+async def ensure_realm_role(guild: discord.Guild, realm_index: int) -> discord.Role | None:
+    """Ensure the Discord role for this realm exists (create only if missing)."""
+    name = realm_role_name(realm_index)
+    role = discord.utils.get(guild.roles, name=name)
+    if role is not None:
+        return role
+    try:
+        return await guild.create_role(
+            name=name,
+            mentionable=False,
+            reason="Cultivation realm rank",
+        )
+    except discord.Forbidden:
+        logger.warning("Cannot create realm role %r in guild=%s", name, guild.id)
+        return None
+    except discord.HTTPException:
+        logger.exception("Failed to create realm role %r in guild=%s", name, guild.id)
+        return None
 
 
 async def sync_member_realm_role(
@@ -183,14 +199,15 @@ async def sync_member_realm_role(
     member: discord.Member,
     realm_index: int,
 ) -> tuple[discord.Role | None, str | None]:
-    roles_by_name = await ensure_realm_roles(guild)
     target_name = realm_role_name(realm_index)
-    target_role = roles_by_name.get(target_name)
+    target_role = await ensure_realm_role(guild, realm_index)
     if target_role is None:
         return None, f"The **{target_name}** rank could not be assigned on this server."
 
-    realm_roles = set(roles_by_name.values())
-    to_remove = [role for role in member.roles if role in realm_roles and role != target_role]
+    realm_names = set(get_realm_names())
+    to_remove = [
+        role for role in member.roles if role.name in realm_names and role != target_role
+    ]
     try:
         if to_remove:
             await member.remove_roles(*to_remove, reason="Realm advancement")
@@ -210,6 +227,40 @@ async def sync_member_realm_role(
             target_name,
         )
         return None, f"Your realm rank could not be updated: {exc.text}"
+
+
+async def delete_abode_channel(
+    guild: discord.Guild,
+    channel_id: str | None,
+) -> None:
+    if not channel_id:
+        return
+    channel = guild.get_channel(int(channel_id))
+    if not isinstance(channel, discord.TextChannel):
+        return
+    try:
+        await channel.delete(reason="Cultivator record wiped")
+    except discord.Forbidden:
+        logger.warning(
+            "Cannot delete abode channel=%s in guild=%s (missing Manage Channels)",
+            channel_id,
+            guild.id,
+        )
+    except discord.HTTPException:
+        logger.exception("Failed to delete abode channel=%s in guild=%s", channel_id, guild.id)
+
+
+async def strip_realm_roles(member: discord.Member) -> None:
+    realm_names = set(get_realm_names())
+    to_remove = [role for role in member.roles if role.name in realm_names]
+    if not to_remove:
+        return
+    try:
+        await member.remove_roles(*to_remove, reason="Character wiped")
+    except discord.Forbidden:
+        logger.warning("Cannot strip realm roles for user=%s in guild=%s", member.id, member.guild.id)
+    except discord.HTTPException:
+        logger.exception("Failed to strip realm roles for user=%s", member.id)
 
 
 async def provision_new_cultivator(

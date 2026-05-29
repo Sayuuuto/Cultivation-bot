@@ -5,10 +5,11 @@ from dataclasses import dataclass, field
 
 from sqlalchemy.orm import Session
 
-from .drop_sources import format_missing_materials_message
 from .content import RecipeDef, get_recipe, get_recipes
+from .drop_sources import format_missing_materials_message
 from .inventory import add_item, get_item_name, has_items, remove_item
 from .models import Player
+from .pill_recipes import recipe_available_for_realm, resolve_recipe_inputs
 
 
 @dataclass
@@ -26,7 +27,14 @@ def _craft_once(
     recipe: RecipeDef,
     rng: random.Random,
 ) -> CraftResult:
-    if not has_items(session, player.id, recipe.inputs):
+    inputs = resolve_recipe_inputs(recipe, player.realm_index)
+    if not recipe_available_for_realm(recipe, player.realm_index):
+        return CraftResult(
+            success=False,
+            recipe_name=recipe.name,
+            message=f"**{recipe.name}** unlocks at a higher cultivation realm.",
+        )
+    if not has_items(session, player.id, inputs):
         if recipe.recipe_type == "key":
             action = "key"
         elif recipe.recipe_type == "pill":
@@ -37,11 +45,11 @@ def _craft_once(
             success=False,
             recipe_name=recipe.name,
             message=format_missing_materials_message(
-                session, player.id, recipe.inputs, action=action
+                session, player.id, inputs, action=action
             ),
         )
 
-    for item_id, qty in recipe.inputs.items():
+    for item_id, qty in inputs.items():
         remove_item(session, player.id, item_id, qty)
 
     crafted: dict[str, int] = {}
@@ -123,5 +131,8 @@ def find_recipe_by_output(output_item_id: str) -> RecipeDef | None:
     return None
 
 
-def list_pill_recipes() -> list[RecipeDef]:
-    return [r for r in get_recipes().values() if r.recipe_type == "pill"]
+def list_pill_recipes(*, realm_index: int | None = None) -> list[RecipeDef]:
+    recipes = [r for r in get_recipes().values() if r.recipe_type == "pill"]
+    if realm_index is None:
+        return recipes
+    return [r for r in recipes if recipe_available_for_realm(r, realm_index)]
