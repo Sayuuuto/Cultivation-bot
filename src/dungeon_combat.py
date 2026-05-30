@@ -136,6 +136,7 @@ class DungeonCombatState:
     pending_loot: dict[str, int] = field(default_factory=dict)
     looted_enemy_ids: set[str] = field(default_factory=set)
     log_cursor: int = 0
+    last_pinged_actor_id: str = ""
 
     @property
     def current_actor_id(self) -> str:
@@ -170,6 +171,7 @@ class DungeonCombatState:
             "pending_loot": dict(self.pending_loot),
             "looted_enemy_ids": sorted(self.looted_enemy_ids),
             "log_cursor": int(self.log_cursor),
+            "last_pinged_actor_id": self.last_pinged_actor_id,
         }
 
     @classmethod
@@ -193,6 +195,7 @@ class DungeonCombatState:
             pending_loot={str(k): int(v) for k, v in data.get("pending_loot", {}).items()},
             looted_enemy_ids=set(data.get("looted_enemy_ids", [])),
             log_cursor=int(data.get("log_cursor", 0)),
+            last_pinged_actor_id=str(data.get("last_pinged_actor_id", "")),
         )
 
 
@@ -353,16 +356,39 @@ def _living_turn_order(state: DungeonCombatState) -> list[str]:
     return [fid for fid in state.turn_order if fid in state.fighters and state.fighters[fid].alive()]
 
 
+def _next_living_after(
+    state: DungeonCombatState,
+    order: list[str],
+    *,
+    after_fighter_id: str,
+) -> int | None:
+    """Index in *order* of the next living combatant after *after_fighter_id* in full initiative."""
+    full = state.turn_order
+    try:
+        start = full.index(after_fighter_id) + 1
+    except ValueError:
+        start = 0
+    for step in range(len(full)):
+        fid = full[(start + step) % len(full)]
+        if fid in order:
+            return order.index(fid)
+    return None
+
+
 def _advance_turn(state: DungeonCombatState, rng: random.Random) -> None:
     state.pending_technique = None
+    state.last_pinged_actor_id = ""
     order = _living_turn_order(state)
     if not order:
         return
-    try:
-        idx = order.index(state.current_actor_id)
-    except ValueError:
-        idx = -1
-    next_idx = idx + 1
+
+    current_id = state.current_actor_id
+    if current_id in order:
+        next_idx = order.index(current_id) + 1
+    else:
+        found = _next_living_after(state, order, after_fighter_id=current_id)
+        next_idx = len(order) if found is None else found
+
     if next_idx >= len(order):
         state.round_num += 1
         state.turn_order = roll_initiative(state, rng)
@@ -373,6 +399,18 @@ def _advance_turn(state: DungeonCombatState, rng: random.Random) -> None:
     else:
         state.turn_order = order
         state.turn_index = next_idx
+
+
+def _clear_downed_actor_turn(state: DungeonCombatState, rng: random.Random) -> bool:
+    """Skip initiative when it rests on a fallen daoist."""
+    if state.finished:
+        return False
+    actor = state.current_actor()
+    if actor is None or actor.is_enemy or actor.alive():
+        return False
+    state.log.append(f"**{actor.name}** is down — turn skipped.")
+    _advance_turn(state, rng)
+    return True
 
 
 def _collect_defeated_enemy_loot(state: DungeonCombatState, rng: random.Random) -> None:
@@ -422,6 +460,8 @@ def _check_end(state: DungeonCombatState, rng: random.Random | None = None) -> N
         state.log.append(f"**{state.room_label}** is cleared!")
     if rng is not None:
         _collect_defeated_enemy_loot(state, rng)
+        while not state.finished and _clear_downed_actor_turn(state, rng):
+            pass
 
 
 def _enemy_attack(

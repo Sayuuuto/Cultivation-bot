@@ -18,6 +18,7 @@ from .dungeon_arena import (
 )
 from .dungeon_combat import (
     advance_to_next_room,
+    _clear_downed_actor_turn,
     load_combat_state,
     pass_turn,
     process_turn_start,
@@ -654,7 +655,7 @@ async def _send_log_chunks(channel, text: str) -> None:
 
 
 async def _post_new_log_lines(client, channel_id: str | None, state) -> None:
-    """Fallback: append log as new messages (used if panel conversion fails)."""
+    """Append new combat log lines as separate channel messages."""
     text = format_new_log_lines(state)
     if not text:
         return
@@ -666,7 +667,7 @@ async def _post_new_log_lines(client, channel_id: str | None, state) -> None:
 
 
 async def _convert_panel_to_log(channel, combat_message_id: str, state) -> bool:
-    """Turn the live combat panel message into plain log history."""
+    """Turn the live combat panel into plain log so a fresh panel can sit at the bottom."""
     text = format_new_log_lines(state)
     if not text:
         return False
@@ -685,7 +686,7 @@ async def _convert_panel_to_log(channel, combat_message_id: str, state) -> bool:
 
 def _build_combat_panel_view(party_id: int, state) -> DungeonCombatView | None:
     actor = state.current_actor()
-    if state.finished or actor is None or actor.is_enemy or not actor.player_id:
+    if state.finished or actor is None or actor.is_enemy or not actor.player_id or not actor.alive():
         return None
     session = get_session()
     try:
@@ -754,6 +755,8 @@ async def _sync_combat_ui(
             if loaded is not None:
                 state = loaded
         if not state.finished:
+            while not state.finished and _clear_downed_actor_turn(state, rng):
+                pass
             actor = state.current_actor()
             if actor and actor.is_enemy:
                 process_turn_start(session, state, rng)
@@ -768,11 +771,15 @@ async def _sync_combat_ui(
             session.commit()
             return
 
-        panel_converted = False
-        if combat_message_id and pending_log:
-            panel_converted = await _convert_panel_to_log(channel, combat_message_id, state)
-            if not panel_converted:
+        panel_rotated = False
+        if pending_log:
+            if combat_message_id:
+                panel_rotated = await _convert_panel_to_log(channel, combat_message_id, state)
+                if not panel_rotated:
+                    await _post_new_log_lines(client, channel_id, state)
+            else:
                 await _post_new_log_lines(client, channel_id, state)
+                panel_rotated = True
             combat_message_id = None
 
         actor = state.current_actor()
@@ -790,28 +797,27 @@ async def _sync_combat_ui(
             return
 
         if (
-            interaction is not None
-            and actor
+            actor
+            and actor.alive()
             and not actor.is_enemy
             and actor.fighter_id
+            and actor.fighter_id != state.last_pinged_actor_id
         ):
-            from .bot import get_discord_id
-
-            if get_discord_id(interaction.user) != actor.fighter_id:
-                try:
-                    await channel.send(
-                        f"<@{actor.fighter_id}> — your turn. "
-                        "Use the buttons on the combat card below."
-                    )
-                except discord.HTTPException:
-                    pass
+            try:
+                await channel.send(
+                    f"<@{actor.fighter_id}> — your turn. "
+                    "Use the buttons on the combat card below."
+                )
+                state.last_pinged_actor_id = actor.fighter_id
+            except discord.HTTPException:
+                pass
 
         combat_view: discord.ui.View | None = None
-        if actor and not actor.is_enemy and actor.fighter_id:
+        if actor and actor.alive() and not actor.is_enemy and actor.fighter_id:
             combat_view = _combat_message_view(party_id, state)
 
         try:
-            if panel_converted or not combat_message_id:
+            if panel_rotated or not combat_message_id:
                 panel_msg = await channel.send(embed=embed, view=combat_view)
                 party.combat_message_id = str(panel_msg.id)
             else:
@@ -841,10 +847,15 @@ async def _complete_dungeon(session, party, state, rng, cfg) -> str:
         pending_loot=state.pending_loot,
     )
     apply_dungeon_rewards(session, members, drops)
-    now = utcnow()
+    from .spirit_stone_drops import grant_coop_dungeon_clear_stones
+
     lines = ["🏆 **Dungeon conquered!** Rewards shared among the party:"]
     for item_id, qty in drops.items():
         lines.append(f"• **{get_item_name(item_id)}** ×{qty}")
+    dungeon = get_cooperative_dungeon(party.dungeon_id)
+    if dungeon is not None:
+        lines.extend(grant_coop_dungeon_clear_stones(session, members, dungeon, rng))
+    now = utcnow()
     for member in members:
         player = session.get(Player, member.player_id)
         if player is None:
@@ -872,6 +883,12 @@ async def _handle_room_cleared(session, party, state, rng, cfg) -> None:
     dungeon = get_cooperative_dungeon(state.dungeon_id)
     if dungeon is None:
         return
+    from .spirit_stone_drops import grant_coop_room_spill
+
+    spill_lines = grant_coop_room_spill(session, members, dungeon, rng)
+    if spill_lines:
+        state.log.extend(spill_lines)
+        save_combat_state(party, state)
     if state.room_index + 1 >= len(dungeon.rooms):
         await _complete_dungeon(session, party, state, rng, cfg)
         return

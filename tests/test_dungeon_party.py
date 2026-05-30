@@ -261,6 +261,72 @@ def test_start_room_spawns_enemies_and_players(session, player, player_two):
     assert str(ally.combatant.hp) in party_field.value
 
 
+def test_advance_turn_skips_fallen_actor_without_rewinding(session, player, player_two):
+    from src.dungeon_combat import _advance_turn
+
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[player_two],
+    )
+    accept_invite(session, party, player_two)
+    dungeon = get_cooperative_dungeon("mortal_catacomb")
+    members = load_members(party)
+    state = start_room_combat(
+        session,
+        party_id=party.id,
+        dungeon=dungeon,
+        room_index=0,
+        members=members,
+        rng=random.Random(1),
+    )
+    players = [f for f in state.fighters.values() if not f.is_enemy]
+    enemy = next(f for f in state.fighters.values() if f.is_enemy)
+    p1, p2 = players[0], players[1]
+    p2.combatant.hp = 0
+    state.turn_order = [p1.fighter_id, p2.fighter_id, enemy.fighter_id]
+    state.turn_index = 1
+
+    _advance_turn(state, random.Random(2))
+
+    assert state.current_actor_id == enemy.fighter_id
+
+
+def test_clear_downed_actor_turn_advances_to_next_foe(session, player, player_two):
+    from src.dungeon_combat import _clear_downed_actor_turn
+
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[player_two],
+    )
+    accept_invite(session, party, player_two)
+    dungeon = get_cooperative_dungeon("mortal_catacomb")
+    members = load_members(party)
+    state = start_room_combat(
+        session,
+        party_id=party.id,
+        dungeon=dungeon,
+        room_index=0,
+        members=members,
+        rng=random.Random(1),
+    )
+    players = [f for f in state.fighters.values() if not f.is_enemy]
+    enemy = next(f for f in state.fighters.values() if f.is_enemy)
+    fallen = players[1]
+    fallen.combatant.hp = 0
+    state.turn_order = [players[0].fighter_id, fallen.fighter_id, enemy.fighter_id]
+    state.turn_index = 1
+
+    assert _clear_downed_actor_turn(state, random.Random(3))
+    assert state.current_actor_id == enemy.fighter_id
+    assert any("is down" in line for line in state.log)
+
+
 def test_combat_panel_shows_targets_when_technique_pending(session, player):
     from src.dungeon_discord import _build_combat_panel_view
 
@@ -290,6 +356,33 @@ def test_combat_panel_shows_targets_when_technique_pending(session, player):
     labels = [getattr(c, "label", "") for c in view.children]
     assert any("🎯" in label for label in labels)
     assert any("Cancel" in label for label in labels)
+
+
+def test_combat_panel_hidden_for_fallen_actor(session, player):
+    from src.dungeon_discord import _build_combat_panel_view
+
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[],
+    )
+    dungeon = get_cooperative_dungeon("mortal_catacomb")
+    state = start_room_combat(
+        session,
+        party_id=party.id,
+        dungeon=dungeon,
+        room_index=0,
+        members=load_members(party),
+        rng=random.Random(1),
+    )
+    ally = next(f for f in state.fighters.values() if not f.is_enemy)
+    ally.combatant.hp = 0
+    state.turn_order = [ally.fighter_id]
+    state.turn_index = 0
+
+    assert _build_combat_panel_view(party.id, state) is None
 
 
 def test_select_target_resolves_player_strike(session, player):

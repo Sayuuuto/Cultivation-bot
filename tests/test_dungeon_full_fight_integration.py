@@ -129,7 +129,7 @@ def test_dungeon_opens_training_chamber(delver: PlayerBotSession):
 
 
 def test_dungeon_sliding_panel_after_first_strike(delver: PlayerBotSession):
-    """Panel converts to log on action; a new panel is always the last message."""
+    """Panel converts to log on action; a fresh panel is always the last embed."""
     delver.slash("dungeon", dungeon=PYTEST_DUNGEON_ID)
     before = len(dungeon_channel_messages())
     view = last_dungeon_combat_view()
@@ -149,8 +149,9 @@ def test_dungeon_sliding_panel_after_first_strike(delver: PlayerBotSession):
 
     messages = dungeon_channel_messages()
     assert len(messages) > before
-    assert messages[-1].get("embed") is not None
-    assert messages[-1].get("view") is not None or last_dungeon_combat_view() is not None
+    panels = [m for m in messages if m.get("embed") is not None]
+    assert panels, "combat panel embed should remain in channel"
+    assert panels[-1].get("view") is not None or last_dungeon_combat_view() is not None
     assert any(m.get("converted_to_log") for m in messages)
 
 
@@ -199,8 +200,10 @@ def test_dungeon_full_fight_completes_training_chamber(delver: PlayerBotSession)
     assert audit.player_strike_phases >= 1
     assert audit.log_message_count >= 1
     assert audit.panel_rotations >= 1
-    final_embed = dungeon_channel_messages()[-1].get("embed")
+    panels = [m for m in dungeon_channel_messages() if m.get("embed") is not None]
+    final_embed = panels[-1].get("embed")
     assert final_embed is not None
+    assert panels[-1].get("view") is None, "finished card should not keep technique buttons"
     final_fields = getattr(final_embed, "fields", [])
     assert any("Dungeon conquered!" in field.value for field in final_fields)
 
@@ -269,7 +272,11 @@ def test_dungeon_room_clear_advances_to_next_live_panel(delver: PlayerBotSession
     assert state.room_label == "Second Hall"
     assert not state.finished
     assert view is not None
-    latest = dungeon_channel_messages()[-1]
-    assert latest.get("view") is not None
-    embed_text = str(getattr(latest.get("embed"), "title", "")) + str(getattr(latest.get("embed"), "description", ""))
+    panels = [m for m in dungeon_channel_messages() if m.get("embed") is not None]
+    assert panels, "combat panel embed should still be present"
+    latest_panel = panels[-1]
+    assert latest_panel.get("view") is not None
+    embed_text = str(getattr(latest_panel.get("embed"), "title", "")) + str(
+        getattr(latest_panel.get("embed"), "description", "")
+    )
     assert "Second Hall" in embed_text

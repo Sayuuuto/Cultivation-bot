@@ -125,6 +125,8 @@ class HuntResult:
 
     messages: list[str]
 
+    spirit_stones: int = 0
+
 
 
 
@@ -600,6 +602,7 @@ def finalize_hunt_combat(
     messages: list[str] = []
 
     drops: dict[str, int] = {}
+    stones_gain = 0
 
     if victory:
 
@@ -613,6 +616,7 @@ def finalize_hunt_combat(
         drops = apply_drop_quantity_bonus(drops, gap)
 
         from .novice_trial import apply_first_hunt_bonus, on_hunt_victory
+        from .spirit_stone_drops import grant_hunt_spirit_stones
 
         trial_drop_msg = apply_first_hunt_bonus(session, player, drops)
         trial_msgs = on_hunt_victory(player)
@@ -621,7 +625,18 @@ def finalize_hunt_combat(
 
             add_item(session, player.id, item_id, qty)
 
+        stones_gain, stone_msg = grant_hunt_spirit_stones(
+            session,
+            player,
+            rng,
+            area_min_realm=area.min_realm,
+            combat_tier=beast_def.combat_tier,
+            gap=gap,
+        )
+
         messages.append(f"You defeated **{beast_def.name}**.")
+        if stone_msg:
+            messages.append(stone_msg)
         if trial_drop_msg:
             messages.append(trial_drop_msg)
         for note in trial_msgs:
@@ -659,6 +674,8 @@ def finalize_hunt_combat(
         drops=drops,
 
         messages=messages,
+
+        spirit_stones=stones_gain if victory else 0,
 
     )
 
@@ -756,6 +773,7 @@ def run_hunt(
 
 
     drops: dict[str, int] = {}
+    stones_gain = 0
 
     if combat.victory:
 
@@ -767,9 +785,22 @@ def run_hunt(
         drops = _ensure_hunt_victory_drop(drops, beast_def)
         drops = apply_drop_quantity_bonus(drops, gap)
 
+        from .spirit_stone_drops import grant_hunt_spirit_stones
+
         for item_id, qty in drops.items():
 
             add_item(session, player.id, item_id, qty)
+
+        stones_gain, stone_msg = grant_hunt_spirit_stones(
+            session,
+            player,
+            rng,
+            area_min_realm=area.min_realm,
+            combat_tier=beast_def.combat_tier,
+            gap=gap,
+        )
+        if stone_msg:
+            messages.append(stone_msg)
 
         if drops:
 
@@ -811,6 +842,8 @@ def run_hunt(
         drops=drops,
 
         messages=messages,
+
+        spirit_stones=stones_gain,
 
     )
 

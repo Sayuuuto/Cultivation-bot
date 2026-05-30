@@ -1,0 +1,33 @@
+{
+  "hunt": {
+    "drop_chance": {
+      "normal": 0.8,
+      "elite": 0.9,
+      "boss": 0.95
+    },
+    "base_by_area_realm": [4, 7, 10, 14, 18, 23, 29, 36, 44, 54],
+    "tier_amount_mult": {
+      "normal": 1.0,
+      "elite": 1.55,
+      "boss": 2.2
+    },
+    "fortune_qty_cap": 0.5,
+    "fortune_sqrt_scale": 0.22,
+    "drop_luck_as_luck": 150,
+    "overlevel_realms_before_penalty": 3,
+    "overlevel_qty_mult": 0.4,
+    "qty_jitter_min": 0.9,
+    "qty_jitter_max": 1.1
+  },
+  "coop_dungeon": {
+    "clear_guaranteed_by_realm": [40, 65, 95, 130, 170, 215, 265, 320, 385, 460],
+    "room_spill_chance": 0.25,
+    "room_spill_clear_ratio": 0.12,
+    "fortune_qty_cap": 0.4,
+    "fortune_sqrt_scale": 0.22,
+    "drop_luck_as_luck": 150
+  },
+  "solo_dungeon": {
+    "clear_ratio_of_coop": 0.6
+  }
+}

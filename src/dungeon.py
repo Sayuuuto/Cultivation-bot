@@ -159,6 +159,16 @@ def run_dungeon(
         )
         if weekly_note:
             messages.append(weekly_note)
+        from .spirit_stone_drops import grant_solo_dungeon_clear_stones
+
+        stones_gain, stone_msg = grant_solo_dungeon_clear_stones(
+            session,
+            player,
+            rng,
+            dungeon_min_realm=dungeon.min_realm,
+        )
+        if stone_msg:
+            messages.append(stone_msg)
         outcome = "success"
     else:
         outcome = "fail"
