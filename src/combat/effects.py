@@ -12,6 +12,7 @@ class StatusInstance:
     status_id: str
     stacks: int = 1
     turns_remaining: int = 1
+    potency: float = 1.0
 
 
 @dataclass
@@ -29,23 +30,30 @@ def _status_rule(status_id: str) -> StatusRule | None:
     return load_combat_rules().statuses.get(status_id)
 
 
-def apply_status(target: CombatantState, status_id: str) -> str | None:
+def apply_status(target: CombatantState, status_id: str, *, potency: float = 1.0) -> str | None:
     rule = _status_rule(status_id)
     if rule is None:
         return None
+    scaled_potency = potency if rule.damage_per_stack > 0 else 1.0
     existing = next((s for s in target.statuses if s.status_id == status_id), None)
     if existing is not None:
         existing.stacks = min(rule.max_stacks, existing.stacks + 1)
         if rule.damage_per_stack > 0:
             # DoT: refresh duration; stacks raise per-tick damage.
             existing.turns_remaining = max(existing.turns_remaining, rule.duration)
+            existing.potency = max(existing.potency, scaled_potency)
         else:
             # CC: each re-apply adds another turn skipped (capped).
             cc_cap = rule.max_stacks * rule.duration
             existing.turns_remaining = min(cc_cap, existing.turns_remaining + rule.duration)
     else:
         target.statuses.append(
-            StatusInstance(status_id=status_id, stacks=1, turns_remaining=rule.duration)
+            StatusInstance(
+                status_id=status_id,
+                stacks=1,
+                turns_remaining=rule.duration,
+                potency=scaled_potency,
+            )
         )
     if status_id == "seal":
         target.sealed = True
@@ -124,7 +132,11 @@ def spread_burn(
         if has_status(target, "burn"):
             continue
         if rng.random() < rule.spread_chance:
-            apply_status(target, "burn")
+            carrier_inst = get_status_instance(carrier, "burn")
+            spread_potency = carrier_inst.potency if carrier_inst is not None else 1.0
+            spread_cfg = load_combat_rules().dot_scaling
+            spread_potency *= spread_cfg.spread_potency_ratio
+            apply_status(target, "burn", potency=spread_potency)
             lines.append(f"**Burn** leaps from **{carrier_name}** to **{name}**!")
     return lines
 
@@ -158,7 +170,7 @@ def tick_statuses(target: CombatantState) -> list[str]:
         if rule is None:
             continue
         if rule.damage_per_stack > 0:
-            damage = rule.damage_per_stack * status.stacks
+            damage = max(1, int(rule.damage_per_stack * status.stacks * status.potency))
             target.hp = max(0, target.hp - damage)
             lines.append(f"**{status.status_id.title()}** deals **{format_compact_number(damage)}** damage.")
         status.turns_remaining -= 1
@@ -177,7 +189,12 @@ def tick_statuses(target: CombatantState) -> list[str]:
 
 def status_instances_to_json(statuses: list[StatusInstance]) -> list[dict]:
     return [
-        {"status_id": s.status_id, "stacks": s.stacks, "turns_remaining": s.turns_remaining}
+        {
+            "status_id": s.status_id,
+            "stacks": s.stacks,
+            "turns_remaining": s.turns_remaining,
+            "potency": s.potency,
+        }
         for s in statuses
     ]
 
@@ -188,6 +205,7 @@ def status_instances_from_json(raw: list[dict]) -> list[StatusInstance]:
             status_id=str(entry["status_id"]),
             stacks=int(entry.get("stacks", 1)),
             turns_remaining=int(entry.get("turns_remaining", 1)),
+            potency=float(entry.get("potency", 1.0)),
         )
         for entry in raw
     ]

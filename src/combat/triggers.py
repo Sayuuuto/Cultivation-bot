@@ -15,8 +15,10 @@ from .effects import (
     is_stunned,
     status_application_chance,
 )
+from .rules import load_combat_rules
 
 CC_STATUSES = frozenset({"stun", "seal", "fear"})
+DOT_STATUS_IDS = frozenset({"burn", "bleed", "poison"})
 
 
 def _stat_value(stats: PlayerCombatStats, stat_key: str) -> int:
@@ -99,6 +101,51 @@ def _compute_base_damage(
     return max(1, int(raw - mitigation))
 
 
+def _strike_power_for_dot(
+    stats: PlayerCombatStats,
+    tech: TechniqueDef,
+    passive: TechniqueDef | None,
+    status_id: str,
+) -> float:
+    """Pre-mitigation strike power used to scale DoT potency."""
+    stat_val = _stat_value(stats, tech.scaling_stat)
+    raw = tech.base_damage + stat_val * tech.scaling_ratio
+    raw *= rarity_damage_multiplier(tech.rarity)
+    raw *= _gear_tag_damage_bonus(stats, tech)
+    if tech.damage_type == "physical":
+        raw += stats.external_strength * 0.15
+    elif tech.damage_type == "internal":
+        raw += stats.internal_strength * 0.15
+    if passive:
+        for trig in passive.passive_triggers:
+            if trig.type == "burn_damage_bonus" and status_id == "burn":
+                raw *= 1.0 + float(trig.params.get("bonus", 0.0))
+            if trig.type == "poison_damage_bonus" and status_id == "poison":
+                raw *= 1.0 + float(trig.params.get("bonus", 0.0))
+        if passive.passive_burn_bonus and status_id == "burn":
+            raw *= 1.0 + passive.passive_burn_bonus
+    return max(1.0, raw)
+
+
+def compute_dot_potency(
+    stats: PlayerCombatStats | None,
+    tech: TechniqueDef | None,
+    passive: TechniqueDef | None,
+    status_id: str,
+) -> float:
+    """Scale config damage_per_stack from technique power. 1.0 ~= Mortal baseline."""
+    cfg = load_combat_rules().dot_scaling
+    if stats is None or tech is None or status_id not in DOT_STATUS_IDS:
+        return cfg.min_potency
+
+    raw = _strike_power_for_dot(stats, tech, passive, status_id)
+    reference = max(1.0, cfg.reference_strike)
+    ratio = max(0.0, cfg.strike_to_potency_ratio)
+    exponent = max(0.1, cfg.potency_exponent)
+    potency = (raw / reference) ** exponent * ratio
+    return max(cfg.min_potency, min(cfg.max_potency, potency))
+
+
 SEAL_EXEMPT_TECHNIQUE_IDS = frozenset({"basic_strike"})
 
 
@@ -135,6 +182,9 @@ def _maybe_apply_status(
     *,
     traits: list[str],
     log_prefix: str = "",
+    stats: PlayerCombatStats | None = None,
+    tech: TechniqueDef | None = None,
+    passive: TechniqueDef | None = None,
 ) -> bool:
     name = state.opponent_name if target is state.opponent else "You"
     if status_id == "bleed" and _is_bleed_immune(traits):
@@ -143,7 +193,8 @@ def _maybe_apply_status(
     effective_chance = status_application_chance(target, status_id, chance)
     if rng.random() >= effective_chance:
         return False
-    apply_status(target, status_id)
+    potency = compute_dot_potency(stats, tech, passive, status_id)
+    apply_status(target, status_id, potency=potency)
     state.log.append(f"{log_prefix}**{name}** is afflicted with **{status_id}**.")
     return True
 
@@ -163,7 +214,15 @@ def _resolve_on_hit_passives(
         if trig.type == "on_hit_bleed_chance":
             chance = float(trig.params.get("chance", 0.0))
             _maybe_apply_status(
-                state, state.opponent, "bleed", chance, rng, traits=state.opponent_traits
+                state,
+                state.opponent,
+                "bleed",
+                chance,
+                rng,
+                traits=state.opponent_traits,
+                stats=stats,
+                tech=passive,
+                passive=passive,
             )
         elif trig.type == "consecutive_hit_bonus":
             state.consecutive_bonus_per_hit = float(trig.params.get("bonus_per_hit", 0.05))
@@ -232,7 +291,15 @@ def _resolve_effect(
             chance = float(p.get("bleed_chance", 0.0))
             if chance > 0:
                 _maybe_apply_status(
-                    state, state.opponent, "bleed", chance, rng, traits=state.opponent_traits
+                    state,
+                    state.opponent,
+                    "bleed",
+                    chance,
+                    rng,
+                    traits=state.opponent_traits,
+                    stats=stats,
+                    tech=tech,
+                    passive=passive,
                 )
         return total
 
@@ -244,6 +311,9 @@ def _resolve_effect(
             float(p.get("chance", tech.status_chance)),
             rng,
             traits=state.opponent_traits,
+            stats=stats,
+            tech=tech,
+            passive=passive,
         )
         return 0
 

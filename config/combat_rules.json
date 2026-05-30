@@ -26,6 +26,14 @@
     "max_heal": 2,
     "max_survival_passive": 1
   },
+  "dot_scaling": {
+    "reference_strike": 24,
+    "strike_to_potency_ratio": 0.4,
+    "potency_exponent": 0.82,
+    "min_potency": 1.0,
+    "max_potency": 8000,
+    "spread_potency_ratio": 1.0
+  },
   "statuses": {
     "burn": {
       "damage_per_stack": 4,

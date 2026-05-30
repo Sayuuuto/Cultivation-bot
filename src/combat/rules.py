@@ -42,6 +42,16 @@ class KarmaPolicy:
 
 
 @dataclass(frozen=True)
+class DotScalingRules:
+    reference_strike: float = 24.0
+    strike_to_potency_ratio: float = 0.4
+    potency_exponent: float = 0.82
+    min_potency: float = 1.0
+    max_potency: float = 8000.0
+    spread_potency_ratio: float = 1.0
+
+
+@dataclass(frozen=True)
 class CombatRules:
     max_turns: int
     auto_finish_after_turn: int
@@ -52,6 +62,7 @@ class CombatRules:
     feature_flags: dict[str, bool]
     pvp_legality: PvpLegalityRules
     karma_policy: KarmaPolicy
+    dot_scaling: DotScalingRules
 
     def enabled(self, flag: str) -> bool:
         return bool(self.feature_flags.get(flag, False))
@@ -85,6 +96,15 @@ def load_combat_rules() -> CombatRules:
         max_karma_per_fight=int(karma_raw.get("max_karma_per_fight", 3)),
         max_karma_per_day=int(karma_raw.get("max_karma_per_day", 10)),
     )
+    dot_raw = raw.get("dot_scaling", {})
+    dot_scaling = DotScalingRules(
+        reference_strike=float(dot_raw.get("reference_strike", 24)),
+        strike_to_potency_ratio=float(dot_raw.get("strike_to_potency_ratio", 0.4)),
+        potency_exponent=float(dot_raw.get("potency_exponent", 0.82)),
+        min_potency=float(dot_raw.get("min_potency", 1.0)),
+        max_potency=float(dot_raw.get("max_potency", 8000)),
+        spread_potency_ratio=float(dot_raw.get("spread_potency_ratio", 1.0)),
+    )
     return CombatRules(
         max_turns=int(raw.get("max_turns", 8)),
         auto_finish_after_turn=int(raw.get("auto_finish_after_turn", 6)),
@@ -101,4 +121,5 @@ def load_combat_rules() -> CombatRules:
             max_survival_passive=int(pvp_raw.get("max_survival_passive", 1)),
         ),
         karma_policy=karma_policy,
+        dot_scaling=dot_scaling,
     )

@@ -25,13 +25,20 @@ class PartyMember:
     discord_id: str
     dao_name: str
     player_id: int
+    abode_channel_id: str | None = None
+    abode_message_id: str | None = None
 
     def to_dict(self) -> dict:
-        return {
+        data = {
             "discord_id": self.discord_id,
             "dao_name": self.dao_name,
             "player_id": self.player_id,
         }
+        if self.abode_channel_id:
+            data["abode_channel_id"] = self.abode_channel_id
+        if self.abode_message_id:
+            data["abode_message_id"] = self.abode_message_id
+        return data
 
     @classmethod
     def from_dict(cls, data: dict) -> PartyMember:
@@ -39,6 +46,8 @@ class PartyMember:
             discord_id=str(data["discord_id"]),
             dao_name=str(data.get("dao_name", "Daoist")),
             player_id=int(data["player_id"]),
+            abode_channel_id=str(data["abode_channel_id"]) if data.get("abode_channel_id") else None,
+            abode_message_id=str(data["abode_message_id"]) if data.get("abode_message_id") else None,
         )
 
 
@@ -47,13 +56,20 @@ class PartyInvite:
     discord_id: str
     dao_name: str
     expires_at: str
+    abode_channel_id: str | None = None
+    abode_message_id: str | None = None
 
     def to_dict(self) -> dict:
-        return {
+        data = {
             "discord_id": self.discord_id,
             "dao_name": self.dao_name,
             "expires_at": self.expires_at,
         }
+        if self.abode_channel_id:
+            data["abode_channel_id"] = self.abode_channel_id
+        if self.abode_message_id:
+            data["abode_message_id"] = self.abode_message_id
+        return data
 
     @classmethod
     def from_dict(cls, data: dict) -> PartyInvite:
@@ -61,6 +77,8 @@ class PartyInvite:
             discord_id=str(data["discord_id"]),
             dao_name=str(data.get("dao_name", "Daoist")),
             expires_at=str(data["expires_at"]),
+            abode_channel_id=str(data["abode_channel_id"]) if data.get("abode_channel_id") else None,
+            abode_message_id=str(data["abode_message_id"]) if data.get("abode_message_id") else None,
         )
 
 
@@ -105,6 +123,54 @@ def member_discord_ids(party: ActiveDungeonParty) -> set[str]:
 
 def invited_discord_ids(party: ActiveDungeonParty) -> set[str]:
     return {i.discord_id for i in load_invites(party)}
+
+
+def attach_invite_abode_message(
+    party: ActiveDungeonParty,
+    discord_id: str,
+    *,
+    abode_channel_id: str,
+    abode_message_id: str,
+) -> None:
+    try:
+        raw = json.loads(party.invites_json or "[]")
+    except json.JSONDecodeError:
+        return
+    updated: list[dict] = []
+    for entry in raw:
+        if not isinstance(entry, dict):
+            continue
+        if str(entry.get("discord_id")) == discord_id:
+            entry = dict(entry)
+            entry["abode_channel_id"] = abode_channel_id
+            entry["abode_message_id"] = abode_message_id
+        updated.append(entry)
+    party.invites_json = json.dumps(updated)
+
+
+def iter_invite_message_refs(party: ActiveDungeonParty) -> list[tuple[str, str, str, bool]]:
+    """Return (discord_id, channel_id, message_id, is_pending_invite) for invite UI sync."""
+    refs: list[tuple[str, str, str, bool]] = []
+    seen: set[tuple[str, str]] = set()
+    for inv in load_invites(party):
+        if not inv.abode_channel_id or not inv.abode_message_id:
+            continue
+        key = (inv.abode_channel_id, inv.abode_message_id)
+        if key in seen:
+            continue
+        seen.add(key)
+        refs.append((inv.discord_id, inv.abode_channel_id, inv.abode_message_id, True))
+    for member in load_members(party):
+        if member.discord_id == party.leader_discord_id:
+            continue
+        if not member.abode_channel_id or not member.abode_message_id:
+            continue
+        key = (member.abode_channel_id, member.abode_message_id)
+        if key in seen:
+            continue
+        seen.add(key)
+        refs.append((member.discord_id, member.abode_channel_id, member.abode_message_id, False))
+    return refs
 
 
 def cancel_party(party: ActiveDungeonParty, *, now: datetime | None = None) -> None:
@@ -276,11 +342,15 @@ def accept_invite(
     if player.discord_id in {m.discord_id for m in members}:
         return False, "You already accepted."
 
+    invite_match = next(i for i in invites if i.discord_id == player.discord_id)
+
     members.append(
         PartyMember(
             discord_id=player.discord_id,
             dao_name=player.dao_name or "Daoist",
             player_id=player.id,
+            abode_channel_id=invite_match.abode_channel_id,
+            abode_message_id=invite_match.abode_message_id,
         )
     )
     save_members(party, members)
@@ -313,7 +383,7 @@ def expedition_busy_message(party: ActiveDungeonParty, discord_id: str) -> str:
         )
     if discord_id in invited_discord_ids(party):
         return (
-            f"You are invited to **{name}**. Scroll up for the expedition embed and press **Accept**. "
+            f"You are invited to **{name}**. Accept from your **abode** or the party embed in channel. "
             "Decline by ignoring it — the invite dissolves in about **5 minutes** if the party does not form."
         )
     if party.leader_discord_id == discord_id:
@@ -366,7 +436,7 @@ def format_invite_embed_description(party: ActiveDungeonParty) -> str:
         for inv in invites:
             lines.append(f"• <@{inv.discord_id}> (**{inv.dao_name}**)")
         lines.append("")
-        lines.append("_Invited daoists — press **Accept** below. The run begins when everyone is in._")
+        lines.append("_Invited daoists — press **Accept** below or in your abode. The run begins when everyone is in._")
     else:
         lines.append("")
         lines.append("_All allies ready — the expedition is opening…_")

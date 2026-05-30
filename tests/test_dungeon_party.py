@@ -30,7 +30,7 @@ from src.dungeon_party import (
     party_is_stale,
     party_ready_to_launch,
 )
-from src.models import ActiveDungeonParty
+from src.models import ActiveDungeonParty, Player
 
 
 def test_cooperative_dungeons_per_realm():
@@ -57,6 +57,96 @@ def test_solo_party_ready_immediately(session, player):
     assert MAX_INVITES == 3
     assert party_ready_to_launch(party)
     assert len(load_members(party)) == 1
+
+
+def test_party_not_ready_until_all_invitees_accept(session, player, player_two):
+    now = datetime.now(timezone.utc)
+    player_three = Player(
+        guild_id=player.guild_id,
+        discord_id="third-user",
+        discord_username="ThirdUser",
+        dao_name="ThirdDao",
+        origin="River Dragon's Gift",
+        spirit_root="Scarlet Flame Root",
+        moral_path="righteous",
+        novice_trial_step=6,
+        adventures_completed=1,
+        realm_index=0,
+        substage=0,
+        qi=0,
+        spirit_stones=0,
+        last_active_at=now,
+        passive_accrual_at=now,
+    )
+    session.add(player_three)
+    session.commit()
+
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[player_two, player_three],
+    )
+    assert len(load_invites(party)) == 2
+    assert not party_ready_to_launch(party)
+
+    accept_invite(session, party, player_two)
+    assert len(load_invites(party)) == 1
+    assert not party_ready_to_launch(party)
+
+    accept_invite(session, party, player_three)
+    assert len(load_invites(party)) == 0
+    assert party_ready_to_launch(party)
+    assert len(load_members(party)) == 3
+
+
+def test_accept_invite_preserves_abode_message_refs(session, player, player_two):
+    from src.dungeon_party import attach_invite_abode_message, load_members
+
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[player_two],
+    )
+    attach_invite_abode_message(
+        party,
+        player_two.discord_id,
+        abode_channel_id="9001",
+        abode_message_id="9002",
+    )
+    accept_invite(session, party, player_two)
+    ally = next(m for m in load_members(party) if m.discord_id == player_two.discord_id)
+    assert ally.abode_channel_id == "9001"
+    assert ally.abode_message_id == "9002"
+
+
+def test_iter_invite_message_refs_pending_and_accepted(session, player, player_two):
+    from src.dungeon_party import attach_invite_abode_message, iter_invite_message_refs
+
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[player_two],
+    )
+    attach_invite_abode_message(
+        party,
+        player_two.discord_id,
+        abode_channel_id="100",
+        abode_message_id="101",
+    )
+    pending = iter_invite_message_refs(party)
+    assert len(pending) == 1
+    assert pending[0][3] is True
+
+    accept_invite(session, party, player_two)
+    accepted = iter_invite_message_refs(party)
+    assert len(accepted) == 1
+    assert accepted[0][3] is False
 
 
 def test_party_starts_when_all_accept(session, player, player_two):

@@ -31,12 +31,17 @@ from .dungeon_party import (
     PARTY_LOBBY_TIMEOUT_SECONDS,
     accept_invite,
     apply_dungeon_rewards,
+    attach_invite_abode_message,
     can_start_party,
     cancel_party_for_player,
     cancel_party,
     create_party_with_invites,
     expire_stale_dungeon_parties,
     format_invite_embed_description,
+    find_party_for_player,
+    invited_discord_ids,
+    iter_invite_message_refs,
+    load_invites,
     load_members,
     member_discord_ids,
     party_ready_to_launch,
@@ -74,23 +79,41 @@ async def coop_dungeon_autocomplete(
 
 
 class DungeonInviteView(discord.ui.View):
-    def __init__(self, party_id: int, invited_discord_ids: set[str]):
-        super().__init__(timeout=PARTY_LOBBY_TIMEOUT_SECONDS)
+    def __init__(
+        self,
+        party_id: int,
+        invited_discord_ids: set[str],
+        *,
+        is_lobby: bool = False,
+    ):
+        timeout = PARTY_LOBBY_TIMEOUT_SECONDS if is_lobby else None
+        super().__init__(timeout=timeout)
         self.party_id = party_id
         self.invited_discord_ids = invited_discord_ids
+        self.is_lobby = is_lobby
         self.message: discord.Message | None = None
 
     def _disable(self) -> None:
         for item in self.children:
             item.disabled = True
 
-    async def _edit(self, interaction: discord.Interaction, embed: discord.Embed) -> None:
-        self._disable()
+    async def _update_message(
+        self,
+        interaction: discord.Interaction,
+        embed: discord.Embed,
+        *,
+        disable: bool = False,
+    ) -> None:
+        if disable:
+            self._disable()
         target = interaction.message if interaction.message is not None else self.message
         if target is not None:
             await target.edit(embed=embed, view=self)
 
     async def on_timeout(self) -> None:
+        if not self.is_lobby:
+            return
+
         from .dungeon_arena import build_dungeon_cancelled_embed
 
         session = get_session()
@@ -101,24 +124,35 @@ class DungeonInviteView(discord.ui.View):
             cancel_party(party)
             session.add(party)
             session.commit()
-            embed = build_dungeon_cancelled_embed(
-                reason=(
-                    "No ally accepted in time — the expedition dissolves. "
-                    "Run **`/dungeon`** again when your party is ready."
-                ),
-            )
-            self._disable()
-            if self.message is not None:
-                try:
-                    await self.message.edit(embed=embed, view=self)
-                except discord.HTTPException:
-                    pass
+            client = self.message.client if self.message is not None else None
+            if client is not None:
+                await sync_dungeon_invite_ui(
+                    client,
+                    party,
+                    cancelled_reason=(
+                        "No ally accepted in time — the expedition dissolves. "
+                        "Run **`/dungeon`** again when your party is ready."
+                    ),
+                )
+            else:
+                embed = build_dungeon_cancelled_embed(
+                    reason=(
+                        "No ally accepted in time — the expedition dissolves. "
+                        "Run **`/dungeon`** again when your party is ready."
+                    ),
+                )
+                self._disable()
+                if self.message is not None:
+                    try:
+                        await self.message.edit(embed=embed, view=self)
+                    except discord.HTTPException:
+                        pass
         finally:
             session.close()
 
     @discord.ui.button(label="Accept", style=discord.ButtonStyle.success)
     async def accept_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        from .bot import ensure_player, get_discord_id, get_guild_id, rng_for
+        from .bot import get_discord_id
 
         actor_id = get_discord_id(interaction.user)
         if actor_id not in self.invited_discord_ids:
@@ -128,51 +162,230 @@ class DungeonInviteView(discord.ui.View):
             )
             return
 
-        await interaction.response.defer(ephemeral=False)
-        session = get_session()
+        await handle_dungeon_invite_accept(interaction, self.party_id, actor_id)
+
+
+def _build_invite_embed(party: ActiveDungeonParty) -> discord.Embed:
+    coop = get_cooperative_dungeon(party.dungeon_id)
+    title = coop.name if coop else "Dungeon Expedition"
+    return discord.Embed(
+        title=title,
+        description=format_invite_embed_description(party),
+        color=discord.Color.blurple(),
+    )
+
+
+def _build_abode_invite_embed(party: ActiveDungeonParty, invitee_dao_name: str) -> discord.Embed:
+    embed = _build_invite_embed(party)
+    embed.description = (
+        f"**{invitee_dao_name}**, an expedition summons you.\n\n"
+        f"{embed.description}\n\n"
+        "_Accept here or where the party was formed — both stay in sync._"
+    )
+    return embed
+
+
+def _invite_view(
+    party_id: int,
+    allowed_discord_ids: set[str],
+    *,
+    is_lobby: bool,
+    disable: bool,
+) -> DungeonInviteView:
+    view = DungeonInviteView(party_id, allowed_discord_ids, is_lobby=is_lobby)
+    if disable or not allowed_discord_ids:
+        view._disable()
+    return view
+
+
+async def _edit_invite_message(
+    guild: discord.Guild,
+    channel_id: str,
+    message_id: str,
+    embed: discord.Embed,
+    view: DungeonInviteView,
+) -> None:
+    channel = guild.get_channel(int(channel_id))
+    if channel is None:
         try:
-            guild_id = get_guild_id(interaction)
-            party = session.get(ActiveDungeonParty, self.party_id)
-            if party is None or party.status != "lobby":
-                await interaction.followup.send("This expedition is no longer open.", ephemeral=False)
-                return
+            channel = await guild.fetch_channel(int(channel_id))
+        except discord.HTTPException:
+            return
+    if not isinstance(channel, (discord.TextChannel, discord.Thread)):
+        return
+    try:
+        message = await channel.fetch_message(int(message_id))
+        await message.edit(embed=embed, view=view)
+    except discord.HTTPException:
+        logger.debug(
+            "Could not sync dungeon invite message guild=%s channel=%s message=%s",
+            guild.id,
+            channel_id,
+            message_id,
+        )
 
-            player = ensure_player(session, guild_id, actor_id)
-            if player is None:
-                await interaction.followup.send(NOT_STARTED_HINT, ephemeral=False)
-                return
 
-            accepted, msg = accept_invite(session, party, player)
-            if not accepted:
-                await interaction.followup.send(msg, ephemeral=False)
-                return
+async def sync_dungeon_invite_ui(
+    client: discord.Client,
+    party: ActiveDungeonParty,
+    *,
+    disable_all: bool = False,
+    accepted_discord_ids: set[str] | None = None,
+    cancelled_reason: str | None = None,
+) -> None:
+    from .dungeon_arena import build_dungeon_cancelled_embed
 
-            session.add(party)
-            session.commit()
+    accepted_discord_ids = accepted_discord_ids or set()
+    guild = client.get_guild(int(party.guild_id))
+    if guild is None:
+        try:
+            guild = await client.fetch_guild(int(party.guild_id))
+        except (discord.HTTPException, ValueError):
+            return
 
-            embed = discord.Embed(
-                title="Dungeon Expedition",
-                description=format_invite_embed_description(party),
-                color=discord.Color.blurple(),
+    if cancelled_reason:
+        embed = build_dungeon_cancelled_embed(reason=cancelled_reason)
+        disable_all = True
+        pending: set[str] = set()
+    else:
+        embed = _build_invite_embed(party)
+        pending = invited_discord_ids(party)
+
+    if party.channel_id and party.lobby_message_id:
+        lobby_disable = disable_all or not pending
+        lobby_allowed = pending if not lobby_disable else set()
+        await _edit_invite_message(
+            guild,
+            party.channel_id,
+            party.lobby_message_id,
+            embed,
+            _invite_view(party.id, lobby_allowed, is_lobby=True, disable=lobby_disable),
+        )
+
+    for discord_id, channel_id, message_id, is_pending in iter_invite_message_refs(party):
+        should_disable = disable_all
+        if not should_disable and not is_pending:
+            should_disable = True
+        elif not should_disable and discord_id in accepted_discord_ids:
+            should_disable = True
+
+        allowed = {discord_id} if is_pending and not should_disable else set()
+        abode_embed = embed
+        if not cancelled_reason and is_pending:
+            invitee_name = next(
+                (inv.dao_name for inv in load_invites(party) if inv.discord_id == discord_id),
+                "Daoist",
+            )
+            abode_embed = _build_abode_invite_embed(party, invitee_name)
+
+        await _edit_invite_message(
+            guild,
+            channel_id,
+            message_id,
+            abode_embed,
+            _invite_view(party.id, allowed, is_lobby=False, disable=should_disable),
+        )
+
+
+async def post_dungeon_abode_invites(
+    guild: discord.Guild,
+    party: ActiveDungeonParty,
+    leader: Player,
+    invitees: list[Player],
+) -> None:
+    for invitee in invitees:
+        if not invitee.abode_channel_id:
+            continue
+        channel = guild.get_channel(int(invitee.abode_channel_id))
+        if channel is None:
+            try:
+                channel = await guild.fetch_channel(int(invitee.abode_channel_id))
+            except discord.HTTPException:
+                logger.debug(
+                    "Abode channel missing for invite guild=%s player=%s channel=%s",
+                    guild.id,
+                    invitee.discord_id,
+                    invitee.abode_channel_id,
+                )
+                continue
+        if not isinstance(channel, discord.TextChannel):
+            continue
+
+        embed = _build_abode_invite_embed(party, invitee.dao_name or "Daoist")
+        view = DungeonInviteView(party.id, {invitee.discord_id}, is_lobby=False)
+        try:
+            msg = await channel.send(
+                content=f"<@{invitee.discord_id}> — **{leader.dao_name}** calls you to a dungeon expedition.",
+                embed=embed,
+                view=view,
+            )
+            view.message = msg
+            attach_invite_abode_message(
+                party,
+                invitee.discord_id,
+                abode_channel_id=str(channel.id),
+                abode_message_id=str(msg.id),
+            )
+        except discord.HTTPException:
+            logger.exception(
+                "Failed to post dungeon invite to abode guild=%s player=%s",
+                guild.id,
+                invitee.discord_id,
             )
 
-            if party_ready_to_launch(party):
-                await self._edit(interaction, embed)
-                err = await _launch_dungeon(
-                    interaction,
-                    party,
-                    session,
-                    get_config(),
-                    rng_for(guild_id, party.leader_discord_id),
-                )
-                if err:
-                    await interaction.followup.send(err, ephemeral=False)
-                return
 
-            await self._edit(interaction, embed)
+async def handle_dungeon_invite_accept(
+    interaction: discord.Interaction,
+    party_id: int,
+    actor_discord_id: str,
+) -> None:
+    from .bot import ensure_player, get_guild_id, rng_for
+
+    await interaction.response.defer(ephemeral=False)
+    session = get_session()
+    try:
+        guild_id = get_guild_id(interaction)
+        party = session.get(ActiveDungeonParty, party_id)
+        if party is None or party.status != "lobby":
+            await interaction.followup.send("This expedition is no longer open.", ephemeral=False)
+            return
+
+        player = ensure_player(session, guild_id, actor_discord_id)
+        if player is None:
+            await interaction.followup.send(NOT_STARTED_HINT, ephemeral=False)
+            return
+
+        accepted, msg = accept_invite(session, party, player)
+        if not accepted:
             await interaction.followup.send(msg, ephemeral=False)
-        finally:
-            session.close()
+            return
+
+        session.add(party)
+        session.commit()
+
+        ready = party_ready_to_launch(party)
+        await sync_dungeon_invite_ui(
+            interaction.client,
+            party,
+            disable_all=ready,
+            accepted_discord_ids={actor_discord_id},
+        )
+
+        if ready:
+            err = await _launch_dungeon(
+                interaction,
+                party,
+                session,
+                get_config(),
+                rng_for(guild_id, party.leader_discord_id),
+            )
+            if err:
+                await interaction.followup.send(err, ephemeral=False)
+            return
+
+        await interaction.followup.send(msg, ephemeral=False)
+    finally:
+        session.close()
 
 
 class DungeonCombatView(discord.ui.View):
@@ -899,19 +1112,15 @@ def setup_dungeon_command(bot) -> None:
                 return
 
             coop = get_cooperative_dungeon(dungeon)
-            title = coop.name if coop else "Dungeon Expedition"
-            embed = discord.Embed(
-                title=title,
-                description=format_invite_embed_description(party),
-                color=discord.Color.blurple(),
-            )
-            invited_ids = {p.discord_id for p in invitee_players}
-            view = DungeonInviteView(party.id, invited_ids)
+            embed = _build_invite_embed(party)
+            invited_ids = invited_discord_ids(party)
+            view = DungeonInviteView(party.id, invited_ids, is_lobby=True)
             await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
             msg = await interaction.original_response()
             view.message = msg
             party.lobby_message_id = str(msg.id)
             party.channel_id = str(interaction.channel_id)
+            await post_dungeon_abode_invites(interaction.guild, party, leader, invitee_players)
             session.add(party)
             session.commit()
         finally:
@@ -935,9 +1144,27 @@ def setup_dungeon_command(bot) -> None:
             if player is None:
                 await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
                 return
+            party = find_party_for_player(session, guild_id, discord_id)
             ok, message = cancel_party_for_player(session, guild_id, discord_id)
             if ok:
                 session.commit()
             await interaction.response.send_message(message, ephemeral=False)
+            if (
+                ok
+                and party is not None
+                and interaction.client is not None
+                and (party.lobby_message_id or iter_invite_message_refs(party))
+            ):
+                try:
+                    await sync_dungeon_invite_ui(
+                        interaction.client,
+                        party,
+                        cancelled_reason=message,
+                    )
+                except Exception:
+                    logger.exception(
+                        "Failed to sync cancelled dungeon invite UI party=%s",
+                        party.id,
+                    )
         finally:
             session.close()

@@ -10,6 +10,7 @@ from src.combat.catalog import get_technique, load_technique_catalog
 from src.combat.effects import (
     CombatantState,
     apply_status,
+    get_status_instance,
     has_status,
     is_stunned,
     spread_burn,
@@ -17,6 +18,7 @@ from src.combat.effects import (
     tick_statuses,
     turn_skip_message,
 )
+from src.combat_stats import PlayerCombatStats
 from src.combat.engine import (
     CombatState,
     _opponent_damage,
@@ -101,6 +103,64 @@ def test_burn_stacks_increase_dot():
     hp_before = target.hp
     tick_statuses(target)
     assert target.hp == hp_before - 8
+
+
+def test_dot_potency_scales_tick_damage():
+    target = CombatantState(hp=200, max_hp=200)
+    apply_status(target, "burn", potency=2.5)
+    hp_before = target.hp
+    tick_statuses(target)
+    assert target.hp == hp_before - 10
+
+
+def test_compute_dot_potency_tracks_strength():
+    from src.combat.triggers import compute_dot_potency
+
+    ember = get_technique("ember_palm")
+    low = PlayerCombatStats(
+        hp=200,
+        max_hp=200,
+        internal_strength=40,
+        external_strength=40,
+        agility=25,
+        spiritual_sense=20,
+        defense=12,
+        comprehension=10,
+        luck=10,
+        crit_chance=0.05,
+        dodge=0.05,
+    )
+    high = PlayerCombatStats(
+        hp=200,
+        max_hp=200,
+        internal_strength=450,
+        external_strength=450,
+        agility=160,
+        spiritual_sense=120,
+        defense=120,
+        comprehension=45,
+        luck=45,
+        crit_chance=0.05,
+        dodge=0.05,
+    )
+    low_pot = compute_dot_potency(low, ember, None, "burn")
+    high_pot = compute_dot_potency(high, ember, None, "burn")
+    assert low_pot == 1.0
+    assert high_pot > low_pot * 2
+
+
+def test_spread_burn_inherits_carrier_potency():
+    class _AlwaysSpread:
+        def random(self) -> float:
+            return 0.0
+
+    carrier = CombatantState(hp=100, max_hp=100)
+    other = CombatantState(hp=100, max_hp=100)
+    apply_status(carrier, "burn", potency=3.0)
+    lines = spread_burn(carrier, "Alpha", [(other, "Beta")], _AlwaysSpread())
+    assert has_status(other, "burn")
+    assert get_status_instance(other, "burn").potency == 3.0
+    assert lines
 
 
 def test_status_stun_blocks_action():
