@@ -8,7 +8,7 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .equipment_tiers import EquipmentTierEntry, gear_is_active, path_label
+from .equipment_tiers import EquipmentTierEntry, gear_is_active, path_label, rarity_label
 from .inventory import add_item, get_item_name
 from .models import EQUIPMENT_SLOTS, Player, PlayerEquipment, PlayerGearItem
 
@@ -24,10 +24,12 @@ class GearView:
     stat_defense: int
     stat_fortune: int
     stat_insight: int
+    stat_hp: int
     affix_id: str | None
     technique_tag: str | None
     gear_realm: int
     gear_grade: str
+    gear_rarity: str
 
 
 @dataclass
@@ -63,10 +65,12 @@ def gear_item_to_view(item: PlayerGearItem) -> GearView:
         stat_defense=item.stat_defense,
         stat_fortune=item.stat_fortune,
         stat_insight=item.stat_insight,
+        stat_hp=int(getattr(item, "stat_hp", 0) or 0),
         affix_id=item.affix_id,
         technique_tag=item.technique_tag,
         gear_realm=item.gear_realm,
         gear_grade=item.gear_grade,
+        gear_rarity=str(getattr(item, "gear_rarity", None) or "common"),
     )
 
 
@@ -85,10 +89,12 @@ def resolve_equipped_gear(session: Session, eq: PlayerEquipment) -> GearView | N
         stat_defense=eq.stat_defense,
         stat_fortune=eq.stat_fortune,
         stat_insight=eq.stat_insight,
+        stat_hp=0,
         affix_id=eq.affix_id,
         technique_tag=eq.technique_tag,
         gear_realm=eq.gear_realm,
         gear_grade=eq.gear_grade,
+        gear_rarity="common",
     )
 
 
@@ -118,6 +124,36 @@ def clear_slot_row(eq: PlayerEquipment) -> None:
     eq.gear_grade = "external"
 
 
+def _power_stat_label(path: str) -> str:
+    from .equipment_tiers import normalize_gear_path
+
+    normalized = normalize_gear_path(path)
+    if normalized == "external":
+        return "Ext Pow"
+    if normalized == "internal":
+        return "Int Pow"
+    return "HP"
+
+
+def _format_gear_stat_bits(item: PlayerGearItem) -> list[str]:
+    from .equipment_tiers import normalize_gear_path
+
+    path = normalize_gear_path(item.gear_grade)
+    stat_bits: list[str] = []
+    if path == "hp":
+        if item.stat_hp:
+            stat_bits.append(f"HP {item.stat_hp}")
+    elif item.stat_power:
+        stat_bits.append(f"{_power_stat_label(path)} {item.stat_power}")
+    if item.stat_defense:
+        stat_bits.append(f"Def {item.stat_defense}")
+    if item.stat_fortune:
+        stat_bits.append(f"Fort {item.stat_fortune}")
+    if item.stat_insight:
+        stat_bits.append(f"Ins {item.stat_insight}")
+    return stat_bits
+
+
 def create_gear_item(
     session: Session,
     player_id: int,
@@ -126,6 +162,7 @@ def create_gear_item(
     *,
     realm_index: int,
     grade: str,
+    rarity: str = "common",
 ) -> PlayerGearItem:
     item = PlayerGearItem(
         player_id=player_id,
@@ -135,9 +172,11 @@ def create_gear_item(
         stat_defense=int(rolled_stats.get("defense", 0)),
         stat_fortune=int(rolled_stats.get("fortune", 0)),
         stat_insight=int(rolled_stats.get("insight", 0)),
+        stat_hp=int(rolled_stats.get("hp", 0)),
         technique_tag=entry.technique_tag,
         gear_realm=max(0, int(realm_index)),
         gear_grade=grade,
+        gear_rarity=str(rarity).lower(),
         equipped_in_slot=None,
     )
     session.add(item)
@@ -155,6 +194,7 @@ def create_gear_item_from_shop(
     realm_index: int,
     grade: str = "external",
     technique_tag: str | None = None,
+    rarity: str = "common",
 ) -> PlayerGearItem:
     item = PlayerGearItem(
         player_id=player_id,
@@ -164,9 +204,11 @@ def create_gear_item_from_shop(
         stat_defense=int(stats.get("defense", 0)),
         stat_fortune=int(stats.get("fortune", 0)),
         stat_insight=int(stats.get("insight", 0)),
+        stat_hp=int(stats.get("hp", 0)),
         technique_tag=technique_tag,
         gear_realm=max(0, int(realm_index)),
         gear_grade=grade,
+        gear_rarity=str(rarity).lower(),
         equipped_in_slot=None,
     )
     session.add(item)
@@ -209,18 +251,11 @@ def get_gear_item(session: Session, player_id: int, gear_item_id: int) -> Player
 def format_gear_item_label(item: PlayerGearItem, *, prefix: str = "") -> str:
     name = get_item_name(item.item_id)
     path = path_label(item.gear_grade)
-    stat_bits = []
-    if item.stat_power:
-        stat_bits.append(f"Pow {item.stat_power}")
-    if item.stat_defense:
-        stat_bits.append(f"Def {item.stat_defense}")
-    if item.stat_fortune:
-        stat_bits.append(f"Fort {item.stat_fortune}")
-    if item.stat_insight:
-        stat_bits.append(f"Ins {item.stat_insight}")
+    rarity = rarity_label(str(getattr(item, "gear_rarity", None) or "common"))
+    stat_bits = _format_gear_stat_bits(item)
     stats_text = " · ".join(stat_bits) if stat_bits else "modest qi"
     worn = f" · worn {item.equipped_in_slot}" if item.equipped_in_slot else ""
-    return f"{prefix}#{item.id} · {path} {name} ({stats_text}){worn}"
+    return f"{prefix}#{item.id} · {rarity} {path} {name} ({stats_text}){worn}"
 
 
 def equip_gear_item(

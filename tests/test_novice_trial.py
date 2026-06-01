@@ -56,7 +56,7 @@ def _novice_player(session, **overrides) -> Player:
 def test_novice_mortal_early_qi_cap(session):
     player = _novice_player(session)
     assert qi_cap(0, 0, player) == NOVICE_MORTAL_EARLY_CAP
-    player.novice_trial_step = 6
+    player.novice_trial_step = 7
     assert qi_cap(0, 0, player) == 100
 
 
@@ -92,7 +92,7 @@ def test_novice_cultivate_boost(session):
 
 
 def test_first_adventure_uses_sage_encounter(session):
-    player = _novice_player(session)
+    player = _novice_player(session, novice_trial_step=5, story_step="wait_adventure")
     assert is_first_adventure(player)
     pending, err = start_adventure_session(session, player, "bamboo_grove", "balanced", rng=random.Random(1))
     assert err is None
@@ -105,21 +105,28 @@ def test_sage_encounter_has_no_catastrophic_fail():
         assert choice.fail_chance == 0.0
 
 
-def test_trial_breakthrough_completion_reward(session):
-    player = _novice_player(session, novice_trial_step=5, qi=60)
-    msgs = on_breakthrough_success(session, player, random.Random(1))
-    assert trial_complete(player)
-    assert player.spirit_stones >= 15
-    assert msgs
+def test_learn_and_equip_advances_trial(session):
+    from src.combat.loadout import equip_technique
 
-
-def test_learn_second_technique_advances_trial(session):
     player = _novice_player(session, novice_trial_step=3)
     learn_technique(session, player.id, "basic_strike")
     ok, msg = learn_technique(session, player.id, "swift_slash")
     assert ok
     assert player.novice_trial_step == 4
-    assert "Step 4" in msg
+    assert "Equip Skill" in msg
+
+    ok, equip_msg = equip_technique(session, player, "swift_slash", "1")
+    assert ok
+    assert player.novice_trial_step == 5
+    assert "Step 5" in equip_msg
+
+
+def test_trial_breakthrough_completion_reward(session):
+    player = _novice_player(session, novice_trial_step=6, qi=60)
+    msgs = on_breakthrough_success(session, player, random.Random(1))
+    assert trial_complete(player)
+    assert player.spirit_stones >= 15
+    assert msgs
 
 
 def test_first_cultivate_forces_meridian_event(session, player):
@@ -149,21 +156,40 @@ def test_failed_first_adventure_does_not_block_sage(session):
         requires_sage_trial,
     )
 
-    player = _novice_player(session, novice_trial_step=4, adventures_completed=0)
+    player = _novice_player(
+        session, novice_trial_step=5, story_step="wait_adventure", adventures_completed=0
+    )
     on_adventure_completed(session, player, segments_cleared=0)
     assert player.adventures_completed == 0
-    assert player.novice_trial_step == 4
+    assert player.novice_trial_step == 5
     assert requires_sage_trial(player)
 
     player.adventures_completed = 1
-    assert requires_sage_trial(player)
+    assert not requires_sage_trial(player)
     assert heal_stuck_novice_adventure(player)
     assert player.adventures_completed == 0
 
-    player.novice_trial_step = 4
+    player.novice_trial_step = 5
+    player.story_step = "wait_adventure"
     player.adventures_completed = 0
     msgs, waive = on_adventure_completed(session, player, segments_cleared=SEGMENTS_PER_RUN)
     assert player.adventures_completed == 1
-    assert player.novice_trial_step == 5
+    assert player.novice_trial_step == 6
     assert waive
     assert msgs
+
+
+def test_premature_adventure_healed_before_sage_trial(session):
+    from src.novice_trial import heal_premature_trial_adventure, requires_sage_trial
+
+    player = _novice_player(
+        session,
+        novice_trial_step=5,
+        story_step="after_equip",
+        adventures_completed=1,
+    )
+    player.last_adventure_at = player.last_active_at
+    assert requires_sage_trial(player) is False
+    assert heal_premature_trial_adventure(session, player)
+    assert player.adventures_completed == 0
+    assert player.last_adventure_at is None

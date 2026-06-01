@@ -36,33 +36,32 @@ def get_welcome_intro() -> str:
         "**What this is:** a casual xianxia game paced for ~15 minutes a day. "
         "Gather qi, break through realms, explore for materials, craft pills, "
         "and challenge other daoists.\n\n"
-        "**Your first session:** claim your daily stipend, cultivate qi, and "
-        "venture into **Mortal Grove** when you are ready."
+        "**Your first session:** Elder Yunjian guides your awakening — follow his counsel "
+        "through **`/daily`**, **`/cultivate`**, and the trials ahead."
     )
 
 
 def get_start_next_steps() -> str:
     return (
-        "1. **`/daily`** — claim spirit stones and qi (starts the **Outer Disciple Trial**).\n"
-        "2. **`/profile`** — dashboard, trial step, timers, **Cultivate** button.\n"
-        "3. **`/cultivate`** once when ready (or use the profile button).\n"
-        "4. **`/hunt`** in Mortal Grove — win your first beast fight.\n"
-        "5. **`/techniques`** — unlock your origin manual, equip arts, read your library.\n"
-        "6. **`/adventure`** — complete the sage's trial (karma choice).\n"
-        "7. **`/breakthrough`** when qi is full · **`/help`** anytime.\n\n"
+        "1. Follow **Elder Yunjian** — your story begins with **`/start`**.\n"
+        "2. **`/daily`** — claim spirit stones and qi when he bids you.\n"
+        "3. **`/profile`** — dashboard, Elder's trial step, **Cultivate** button.\n"
+        "4. **`/cultivate`** once when ready (or use the profile button).\n"
+        "5. **`/hunt`** in Mortal Grove — win your first beast fight.\n"
+        "6. **`/techniques`** — unlock your manual, equip arts.\n"
+        "7. **`/adventure`** — complete the sage's trial.\n"
+        "8. **`/breakthrough`** when qi is full · **`/story`** at Qi Refining · **`/help`** anytime.\n\n"
         "Not happy with your spirit root? **`/reroll_root`** once for free."
     )
 
 
 def get_abode_welcome_intro(dao_name: str) -> str:
+    from .story_mode import get_elder_name
+
+    elder = get_elder_name()
     return (
         f"**{dao_name}**, this is your abode — a private chamber where the world cannot intrude.\n\n"
-        "Cultivate qi here, claim your daily stipend, hunt spirit beasts, and walk the path of adventure. "
-        "Only you and the heavens witness what unfolds within these walls.\n\n"
-        "**Begin here**\n"
-        "1. **`/daily`** — claim spirit stones and qi\n"
-        "2. **`/profile`** — your dashboard, trial step, and timers\n"
-        "3. **`/cultivate`** when ready · **`/help`** for the full guide"
+        f"**{elder}** speaks below. Answer their questions there to continue your awakening."
     )
 
 
@@ -70,7 +69,8 @@ def get_help_sections() -> list[tuple[str, str]]:
     return [
         (
             "Getting started",
-            "`/start` — choose your dao name and origin (starting gifts and manuals)\n"
+            "`/start` — awaken with Elder Yunjian (your story continues in your **abode**)\n"
+            "`/story` — reopen the Elder's tale in your abode\n"
             "`/profile` — cultivation dashboard with activity timers and martial summary\n"
             "`/roots` — spirit root tier list & stat bonuses\n"
             "`/help` — this guide\n"
@@ -421,6 +421,10 @@ def add_guidance_to_embed(
     now: datetime,
     remaining_fn,
 ) -> None:
+    from .story_mode import should_show_command_guidance
+
+    if not should_show_command_guidance(player):
+        return
     next_steps = get_next_steps(command, player, session, cfg, now, remaining_fn)
     embed.add_field(name="What happens next", value=next_steps, inline=False)
     embed.set_footer(text=GUIDANCE_FOOTER)
@@ -436,6 +440,10 @@ def format_guidance_content(
 ) -> str | None:
     """Plain-text guidance for image-only command replies."""
     if player is None:
+        return None
+    from .story_mode import should_show_command_guidance
+
+    if not should_show_command_guidance(player):
         return None
     next_steps = get_next_steps(command, player, session, cfg, now, remaining_fn)
     return f"**What happens next**\n{next_steps}\n_{GUIDANCE_FOOTER}_"
@@ -478,7 +486,10 @@ def build_cooldown_embed(
     embed.add_field(name="Timed commands", value="\n".join(lines), inline=False)
     embed.add_field(name="No cooldown", value=NO_COOLDOWN_COMMANDS, inline=False)
 
-    next_steps = get_next_steps("cooldown", player, None, cfg, now, remaining_fn)
-    embed.add_field(name="Suggested next step", value=next_steps, inline=False)
+    from .story_mode import should_show_command_guidance
+
+    if should_show_command_guidance(player):
+        next_steps = get_next_steps("cooldown", player, None, cfg, now, remaining_fn)
+        embed.add_field(name="Suggested next step", value=next_steps, inline=False)
     embed.set_footer(text=GUIDANCE_FOOTER)
     return embed

@@ -101,6 +101,7 @@ class ProfileCardData:
     next_action_line: str
     activity_line: str
     trial_complete: bool
+    suppress_dashboard_hints: bool = False
     effect_lines: list[str] = field(default_factory=list)
     trial_line: str | None = None
     passive_qi_line: str | None = None
@@ -281,6 +282,9 @@ def build_profile_card_data(
     from ..game_sects import get_sect_def
     from ..models import Clan
     from ..novice_trial import format_trial_progress
+    from ..story_mode import elder_trial_active
+
+    suppress_hints = elder_trial_active(player)
 
     ensure_starter_techniques(session, player.id)
     cap = qi_cap(player.realm_index, player.substage, player)
@@ -386,8 +390,12 @@ def build_profile_card_data(
         format_active_cultivate_line(cult_preview, mod).replace("**", "").replace("_", "")
     )
     cultivate_gain_line = f"+{cult_preview.active_qi_min}-{cult_preview.active_qi_max} Qi"
-    next_action_line = _next_action_line(player, cfg, now, cap, cultivate_gain_line)
-    activity_line = _activity_status_line(player, cfg, now)
+    if suppress_hints:
+        next_action_line = ""
+        activity_line = ""
+    else:
+        next_action_line = _next_action_line(player, cfg, now, cap, cultivate_gain_line)
+        activity_line = _activity_status_line(player, cfg, now)
 
     pvp_total = player.pvp_wins + player.pvp_losses
     pvp_record = f"{player.pvp_wins}W / {player.pvp_losses}L" if pvp_total else "No duels yet"
@@ -419,7 +427,8 @@ def build_profile_card_data(
         equipment_slots=equipment_views,
         next_action_line=plain_card_text(next_action_line)[:150],
         activity_line=plain_card_text(activity_line)[:150],
-        trial_complete=player.novice_trial_step >= 6,
+        trial_complete=player.novice_trial_step >= 7,
+        suppress_dashboard_hints=suppress_hints,
         effect_lines=effect_lines,
         trial_line=plain_card_text(trial) if (trial := format_trial_progress(player)) else None,
         passive_qi_line=passive_qi_line[:140] if passive_qi_line else None,
@@ -588,14 +597,17 @@ def _has_forged_gear(data: ProfileCardData) -> bool:
 
 def _estimate_card_height(data: ProfileCardData) -> int:
     h = 108 + 102 + 72  # header, identity, qi bar
-    h += 22 + 74 + 12  # next action
-    martial_h = max(48, len(data.martial_lines) * 26 + 18)
-    if data.martial_hint:
-        martial_h += 30
-    h += 22 + martial_h + 10  # martial dao
+    if not data.suppress_dashboard_hints:
+        h += 22 + 74 + 12  # next action
+        martial_h = max(48, len(data.martial_lines) * 26 + 18)
+        if data.martial_hint:
+            martial_h += 30
+        h += 22 + martial_h + 10  # martial dao
+    elif data.trial_line:
+        h += 22 + 68  # elder instruction
     if _has_forged_gear(data):
         h += 22 + 42 + 14  # forged gear summary
-    if data.trial_line and not (data.breakthrough_ready and data.trial_complete):
+    if data.trial_line and not (data.breakthrough_ready and data.trial_complete) and not data.suppress_dashboard_hints:
         h += 38
     if data.effect_lines:
         h += 48
@@ -701,34 +713,40 @@ def render_profile_card(data: ProfileCardData, avatar: Image.Image | None = None
         _center_text(draw, bar_label, bar_box, font_sm, TEXT)
         y = bar_y + 40
 
-    # Next action — the card should answer what to do now before showing stats.
-    y = _section_title(draw, "NEXT ACTION", y, font_section, font_xs)
-    _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + 72), (18, 36, 46), CYAN, radius=10, width=2)
-    _fit_text(draw, data.next_action_line, CARD_W - 2 * MARGIN - 24, font_md, CYAN_BRIGHT, (MARGIN + 14, y + 12))
-    _fit_text(draw, data.activity_line, CARD_W - 2 * MARGIN - 24, font_xs, TEXT_DIM, (MARGIN + 14, y + 42))
-    y += 84
+    if not data.suppress_dashboard_hints:
+        # Next action — the card should answer what to do now before showing stats.
+        y = _section_title(draw, "NEXT ACTION", y, font_section, font_xs)
+        _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + 72), (18, 36, 46), CYAN, radius=10, width=2)
+        _fit_text(draw, data.next_action_line, CARD_W - 2 * MARGIN - 24, font_md, CYAN_BRIGHT, (MARGIN + 14, y + 12))
+        _fit_text(draw, data.activity_line, CARD_W - 2 * MARGIN - 24, font_xs, TEXT_DIM, (MARGIN + 14, y + 42))
+        y += 84
 
-    # Martial dao
-    y = _section_title(draw, "MARTIAL DAO", y, font_section, font_xs)
-    martial_h = max(48, len(data.martial_lines) * 26 + 18)
-    if data.martial_hint:
-        martial_h += 30
-    _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + martial_h), PANEL_ALT, PANEL_BORDER, radius=10)
-    for idx, line in enumerate(data.martial_lines):
-        prefix = "○ " if idx == 0 else "◆ "
-        _fit_text(draw, prefix + line, CARD_W - 2 * MARGIN - 24, font_sm, TEXT, (MARGIN + 14, y + 12 + idx * 26))
-    if data.martial_hint:
-        hint_y = y + 12 + len(data.martial_lines) * 26
-        _fit_text(draw, "⚠ " + data.martial_hint, CARD_W - 2 * MARGIN - 24, font_xs, GOLD_BRIGHT, (MARGIN + 14, hint_y))
-    y += martial_h + 10
+        # Martial dao
+        y = _section_title(draw, "MARTIAL DAO", y, font_section, font_xs)
+        martial_h = max(48, len(data.martial_lines) * 26 + 18)
+        if data.martial_hint:
+            martial_h += 30
+        _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + martial_h), PANEL_ALT, PANEL_BORDER, radius=10)
+        for idx, line in enumerate(data.martial_lines):
+            prefix = "○ " if idx == 0 else "◆ "
+            _fit_text(draw, prefix + line, CARD_W - 2 * MARGIN - 24, font_sm, TEXT, (MARGIN + 14, y + 12 + idx * 26))
+        if data.martial_hint:
+            hint_y = y + 12 + len(data.martial_lines) * 26
+            _fit_text(draw, "⚠ " + data.martial_hint, CARD_W - 2 * MARGIN - 24, font_xs, GOLD_BRIGHT, (MARGIN + 14, hint_y))
+        y += martial_h + 10
+    elif data.trial_line:
+        y = _section_title(draw, "ELDER'S INSTRUCTION", y, font_section, font_xs)
+        _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + 56), (18, 36, 46), CYAN, radius=10, width=2)
+        _fit_text(draw, data.trial_line, CARD_W - 2 * MARGIN - 24, font_sm, CYAN_BRIGHT, (MARGIN + 14, y + 12))
+        y += 68
 
-    if _has_forged_gear(data):
+    if _has_forged_gear(data) and not data.suppress_dashboard_hints:
         y = _section_title(draw, "FORGED GEAR", y, font_section, font_xs)
         _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + 40), PANEL, PANEL_BORDER, radius=10)
         _fit_text(draw, _gear_summary(data.equipment_slots), CARD_W - 2 * MARGIN - 24, font_sm, TEXT_DIM, (MARGIN + 14, y + 11))
         y += 54
 
-    if data.trial_line and not breakthrough_banner:
+    if data.trial_line and not breakthrough_banner and not data.suppress_dashboard_hints:
         _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + 32), (30, 36, 56), CYAN, radius=8)
         _fit_text(draw, data.trial_line, CARD_W - 2 * MARGIN - 24, font_sm, CYAN, (MARGIN + 12, y + 8))
         y += 38

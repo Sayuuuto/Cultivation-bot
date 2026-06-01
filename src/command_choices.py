@@ -13,7 +13,7 @@ from .combat.catalog import get_technique, get_technique_by_manual, load_techniq
 from .area_risk import format_area_choice_label
 from .content import area_for_realm, get_areas, get_dungeons, get_recipes, resolve_area_id
 from .equipment import get_player_equipment
-from .equipment_tiers import GEAR_GRADES, grade_label, normalize_gear_path, path_label, resolve_equipment_tier
+from .equipment_tiers import GEAR_GRADES, grade_label, normalize_gear_path, path_label, resolve_gear_entry
 from .forge import get_forge_recipes
 from .inventory import get_item_def, get_item_name, get_item_quantity, get_player_inventory, has_items, load_item_catalog
 from .manuals import MANUAL_CRAFT_INPUTS, can_unseal_manual, is_sealed_manual, unseal_manual_item_id
@@ -190,7 +190,7 @@ def list_forgeable_slots(session: Session, player_id: int, *, player: Player | N
     options: list[tuple[str, str]] = []
     for slot in ("weapon", "armor", "accessory", "talisman"):
         for grade in GEAR_GRADES:
-            entry = resolve_equipment_tier(realm_index, slot, grade)
+            entry = resolve_gear_entry(realm_index, slot, grade, "common")
             if entry is None:
                 continue
             if not has_items(session, player_id, entry.inputs):
@@ -198,7 +198,7 @@ def list_forgeable_slots(session: Session, player_id: int, *, player: Player | N
             inputs_text = ", ".join(
                 f"{get_item_name(item_id)} ×{qty}" for item_id, qty in sorted(entry.inputs.items())
             )
-            label = f"{slot.title()} ({path_label(grade)}) — {entry.name} ({inputs_text})"
+            label = f"{slot.title()} ({path_label(grade)}) — {entry.name} ({inputs_text}) · rarity rolls on forge"
             options.append((f"{slot}|{grade}", label))
     return options
 

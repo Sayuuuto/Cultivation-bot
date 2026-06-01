@@ -128,14 +128,40 @@ def scale_monster_stats(
     }
 
 
-def _apply_gear(stats: dict[str, int], gear: EquipmentStats, cfg: dict, *, mapping: dict | None = None) -> None:
-    mapping = mapping or cfg["gear_mapping"]
-    stats["internal_strength"] += int(gear.power * mapping["power_internal_ratio"])
-    stats["external_strength"] += int(gear.power * mapping["power_external_ratio"])
-    stats["defense"] += int(gear.defense * mapping["defense_per_point"])
-    stats["luck"] += int(gear.fortune * mapping["fortune_luck_ratio"])
-    stats["spiritual_sense"] += int(gear.insight * mapping["insight_spiritual_sense_ratio"])
-    stats["comprehension"] += int(gear.insight * mapping["insight_comprehension_ratio"])
+def _insight_split(cfg: dict) -> tuple[float, float]:
+    mapping = cfg.get("gear_mapping", {})
+    sense = float(mapping.get("insight_spiritual_sense_ratio", 0.6))
+    comp = float(mapping.get("insight_comprehension_ratio", 0.4))
+    return sense, comp
+
+
+def _apply_gear(stats: dict[str, int], gear: EquipmentStats, path: str, cfg: dict) -> None:
+    from .equipment_tiers import normalize_gear_path
+
+    path = normalize_gear_path(path)
+    sense_ratio, comp_ratio = _insight_split(cfg)
+
+    stats["defense"] += gear.defense
+    stats["luck"] += gear.fortune
+
+    if path == "external":
+        stats["external_strength"] += gear.power
+        stats["spiritual_sense"] += gear.insight
+    elif path == "internal":
+        stats["internal_strength"] += gear.power
+        stats["spiritual_sense"] += int(gear.insight * sense_ratio)
+        stats["comprehension"] += int(gear.insight * comp_ratio)
+    elif path == "hp":
+        stats["hp"] += gear.hp
+        stats["spiritual_sense"] += gear.insight
+
+
+def gear_combat_contribution(gear: EquipmentStats, path: str, cfg: dict | None = None) -> dict[str, int]:
+    """Return per-stat combat deltas from one gear piece (for display breakdowns)."""
+    cfg = cfg or _load_realm_stats()
+    out = {key: 0 for key in STAT_KEYS}
+    _apply_gear(out, gear, path, cfg)
+    return out
 
 
 def _apply_player_gear(
@@ -148,7 +174,7 @@ def _apply_player_gear(
 ) -> None:
     from sqlalchemy import select
 
-    from .equipment_tiers import gear_mapping_for_path, normalize_gear_path
+    from .equipment_tiers import normalize_gear_path
     from .gear_stash import resolve_equipped_gear
     from .models import PlayerEquipment
     from .stats import equipment_row_is_active, stats_from_gear_view
@@ -160,8 +186,7 @@ def _apply_player_gear(
             continue
         gear = stats_from_gear_view(view, active=True)
         path = normalize_gear_path(view.gear_grade)
-        mapping = gear_mapping_for_path(path, cfg["gear_mapping"])
-        _apply_gear(stats, gear, cfg, mapping=mapping)
+        _apply_gear(stats, gear, path, cfg)
 
 
 def compute_combat_stats(

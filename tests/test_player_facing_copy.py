@@ -57,11 +57,9 @@ def test_player_facing_modules_avoid_dev_process_language(module):
 def test_start_command_strings_are_in_world():
     start_cmd = bot.start_cmd
     description = (start_cmd.description or "").lower()
-    origin_param = start_cmd.parameters[1].description.lower()
 
     for phrase in FORBIDDEN_PLAYER_COPY:
         assert phrase not in description, f"/start description: {phrase}"
-        assert phrase not in origin_param, f"/start origin param: {phrase}"
 
 
 def test_start_guidance_hint_is_in_world():

@@ -249,6 +249,10 @@ def equip_technique(
         row.technique_id = technique_id
     session.flush()
 
+    from ..novice_trial import on_technique_equipped
+
+    extra = on_technique_equipped(session, player, technique_id)
+
     swap_note = ""
     if replaced_id and replaced_id != technique_id:
         old = get_technique(replaced_id)
@@ -256,8 +260,12 @@ def equip_technique(
             swap_note = f" **{old.name}** is unequipped but still in **My Skills**."
 
     if slot == PASSIVE_SLOT:
-        return True, f"Equipped **{tech.name}** as your **passive**.{swap_note}"
-    return True, f"Equipped **{tech.name}** in **slot {slot}**.{swap_note}"
+        msg = f"Equipped **{tech.name}** as your **passive**.{swap_note}"
+    else:
+        msg = f"Equipped **{tech.name}** in **slot {slot}**.{swap_note}"
+    if extra:
+        msg += "\n" + "\n".join(extra)
+    return True, msg
 
 
 def unequip_slot(session: Session, player_id: int, slot: str) -> tuple[bool, str]:

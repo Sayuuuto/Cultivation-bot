@@ -654,16 +654,17 @@ async def _send_log_chunks(channel, text: str) -> None:
         await channel.send(chunk)
 
 
-async def _post_new_log_lines(client, channel_id: str | None, state) -> None:
+async def _post_new_log_lines(client, channel_id: str | None, state) -> bool:
     """Append new combat log lines as separate channel messages."""
     text = format_new_log_lines(state)
     if not text:
-        return
+        return False
     channel = await _get_dungeon_channel_by_id(client, channel_id)
     if channel is None:
-        return
+        return False
     await _send_log_chunks(channel, text)
     state.log_cursor = len(state.log)
+    return True
 
 
 async def _convert_panel_to_log(channel, combat_message_id: str, state) -> bool:
@@ -772,15 +773,19 @@ async def _sync_combat_ui(
             return
 
         panel_rotated = False
+        logs_posted = False
         if pending_log:
             if combat_message_id:
                 panel_rotated = await _convert_panel_to_log(channel, combat_message_id, state)
-                if not panel_rotated:
-                    await _post_new_log_lines(client, channel_id, state)
+                if panel_rotated:
+                    logs_posted = True
+                else:
+                    logs_posted = await _post_new_log_lines(client, channel_id, state)
             else:
-                await _post_new_log_lines(client, channel_id, state)
+                logs_posted = await _post_new_log_lines(client, channel_id, state)
                 panel_rotated = True
-            combat_message_id = None
+            if logs_posted:
+                combat_message_id = None
 
         actor = state.current_actor()
         embed = build_dungeon_combat_embed(state)
@@ -826,7 +831,8 @@ async def _sync_combat_ui(
         except discord.HTTPException:
             logger.exception("Failed to refresh dungeon combat panel party=%s", party_id)
 
-        state.log_cursor = len(state.log)
+        if logs_posted:
+            state.log_cursor = len(state.log)
         save_combat_state(party, state)
         session.add(party)
         session.commit()

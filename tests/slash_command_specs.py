@@ -71,10 +71,14 @@ SLASH_COMMAND_SPECS: list[SlashCommandSpec] = [
     SlashCommandSpec("reset", kwargs={"confirm": False}),
     SlashCommandSpec(
         "start",
-        kwargs={"dao_name": "IntegrationDao", "origin": _origin_choice()},
         requires_player=False,
-        expect_not_started=True,
-        forbidden_in_text=("already begun",),
+        validate_view=True,
+    ),
+    SlashCommandSpec(
+        "story",
+        requires_player=True,
+        skip=True,
+        skip_reason="requires Qi Refining realm",
     ),
     SlashCommandSpec("clan"),
     SlashCommandSpec("clan-invites"),

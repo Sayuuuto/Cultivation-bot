@@ -1,0 +1,53 @@
+{
+  "unbroken_blade": {
+    "name": "Path of the Unbroken Blade",
+    "blurb": "Steel will and decisive strikes — the dao of the sword.",
+    "ceremony": "A phantom blade hums at your wrist; combat flows come easier to hand.",
+    "stat_note": "Blade path: +5% hunt and adventure success.",
+    "spirit_stones": 2,
+    "starting_qi": 0,
+    "items": {},
+    "flags": {
+      "hunt_success_bonus": 0.05,
+      "adventure_success_bonus": 0.05
+    }
+  },
+  "still_lotus": {
+    "name": "Path of the Still Lotus",
+    "blurb": "Rooted qi and patient defense — the dao of the shield.",
+    "ceremony": "Lotus light settles in your dantian; your meridians resist disruption.",
+    "stat_note": "Lotus path: +3 starting qi and a qi-gathering pill.",
+    "spirit_stones": 0,
+    "starting_qi": 3,
+    "items": {
+      "qi_gathering_pill": 1
+    },
+    "flags": {}
+  },
+  "wandering_star": {
+    "name": "Path of the Wandering Star",
+    "blurb": "Starlight and long breaths — the dao of steady cultivation.",
+    "ceremony": "A star-mark flickers on your palm; qi gathers when you rest.",
+    "stat_note": "Star path: +8% cultivate qi for your first sessions.",
+    "spirit_stones": 3,
+    "starting_qi": 5,
+    "items": {},
+    "flags": {
+      "cultivate_qi_bonus": 0.08
+    }
+  },
+  "hidden_ledger": {
+    "name": "Path of the Hidden Ledger",
+    "blurb": "Secrets, karma, and winding roads — the dao of the wanderer.",
+    "ceremony": "Hidden lines trace your fate; the world watches how you choose.",
+    "stat_note": "Ledger path: +spirit stones and a technique fragment.",
+    "spirit_stones": 5,
+    "starting_qi": 0,
+    "items": {
+      "technique_fragment": 1
+    },
+    "flags": {
+      "adventure_event_bonus": 0.05
+    }
+  }
+}

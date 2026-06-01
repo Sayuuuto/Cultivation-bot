@@ -153,6 +153,15 @@ class DungeonCombatState:
         return [f for f in self.fighters.values() if not f.is_enemy and f.alive()]
 
     def to_dict(self) -> dict[str, Any]:
+        max_log = 50
+        full_log = self.log
+        if len(full_log) > max_log:
+            dropped = len(full_log) - max_log
+            log = full_log[-max_log:]
+            log_cursor = max(0, min(self.log_cursor - dropped, len(log)))
+        else:
+            log = full_log
+            log_cursor = min(self.log_cursor, len(log))
         return {
             "party_id": self.party_id,
             "dungeon_id": self.dungeon_id,
@@ -162,7 +171,7 @@ class DungeonCombatState:
             "fighters": {k: v.to_dict() for k, v in self.fighters.items()},
             "turn_order": list(self.turn_order),
             "turn_index": self.turn_index,
-            "log": self.log[-50:],
+            "log": log,
             "finished": self.finished,
             "victory": self.victory,
             "room_cleared": self.room_cleared,
@@ -170,13 +179,15 @@ class DungeonCombatState:
             "pending_technique": self.pending_technique,
             "pending_loot": dict(self.pending_loot),
             "looted_enemy_ids": sorted(self.looted_enemy_ids),
-            "log_cursor": int(self.log_cursor),
+            "log_cursor": log_cursor,
             "last_pinged_actor_id": self.last_pinged_actor_id,
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> DungeonCombatState:
         fighters = {k: DungeonFighter.from_dict(v) for k, v in data.get("fighters", {}).items()}
+        log = list(data.get("log", []))
+        log_cursor = min(int(data.get("log_cursor", 0)), len(log))
         return cls(
             party_id=int(data["party_id"]),
             dungeon_id=str(data["dungeon_id"]),
@@ -186,7 +197,7 @@ class DungeonCombatState:
             fighters=fighters,
             turn_order=list(data.get("turn_order", [])),
             turn_index=int(data.get("turn_index", 0)),
-            log=list(data.get("log", [])),
+            log=log,
             finished=bool(data.get("finished", False)),
             victory=bool(data.get("victory", False)),
             room_cleared=bool(data.get("room_cleared", False)),
@@ -194,7 +205,7 @@ class DungeonCombatState:
             pending_technique=data.get("pending_technique"),
             pending_loot={str(k): int(v) for k, v in data.get("pending_loot", {}).items()},
             looted_enemy_ids=set(data.get("looted_enemy_ids", [])),
-            log_cursor=int(data.get("log_cursor", 0)),
+            log_cursor=log_cursor,
             last_pinged_actor_id=str(data.get("last_pinged_actor_id", "")),
         )
 

@@ -9,6 +9,7 @@ from src.combat.loadout import ensure_starter_techniques, learn_technique
 from src.combat.targeting import technique_hits_all_enemies
 from src.combat.catalog import get_technique
 from src.dungeon_combat import (
+    DungeonCombatState,
     advance_to_next_room,
     select_target,
     select_technique,
@@ -537,3 +538,34 @@ def test_format_new_log_lines_tracks_cursor(session, player):
     assert chunk
     state.log_cursor = len(state.log)
     assert format_new_log_lines(state) is None
+
+
+def test_log_cursor_survives_save_truncation(session, player):
+    from src.dungeon_arena import format_new_log_lines
+
+    party, _ = create_party_with_invites(
+        session,
+        guild_id=player.guild_id,
+        leader=player,
+        dungeon_id="mortal_catacomb",
+        invitees=[],
+    )
+    dungeon = get_cooperative_dungeon("mortal_catacomb")
+    state = start_room_combat(
+        session,
+        party_id=party.id,
+        dungeon=dungeon,
+        room_index=0,
+        members=load_members(party),
+        rng=random.Random(1),
+    )
+    state.log.extend(f"line {i}" for i in range(60))
+    state.log_cursor = 58
+
+    restored = DungeonCombatState.from_dict(state.to_dict())
+    assert len(restored.log) == 50
+    assert restored.log_cursor <= len(restored.log)
+    chunk = format_new_log_lines(restored)
+    assert chunk is not None
+    assert "line 58" in chunk
+    assert "line 59" in chunk

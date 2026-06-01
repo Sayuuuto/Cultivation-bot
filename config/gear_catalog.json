@@ -1,0 +1,10562 @@
+[
+  {
+    "id": "r0_internal_weapon_common",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Mortal Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        6,
+        14
+      ],
+      "defense": [
+        1,
+        4
+      ],
+      "fortune": [
+        1,
+        4
+      ],
+      "insight": [
+        3,
+        8
+      ]
+    }
+  },
+  {
+    "id": "r0_internal_weapon_rare",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Mortal Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        14,
+        20
+      ],
+      "defense": [
+        4,
+        6
+      ],
+      "fortune": [
+        4,
+        6
+      ],
+      "insight": [
+        8,
+        12
+      ]
+    }
+  },
+  {
+    "id": "r0_internal_weapon_legendary",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Mortal Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        20,
+        31
+      ],
+      "defense": [
+        6,
+        9
+      ],
+      "fortune": [
+        6,
+        9
+      ],
+      "insight": [
+        12,
+        19
+      ]
+    }
+  },
+  {
+    "id": "r0_internal_armor_common",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Mortal Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        2,
+        8
+      ],
+      "defense": [
+        10,
+        35
+      ],
+      "fortune": [
+        1,
+        5
+      ],
+      "insight": [
+        3,
+        8
+      ]
+    }
+  },
+  {
+    "id": "r0_internal_armor_rare",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Mortal Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        8,
+        12
+      ],
+      "defense": [
+        35,
+        51
+      ],
+      "fortune": [
+        5,
+        7
+      ],
+      "insight": [
+        8,
+        12
+      ]
+    }
+  },
+  {
+    "id": "r0_internal_armor_legendary",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Mortal Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        12,
+        19
+      ],
+      "defense": [
+        51,
+        79
+      ],
+      "fortune": [
+        7,
+        11
+      ],
+      "insight": [
+        12,
+        19
+      ]
+    }
+  },
+  {
+    "id": "r0_internal_accessory_common",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Mortal Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        3,
+        10
+      ],
+      "defense": [
+        1,
+        4
+      ],
+      "fortune": [
+        5,
+        14
+      ],
+      "insight": [
+        5,
+        12
+      ]
+    }
+  },
+  {
+    "id": "r0_internal_accessory_rare",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Mortal Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        10,
+        14
+      ],
+      "defense": [
+        4,
+        6
+      ],
+      "fortune": [
+        14,
+        20
+      ],
+      "insight": [
+        12,
+        17
+      ]
+    }
+  },
+  {
+    "id": "r0_internal_accessory_legendary",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Mortal Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        14,
+        22
+      ],
+      "defense": [
+        6,
+        9
+      ],
+      "fortune": [
+        20,
+        31
+      ],
+      "insight": [
+        17,
+        26
+      ]
+    }
+  },
+  {
+    "id": "r0_internal_talisman_common",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Mortal Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        4,
+        12
+      ],
+      "defense": [
+        2,
+        8
+      ],
+      "fortune": [
+        2,
+        6
+      ],
+      "insight": [
+        8,
+        16
+      ]
+    }
+  },
+  {
+    "id": "r0_internal_talisman_rare",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Mortal Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        12,
+        17
+      ],
+      "defense": [
+        8,
+        12
+      ],
+      "fortune": [
+        6,
+        9
+      ],
+      "insight": [
+        16,
+        23
+      ]
+    }
+  },
+  {
+    "id": "r0_internal_talisman_legendary",
+    "realm_index": 0,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Mortal Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        17,
+        26
+      ],
+      "defense": [
+        12,
+        19
+      ],
+      "fortune": [
+        9,
+        14
+      ],
+      "insight": [
+        23,
+        36
+      ]
+    }
+  },
+  {
+    "id": "r0_external_weapon_common",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Mortal Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        8,
+        18
+      ],
+      "defense": [
+        2,
+        8
+      ],
+      "fortune": [
+        1,
+        4
+      ],
+      "insight": [
+        1,
+        4
+      ]
+    }
+  },
+  {
+    "id": "r0_external_weapon_rare",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Mortal Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        18,
+        26
+      ],
+      "defense": [
+        8,
+        12
+      ],
+      "fortune": [
+        4,
+        6
+      ],
+      "insight": [
+        4,
+        6
+      ]
+    }
+  },
+  {
+    "id": "r0_external_weapon_legendary",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Mortal Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        26,
+        40
+      ],
+      "defense": [
+        12,
+        19
+      ],
+      "fortune": [
+        6,
+        9
+      ],
+      "insight": [
+        6,
+        9
+      ]
+    }
+  },
+  {
+    "id": "r0_external_armor_common",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Mortal Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        5,
+        15
+      ],
+      "defense": [
+        15,
+        50
+      ],
+      "fortune": [
+        1,
+        5
+      ],
+      "insight": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "id": "r0_external_armor_rare",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Mortal Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        15,
+        22
+      ],
+      "defense": [
+        50,
+        72
+      ],
+      "fortune": [
+        5,
+        7
+      ],
+      "insight": [
+        5,
+        7
+      ]
+    }
+  },
+  {
+    "id": "r0_external_armor_legendary",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Mortal Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        22,
+        34
+      ],
+      "defense": [
+        72,
+        112
+      ],
+      "fortune": [
+        7,
+        11
+      ],
+      "insight": [
+        7,
+        11
+      ]
+    }
+  },
+  {
+    "id": "r0_external_accessory_common",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Mortal Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        4,
+        12
+      ],
+      "defense": [
+        3,
+        10
+      ],
+      "fortune": [
+        3,
+        12
+      ],
+      "insight": [
+        2,
+        6
+      ]
+    }
+  },
+  {
+    "id": "r0_external_accessory_rare",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Mortal Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        12,
+        17
+      ],
+      "defense": [
+        10,
+        14
+      ],
+      "fortune": [
+        12,
+        17
+      ],
+      "insight": [
+        6,
+        9
+      ]
+    }
+  },
+  {
+    "id": "r0_external_accessory_legendary",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Mortal Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        17,
+        26
+      ],
+      "defense": [
+        14,
+        22
+      ],
+      "fortune": [
+        17,
+        26
+      ],
+      "insight": [
+        9,
+        14
+      ]
+    }
+  },
+  {
+    "id": "r0_external_talisman_common",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Mortal Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        5,
+        14
+      ],
+      "defense": [
+        4,
+        12
+      ],
+      "fortune": [
+        2,
+        8
+      ],
+      "insight": [
+        6,
+        14
+      ]
+    }
+  },
+  {
+    "id": "r0_external_talisman_rare",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Mortal Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        14,
+        20
+      ],
+      "defense": [
+        12,
+        17
+      ],
+      "fortune": [
+        8,
+        12
+      ],
+      "insight": [
+        14,
+        20
+      ]
+    }
+  },
+  {
+    "id": "r0_external_talisman_legendary",
+    "realm_index": 0,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Mortal Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        20,
+        31
+      ],
+      "defense": [
+        17,
+        26
+      ],
+      "fortune": [
+        12,
+        19
+      ],
+      "insight": [
+        20,
+        31
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_weapon_common",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Mortal Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        100,
+        240
+      ],
+      "defense": [
+        3,
+        10
+      ],
+      "fortune": [
+        2,
+        6
+      ],
+      "insight": [
+        2,
+        6
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_weapon_rare",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Mortal Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        240,
+        348
+      ],
+      "defense": [
+        10,
+        14
+      ],
+      "fortune": [
+        6,
+        9
+      ],
+      "insight": [
+        6,
+        9
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_weapon_legendary",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Mortal Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        348,
+        539
+      ],
+      "defense": [
+        14,
+        22
+      ],
+      "fortune": [
+        9,
+        14
+      ],
+      "insight": [
+        9,
+        14
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_armor_common",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Mortal Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        80,
+        200
+      ],
+      "defense": [
+        5,
+        15
+      ],
+      "fortune": [
+        1,
+        5
+      ],
+      "insight": [
+        1,
+        5
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_armor_rare",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Mortal Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        200,
+        290
+      ],
+      "defense": [
+        15,
+        22
+      ],
+      "fortune": [
+        5,
+        7
+      ],
+      "insight": [
+        5,
+        7
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_armor_legendary",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Mortal Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        290,
+        450
+      ],
+      "defense": [
+        22,
+        34
+      ],
+      "fortune": [
+        7,
+        11
+      ],
+      "insight": [
+        7,
+        11
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_accessory_common",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Mortal Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        60,
+        160
+      ],
+      "defense": [
+        2,
+        8
+      ],
+      "fortune": [
+        4,
+        12
+      ],
+      "insight": [
+        3,
+        8
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_accessory_rare",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Mortal Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        160,
+        232
+      ],
+      "defense": [
+        8,
+        12
+      ],
+      "fortune": [
+        12,
+        17
+      ],
+      "insight": [
+        8,
+        12
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_accessory_legendary",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Mortal Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        232,
+        360
+      ],
+      "defense": [
+        12,
+        19
+      ],
+      "fortune": [
+        17,
+        26
+      ],
+      "insight": [
+        12,
+        19
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_talisman_common",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Mortal Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        70,
+        180
+      ],
+      "defense": [
+        3,
+        10
+      ],
+      "fortune": [
+        2,
+        8
+      ],
+      "insight": [
+        5,
+        12
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_talisman_rare",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Mortal Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        180,
+        261
+      ],
+      "defense": [
+        10,
+        14
+      ],
+      "fortune": [
+        8,
+        12
+      ],
+      "insight": [
+        12,
+        17
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r0_hp_talisman_legendary",
+    "realm_index": 0,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Mortal Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        261,
+        405
+      ],
+      "defense": [
+        14,
+        22
+      ],
+      "fortune": [
+        12,
+        19
+      ],
+      "insight": [
+        17,
+        26
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_weapon_common",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Qi Refining Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        60,
+        140
+      ],
+      "defense": [
+        10,
+        40
+      ],
+      "fortune": [
+        10,
+        40
+      ],
+      "insight": [
+        30,
+        80
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_weapon_rare",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Qi Refining Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        140,
+        203
+      ],
+      "defense": [
+        40,
+        58
+      ],
+      "fortune": [
+        40,
+        58
+      ],
+      "insight": [
+        80,
+        116
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_weapon_legendary",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Qi Refining Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        203,
+        315
+      ],
+      "defense": [
+        58,
+        90
+      ],
+      "fortune": [
+        58,
+        90
+      ],
+      "insight": [
+        116,
+        180
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_armor_common",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Qi Refining Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        20,
+        80
+      ],
+      "defense": [
+        100,
+        350
+      ],
+      "fortune": [
+        10,
+        50
+      ],
+      "insight": [
+        30,
+        80
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_armor_rare",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Qi Refining Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        80,
+        116
+      ],
+      "defense": [
+        350,
+        508
+      ],
+      "fortune": [
+        50,
+        72
+      ],
+      "insight": [
+        80,
+        116
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_armor_legendary",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Qi Refining Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        116,
+        180
+      ],
+      "defense": [
+        508,
+        787
+      ],
+      "fortune": [
+        72,
+        112
+      ],
+      "insight": [
+        116,
+        180
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_accessory_common",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Qi Refining Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        30,
+        100
+      ],
+      "defense": [
+        10,
+        40
+      ],
+      "fortune": [
+        50,
+        140
+      ],
+      "insight": [
+        50,
+        120
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_accessory_rare",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Qi Refining Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        100,
+        145
+      ],
+      "defense": [
+        40,
+        58
+      ],
+      "fortune": [
+        140,
+        203
+      ],
+      "insight": [
+        120,
+        174
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_accessory_legendary",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Qi Refining Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        145,
+        225
+      ],
+      "defense": [
+        58,
+        90
+      ],
+      "fortune": [
+        203,
+        315
+      ],
+      "insight": [
+        174,
+        270
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_talisman_common",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Qi Refining Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        40,
+        120
+      ],
+      "defense": [
+        20,
+        80
+      ],
+      "fortune": [
+        20,
+        60
+      ],
+      "insight": [
+        80,
+        160
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_talisman_rare",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Qi Refining Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        120,
+        174
+      ],
+      "defense": [
+        80,
+        116
+      ],
+      "fortune": [
+        60,
+        87
+      ],
+      "insight": [
+        160,
+        232
+      ]
+    }
+  },
+  {
+    "id": "r1_internal_talisman_legendary",
+    "realm_index": 1,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Qi Refining Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        174,
+        270
+      ],
+      "defense": [
+        116,
+        180
+      ],
+      "fortune": [
+        87,
+        135
+      ],
+      "insight": [
+        232,
+        360
+      ]
+    }
+  },
+  {
+    "id": "r1_external_weapon_common",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Qi Refining Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        80,
+        180
+      ],
+      "defense": [
+        20,
+        80
+      ],
+      "fortune": [
+        10,
+        40
+      ],
+      "insight": [
+        10,
+        40
+      ]
+    }
+  },
+  {
+    "id": "r1_external_weapon_rare",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Qi Refining Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        180,
+        261
+      ],
+      "defense": [
+        80,
+        116
+      ],
+      "fortune": [
+        40,
+        58
+      ],
+      "insight": [
+        40,
+        58
+      ]
+    }
+  },
+  {
+    "id": "r1_external_weapon_legendary",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Qi Refining Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        261,
+        405
+      ],
+      "defense": [
+        116,
+        180
+      ],
+      "fortune": [
+        58,
+        90
+      ],
+      "insight": [
+        58,
+        90
+      ]
+    }
+  },
+  {
+    "id": "r1_external_armor_common",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Qi Refining Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        50,
+        150
+      ],
+      "defense": [
+        150,
+        500
+      ],
+      "fortune": [
+        10,
+        50
+      ],
+      "insight": [
+        10,
+        50
+      ]
+    }
+  },
+  {
+    "id": "r1_external_armor_rare",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Qi Refining Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        150,
+        218
+      ],
+      "defense": [
+        500,
+        725
+      ],
+      "fortune": [
+        50,
+        72
+      ],
+      "insight": [
+        50,
+        72
+      ]
+    }
+  },
+  {
+    "id": "r1_external_armor_legendary",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Qi Refining Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        218,
+        338
+      ],
+      "defense": [
+        725,
+        1124
+      ],
+      "fortune": [
+        72,
+        112
+      ],
+      "insight": [
+        72,
+        112
+      ]
+    }
+  },
+  {
+    "id": "r1_external_accessory_common",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Qi Refining Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        40,
+        120
+      ],
+      "defense": [
+        30,
+        100
+      ],
+      "fortune": [
+        30,
+        120
+      ],
+      "insight": [
+        20,
+        60
+      ]
+    }
+  },
+  {
+    "id": "r1_external_accessory_rare",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Qi Refining Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        120,
+        174
+      ],
+      "defense": [
+        100,
+        145
+      ],
+      "fortune": [
+        120,
+        174
+      ],
+      "insight": [
+        60,
+        87
+      ]
+    }
+  },
+  {
+    "id": "r1_external_accessory_legendary",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Qi Refining Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        174,
+        270
+      ],
+      "defense": [
+        145,
+        225
+      ],
+      "fortune": [
+        174,
+        270
+      ],
+      "insight": [
+        87,
+        135
+      ]
+    }
+  },
+  {
+    "id": "r1_external_talisman_common",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Qi Refining Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        50,
+        140
+      ],
+      "defense": [
+        40,
+        120
+      ],
+      "fortune": [
+        20,
+        80
+      ],
+      "insight": [
+        60,
+        140
+      ]
+    }
+  },
+  {
+    "id": "r1_external_talisman_rare",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Qi Refining Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        140,
+        203
+      ],
+      "defense": [
+        120,
+        174
+      ],
+      "fortune": [
+        80,
+        116
+      ],
+      "insight": [
+        140,
+        203
+      ]
+    }
+  },
+  {
+    "id": "r1_external_talisman_legendary",
+    "realm_index": 1,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Qi Refining Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        203,
+        315
+      ],
+      "defense": [
+        174,
+        270
+      ],
+      "fortune": [
+        116,
+        180
+      ],
+      "insight": [
+        203,
+        315
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_weapon_common",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Qi Refining Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        1000,
+        2400
+      ],
+      "defense": [
+        30,
+        100
+      ],
+      "fortune": [
+        20,
+        60
+      ],
+      "insight": [
+        20,
+        60
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_weapon_rare",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Qi Refining Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        2400,
+        3480
+      ],
+      "defense": [
+        100,
+        145
+      ],
+      "fortune": [
+        60,
+        87
+      ],
+      "insight": [
+        60,
+        87
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_weapon_legendary",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Qi Refining Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        3480,
+        5394
+      ],
+      "defense": [
+        145,
+        225
+      ],
+      "fortune": [
+        87,
+        135
+      ],
+      "insight": [
+        87,
+        135
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_armor_common",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Qi Refining Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        800,
+        2000
+      ],
+      "defense": [
+        50,
+        150
+      ],
+      "fortune": [
+        10,
+        50
+      ],
+      "insight": [
+        10,
+        50
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_armor_rare",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Qi Refining Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        2000,
+        2900
+      ],
+      "defense": [
+        150,
+        218
+      ],
+      "fortune": [
+        50,
+        72
+      ],
+      "insight": [
+        50,
+        72
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_armor_legendary",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Qi Refining Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        2900,
+        4495
+      ],
+      "defense": [
+        218,
+        338
+      ],
+      "fortune": [
+        72,
+        112
+      ],
+      "insight": [
+        72,
+        112
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_accessory_common",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Qi Refining Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        600,
+        1600
+      ],
+      "defense": [
+        20,
+        80
+      ],
+      "fortune": [
+        40,
+        120
+      ],
+      "insight": [
+        30,
+        80
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_accessory_rare",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Qi Refining Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        1600,
+        2320
+      ],
+      "defense": [
+        80,
+        116
+      ],
+      "fortune": [
+        120,
+        174
+      ],
+      "insight": [
+        80,
+        116
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_accessory_legendary",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Qi Refining Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        2320,
+        3596
+      ],
+      "defense": [
+        116,
+        180
+      ],
+      "fortune": [
+        174,
+        270
+      ],
+      "insight": [
+        116,
+        180
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_talisman_common",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Qi Refining Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        700,
+        1800
+      ],
+      "defense": [
+        30,
+        100
+      ],
+      "fortune": [
+        20,
+        80
+      ],
+      "insight": [
+        50,
+        120
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_talisman_rare",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Qi Refining Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        1800,
+        2610
+      ],
+      "defense": [
+        100,
+        145
+      ],
+      "fortune": [
+        80,
+        116
+      ],
+      "insight": [
+        120,
+        174
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r1_hp_talisman_legendary",
+    "realm_index": 1,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Qi Refining Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        2610,
+        4046
+      ],
+      "defense": [
+        145,
+        225
+      ],
+      "fortune": [
+        116,
+        180
+      ],
+      "insight": [
+        174,
+        270
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_weapon_common",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Foundation Establishment Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        190,
+        443
+      ],
+      "defense": [
+        32,
+        126
+      ],
+      "fortune": [
+        32,
+        126
+      ],
+      "insight": [
+        95,
+        253
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_weapon_rare",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Foundation Establishment Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        443,
+        642
+      ],
+      "defense": [
+        126,
+        183
+      ],
+      "fortune": [
+        126,
+        183
+      ],
+      "insight": [
+        253,
+        367
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_weapon_legendary",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        642,
+        995
+      ],
+      "defense": [
+        183,
+        284
+      ],
+      "fortune": [
+        183,
+        284
+      ],
+      "insight": [
+        367,
+        569
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_armor_common",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Foundation Establishment Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        63,
+        253
+      ],
+      "defense": [
+        316,
+        1107
+      ],
+      "fortune": [
+        32,
+        158
+      ],
+      "insight": [
+        95,
+        253
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_armor_rare",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Foundation Establishment Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        253,
+        367
+      ],
+      "defense": [
+        1107,
+        1605
+      ],
+      "fortune": [
+        158,
+        229
+      ],
+      "insight": [
+        253,
+        367
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_armor_legendary",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        367,
+        569
+      ],
+      "defense": [
+        1605,
+        2488
+      ],
+      "fortune": [
+        229,
+        355
+      ],
+      "insight": [
+        367,
+        569
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_accessory_common",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Foundation Establishment Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        95,
+        316
+      ],
+      "defense": [
+        32,
+        126
+      ],
+      "fortune": [
+        158,
+        443
+      ],
+      "insight": [
+        158,
+        379
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_accessory_rare",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Foundation Establishment Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        316,
+        458
+      ],
+      "defense": [
+        126,
+        183
+      ],
+      "fortune": [
+        443,
+        642
+      ],
+      "insight": [
+        379,
+        550
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_accessory_legendary",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        458,
+        710
+      ],
+      "defense": [
+        183,
+        284
+      ],
+      "fortune": [
+        642,
+        995
+      ],
+      "insight": [
+        550,
+        852
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_talisman_common",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Foundation Establishment Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        126,
+        379
+      ],
+      "defense": [
+        63,
+        253
+      ],
+      "fortune": [
+        63,
+        190
+      ],
+      "insight": [
+        253,
+        506
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_talisman_rare",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Foundation Establishment Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        379,
+        550
+      ],
+      "defense": [
+        253,
+        367
+      ],
+      "fortune": [
+        190,
+        276
+      ],
+      "insight": [
+        506,
+        734
+      ]
+    }
+  },
+  {
+    "id": "r2_internal_talisman_legendary",
+    "realm_index": 2,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        550,
+        852
+      ],
+      "defense": [
+        367,
+        569
+      ],
+      "fortune": [
+        276,
+        428
+      ],
+      "insight": [
+        734,
+        1138
+      ]
+    }
+  },
+  {
+    "id": "r2_external_weapon_common",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Foundation Establishment Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        253,
+        569
+      ],
+      "defense": [
+        63,
+        253
+      ],
+      "fortune": [
+        32,
+        126
+      ],
+      "insight": [
+        32,
+        126
+      ]
+    }
+  },
+  {
+    "id": "r2_external_weapon_rare",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Foundation Establishment Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        569,
+        825
+      ],
+      "defense": [
+        253,
+        367
+      ],
+      "fortune": [
+        126,
+        183
+      ],
+      "insight": [
+        126,
+        183
+      ]
+    }
+  },
+  {
+    "id": "r2_external_weapon_legendary",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        825,
+        1279
+      ],
+      "defense": [
+        367,
+        569
+      ],
+      "fortune": [
+        183,
+        284
+      ],
+      "insight": [
+        183,
+        284
+      ]
+    }
+  },
+  {
+    "id": "r2_external_armor_common",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Foundation Establishment Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        158,
+        474
+      ],
+      "defense": [
+        474,
+        1581
+      ],
+      "fortune": [
+        32,
+        158
+      ],
+      "insight": [
+        32,
+        158
+      ]
+    }
+  },
+  {
+    "id": "r2_external_armor_rare",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Foundation Establishment Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        474,
+        687
+      ],
+      "defense": [
+        1581,
+        2292
+      ],
+      "fortune": [
+        158,
+        229
+      ],
+      "insight": [
+        158,
+        229
+      ]
+    }
+  },
+  {
+    "id": "r2_external_armor_legendary",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        687,
+        1065
+      ],
+      "defense": [
+        2292,
+        3553
+      ],
+      "fortune": [
+        229,
+        355
+      ],
+      "insight": [
+        229,
+        355
+      ]
+    }
+  },
+  {
+    "id": "r2_external_accessory_common",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Foundation Establishment Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        126,
+        379
+      ],
+      "defense": [
+        95,
+        316
+      ],
+      "fortune": [
+        95,
+        379
+      ],
+      "insight": [
+        63,
+        190
+      ]
+    }
+  },
+  {
+    "id": "r2_external_accessory_rare",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Foundation Establishment Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        379,
+        550
+      ],
+      "defense": [
+        316,
+        458
+      ],
+      "fortune": [
+        379,
+        550
+      ],
+      "insight": [
+        190,
+        276
+      ]
+    }
+  },
+  {
+    "id": "r2_external_accessory_legendary",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        550,
+        852
+      ],
+      "defense": [
+        458,
+        710
+      ],
+      "fortune": [
+        550,
+        852
+      ],
+      "insight": [
+        276,
+        428
+      ]
+    }
+  },
+  {
+    "id": "r2_external_talisman_common",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Foundation Establishment Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        158,
+        443
+      ],
+      "defense": [
+        126,
+        379
+      ],
+      "fortune": [
+        63,
+        253
+      ],
+      "insight": [
+        190,
+        443
+      ]
+    }
+  },
+  {
+    "id": "r2_external_talisman_rare",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Foundation Establishment Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        443,
+        642
+      ],
+      "defense": [
+        379,
+        550
+      ],
+      "fortune": [
+        253,
+        367
+      ],
+      "insight": [
+        443,
+        642
+      ]
+    }
+  },
+  {
+    "id": "r2_external_talisman_legendary",
+    "realm_index": 2,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        642,
+        995
+      ],
+      "defense": [
+        550,
+        852
+      ],
+      "fortune": [
+        367,
+        569
+      ],
+      "insight": [
+        642,
+        995
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_weapon_common",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Foundation Establishment Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        3162,
+        7589
+      ],
+      "defense": [
+        95,
+        316
+      ],
+      "fortune": [
+        63,
+        190
+      ],
+      "insight": [
+        63,
+        190
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_weapon_rare",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Foundation Establishment Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        7589,
+        11004
+      ],
+      "defense": [
+        316,
+        458
+      ],
+      "fortune": [
+        190,
+        276
+      ],
+      "insight": [
+        190,
+        276
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_weapon_legendary",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        11004,
+        17056
+      ],
+      "defense": [
+        458,
+        710
+      ],
+      "fortune": [
+        276,
+        428
+      ],
+      "insight": [
+        276,
+        428
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_armor_common",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Foundation Establishment Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        2530,
+        6325
+      ],
+      "defense": [
+        158,
+        474
+      ],
+      "fortune": [
+        32,
+        158
+      ],
+      "insight": [
+        32,
+        158
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_armor_rare",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Foundation Establishment Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        6325,
+        9171
+      ],
+      "defense": [
+        474,
+        687
+      ],
+      "fortune": [
+        158,
+        229
+      ],
+      "insight": [
+        158,
+        229
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_armor_legendary",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        9171,
+        14215
+      ],
+      "defense": [
+        687,
+        1065
+      ],
+      "fortune": [
+        229,
+        355
+      ],
+      "insight": [
+        229,
+        355
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_accessory_common",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Foundation Establishment Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        1897,
+        5060
+      ],
+      "defense": [
+        63,
+        253
+      ],
+      "fortune": [
+        126,
+        379
+      ],
+      "insight": [
+        95,
+        253
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_accessory_rare",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Foundation Establishment Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        5060,
+        7337
+      ],
+      "defense": [
+        253,
+        367
+      ],
+      "fortune": [
+        379,
+        550
+      ],
+      "insight": [
+        253,
+        367
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_accessory_legendary",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        7337,
+        11372
+      ],
+      "defense": [
+        367,
+        569
+      ],
+      "fortune": [
+        550,
+        852
+      ],
+      "insight": [
+        367,
+        569
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_talisman_common",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Foundation Establishment Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        2214,
+        5692
+      ],
+      "defense": [
+        95,
+        316
+      ],
+      "fortune": [
+        63,
+        253
+      ],
+      "insight": [
+        158,
+        379
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_talisman_rare",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Foundation Establishment Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        5692,
+        8253
+      ],
+      "defense": [
+        316,
+        458
+      ],
+      "fortune": [
+        253,
+        367
+      ],
+      "insight": [
+        379,
+        550
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r2_hp_talisman_legendary",
+    "realm_index": 2,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Foundation Establishment Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        8253,
+        12792
+      ],
+      "defense": [
+        458,
+        710
+      ],
+      "fortune": [
+        367,
+        569
+      ],
+      "insight": [
+        550,
+        852
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_weapon_common",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Core Formation Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        600,
+        1400
+      ],
+      "defense": [
+        100,
+        400
+      ],
+      "fortune": [
+        100,
+        400
+      ],
+      "insight": [
+        300,
+        800
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_weapon_rare",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Core Formation Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        1400,
+        2030
+      ],
+      "defense": [
+        400,
+        580
+      ],
+      "fortune": [
+        400,
+        580
+      ],
+      "insight": [
+        800,
+        1160
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_weapon_legendary",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Core Formation Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        2030,
+        3146
+      ],
+      "defense": [
+        580,
+        899
+      ],
+      "fortune": [
+        580,
+        899
+      ],
+      "insight": [
+        1160,
+        1798
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_armor_common",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Core Formation Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        200,
+        800
+      ],
+      "defense": [
+        1000,
+        3500
+      ],
+      "fortune": [
+        100,
+        500
+      ],
+      "insight": [
+        300,
+        800
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_armor_rare",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Core Formation Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        800,
+        1160
+      ],
+      "defense": [
+        3500,
+        5075
+      ],
+      "fortune": [
+        500,
+        725
+      ],
+      "insight": [
+        800,
+        1160
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_armor_legendary",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Core Formation Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        1160,
+        1798
+      ],
+      "defense": [
+        5075,
+        7866
+      ],
+      "fortune": [
+        725,
+        1124
+      ],
+      "insight": [
+        1160,
+        1798
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_accessory_common",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Core Formation Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        300,
+        1000
+      ],
+      "defense": [
+        100,
+        400
+      ],
+      "fortune": [
+        500,
+        1400
+      ],
+      "insight": [
+        500,
+        1200
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_accessory_rare",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Core Formation Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        1000,
+        1450
+      ],
+      "defense": [
+        400,
+        580
+      ],
+      "fortune": [
+        1400,
+        2030
+      ],
+      "insight": [
+        1200,
+        1740
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_accessory_legendary",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Core Formation Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        1450,
+        2248
+      ],
+      "defense": [
+        580,
+        899
+      ],
+      "fortune": [
+        2030,
+        3146
+      ],
+      "insight": [
+        1740,
+        2697
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_talisman_common",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Core Formation Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        400,
+        1200
+      ],
+      "defense": [
+        200,
+        800
+      ],
+      "fortune": [
+        200,
+        600
+      ],
+      "insight": [
+        800,
+        1600
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_talisman_rare",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Core Formation Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        1200,
+        1740
+      ],
+      "defense": [
+        800,
+        1160
+      ],
+      "fortune": [
+        600,
+        870
+      ],
+      "insight": [
+        1600,
+        2320
+      ]
+    }
+  },
+  {
+    "id": "r3_internal_talisman_legendary",
+    "realm_index": 3,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Core Formation Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        1740,
+        2697
+      ],
+      "defense": [
+        1160,
+        1798
+      ],
+      "fortune": [
+        870,
+        1348
+      ],
+      "insight": [
+        2320,
+        3596
+      ]
+    }
+  },
+  {
+    "id": "r3_external_weapon_common",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Core Formation Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        800,
+        1800
+      ],
+      "defense": [
+        200,
+        800
+      ],
+      "fortune": [
+        100,
+        400
+      ],
+      "insight": [
+        100,
+        400
+      ]
+    }
+  },
+  {
+    "id": "r3_external_weapon_rare",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Core Formation Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        1800,
+        2610
+      ],
+      "defense": [
+        800,
+        1160
+      ],
+      "fortune": [
+        400,
+        580
+      ],
+      "insight": [
+        400,
+        580
+      ]
+    }
+  },
+  {
+    "id": "r3_external_weapon_legendary",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Core Formation Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        2610,
+        4046
+      ],
+      "defense": [
+        1160,
+        1798
+      ],
+      "fortune": [
+        580,
+        899
+      ],
+      "insight": [
+        580,
+        899
+      ]
+    }
+  },
+  {
+    "id": "r3_external_armor_common",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Core Formation Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        500,
+        1500
+      ],
+      "defense": [
+        1500,
+        5000
+      ],
+      "fortune": [
+        100,
+        500
+      ],
+      "insight": [
+        100,
+        500
+      ]
+    }
+  },
+  {
+    "id": "r3_external_armor_rare",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Core Formation Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        1500,
+        2175
+      ],
+      "defense": [
+        5000,
+        7250
+      ],
+      "fortune": [
+        500,
+        725
+      ],
+      "insight": [
+        500,
+        725
+      ]
+    }
+  },
+  {
+    "id": "r3_external_armor_legendary",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Core Formation Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        2175,
+        3371
+      ],
+      "defense": [
+        7250,
+        11238
+      ],
+      "fortune": [
+        725,
+        1124
+      ],
+      "insight": [
+        725,
+        1124
+      ]
+    }
+  },
+  {
+    "id": "r3_external_accessory_common",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Core Formation Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        400,
+        1200
+      ],
+      "defense": [
+        300,
+        1000
+      ],
+      "fortune": [
+        300,
+        1200
+      ],
+      "insight": [
+        200,
+        600
+      ]
+    }
+  },
+  {
+    "id": "r3_external_accessory_rare",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Core Formation Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        1200,
+        1740
+      ],
+      "defense": [
+        1000,
+        1450
+      ],
+      "fortune": [
+        1200,
+        1740
+      ],
+      "insight": [
+        600,
+        870
+      ]
+    }
+  },
+  {
+    "id": "r3_external_accessory_legendary",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Core Formation Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        1740,
+        2697
+      ],
+      "defense": [
+        1450,
+        2248
+      ],
+      "fortune": [
+        1740,
+        2697
+      ],
+      "insight": [
+        870,
+        1348
+      ]
+    }
+  },
+  {
+    "id": "r3_external_talisman_common",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Core Formation Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        500,
+        1400
+      ],
+      "defense": [
+        400,
+        1200
+      ],
+      "fortune": [
+        200,
+        800
+      ],
+      "insight": [
+        600,
+        1400
+      ]
+    }
+  },
+  {
+    "id": "r3_external_talisman_rare",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Core Formation Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        1400,
+        2030
+      ],
+      "defense": [
+        1200,
+        1740
+      ],
+      "fortune": [
+        800,
+        1160
+      ],
+      "insight": [
+        1400,
+        2030
+      ]
+    }
+  },
+  {
+    "id": "r3_external_talisman_legendary",
+    "realm_index": 3,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Core Formation Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        2030,
+        3146
+      ],
+      "defense": [
+        1740,
+        2697
+      ],
+      "fortune": [
+        1160,
+        1798
+      ],
+      "insight": [
+        2030,
+        3146
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_weapon_common",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Core Formation Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        10000,
+        24000
+      ],
+      "defense": [
+        300,
+        1000
+      ],
+      "fortune": [
+        200,
+        600
+      ],
+      "insight": [
+        200,
+        600
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_weapon_rare",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Core Formation Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        24000,
+        34800
+      ],
+      "defense": [
+        1000,
+        1450
+      ],
+      "fortune": [
+        600,
+        870
+      ],
+      "insight": [
+        600,
+        870
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_weapon_legendary",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Core Formation Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        34800,
+        53940
+      ],
+      "defense": [
+        1450,
+        2248
+      ],
+      "fortune": [
+        870,
+        1348
+      ],
+      "insight": [
+        870,
+        1348
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_armor_common",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Core Formation Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        8000,
+        20000
+      ],
+      "defense": [
+        500,
+        1500
+      ],
+      "fortune": [
+        100,
+        500
+      ],
+      "insight": [
+        100,
+        500
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_armor_rare",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Core Formation Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        20000,
+        29000
+      ],
+      "defense": [
+        1500,
+        2175
+      ],
+      "fortune": [
+        500,
+        725
+      ],
+      "insight": [
+        500,
+        725
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_armor_legendary",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Core Formation Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        29000,
+        44950
+      ],
+      "defense": [
+        2175,
+        3371
+      ],
+      "fortune": [
+        725,
+        1124
+      ],
+      "insight": [
+        725,
+        1124
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_accessory_common",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Core Formation Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        6000,
+        16000
+      ],
+      "defense": [
+        200,
+        800
+      ],
+      "fortune": [
+        400,
+        1200
+      ],
+      "insight": [
+        300,
+        800
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_accessory_rare",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Core Formation Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        16000,
+        23200
+      ],
+      "defense": [
+        800,
+        1160
+      ],
+      "fortune": [
+        1200,
+        1740
+      ],
+      "insight": [
+        800,
+        1160
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_accessory_legendary",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Core Formation Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        23200,
+        35960
+      ],
+      "defense": [
+        1160,
+        1798
+      ],
+      "fortune": [
+        1740,
+        2697
+      ],
+      "insight": [
+        1160,
+        1798
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_talisman_common",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Core Formation Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        7000,
+        18000
+      ],
+      "defense": [
+        300,
+        1000
+      ],
+      "fortune": [
+        200,
+        800
+      ],
+      "insight": [
+        500,
+        1200
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_talisman_rare",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Core Formation Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        18000,
+        26100
+      ],
+      "defense": [
+        1000,
+        1450
+      ],
+      "fortune": [
+        800,
+        1160
+      ],
+      "insight": [
+        1200,
+        1740
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r3_hp_talisman_legendary",
+    "realm_index": 3,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Core Formation Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        26100,
+        40455
+      ],
+      "defense": [
+        1450,
+        2248
+      ],
+      "fortune": [
+        1160,
+        1798
+      ],
+      "insight": [
+        1740,
+        2697
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_weapon_common",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Nascent Soul Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        2785,
+        6498
+      ],
+      "defense": [
+        464,
+        1857
+      ],
+      "fortune": [
+        464,
+        1857
+      ],
+      "insight": [
+        1392,
+        3713
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_weapon_rare",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Nascent Soul Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        6498,
+        9422
+      ],
+      "defense": [
+        1857,
+        2693
+      ],
+      "fortune": [
+        1857,
+        2693
+      ],
+      "insight": [
+        3713,
+        5384
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_weapon_legendary",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Nascent Soul Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        9422,
+        14604
+      ],
+      "defense": [
+        2693,
+        4174
+      ],
+      "fortune": [
+        2693,
+        4174
+      ],
+      "insight": [
+        5384,
+        8345
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_armor_common",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Nascent Soul Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        928,
+        3713
+      ],
+      "defense": [
+        4642,
+        16246
+      ],
+      "fortune": [
+        464,
+        2321
+      ],
+      "insight": [
+        1392,
+        3713
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_armor_rare",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Nascent Soul Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        3713,
+        5384
+      ],
+      "defense": [
+        16246,
+        23557
+      ],
+      "fortune": [
+        2321,
+        3365
+      ],
+      "insight": [
+        3713,
+        5384
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_armor_legendary",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Nascent Soul Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        5384,
+        8345
+      ],
+      "defense": [
+        23557,
+        36513
+      ],
+      "fortune": [
+        3365,
+        5216
+      ],
+      "insight": [
+        5384,
+        8345
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_accessory_common",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Nascent Soul Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        1392,
+        4642
+      ],
+      "defense": [
+        464,
+        1857
+      ],
+      "fortune": [
+        2321,
+        6498
+      ],
+      "insight": [
+        2321,
+        5570
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_accessory_rare",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Nascent Soul Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        4642,
+        6731
+      ],
+      "defense": [
+        1857,
+        2693
+      ],
+      "fortune": [
+        6498,
+        9422
+      ],
+      "insight": [
+        5570,
+        8076
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_accessory_legendary",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Nascent Soul Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        6731,
+        10433
+      ],
+      "defense": [
+        2693,
+        4174
+      ],
+      "fortune": [
+        9422,
+        14604
+      ],
+      "insight": [
+        8076,
+        12518
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_talisman_common",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Nascent Soul Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        1857,
+        5570
+      ],
+      "defense": [
+        928,
+        3713
+      ],
+      "fortune": [
+        928,
+        2785
+      ],
+      "insight": [
+        3713,
+        7427
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_talisman_rare",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Nascent Soul Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        5570,
+        8076
+      ],
+      "defense": [
+        3713,
+        5384
+      ],
+      "fortune": [
+        2785,
+        4038
+      ],
+      "insight": [
+        7427,
+        10769
+      ]
+    }
+  },
+  {
+    "id": "r4_internal_talisman_legendary",
+    "realm_index": 4,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Nascent Soul Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        8076,
+        12518
+      ],
+      "defense": [
+        5384,
+        8345
+      ],
+      "fortune": [
+        4038,
+        6259
+      ],
+      "insight": [
+        10769,
+        16692
+      ]
+    }
+  },
+  {
+    "id": "r4_external_weapon_common",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Nascent Soul Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        3713,
+        8355
+      ],
+      "defense": [
+        928,
+        3713
+      ],
+      "fortune": [
+        464,
+        1857
+      ],
+      "insight": [
+        464,
+        1857
+      ]
+    }
+  },
+  {
+    "id": "r4_external_weapon_rare",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Nascent Soul Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        8355,
+        12115
+      ],
+      "defense": [
+        3713,
+        5384
+      ],
+      "fortune": [
+        1857,
+        2693
+      ],
+      "insight": [
+        1857,
+        2693
+      ]
+    }
+  },
+  {
+    "id": "r4_external_weapon_legendary",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Nascent Soul Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        12115,
+        18778
+      ],
+      "defense": [
+        5384,
+        8345
+      ],
+      "fortune": [
+        2693,
+        4174
+      ],
+      "insight": [
+        2693,
+        4174
+      ]
+    }
+  },
+  {
+    "id": "r4_external_armor_common",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Nascent Soul Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        2321,
+        6962
+      ],
+      "defense": [
+        6962,
+        23208
+      ],
+      "fortune": [
+        464,
+        2321
+      ],
+      "insight": [
+        464,
+        2321
+      ]
+    }
+  },
+  {
+    "id": "r4_external_armor_rare",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Nascent Soul Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        6962,
+        10095
+      ],
+      "defense": [
+        23208,
+        33652
+      ],
+      "fortune": [
+        2321,
+        3365
+      ],
+      "insight": [
+        2321,
+        3365
+      ]
+    }
+  },
+  {
+    "id": "r4_external_armor_legendary",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Nascent Soul Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        10095,
+        15647
+      ],
+      "defense": [
+        33652,
+        52161
+      ],
+      "fortune": [
+        3365,
+        5216
+      ],
+      "insight": [
+        3365,
+        5216
+      ]
+    }
+  },
+  {
+    "id": "r4_external_accessory_common",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Nascent Soul Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        1857,
+        5570
+      ],
+      "defense": [
+        1392,
+        4642
+      ],
+      "fortune": [
+        1392,
+        5570
+      ],
+      "insight": [
+        928,
+        2785
+      ]
+    }
+  },
+  {
+    "id": "r4_external_accessory_rare",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Nascent Soul Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        5570,
+        8076
+      ],
+      "defense": [
+        4642,
+        6731
+      ],
+      "fortune": [
+        5570,
+        8076
+      ],
+      "insight": [
+        2785,
+        4038
+      ]
+    }
+  },
+  {
+    "id": "r4_external_accessory_legendary",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Nascent Soul Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        8076,
+        12518
+      ],
+      "defense": [
+        6731,
+        10433
+      ],
+      "fortune": [
+        8076,
+        12518
+      ],
+      "insight": [
+        4038,
+        6259
+      ]
+    }
+  },
+  {
+    "id": "r4_external_talisman_common",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Nascent Soul Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        2321,
+        6498
+      ],
+      "defense": [
+        1857,
+        5570
+      ],
+      "fortune": [
+        928,
+        3713
+      ],
+      "insight": [
+        2785,
+        6498
+      ]
+    }
+  },
+  {
+    "id": "r4_external_talisman_rare",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Nascent Soul Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        6498,
+        9422
+      ],
+      "defense": [
+        5570,
+        8076
+      ],
+      "fortune": [
+        3713,
+        5384
+      ],
+      "insight": [
+        6498,
+        9422
+      ]
+    }
+  },
+  {
+    "id": "r4_external_talisman_legendary",
+    "realm_index": 4,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Nascent Soul Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        9422,
+        14604
+      ],
+      "defense": [
+        8076,
+        12518
+      ],
+      "fortune": [
+        5384,
+        8345
+      ],
+      "insight": [
+        9422,
+        14604
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_weapon_common",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Nascent Soul Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        46416,
+        111398
+      ],
+      "defense": [
+        1392,
+        4642
+      ],
+      "fortune": [
+        928,
+        2785
+      ],
+      "insight": [
+        928,
+        2785
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_weapon_rare",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Nascent Soul Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        111398,
+        161527
+      ],
+      "defense": [
+        4642,
+        6731
+      ],
+      "fortune": [
+        2785,
+        4038
+      ],
+      "insight": [
+        2785,
+        4038
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_weapon_legendary",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Nascent Soul Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        161527,
+        250367
+      ],
+      "defense": [
+        6731,
+        10433
+      ],
+      "fortune": [
+        4038,
+        6259
+      ],
+      "insight": [
+        4038,
+        6259
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_armor_common",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Nascent Soul Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        37133,
+        92832
+      ],
+      "defense": [
+        2321,
+        6962
+      ],
+      "fortune": [
+        464,
+        2321
+      ],
+      "insight": [
+        464,
+        2321
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_armor_rare",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Nascent Soul Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        92832,
+        134606
+      ],
+      "defense": [
+        6962,
+        10095
+      ],
+      "fortune": [
+        2321,
+        3365
+      ],
+      "insight": [
+        2321,
+        3365
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_armor_legendary",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Nascent Soul Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        134606,
+        208639
+      ],
+      "defense": [
+        10095,
+        15647
+      ],
+      "fortune": [
+        3365,
+        5216
+      ],
+      "insight": [
+        3365,
+        5216
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_accessory_common",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Nascent Soul Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        27850,
+        74265
+      ],
+      "defense": [
+        928,
+        3713
+      ],
+      "fortune": [
+        1857,
+        5570
+      ],
+      "insight": [
+        1392,
+        3713
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_accessory_rare",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Nascent Soul Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        74265,
+        107684
+      ],
+      "defense": [
+        3713,
+        5384
+      ],
+      "fortune": [
+        5570,
+        8076
+      ],
+      "insight": [
+        3713,
+        5384
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_accessory_legendary",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Nascent Soul Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        107684,
+        166910
+      ],
+      "defense": [
+        5384,
+        8345
+      ],
+      "fortune": [
+        8076,
+        12518
+      ],
+      "insight": [
+        5384,
+        8345
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_talisman_common",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Nascent Soul Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        32491,
+        83549
+      ],
+      "defense": [
+        1392,
+        4642
+      ],
+      "fortune": [
+        928,
+        3713
+      ],
+      "insight": [
+        2321,
+        5570
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_talisman_rare",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Nascent Soul Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        83549,
+        121146
+      ],
+      "defense": [
+        4642,
+        6731
+      ],
+      "fortune": [
+        3713,
+        5384
+      ],
+      "insight": [
+        5570,
+        8076
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r4_hp_talisman_legendary",
+    "realm_index": 4,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Nascent Soul Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        121146,
+        187776
+      ],
+      "defense": [
+        6731,
+        10433
+      ],
+      "fortune": [
+        5384,
+        8345
+      ],
+      "insight": [
+        8076,
+        12518
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_weapon_common",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Spirit Severing Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        12927,
+        30162
+      ],
+      "defense": [
+        2154,
+        8618
+      ],
+      "fortune": [
+        2154,
+        8618
+      ],
+      "insight": [
+        6463,
+        17235
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_weapon_rare",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Spirit Severing Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        30162,
+        43735
+      ],
+      "defense": [
+        8618,
+        12496
+      ],
+      "fortune": [
+        8618,
+        12496
+      ],
+      "insight": [
+        17235,
+        24991
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_weapon_legendary",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Spirit Severing Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        43735,
+        67789
+      ],
+      "defense": [
+        12496,
+        19369
+      ],
+      "fortune": [
+        12496,
+        19369
+      ],
+      "insight": [
+        24991,
+        38736
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_armor_common",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Spirit Severing Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        4309,
+        17235
+      ],
+      "defense": [
+        21544,
+        75405
+      ],
+      "fortune": [
+        2154,
+        10772
+      ],
+      "insight": [
+        6463,
+        17235
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_armor_rare",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Spirit Severing Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        17235,
+        24991
+      ],
+      "defense": [
+        75405,
+        109337
+      ],
+      "fortune": [
+        10772,
+        15619
+      ],
+      "insight": [
+        17235,
+        24991
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_armor_legendary",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Spirit Severing Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        24991,
+        38736
+      ],
+      "defense": [
+        109337,
+        169472
+      ],
+      "fortune": [
+        15619,
+        24209
+      ],
+      "insight": [
+        24991,
+        38736
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_accessory_common",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Spirit Severing Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        6463,
+        21544
+      ],
+      "defense": [
+        2154,
+        8618
+      ],
+      "fortune": [
+        10772,
+        30162
+      ],
+      "insight": [
+        10772,
+        25853
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_accessory_rare",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Spirit Severing Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        21544,
+        31239
+      ],
+      "defense": [
+        8618,
+        12496
+      ],
+      "fortune": [
+        30162,
+        43735
+      ],
+      "insight": [
+        25853,
+        37487
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_accessory_legendary",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Spirit Severing Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        31239,
+        48420
+      ],
+      "defense": [
+        12496,
+        19369
+      ],
+      "fortune": [
+        43735,
+        67789
+      ],
+      "insight": [
+        37487,
+        58105
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_talisman_common",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Spirit Severing Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        8618,
+        25853
+      ],
+      "defense": [
+        4309,
+        17235
+      ],
+      "fortune": [
+        4309,
+        12927
+      ],
+      "insight": [
+        17235,
+        34471
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_talisman_rare",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Spirit Severing Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        25853,
+        37487
+      ],
+      "defense": [
+        17235,
+        24991
+      ],
+      "fortune": [
+        12927,
+        18744
+      ],
+      "insight": [
+        34471,
+        49983
+      ]
+    }
+  },
+  {
+    "id": "r5_internal_talisman_legendary",
+    "realm_index": 5,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Spirit Severing Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        37487,
+        58105
+      ],
+      "defense": [
+        24991,
+        38736
+      ],
+      "fortune": [
+        18744,
+        29053
+      ],
+      "insight": [
+        49983,
+        77474
+      ]
+    }
+  },
+  {
+    "id": "r5_external_weapon_common",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Spirit Severing Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        17235,
+        38780
+      ],
+      "defense": [
+        4309,
+        17235
+      ],
+      "fortune": [
+        2154,
+        8618
+      ],
+      "insight": [
+        2154,
+        8618
+      ]
+    }
+  },
+  {
+    "id": "r5_external_weapon_rare",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Spirit Severing Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        38780,
+        56231
+      ],
+      "defense": [
+        17235,
+        24991
+      ],
+      "fortune": [
+        8618,
+        12496
+      ],
+      "insight": [
+        8618,
+        12496
+      ]
+    }
+  },
+  {
+    "id": "r5_external_weapon_legendary",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Spirit Severing Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        56231,
+        87158
+      ],
+      "defense": [
+        24991,
+        38736
+      ],
+      "fortune": [
+        12496,
+        19369
+      ],
+      "insight": [
+        12496,
+        19369
+      ]
+    }
+  },
+  {
+    "id": "r5_external_armor_common",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Spirit Severing Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        10772,
+        32317
+      ],
+      "defense": [
+        32317,
+        107722
+      ],
+      "fortune": [
+        2154,
+        10772
+      ],
+      "insight": [
+        2154,
+        10772
+      ]
+    }
+  },
+  {
+    "id": "r5_external_armor_rare",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Spirit Severing Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        32317,
+        46860
+      ],
+      "defense": [
+        107722,
+        156197
+      ],
+      "fortune": [
+        10772,
+        15619
+      ],
+      "insight": [
+        10772,
+        15619
+      ]
+    }
+  },
+  {
+    "id": "r5_external_armor_legendary",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Spirit Severing Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        46860,
+        72633
+      ],
+      "defense": [
+        156197,
+        242105
+      ],
+      "fortune": [
+        15619,
+        24209
+      ],
+      "insight": [
+        15619,
+        24209
+      ]
+    }
+  },
+  {
+    "id": "r5_external_accessory_common",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Spirit Severing Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        8618,
+        25853
+      ],
+      "defense": [
+        6463,
+        21544
+      ],
+      "fortune": [
+        6463,
+        25853
+      ],
+      "insight": [
+        4309,
+        12927
+      ]
+    }
+  },
+  {
+    "id": "r5_external_accessory_rare",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Spirit Severing Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        25853,
+        37487
+      ],
+      "defense": [
+        21544,
+        31239
+      ],
+      "fortune": [
+        25853,
+        37487
+      ],
+      "insight": [
+        12927,
+        18744
+      ]
+    }
+  },
+  {
+    "id": "r5_external_accessory_legendary",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Spirit Severing Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        37487,
+        58105
+      ],
+      "defense": [
+        31239,
+        48420
+      ],
+      "fortune": [
+        37487,
+        58105
+      ],
+      "insight": [
+        18744,
+        29053
+      ]
+    }
+  },
+  {
+    "id": "r5_external_talisman_common",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Spirit Severing Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        10772,
+        30162
+      ],
+      "defense": [
+        8618,
+        25853
+      ],
+      "fortune": [
+        4309,
+        17235
+      ],
+      "insight": [
+        12927,
+        30162
+      ]
+    }
+  },
+  {
+    "id": "r5_external_talisman_rare",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Spirit Severing Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        30162,
+        43735
+      ],
+      "defense": [
+        25853,
+        37487
+      ],
+      "fortune": [
+        17235,
+        24991
+      ],
+      "insight": [
+        30162,
+        43735
+      ]
+    }
+  },
+  {
+    "id": "r5_external_talisman_legendary",
+    "realm_index": 5,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Spirit Severing Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        43735,
+        67789
+      ],
+      "defense": [
+        37487,
+        58105
+      ],
+      "fortune": [
+        24991,
+        38736
+      ],
+      "insight": [
+        43735,
+        67789
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_weapon_common",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Spirit Severing Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        215443,
+        517064
+      ],
+      "defense": [
+        6463,
+        21544
+      ],
+      "fortune": [
+        4309,
+        12927
+      ],
+      "insight": [
+        4309,
+        12927
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_weapon_rare",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Spirit Severing Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        517064,
+        749743
+      ],
+      "defense": [
+        21544,
+        31239
+      ],
+      "fortune": [
+        12927,
+        18744
+      ],
+      "insight": [
+        12927,
+        18744
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_weapon_legendary",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Spirit Severing Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        749743,
+        1162102
+      ],
+      "defense": [
+        31239,
+        48420
+      ],
+      "fortune": [
+        18744,
+        29053
+      ],
+      "insight": [
+        18744,
+        29053
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_armor_common",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Spirit Severing Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        172355,
+        430887
+      ],
+      "defense": [
+        10772,
+        32317
+      ],
+      "fortune": [
+        2154,
+        10772
+      ],
+      "insight": [
+        2154,
+        10772
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_armor_rare",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Spirit Severing Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        430887,
+        624786
+      ],
+      "defense": [
+        32317,
+        46860
+      ],
+      "fortune": [
+        10772,
+        15619
+      ],
+      "insight": [
+        10772,
+        15619
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_armor_legendary",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Spirit Severing Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        624786,
+        968418
+      ],
+      "defense": [
+        46860,
+        72633
+      ],
+      "fortune": [
+        15619,
+        24209
+      ],
+      "insight": [
+        15619,
+        24209
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_accessory_common",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Spirit Severing Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        129266,
+        344710
+      ],
+      "defense": [
+        4309,
+        17235
+      ],
+      "fortune": [
+        8618,
+        25853
+      ],
+      "insight": [
+        6463,
+        17235
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_accessory_rare",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Spirit Severing Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        344710,
+        499830
+      ],
+      "defense": [
+        17235,
+        24991
+      ],
+      "fortune": [
+        25853,
+        37487
+      ],
+      "insight": [
+        17235,
+        24991
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_accessory_legendary",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Spirit Severing Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        499830,
+        774736
+      ],
+      "defense": [
+        24991,
+        38736
+      ],
+      "fortune": [
+        37487,
+        58105
+      ],
+      "insight": [
+        24991,
+        38736
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_talisman_common",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Spirit Severing Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        150810,
+        387798
+      ],
+      "defense": [
+        6463,
+        21544
+      ],
+      "fortune": [
+        4309,
+        17235
+      ],
+      "insight": [
+        10772,
+        25853
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_talisman_rare",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Spirit Severing Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        387798,
+        562307
+      ],
+      "defense": [
+        21544,
+        31239
+      ],
+      "fortune": [
+        17235,
+        24991
+      ],
+      "insight": [
+        25853,
+        37487
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r5_hp_talisman_legendary",
+    "realm_index": 5,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Spirit Severing Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        562307,
+        871576
+      ],
+      "defense": [
+        31239,
+        48420
+      ],
+      "fortune": [
+        24991,
+        38736
+      ],
+      "insight": [
+        37487,
+        58105
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_weapon_common",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Void Refinement Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        60000,
+        140000
+      ],
+      "defense": [
+        10000,
+        40000
+      ],
+      "fortune": [
+        10000,
+        40000
+      ],
+      "insight": [
+        30000,
+        80000
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_weapon_rare",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Void Refinement Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        140000,
+        203000
+      ],
+      "defense": [
+        40000,
+        58000
+      ],
+      "fortune": [
+        40000,
+        58000
+      ],
+      "insight": [
+        80000,
+        116000
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_weapon_legendary",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Void Refinement Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        203000,
+        314650
+      ],
+      "defense": [
+        58000,
+        89900
+      ],
+      "fortune": [
+        58000,
+        89900
+      ],
+      "insight": [
+        116000,
+        179800
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_armor_common",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Void Refinement Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        20000,
+        80000
+      ],
+      "defense": [
+        100000,
+        350000
+      ],
+      "fortune": [
+        10000,
+        50000
+      ],
+      "insight": [
+        30000,
+        80000
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_armor_rare",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Void Refinement Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        80000,
+        116000
+      ],
+      "defense": [
+        350000,
+        507500
+      ],
+      "fortune": [
+        50000,
+        72500
+      ],
+      "insight": [
+        80000,
+        116000
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_armor_legendary",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Void Refinement Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        116000,
+        179800
+      ],
+      "defense": [
+        507500,
+        786625
+      ],
+      "fortune": [
+        72500,
+        112375
+      ],
+      "insight": [
+        116000,
+        179800
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_accessory_common",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Void Refinement Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        30000,
+        100000
+      ],
+      "defense": [
+        10000,
+        40000
+      ],
+      "fortune": [
+        50000,
+        140000
+      ],
+      "insight": [
+        50000,
+        120000
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_accessory_rare",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Void Refinement Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        100000,
+        145000
+      ],
+      "defense": [
+        40000,
+        58000
+      ],
+      "fortune": [
+        140000,
+        203000
+      ],
+      "insight": [
+        120000,
+        174000
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_accessory_legendary",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Void Refinement Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        145000,
+        224750
+      ],
+      "defense": [
+        58000,
+        89900
+      ],
+      "fortune": [
+        203000,
+        314650
+      ],
+      "insight": [
+        174000,
+        269700
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_talisman_common",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Void Refinement Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        40000,
+        120000
+      ],
+      "defense": [
+        20000,
+        80000
+      ],
+      "fortune": [
+        20000,
+        60000
+      ],
+      "insight": [
+        80000,
+        160000
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_talisman_rare",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Void Refinement Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        120000,
+        174000
+      ],
+      "defense": [
+        80000,
+        116000
+      ],
+      "fortune": [
+        60000,
+        87000
+      ],
+      "insight": [
+        160000,
+        232000
+      ]
+    }
+  },
+  {
+    "id": "r6_internal_talisman_legendary",
+    "realm_index": 6,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Void Refinement Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        174000,
+        269700
+      ],
+      "defense": [
+        116000,
+        179800
+      ],
+      "fortune": [
+        87000,
+        134850
+      ],
+      "insight": [
+        232000,
+        359600
+      ]
+    }
+  },
+  {
+    "id": "r6_external_weapon_common",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Void Refinement Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        80000,
+        180000
+      ],
+      "defense": [
+        20000,
+        80000
+      ],
+      "fortune": [
+        10000,
+        40000
+      ],
+      "insight": [
+        10000,
+        40000
+      ]
+    }
+  },
+  {
+    "id": "r6_external_weapon_rare",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Void Refinement Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        180000,
+        261000
+      ],
+      "defense": [
+        80000,
+        116000
+      ],
+      "fortune": [
+        40000,
+        58000
+      ],
+      "insight": [
+        40000,
+        58000
+      ]
+    }
+  },
+  {
+    "id": "r6_external_weapon_legendary",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Void Refinement Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        261000,
+        404550
+      ],
+      "defense": [
+        116000,
+        179800
+      ],
+      "fortune": [
+        58000,
+        89900
+      ],
+      "insight": [
+        58000,
+        89900
+      ]
+    }
+  },
+  {
+    "id": "r6_external_armor_common",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Void Refinement Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        50000,
+        150000
+      ],
+      "defense": [
+        150000,
+        500000
+      ],
+      "fortune": [
+        10000,
+        50000
+      ],
+      "insight": [
+        10000,
+        50000
+      ]
+    }
+  },
+  {
+    "id": "r6_external_armor_rare",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Void Refinement Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        150000,
+        217500
+      ],
+      "defense": [
+        500000,
+        725000
+      ],
+      "fortune": [
+        50000,
+        72500
+      ],
+      "insight": [
+        50000,
+        72500
+      ]
+    }
+  },
+  {
+    "id": "r6_external_armor_legendary",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Void Refinement Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        217500,
+        337125
+      ],
+      "defense": [
+        725000,
+        1123750
+      ],
+      "fortune": [
+        72500,
+        112375
+      ],
+      "insight": [
+        72500,
+        112375
+      ]
+    }
+  },
+  {
+    "id": "r6_external_accessory_common",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Void Refinement Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        40000,
+        120000
+      ],
+      "defense": [
+        30000,
+        100000
+      ],
+      "fortune": [
+        30000,
+        120000
+      ],
+      "insight": [
+        20000,
+        60000
+      ]
+    }
+  },
+  {
+    "id": "r6_external_accessory_rare",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Void Refinement Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        120000,
+        174000
+      ],
+      "defense": [
+        100000,
+        145000
+      ],
+      "fortune": [
+        120000,
+        174000
+      ],
+      "insight": [
+        60000,
+        87000
+      ]
+    }
+  },
+  {
+    "id": "r6_external_accessory_legendary",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Void Refinement Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        174000,
+        269700
+      ],
+      "defense": [
+        145000,
+        224750
+      ],
+      "fortune": [
+        174000,
+        269700
+      ],
+      "insight": [
+        87000,
+        134850
+      ]
+    }
+  },
+  {
+    "id": "r6_external_talisman_common",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Void Refinement Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        50000,
+        140000
+      ],
+      "defense": [
+        40000,
+        120000
+      ],
+      "fortune": [
+        20000,
+        80000
+      ],
+      "insight": [
+        60000,
+        140000
+      ]
+    }
+  },
+  {
+    "id": "r6_external_talisman_rare",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Void Refinement Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        140000,
+        203000
+      ],
+      "defense": [
+        120000,
+        174000
+      ],
+      "fortune": [
+        80000,
+        116000
+      ],
+      "insight": [
+        140000,
+        203000
+      ]
+    }
+  },
+  {
+    "id": "r6_external_talisman_legendary",
+    "realm_index": 6,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Void Refinement Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        203000,
+        314650
+      ],
+      "defense": [
+        174000,
+        269700
+      ],
+      "fortune": [
+        116000,
+        179800
+      ],
+      "insight": [
+        203000,
+        314650
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_weapon_common",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Void Refinement Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        1000000,
+        2400000
+      ],
+      "defense": [
+        30000,
+        100000
+      ],
+      "fortune": [
+        20000,
+        60000
+      ],
+      "insight": [
+        20000,
+        60000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_weapon_rare",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Void Refinement Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        2400000,
+        3480000
+      ],
+      "defense": [
+        100000,
+        145000
+      ],
+      "fortune": [
+        60000,
+        87000
+      ],
+      "insight": [
+        60000,
+        87000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_weapon_legendary",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Void Refinement Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        3480000,
+        5394000
+      ],
+      "defense": [
+        145000,
+        224750
+      ],
+      "fortune": [
+        87000,
+        134850
+      ],
+      "insight": [
+        87000,
+        134850
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_armor_common",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Void Refinement Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        800000,
+        2000000
+      ],
+      "defense": [
+        50000,
+        150000
+      ],
+      "fortune": [
+        10000,
+        50000
+      ],
+      "insight": [
+        10000,
+        50000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_armor_rare",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Void Refinement Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        2000000,
+        2900000
+      ],
+      "defense": [
+        150000,
+        217500
+      ],
+      "fortune": [
+        50000,
+        72500
+      ],
+      "insight": [
+        50000,
+        72500
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_armor_legendary",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Void Refinement Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        2900000,
+        4495000
+      ],
+      "defense": [
+        217500,
+        337125
+      ],
+      "fortune": [
+        72500,
+        112375
+      ],
+      "insight": [
+        72500,
+        112375
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_accessory_common",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Void Refinement Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        600000,
+        1600000
+      ],
+      "defense": [
+        20000,
+        80000
+      ],
+      "fortune": [
+        40000,
+        120000
+      ],
+      "insight": [
+        30000,
+        80000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_accessory_rare",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Void Refinement Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        1600000,
+        2320000
+      ],
+      "defense": [
+        80000,
+        116000
+      ],
+      "fortune": [
+        120000,
+        174000
+      ],
+      "insight": [
+        80000,
+        116000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_accessory_legendary",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Void Refinement Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        2320000,
+        3596000
+      ],
+      "defense": [
+        116000,
+        179800
+      ],
+      "fortune": [
+        174000,
+        269700
+      ],
+      "insight": [
+        116000,
+        179800
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_talisman_common",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Void Refinement Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        700000,
+        1800000
+      ],
+      "defense": [
+        30000,
+        100000
+      ],
+      "fortune": [
+        20000,
+        80000
+      ],
+      "insight": [
+        50000,
+        120000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_talisman_rare",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Void Refinement Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        1800000,
+        2610000
+      ],
+      "defense": [
+        100000,
+        145000
+      ],
+      "fortune": [
+        80000,
+        116000
+      ],
+      "insight": [
+        120000,
+        174000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r6_hp_talisman_legendary",
+    "realm_index": 6,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Void Refinement Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        2610000,
+        4045500
+      ],
+      "defense": [
+        145000,
+        224750
+      ],
+      "fortune": [
+        116000,
+        179800
+      ],
+      "insight": [
+        174000,
+        269700
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_weapon_common",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Immortal Ascension Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        278495,
+        649822
+      ],
+      "defense": [
+        46416,
+        185664
+      ],
+      "fortune": [
+        46416,
+        185664
+      ],
+      "insight": [
+        139248,
+        371327
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_weapon_rare",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Immortal Ascension Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        649822,
+        942242
+      ],
+      "defense": [
+        185664,
+        269213
+      ],
+      "fortune": [
+        185664,
+        269213
+      ],
+      "insight": [
+        371327,
+        538424
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_weapon_legendary",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        942242,
+        1460475
+      ],
+      "defense": [
+        269213,
+        417280
+      ],
+      "fortune": [
+        269213,
+        417280
+      ],
+      "insight": [
+        538424,
+        834557
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_armor_common",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Immortal Ascension Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        92832,
+        371327
+      ],
+      "defense": [
+        464159,
+        1624556
+      ],
+      "fortune": [
+        46416,
+        232079
+      ],
+      "insight": [
+        139248,
+        371327
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_armor_rare",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Immortal Ascension Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        371327,
+        538424
+      ],
+      "defense": [
+        1624556,
+        2355606
+      ],
+      "fortune": [
+        232079,
+        336515
+      ],
+      "insight": [
+        371327,
+        538424
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_armor_legendary",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        538424,
+        834557
+      ],
+      "defense": [
+        2355606,
+        3651189
+      ],
+      "fortune": [
+        336515,
+        521598
+      ],
+      "insight": [
+        538424,
+        834557
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_accessory_common",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Immortal Ascension Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        139248,
+        464159
+      ],
+      "defense": [
+        46416,
+        185664
+      ],
+      "fortune": [
+        232079,
+        649822
+      ],
+      "insight": [
+        232079,
+        556991
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_accessory_rare",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Immortal Ascension Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        464159,
+        673031
+      ],
+      "defense": [
+        185664,
+        269213
+      ],
+      "fortune": [
+        649822,
+        942242
+      ],
+      "insight": [
+        556991,
+        807637
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_accessory_legendary",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        673031,
+        1043198
+      ],
+      "defense": [
+        269213,
+        417280
+      ],
+      "fortune": [
+        942242,
+        1460475
+      ],
+      "insight": [
+        807637,
+        1251837
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_talisman_common",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Immortal Ascension Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        185664,
+        556991
+      ],
+      "defense": [
+        92832,
+        371327
+      ],
+      "fortune": [
+        92832,
+        278495
+      ],
+      "insight": [
+        371327,
+        742654
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_talisman_rare",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Immortal Ascension Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        556991,
+        807637
+      ],
+      "defense": [
+        371327,
+        538424
+      ],
+      "fortune": [
+        278495,
+        403818
+      ],
+      "insight": [
+        742654,
+        1076848
+      ]
+    }
+  },
+  {
+    "id": "r7_internal_talisman_legendary",
+    "realm_index": 7,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        807637,
+        1251837
+      ],
+      "defense": [
+        538424,
+        834557
+      ],
+      "fortune": [
+        403818,
+        625918
+      ],
+      "insight": [
+        1076848,
+        1669114
+      ]
+    }
+  },
+  {
+    "id": "r7_external_weapon_common",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Immortal Ascension Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        371327,
+        835486
+      ],
+      "defense": [
+        92832,
+        371327
+      ],
+      "fortune": [
+        46416,
+        185664
+      ],
+      "insight": [
+        46416,
+        185664
+      ]
+    }
+  },
+  {
+    "id": "r7_external_weapon_rare",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Immortal Ascension Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        835486,
+        1211455
+      ],
+      "defense": [
+        371327,
+        538424
+      ],
+      "fortune": [
+        185664,
+        269213
+      ],
+      "insight": [
+        185664,
+        269213
+      ]
+    }
+  },
+  {
+    "id": "r7_external_weapon_legendary",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        1211455,
+        1877755
+      ],
+      "defense": [
+        538424,
+        834557
+      ],
+      "fortune": [
+        269213,
+        417280
+      ],
+      "insight": [
+        269213,
+        417280
+      ]
+    }
+  },
+  {
+    "id": "r7_external_armor_common",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Immortal Ascension Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        232079,
+        696238
+      ],
+      "defense": [
+        696238,
+        2320794
+      ],
+      "fortune": [
+        46416,
+        232079
+      ],
+      "insight": [
+        46416,
+        232079
+      ]
+    }
+  },
+  {
+    "id": "r7_external_armor_rare",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Immortal Ascension Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        696238,
+        1009545
+      ],
+      "defense": [
+        2320794,
+        3365151
+      ],
+      "fortune": [
+        232079,
+        336515
+      ],
+      "insight": [
+        232079,
+        336515
+      ]
+    }
+  },
+  {
+    "id": "r7_external_armor_legendary",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        1009545,
+        1564795
+      ],
+      "defense": [
+        3365151,
+        5215984
+      ],
+      "fortune": [
+        336515,
+        521598
+      ],
+      "insight": [
+        336515,
+        521598
+      ]
+    }
+  },
+  {
+    "id": "r7_external_accessory_common",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Immortal Ascension Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        185664,
+        556991
+      ],
+      "defense": [
+        139248,
+        464159
+      ],
+      "fortune": [
+        139248,
+        556991
+      ],
+      "insight": [
+        92832,
+        278495
+      ]
+    }
+  },
+  {
+    "id": "r7_external_accessory_rare",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Immortal Ascension Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        556991,
+        807637
+      ],
+      "defense": [
+        464159,
+        673031
+      ],
+      "fortune": [
+        556991,
+        807637
+      ],
+      "insight": [
+        278495,
+        403818
+      ]
+    }
+  },
+  {
+    "id": "r7_external_accessory_legendary",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        807637,
+        1251837
+      ],
+      "defense": [
+        673031,
+        1043198
+      ],
+      "fortune": [
+        807637,
+        1251837
+      ],
+      "insight": [
+        403818,
+        625918
+      ]
+    }
+  },
+  {
+    "id": "r7_external_talisman_common",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Immortal Ascension Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        232079,
+        649822
+      ],
+      "defense": [
+        185664,
+        556991
+      ],
+      "fortune": [
+        92832,
+        371327
+      ],
+      "insight": [
+        278495,
+        649822
+      ]
+    }
+  },
+  {
+    "id": "r7_external_talisman_rare",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Immortal Ascension Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        649822,
+        942242
+      ],
+      "defense": [
+        556991,
+        807637
+      ],
+      "fortune": [
+        371327,
+        538424
+      ],
+      "insight": [
+        649822,
+        942242
+      ]
+    }
+  },
+  {
+    "id": "r7_external_talisman_legendary",
+    "realm_index": 7,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        942242,
+        1460475
+      ],
+      "defense": [
+        807637,
+        1251837
+      ],
+      "fortune": [
+        538424,
+        834557
+      ],
+      "insight": [
+        942242,
+        1460475
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_weapon_common",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Immortal Ascension Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        4641589,
+        11139813
+      ],
+      "defense": [
+        139248,
+        464159
+      ],
+      "fortune": [
+        92832,
+        278495
+      ],
+      "insight": [
+        92832,
+        278495
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_weapon_rare",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Immortal Ascension Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        11139813,
+        16152729
+      ],
+      "defense": [
+        464159,
+        673031
+      ],
+      "fortune": [
+        278495,
+        403818
+      ],
+      "insight": [
+        278495,
+        403818
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_weapon_legendary",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        16152729,
+        25036730
+      ],
+      "defense": [
+        673031,
+        1043198
+      ],
+      "fortune": [
+        403818,
+        625918
+      ],
+      "insight": [
+        403818,
+        625918
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_armor_common",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Immortal Ascension Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        3713271,
+        9283178
+      ],
+      "defense": [
+        232079,
+        696238
+      ],
+      "fortune": [
+        46416,
+        232079
+      ],
+      "insight": [
+        46416,
+        232079
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_armor_rare",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Immortal Ascension Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        9283178,
+        13460608
+      ],
+      "defense": [
+        696238,
+        1009545
+      ],
+      "fortune": [
+        232079,
+        336515
+      ],
+      "insight": [
+        232079,
+        336515
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_armor_legendary",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        13460608,
+        20863942
+      ],
+      "defense": [
+        1009545,
+        1564795
+      ],
+      "fortune": [
+        336515,
+        521598
+      ],
+      "insight": [
+        336515,
+        521598
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_accessory_common",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Immortal Ascension Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        2784953,
+        7426542
+      ],
+      "defense": [
+        92832,
+        371327
+      ],
+      "fortune": [
+        185664,
+        556991
+      ],
+      "insight": [
+        139248,
+        371327
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_accessory_rare",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Immortal Ascension Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        7426542,
+        10768486
+      ],
+      "defense": [
+        371327,
+        538424
+      ],
+      "fortune": [
+        556991,
+        807637
+      ],
+      "insight": [
+        371327,
+        538424
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_accessory_legendary",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        10768486,
+        16691153
+      ],
+      "defense": [
+        538424,
+        834557
+      ],
+      "fortune": [
+        807637,
+        1251837
+      ],
+      "insight": [
+        538424,
+        834557
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_talisman_common",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Immortal Ascension Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        3249112,
+        8354860
+      ],
+      "defense": [
+        139248,
+        464159
+      ],
+      "fortune": [
+        92832,
+        371327
+      ],
+      "insight": [
+        232079,
+        556991
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_talisman_rare",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Immortal Ascension Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        8354860,
+        12114547
+      ],
+      "defense": [
+        464159,
+        673031
+      ],
+      "fortune": [
+        371327,
+        538424
+      ],
+      "insight": [
+        556991,
+        807637
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r7_hp_talisman_legendary",
+    "realm_index": 7,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Immortal Ascension Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        12114547,
+        18777548
+      ],
+      "defense": [
+        673031,
+        1043198
+      ],
+      "fortune": [
+        538424,
+        834557
+      ],
+      "insight": [
+        807637,
+        1251837
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_weapon_common",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        1292661,
+        3016209
+      ],
+      "defense": [
+        215443,
+        861774
+      ],
+      "fortune": [
+        215443,
+        861774
+      ],
+      "insight": [
+        646330,
+        1723548
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_weapon_rare",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        3016209,
+        4373503
+      ],
+      "defense": [
+        861774,
+        1249572
+      ],
+      "fortune": [
+        861774,
+        1249572
+      ],
+      "insight": [
+        1723548,
+        2499145
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_weapon_legendary",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        4373503,
+        6778930
+      ],
+      "defense": [
+        1249572,
+        1936837
+      ],
+      "fortune": [
+        1249572,
+        1936837
+      ],
+      "insight": [
+        2499145,
+        3873675
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_armor_common",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        430887,
+        1723548
+      ],
+      "defense": [
+        2154435,
+        7540521
+      ],
+      "fortune": [
+        215443,
+        1077217
+      ],
+      "insight": [
+        646330,
+        1723548
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_armor_rare",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        1723548,
+        2499145
+      ],
+      "defense": [
+        7540521,
+        10933755
+      ],
+      "fortune": [
+        1077217,
+        1561965
+      ],
+      "insight": [
+        1723548,
+        2499145
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_armor_legendary",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        2499145,
+        3873675
+      ],
+      "defense": [
+        10933755,
+        16947320
+      ],
+      "fortune": [
+        1561965,
+        2421046
+      ],
+      "insight": [
+        2499145,
+        3873675
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_accessory_common",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        646330,
+        2154435
+      ],
+      "defense": [
+        215443,
+        861774
+      ],
+      "fortune": [
+        1077217,
+        3016209
+      ],
+      "insight": [
+        1077217,
+        2585322
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_accessory_rare",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        2154435,
+        3123931
+      ],
+      "defense": [
+        861774,
+        1249572
+      ],
+      "fortune": [
+        3016209,
+        4373503
+      ],
+      "insight": [
+        2585322,
+        3748717
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_accessory_legendary",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        3123931,
+        4842093
+      ],
+      "defense": [
+        1249572,
+        1936837
+      ],
+      "fortune": [
+        4373503,
+        6778930
+      ],
+      "insight": [
+        3748717,
+        5810511
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_talisman_common",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        861774,
+        2585322
+      ],
+      "defense": [
+        430887,
+        1723548
+      ],
+      "fortune": [
+        430887,
+        1292661
+      ],
+      "insight": [
+        1723548,
+        3447096
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_talisman_rare",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        2585322,
+        3748717
+      ],
+      "defense": [
+        1723548,
+        2499145
+      ],
+      "fortune": [
+        1292661,
+        1874358
+      ],
+      "insight": [
+        3447096,
+        4998289
+      ]
+    }
+  },
+  {
+    "id": "r8_internal_talisman_legendary",
+    "realm_index": 8,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        3748717,
+        5810511
+      ],
+      "defense": [
+        2499145,
+        3873675
+      ],
+      "fortune": [
+        1874358,
+        2905255
+      ],
+      "insight": [
+        4998289,
+        7747348
+      ]
+    }
+  },
+  {
+    "id": "r8_external_weapon_common",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        1723548,
+        3877982
+      ],
+      "defense": [
+        430887,
+        1723548
+      ],
+      "fortune": [
+        215443,
+        861774
+      ],
+      "insight": [
+        215443,
+        861774
+      ]
+    }
+  },
+  {
+    "id": "r8_external_weapon_rare",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        3877982,
+        5623074
+      ],
+      "defense": [
+        1723548,
+        2499145
+      ],
+      "fortune": [
+        861774,
+        1249572
+      ],
+      "insight": [
+        861774,
+        1249572
+      ]
+    }
+  },
+  {
+    "id": "r8_external_weapon_legendary",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        5623074,
+        8715765
+      ],
+      "defense": [
+        2499145,
+        3873675
+      ],
+      "fortune": [
+        1249572,
+        1936837
+      ],
+      "insight": [
+        1249572,
+        1936837
+      ]
+    }
+  },
+  {
+    "id": "r8_external_armor_common",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        1077217,
+        3231652
+      ],
+      "defense": [
+        3231652,
+        10772173
+      ],
+      "fortune": [
+        215443,
+        1077217
+      ],
+      "insight": [
+        215443,
+        1077217
+      ]
+    }
+  },
+  {
+    "id": "r8_external_armor_rare",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        3231652,
+        4685895
+      ],
+      "defense": [
+        10772173,
+        15619651
+      ],
+      "fortune": [
+        1077217,
+        1561965
+      ],
+      "insight": [
+        1077217,
+        1561965
+      ]
+    }
+  },
+  {
+    "id": "r8_external_armor_legendary",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        4685895,
+        7263137
+      ],
+      "defense": [
+        15619651,
+        24210459
+      ],
+      "fortune": [
+        1561965,
+        2421046
+      ],
+      "insight": [
+        1561965,
+        2421046
+      ]
+    }
+  },
+  {
+    "id": "r8_external_accessory_common",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        861774,
+        2585322
+      ],
+      "defense": [
+        646330,
+        2154435
+      ],
+      "fortune": [
+        646330,
+        2585322
+      ],
+      "insight": [
+        430887,
+        1292661
+      ]
+    }
+  },
+  {
+    "id": "r8_external_accessory_rare",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        2585322,
+        3748717
+      ],
+      "defense": [
+        2154435,
+        3123931
+      ],
+      "fortune": [
+        2585322,
+        3748717
+      ],
+      "insight": [
+        1292661,
+        1874358
+      ]
+    }
+  },
+  {
+    "id": "r8_external_accessory_legendary",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        3748717,
+        5810511
+      ],
+      "defense": [
+        3123931,
+        4842093
+      ],
+      "fortune": [
+        3748717,
+        5810511
+      ],
+      "insight": [
+        1874358,
+        2905255
+      ]
+    }
+  },
+  {
+    "id": "r8_external_talisman_common",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        1077217,
+        3016209
+      ],
+      "defense": [
+        861774,
+        2585322
+      ],
+      "fortune": [
+        430887,
+        1723548
+      ],
+      "insight": [
+        1292661,
+        3016209
+      ]
+    }
+  },
+  {
+    "id": "r8_external_talisman_rare",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        3016209,
+        4373503
+      ],
+      "defense": [
+        2585322,
+        3748717
+      ],
+      "fortune": [
+        1723548,
+        2499145
+      ],
+      "insight": [
+        3016209,
+        4373503
+      ]
+    }
+  },
+  {
+    "id": "r8_external_talisman_legendary",
+    "realm_index": 8,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        4373503,
+        6778930
+      ],
+      "defense": [
+        3748717,
+        5810511
+      ],
+      "fortune": [
+        2499145,
+        3873675
+      ],
+      "insight": [
+        4373503,
+        6778930
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_weapon_common",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        21544347,
+        51706433
+      ],
+      "defense": [
+        646330,
+        2154435
+      ],
+      "fortune": [
+        430887,
+        1292661
+      ],
+      "insight": [
+        430887,
+        1292661
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_weapon_rare",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        51706433,
+        74974328
+      ],
+      "defense": [
+        2154435,
+        3123931
+      ],
+      "fortune": [
+        1292661,
+        1874358
+      ],
+      "insight": [
+        1292661,
+        1874358
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_weapon_legendary",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        74974328,
+        116210208
+      ],
+      "defense": [
+        3123931,
+        4842093
+      ],
+      "fortune": [
+        1874358,
+        2905255
+      ],
+      "insight": [
+        1874358,
+        2905255
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_armor_common",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        17235478,
+        43088694
+      ],
+      "defense": [
+        1077217,
+        3231652
+      ],
+      "fortune": [
+        215443,
+        1077217
+      ],
+      "insight": [
+        215443,
+        1077217
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_armor_rare",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        43088694,
+        62478606
+      ],
+      "defense": [
+        3231652,
+        4685895
+      ],
+      "fortune": [
+        1077217,
+        1561965
+      ],
+      "insight": [
+        1077217,
+        1561965
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_armor_legendary",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        62478606,
+        96841839
+      ],
+      "defense": [
+        4685895,
+        7263137
+      ],
+      "fortune": [
+        1561965,
+        2421046
+      ],
+      "insight": [
+        1561965,
+        2421046
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_accessory_common",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        12926608,
+        34470955
+      ],
+      "defense": [
+        430887,
+        1723548
+      ],
+      "fortune": [
+        861774,
+        2585322
+      ],
+      "insight": [
+        646330,
+        1723548
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_accessory_rare",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        34470955,
+        49982885
+      ],
+      "defense": [
+        1723548,
+        2499145
+      ],
+      "fortune": [
+        2585322,
+        3748717
+      ],
+      "insight": [
+        1723548,
+        2499145
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_accessory_legendary",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        49982885,
+        77473472
+      ],
+      "defense": [
+        2499145,
+        3873675
+      ],
+      "fortune": [
+        3748717,
+        5810511
+      ],
+      "insight": [
+        2499145,
+        3873675
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_talisman_common",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Heavenly Transcendence Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        15081043,
+        38779824
+      ],
+      "defense": [
+        646330,
+        2154435
+      ],
+      "fortune": [
+        430887,
+        1723548
+      ],
+      "insight": [
+        1077217,
+        2585322
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_talisman_rare",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Heavenly Transcendence Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        38779824,
+        56230745
+      ],
+      "defense": [
+        2154435,
+        3123931
+      ],
+      "fortune": [
+        1723548,
+        2499145
+      ],
+      "insight": [
+        2585322,
+        3748717
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r8_hp_talisman_legendary",
+    "realm_index": 8,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Heavenly Transcendence Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        56230745,
+        87157655
+      ],
+      "defense": [
+        3123931,
+        4842093
+      ],
+      "fortune": [
+        2499145,
+        3873675
+      ],
+      "insight": [
+        3748717,
+        5810511
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_weapon_common",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Immortal Monarch Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        6000000,
+        14000000
+      ],
+      "defense": [
+        1000000,
+        4000000
+      ],
+      "fortune": [
+        1000000,
+        4000000
+      ],
+      "insight": [
+        3000000,
+        8000000
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_weapon_rare",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Immortal Monarch Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        14000000,
+        20300000
+      ],
+      "defense": [
+        4000000,
+        5800000
+      ],
+      "fortune": [
+        4000000,
+        5800000
+      ],
+      "insight": [
+        8000000,
+        11600000
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_weapon_legendary",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Inner Channel Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        20300000,
+        31465000
+      ],
+      "defense": [
+        5800000,
+        8990000
+      ],
+      "fortune": [
+        5800000,
+        8990000
+      ],
+      "insight": [
+        11600000,
+        17980000
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_armor_common",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Immortal Monarch Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        2000000,
+        8000000
+      ],
+      "defense": [
+        10000000,
+        35000000
+      ],
+      "fortune": [
+        1000000,
+        5000000
+      ],
+      "insight": [
+        3000000,
+        8000000
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_armor_rare",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Immortal Monarch Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        8000000,
+        11600000
+      ],
+      "defense": [
+        35000000,
+        50750000
+      ],
+      "fortune": [
+        5000000,
+        7250000
+      ],
+      "insight": [
+        8000000,
+        11600000
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_armor_legendary",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Qiwoven Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        11600000,
+        17980000
+      ],
+      "defense": [
+        50750000,
+        78662500
+      ],
+      "fortune": [
+        7250000,
+        11237500
+      ],
+      "insight": [
+        11600000,
+        17980000
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_accessory_common",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Immortal Monarch Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        3000000,
+        10000000
+      ],
+      "defense": [
+        1000000,
+        4000000
+      ],
+      "fortune": [
+        5000000,
+        14000000
+      ],
+      "insight": [
+        5000000,
+        12000000
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_accessory_rare",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Immortal Monarch Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        10000000,
+        14500000
+      ],
+      "defense": [
+        4000000,
+        5800000
+      ],
+      "fortune": [
+        14000000,
+        20300000
+      ],
+      "insight": [
+        12000000,
+        17400000
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_accessory_legendary",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Meridian Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        14500000,
+        22475000
+      ],
+      "defense": [
+        5800000,
+        8990000
+      ],
+      "fortune": [
+        20300000,
+        31465000
+      ],
+      "insight": [
+        17400000,
+        26970000
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_talisman_common",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Immortal Monarch Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        4000000,
+        12000000
+      ],
+      "defense": [
+        2000000,
+        8000000
+      ],
+      "fortune": [
+        2000000,
+        6000000
+      ],
+      "insight": [
+        8000000,
+        16000000
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_talisman_rare",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Immortal Monarch Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        12000000,
+        17400000
+      ],
+      "defense": [
+        8000000,
+        11600000
+      ],
+      "fortune": [
+        6000000,
+        8700000
+      ],
+      "insight": [
+        16000000,
+        23200000
+      ]
+    }
+  },
+  {
+    "id": "r9_internal_talisman_legendary",
+    "realm_index": 9,
+    "path": "internal",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Soulwell Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        17400000,
+        26970000
+      ],
+      "defense": [
+        11600000,
+        17980000
+      ],
+      "fortune": [
+        8700000,
+        13485000
+      ],
+      "insight": [
+        23200000,
+        35960000
+      ]
+    }
+  },
+  {
+    "id": "r9_external_weapon_common",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Immortal Monarch Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        8000000,
+        18000000
+      ],
+      "defense": [
+        2000000,
+        8000000
+      ],
+      "fortune": [
+        1000000,
+        4000000
+      ],
+      "insight": [
+        1000000,
+        4000000
+      ]
+    }
+  },
+  {
+    "id": "r9_external_weapon_rare",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Immortal Monarch Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        18000000,
+        26100000
+      ],
+      "defense": [
+        8000000,
+        11600000
+      ],
+      "fortune": [
+        4000000,
+        5800000
+      ],
+      "insight": [
+        4000000,
+        5800000
+      ]
+    }
+  },
+  {
+    "id": "r9_external_weapon_legendary",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Vanguard Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "power": [
+        26100000,
+        40455000
+      ],
+      "defense": [
+        11600000,
+        17980000
+      ],
+      "fortune": [
+        5800000,
+        8990000
+      ],
+      "insight": [
+        5800000,
+        8990000
+      ]
+    }
+  },
+  {
+    "id": "r9_external_armor_common",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Immortal Monarch Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        5000000,
+        15000000
+      ],
+      "defense": [
+        15000000,
+        50000000
+      ],
+      "fortune": [
+        1000000,
+        5000000
+      ],
+      "insight": [
+        1000000,
+        5000000
+      ]
+    }
+  },
+  {
+    "id": "r9_external_armor_rare",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Immortal Monarch Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        15000000,
+        21750000
+      ],
+      "defense": [
+        50000000,
+        72500000
+      ],
+      "fortune": [
+        5000000,
+        7250000
+      ],
+      "insight": [
+        5000000,
+        7250000
+      ]
+    }
+  },
+  {
+    "id": "r9_external_armor_legendary",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Ironheart Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "power": [
+        21750000,
+        33712500
+      ],
+      "defense": [
+        72500000,
+        112375000
+      ],
+      "fortune": [
+        7250000,
+        11237500
+      ],
+      "insight": [
+        7250000,
+        11237500
+      ]
+    }
+  },
+  {
+    "id": "r9_external_accessory_common",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Immortal Monarch Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        4000000,
+        12000000
+      ],
+      "defense": [
+        3000000,
+        10000000
+      ],
+      "fortune": [
+        3000000,
+        12000000
+      ],
+      "insight": [
+        2000000,
+        6000000
+      ]
+    }
+  },
+  {
+    "id": "r9_external_accessory_rare",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Immortal Monarch Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        12000000,
+        17400000
+      ],
+      "defense": [
+        10000000,
+        14500000
+      ],
+      "fortune": [
+        12000000,
+        17400000
+      ],
+      "insight": [
+        6000000,
+        8700000
+      ]
+    }
+  },
+  {
+    "id": "r9_external_accessory_legendary",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Warband Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "power": [
+        17400000,
+        26970000
+      ],
+      "defense": [
+        14500000,
+        22475000
+      ],
+      "fortune": [
+        17400000,
+        26970000
+      ],
+      "insight": [
+        8700000,
+        13485000
+      ]
+    }
+  },
+  {
+    "id": "r9_external_talisman_common",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Immortal Monarch Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        5000000,
+        14000000
+      ],
+      "defense": [
+        4000000,
+        12000000
+      ],
+      "fortune": [
+        2000000,
+        8000000
+      ],
+      "insight": [
+        6000000,
+        14000000
+      ]
+    }
+  },
+  {
+    "id": "r9_external_talisman_rare",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Immortal Monarch Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        14000000,
+        20300000
+      ],
+      "defense": [
+        12000000,
+        17400000
+      ],
+      "fortune": [
+        8000000,
+        11600000
+      ],
+      "insight": [
+        14000000,
+        20300000
+      ]
+    }
+  },
+  {
+    "id": "r9_external_talisman_legendary",
+    "realm_index": 9,
+    "path": "external",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Bulwark Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "power": [
+        20300000,
+        31465000
+      ],
+      "defense": [
+        17400000,
+        26970000
+      ],
+      "fortune": [
+        11600000,
+        17980000
+      ],
+      "insight": [
+        20300000,
+        31465000
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_weapon_common",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "common",
+    "name": "Immortal Monarch Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        100000000,
+        240000000
+      ],
+      "defense": [
+        3000000,
+        10000000
+      ],
+      "fortune": [
+        2000000,
+        6000000
+      ],
+      "insight": [
+        2000000,
+        6000000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_weapon_rare",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "rare",
+    "name": "Immortal Monarch Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        240000000,
+        348000000
+      ],
+      "defense": [
+        10000000,
+        14500000
+      ],
+      "fortune": [
+        6000000,
+        8700000
+      ],
+      "insight": [
+        6000000,
+        8700000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_weapon_legendary",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Lifebound Blade",
+    "item_id": "spirit_blade",
+    "technique_tag": "sword",
+    "stat_ranges": {
+      "hp": [
+        348000000,
+        539400000
+      ],
+      "defense": [
+        14500000,
+        22475000
+      ],
+      "fortune": [
+        8700000,
+        13485000
+      ],
+      "insight": [
+        8700000,
+        13485000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_armor_common",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "common",
+    "name": "Immortal Monarch Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        80000000,
+        200000000
+      ],
+      "defense": [
+        5000000,
+        15000000
+      ],
+      "fortune": [
+        1000000,
+        5000000
+      ],
+      "insight": [
+        1000000,
+        5000000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_armor_rare",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "rare",
+    "name": "Immortal Monarch Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        200000000,
+        290000000
+      ],
+      "defense": [
+        15000000,
+        21750000
+      ],
+      "fortune": [
+        5000000,
+        7250000
+      ],
+      "insight": [
+        5000000,
+        7250000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_armor_legendary",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "armor",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Lifebound Vest",
+    "item_id": "mistwoven_vest",
+    "technique_tag": "body",
+    "stat_ranges": {
+      "hp": [
+        290000000,
+        449500000
+      ],
+      "defense": [
+        21750000,
+        33712500
+      ],
+      "fortune": [
+        7250000,
+        11237500
+      ],
+      "insight": [
+        7250000,
+        11237500
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_accessory_common",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "common",
+    "name": "Immortal Monarch Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        60000000,
+        160000000
+      ],
+      "defense": [
+        2000000,
+        8000000
+      ],
+      "fortune": [
+        4000000,
+        12000000
+      ],
+      "insight": [
+        3000000,
+        8000000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_accessory_rare",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "rare",
+    "name": "Immortal Monarch Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        160000000,
+        232000000
+      ],
+      "defense": [
+        8000000,
+        11600000
+      ],
+      "fortune": [
+        12000000,
+        17400000
+      ],
+      "insight": [
+        8000000,
+        11600000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_accessory_legendary",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "accessory",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Lifebound Talisman",
+    "item_id": "bandit_talisman",
+    "technique_tag": "fire",
+    "stat_ranges": {
+      "hp": [
+        232000000,
+        359600000
+      ],
+      "defense": [
+        11600000,
+        17980000
+      ],
+      "fortune": [
+        17400000,
+        26970000
+      ],
+      "insight": [
+        11600000,
+        17980000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_talisman_common",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "common",
+    "name": "Immortal Monarch Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        70000000,
+        180000000
+      ],
+      "defense": [
+        3000000,
+        10000000
+      ],
+      "fortune": [
+        2000000,
+        8000000
+      ],
+      "insight": [
+        5000000,
+        12000000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_talisman_rare",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "rare",
+    "name": "Immortal Monarch Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        180000000,
+        261000000
+      ],
+      "defense": [
+        10000000,
+        14500000
+      ],
+      "fortune": [
+        8000000,
+        11600000
+      ],
+      "insight": [
+        12000000,
+        17400000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "id": "r9_hp_talisman_legendary",
+    "realm_index": 9,
+    "path": "hp",
+    "slot": "talisman",
+    "rarity": "legendary",
+    "name": "Immortal Monarch Lifebound Pendant",
+    "item_id": "moonwell_pendant",
+    "technique_tag": "soul",
+    "stat_ranges": {
+      "hp": [
+        261000000,
+        404550000
+      ],
+      "defense": [
+        14500000,
+        22475000
+      ],
+      "fortune": [
+        11600000,
+        17980000
+      ],
+      "insight": [
+        17400000,
+        26970000
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  }
+]

@@ -149,8 +149,6 @@ from .guidance import (
     add_guidance_to_embed,
     build_cooldown_embed,
     build_help_embed,
-    get_start_next_steps,
-    get_welcome_intro,
 )
 from .game import (
     ORIGINS,
@@ -200,6 +198,31 @@ from .novice_trial import (
     on_breakthrough_success,
     on_daily_claimed,
     on_adventure_completed,
+)
+from .story_mode import (
+    apply_path_bonuses,
+    clear_pending,
+    finalize_creation_state,
+    get_node,
+    get_path_def,
+    get_pending,
+    player_story_chapter,
+    render_node_text,
+    start_pending,
+    story_command_available,
+    unlock_chapter_two,
+)
+from .story_delivery import (
+    deliver_pending_story_to_abode,
+    maybe_sync_elder_story,
+    resolve_abode_channel,
+    sync_player_story_to_abode,
+)
+from .story_views import (
+    StoryView,
+    build_story_embed,
+    send_story_node_for_pending,
+    send_story_node_for_player,
 )
 
 load_all_content()
@@ -528,7 +551,10 @@ class CombatView(discord.ui.View):
                     state.victory,
                     rng=rng,
                 )
-                player.last_hunt_at = now
+                from .story_mode import should_apply_trial_activity_cooldown
+
+                if should_apply_trial_activity_cooldown(player, "hunt"):
+                    player.last_hunt_at = now
                 player.last_active_at = now
                 consume_haste_for_activity(session, player.id, "hunt")
                 schedule_player_reminders(session, player, cfg, "hunt", now=now)
@@ -540,6 +566,13 @@ class CombatView(discord.ui.View):
                 embed.color = color
                 attach_guidance(embed, "hunt", player, session, cfg, now)
                 await interaction.response.edit_message(embed=embed, view=None)
+                await maybe_sync_elder_story(
+                    interaction,
+                    session,
+                    player,
+                    on_player_update=_story_continue_after_creation,
+                )
+                session.commit()
                 return
 
             assert self.active_id is not None
@@ -599,6 +632,13 @@ class CombatView(discord.ui.View):
                 embed.add_field(name="Trial progress", value="\n".join(trial_msgs), inline=False)
             attach_guidance(embed, "adventure", player, session, cfg, now)
             await interaction.response.edit_message(embed=embed, view=None)
+            await maybe_sync_elder_story(
+                interaction,
+                session,
+                player,
+                on_player_update=_story_continue_after_creation,
+            )
+            session.commit()
         finally:
             session.close()
 
@@ -718,6 +758,13 @@ class AdventureChoiceView(discord.ui.View):
                     embed.add_field(name="Trial progress", value="\n".join(trial_msgs), inline=False)
                 attach_guidance(embed, "adventure", player, session, cfg, now)
                 await interaction.response.edit_message(embed=embed, view=None)
+                await maybe_sync_elder_story(
+                    interaction,
+                    session,
+                    player,
+                    on_player_update=_story_continue_after_creation,
+                )
+                session.commit()
             finally:
                 session.close()
 
@@ -794,7 +841,9 @@ def _apply_adventure_completion(
     trial_msgs, waive_cd = on_adventure_completed(
         session, player, segments_cleared=result.segments_cleared
     )
-    if not waive_cd:
+    from .story_mode import should_apply_trial_activity_cooldown
+
+    if not waive_cd and should_apply_trial_activity_cooldown(player, "adventure"):
         player.last_adventure_at = now
     player.last_active_at = now
     return trial_msgs
@@ -1385,7 +1434,10 @@ class CultivateButton(discord.ui.Button):
             if "qi_gathering" in mod.active_effects:
                 consume_effect_charge(session, player.id, "qi_gathering")
             consume_haste_for_activity(session, player.id, "cultivate")
-            player.last_cultivate_at = now
+            from .story_mode import should_apply_trial_activity_cooldown
+
+            if should_apply_trial_activity_cooldown(player, "cultivate"):
+                player.last_cultivate_at = now
             schedule_player_reminders(session, player, self.cfg, "cultivate", now=now)
 
             session.add(player)
@@ -1412,6 +1464,13 @@ class CultivateButton(discord.ui.Button):
             )
             attach_guidance(embed, "cultivate", player, session, self.cfg, now)
             await interaction.response.send_message(embed=embed, ephemeral=False)
+            await maybe_sync_elder_story(
+                interaction,
+                session,
+                player,
+                on_player_update=_story_continue_after_creation,
+            )
+            session.commit()
         finally:
             session.close()
 
@@ -1469,8 +1528,11 @@ async def _finish_breakthrough_attempt(
         )
         trial_msgs: list[str] = []
         foundation_msgs: list[str] = []
+        chapter_msgs: list[str] = []
         if res.success:
             trial_msgs = on_breakthrough_success(session, player, rng)
+            if player.realm_index >= 1 and old_realm_index < 1:
+                chapter_msgs = unlock_chapter_two(player)
             from .foundation import grant_body_temper_charges
 
             foundation_msgs.append(grant_body_temper_charges(player, 1))
@@ -1497,6 +1559,8 @@ async def _finish_breakthrough_attempt(
             desc += f"\n\n{enlighten_msg}"
         if trial_msgs:
             desc += "\n\n" + "\n".join(trial_msgs)
+        if chapter_msgs:
+            desc += "\n\n" + "\n".join(chapter_msgs)
         if foundation_msgs:
             desc += "\n\n" + "\n".join(foundation_msgs)
         if res.success:
@@ -1522,6 +1586,13 @@ async def _finish_breakthrough_attempt(
         attach_guidance(embed, "breakthrough", player, session, cfg, now)
 
         await interaction.followup.send(embed=embed, ephemeral=False)
+        await maybe_sync_elder_story(
+            interaction,
+            session,
+            player,
+            on_player_update=_story_continue_after_creation,
+        )
+        session.commit()
         if res.success:
             await post_announcement(
                 interaction.client,
@@ -1654,10 +1725,62 @@ class CultivateView(CultivationButtons):
         self.add_item(BreakthroughButton(owner_discord_id, cfg, rng))
 
 
+def build_profile_view(
+    owner_discord_id: str,
+    cfg,
+    rng: random.Random,
+    player: Player,
+) -> CultivationButtons | None:
+    from .story_mode import current_awaited_command, elder_trial_active
+
+    if not elder_trial_active(player):
+        return CultivateView(owner_discord_id, cfg, rng)
+
+    awaited = current_awaited_command(player)
+    if awaited not in ("cultivate", "breakthrough"):
+        return None
+
+    view = CultivationButtons(owner_discord_id, cfg, rng)
+    if awaited == "cultivate":
+        view.add_item(CultivateButton(cfg, rng))
+    else:
+        view.add_item(BreakthroughButton(owner_discord_id, cfg, rng))
+    return view
+
+
 intents = discord.Intents.default()
 intents.guilds = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+
+@bot.tree.interaction_check
+async def elder_trial_command_gate(interaction: discord.Interaction) -> bool:
+    if interaction.guild is None:
+        return True
+    cmd = interaction.command
+    if cmd is None:
+        return True
+
+    session = get_session()
+    try:
+        from .story_mode import check_elder_trial_command
+
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            return True
+        msg = check_elder_trial_command(player, cmd.name)
+        if msg:
+            if interaction.response.is_done():
+                await interaction.followup.send(msg, ephemeral=False)
+            else:
+                await interaction.response.send_message(msg, ephemeral=False)
+            return False
+        return True
+    finally:
+        session.close()
 
 
 @tasks.loop(seconds=60)
@@ -1716,6 +1839,237 @@ def rng_for(guild_id: str, user_id: str, *, salt: str = "") -> random.Random:
 
 # Slash-command choices (must be defined before command decorators).
 ORIGIN_CHOICES = [app_commands.Choice(name=o, value=o) for o in ORIGINS]
+
+
+async def _story_pending_update(
+    interaction: discord.Interaction,
+    pending,
+) -> None:
+    if pending.dao_name:
+        in_abode = (
+            pending.abode_channel_id
+            and str(interaction.channel_id) == pending.abode_channel_id
+        )
+        delivered = await deliver_pending_story_to_abode(
+            interaction,
+            pending,
+            None,
+            on_pending_update=_story_pending_update,
+            on_finalize=_story_finalize_creation,
+            redirect_start=not in_abode,
+        )
+        if delivered:
+            return
+    await send_story_node_for_pending(
+        interaction,
+        pending,
+        edit=True,
+        on_pending_update=_story_pending_update,
+        on_finalize=_story_finalize_creation,
+    )
+
+
+async def _story_player_node_update(
+    interaction: discord.Interaction,
+    player_id: int,
+    next_node: str,
+) -> None:
+    session = get_session()
+    try:
+        player = session.get(Player, player_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
+            return
+        player.story_step = next_node
+        if next_node == "complete":
+            player.story_step = "complete"
+        session.add(player)
+        session.commit()
+        if interaction.guild is not None and player.abode_channel_id:
+            await sync_player_story_to_abode(
+                interaction.client,
+                interaction.guild,
+                session,
+                player,
+                on_player_update=_story_player_node_update,
+            )
+            session.commit()
+        else:
+            await send_story_node_for_player(
+                interaction,
+                session,
+                player,
+                edit=True,
+                on_player_update=_story_player_node_update,
+            )
+    finally:
+        session.close()
+
+
+async def _story_continue_after_creation(
+    interaction: discord.Interaction,
+    player_id: int,
+    next_node: str,
+) -> None:
+    session = get_session()
+    try:
+        player = session.get(Player, player_id)
+        if player is None:
+            await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
+            return
+        player.story_step = next_node
+        session.add(player)
+        session.commit()
+        if interaction.guild is not None and player.abode_channel_id:
+            await sync_player_story_to_abode(
+                interaction.client,
+                interaction.guild,
+                session,
+                player,
+                on_player_update=_story_continue_after_creation,
+            )
+            session.commit()
+        else:
+            await send_story_node_for_player(
+                interaction,
+                session,
+                player,
+                edit=True,
+                on_player_update=_story_continue_after_creation,
+            )
+    finally:
+        session.close()
+
+
+async def _story_finalize_creation(
+    interaction: discord.Interaction,
+    pending,
+) -> None:
+    cfg = get_config()
+    session = get_session()
+    try:
+        guild_id = pending.guild_id
+        discord_id = pending.discord_id
+
+        existing = ensure_player(session, guild_id, discord_id)
+        if existing is not None:
+            clear_pending(guild_id, discord_id)
+            await interaction.response.edit_message(
+                content="You have already begun. View **`/profile`** or **`/help`**.",
+                embed=None,
+                view=None,
+            )
+            return
+
+        now = utcnow()
+        root = random.choice(SPIRIT_ROOTS)
+        origin = random.choice(ORIGINS)
+        path_def = get_path_def(pending.story_path)
+        path_name = str(path_def.get("name", "")) if path_def else ""
+
+        player = Player(
+            guild_id=guild_id,
+            discord_id=discord_id,
+            discord_username=str(interaction.user),
+            dao_name=pending.dao_name,
+            gender=pending.gender or "unspecified",
+            story_path=pending.story_path,
+            origin=origin,
+            spirit_root=root,
+            moral_path="neutral",
+            karma=0,
+            realm_index=0,
+            substage=0,
+            qi=0,
+            spirit_stones=0,
+            last_cultivate_at=None,
+            last_daily_at=None,
+            last_daily_streak_claimed_at=None,
+            last_pvp_at=None,
+            last_active_at=now,
+            passive_accrual_at=now,
+            daily_streak=0,
+            clan_id=None,
+            clan_role="member",
+            clan_contribution_qi_total=0,
+            game_sect_id=None,
+            sect_merit=0,
+        )
+        finalize_creation_state(player)
+        player.story_step = "spirit_reveal"
+        session.add(player)
+        session.flush()
+
+        gift_msgs = apply_origin_starter_gifts(session, player)
+        path_msgs = apply_path_bonuses(session, player)
+        ensure_starter_techniques(session, player.id)
+
+        pending_abode_id = pending.abode_channel_id
+        pending_story_msg = pending.story_message_id
+        clear_pending(guild_id, discord_id)
+
+        member = interaction.user
+        abode_channel = None
+        if pending_abode_id and interaction.guild is not None:
+            player.abode_channel_id = pending_abode_id
+            player.story_message_id = pending_story_msg or None
+            from .story_delivery import resolve_abode_channel
+
+            abode_channel = await resolve_abode_channel(interaction.guild, pending_abode_id)
+        elif isinstance(member, discord.Member) and interaction.guild is not None:
+            try:
+                provision = await provision_new_cultivator(
+                    interaction.guild,
+                    member,
+                    pending.dao_name,
+                    player.realm_index,
+                    abode_category_id=cfg.abode_category_id,
+                )
+            except Exception:
+                logger.exception(
+                    "Abode/role provision failed guild=%s user=%s",
+                    guild_id,
+                    discord_id,
+                )
+                provision = None
+            if provision is not None and provision.channel is not None:
+                player.abode_channel_id = str(provision.channel.id)
+                abode_channel = provision.channel
+            elif provision is not None and provision.channel_error:
+                logger.warning("Abode error: %s", provision.channel_error)
+
+        session.add(player)
+        session.commit()
+
+        extra_lines = [
+            f"\n\nYour spirit root manifests: **{root}**.",
+            f"A fragment of the past whispers: **{origin}**.",
+        ]
+        if gift_msgs:
+            extra_lines.append("\n".join(gift_msgs))
+        if path_msgs:
+            extra_lines.append("\n".join(path_msgs))
+
+        redirect = "Your path begins."
+        if abode_channel is not None:
+            redirect = (
+                f"**Elder Yunjian** awaits in {abode_channel.mention}. "
+                "Continue your awakening there."
+            )
+        await interaction.response.edit_message(content=redirect, embed=None, view=None)
+
+        if abode_channel is not None and interaction.guild is not None:
+            await sync_player_story_to_abode(
+                interaction.client,
+                interaction.guild,
+                session,
+                player,
+                on_player_update=_story_continue_after_creation,
+                extra_text="".join(extra_lines),
+            )
+            session.commit()
+    finally:
+        session.close()
 
 
 async def upsert_player_if_missing(interaction: discord.Interaction) -> Player | None:
@@ -1847,28 +2201,12 @@ async def on_ready():
 
 @bot.tree.command(
     name="start",
-    description="Begin your cultivation path — choose your dao name and origin.",
+    description="Awaken on the cultivation path — Elder Yunjian awaits.",
 )
-@app_commands.choices(origin=ORIGIN_CHOICES)
-@app_commands.describe(
-    dao_name="Your dao name (as you wish the world to remember).",
-    origin="Your background — each origin grants different starting gifts and manuals.",
-)
-async def start_cmd(
-    interaction: discord.Interaction,
-    dao_name: str,
-    origin: app_commands.Choice[str],
-):
-    cfg = get_config()
+async def start_cmd(interaction: discord.Interaction):
     session = get_session()
     try:
-        logger.info(
-            "CMD /start begin %s dao=%r origin=%r",
-            interaction_ctx(interaction),
-            dao_name,
-            origin.value,
-        )
-        # Acknowledge interaction immediately to avoid Discord's "application did not respond" timeout.
+        logger.info("CMD /start begin %s", interaction_ctx(interaction))
         await interaction.response.defer(thinking=True)
 
         if interaction.guild is None:
@@ -1880,114 +2218,152 @@ async def start_cmd(
 
         existing = ensure_player(session, guild_id, discord_id)
         if existing is not None:
+            from .story_mode import elder_trial_active
+
+            if elder_trial_active(existing):
+                await interaction.followup.send(
+                    "You have already begun. Return to your **abode** and speak with **Elder Yunjian** — **`/story`**.",
+                    ephemeral=False,
+                )
+            else:
+                await interaction.followup.send(
+                    "You have already begun. Check your **abode**, **`/profile`**, or **`/cooldown`**.",
+                    ephemeral=False,
+                )
+            return
+
+        pending = get_pending(guild_id, discord_id)
+        if pending is not None:
+            if pending.dao_name and pending.abode_channel_id:
+                delivered = await deliver_pending_story_to_abode(
+                    interaction,
+                    pending,
+                    session,
+                    on_pending_update=_story_pending_update,
+                    on_finalize=_story_finalize_creation,
+                    redirect_start=str(interaction.channel_id) != pending.abode_channel_id,
+                )
+                if delivered:
+                    channel = await resolve_abode_channel(interaction.guild, pending.abode_channel_id)
+                    mention = channel.mention if channel else "your **abode**"
+                    await interaction.followup.send(
+                        f"Your awakening continues with **Elder Yunjian** in {mention}.",
+                        ephemeral=False,
+                    )
+                    return
+            await send_story_node_for_pending(
+                interaction,
+                pending,
+                edit=False,
+                on_pending_update=_story_pending_update,
+                on_finalize=_story_finalize_creation,
+            )
+            return
+
+        pending = start_pending(guild_id, discord_id)
+        await send_story_node_for_pending(
+            interaction,
+            pending,
+            edit=False,
+            on_pending_update=_story_pending_update,
+            on_finalize=_story_finalize_creation,
+        )
+    finally:
+        session.close()
+
+
+@bot.tree.command(
+    name="story",
+    description="Continue your cultivation story with Elder Yunjian.",
+)
+async def story_cmd(interaction: discord.Interaction):
+    cfg = get_config()
+    session = get_session()
+    try:
+        await interaction.response.defer(thinking=True)
+        if interaction.guild is None:
+            await interaction.followup.send("This bot works inside a server.", ephemeral=False)
+            return
+
+        guild_id = get_guild_id(interaction)
+        discord_id = get_discord_id(interaction.user)
+        player = ensure_player(session, guild_id, discord_id)
+        if player is None:
+            pending = get_pending(guild_id, discord_id)
+            if pending is not None:
+                if pending.dao_name and pending.abode_channel_id:
+                    delivered = await deliver_pending_story_to_abode(
+                        interaction,
+                        pending,
+                        session,
+                        on_pending_update=_story_pending_update,
+                        on_finalize=_story_finalize_creation,
+                        redirect_start=False,
+                    )
+                    if delivered:
+                        in_abode = str(interaction.channel_id) == pending.abode_channel_id
+                        if in_abode:
+                            await interaction.followup.send(
+                                "The Elder speaks above — answer them to continue your awakening.",
+                                ephemeral=False,
+                            )
+                        else:
+                            channel = await resolve_abode_channel(
+                                interaction.guild, pending.abode_channel_id
+                            )
+                            mention = channel.mention if channel else "your **abode**"
+                            await interaction.followup.send(
+                                f"**Elder Yunjian** continues in {mention}.",
+                                ephemeral=False,
+                            )
+                        return
+                await send_story_node_for_pending(
+                    interaction,
+                    pending,
+                    edit=False,
+                    on_pending_update=_story_pending_update,
+                    on_finalize=_story_finalize_creation,
+                )
+                return
             await interaction.followup.send(
-                "You have already begun. View **`/profile`**, check timers with **`/cooldown`**, or see **`/help`**.",
+                "Your story has not begun. Use **`/start`** to awaken.",
                 ephemeral=False,
             )
             return
 
-        now = utcnow()
-        root = random.choice(SPIRIT_ROOTS)
+        available, msg = story_command_available(player)
+        if not available:
+            await interaction.followup.send(msg, ephemeral=False)
+            return
 
-        player = Player(
-            guild_id=guild_id,
-            discord_id=discord_id,
-            discord_username=str(interaction.user),
-            dao_name=dao_name,
-            origin=origin.value,
-            spirit_root=root,
-            moral_path="neutral",
-            karma=0,
-            realm_index=0,
-            substage=0,
-            qi=0,
-            spirit_stones=0,
-            last_cultivate_at=None,
-            last_daily_at=None,
-            last_daily_streak_claimed_at=None,
-            last_pvp_at=None,
-            last_active_at=now,
-            passive_accrual_at=now,
-            daily_streak=0,
-            clan_id=None,
-            clan_role="member",
-            clan_contribution_qi_total=0,
-            game_sect_id=None,
-            sect_merit=0,
-        )
-        session.add(player)
-        session.flush()
-        gift_msgs = apply_origin_starter_gifts(session, player)
-        ensure_starter_techniques(session, player.id)
-        session.commit()
-        logger.debug(
-            "Created player id=%s guild_id=%s discord_id=%s dao=%r root=%r karma=%s",
-            player.id,
-            guild_id,
-            discord_id,
-            dao_name,
-            root,
-            player.karma,
-        )
+        if player.realm_index >= 1 and player_story_chapter(player) < 2:
+            unlock_chapter_two(player)
+            session.add(player)
+            session.commit()
 
-        member = interaction.user
-        abode_note = ""
-        if isinstance(member, discord.Member):
-            try:
-                provision = await provision_new_cultivator(
-                    interaction.guild,
-                    member,
-                    dao_name,
-                    player.realm_index,
-                    abode_category_id=cfg.abode_category_id,
+        if interaction.guild is not None and player.abode_channel_id:
+            channel = await sync_player_story_to_abode(
+                interaction.client,
+                interaction.guild,
+                session,
+                player,
+                on_player_update=_story_player_node_update,
+            )
+            session.commit()
+            if channel is not None:
+                await interaction.followup.send(
+                    f"**Elder Yunjian** continues in {channel.mention}.",
+                    ephemeral=False,
                 )
-            except Exception:
-                logger.exception(
-                    "Abode/role provision failed guild=%s user=%s",
-                    guild_id,
-                    discord_id,
-                )
-                provision = None
-            if provision is not None:
-                if provision.channel is not None:
-                    player.abode_channel_id = str(provision.channel.id)
-                    session.add(player)
-                    session.commit()
-                    abode_note = (
-                        f"\n\nYour private abode is ready: {provision.channel.mention} "
-                        "— cultivate and venture from there."
-                    )
-                elif provision.channel_error:
-                    abode_note = f"\n\n{provision.channel_error}"
-                if provision.role is not None:
-                    abode_note += f"\nYou bear the **{provision.role.name}** rank."
-                elif provision.role_error:
-                    abode_note += f"\n\n{provision.role_error}"
+                return
 
-        embed = discord.Embed(
-            title="Your Cultivation Begins",
-            description=(
-                f"{get_welcome_intro()}\n\n"
-                f"You name yourself **{dao_name}**. The past recedes: **{origin.value}**.\n"
-                f"Your spirit root is revealed: **{root}**.\n"
-                f"Your karma begins at **0** — choices in adventures will shape your dao."
-                f"{abode_note}"
-            ),
-            color=discord.Color.blurple(),
+        await send_story_node_for_player(
+            interaction,
+            session,
+            player,
+            edit=False,
+            on_player_update=_story_player_node_update,
         )
-        embed.add_field(name="Realm", value=realm_display(player.realm_index, player.substage), inline=False)
-        embed.add_field(name="Qi", value=str(player.qi), inline=True)
-        embed.add_field(name="Spirit Stones", value=str(player.spirit_stones), inline=True)
-        if gift_msgs:
-            embed.add_field(name="Origin gifts", value="\n".join(gift_msgs), inline=False)
-        embed.add_field(
-            name="Outer Disciple Trial",
-            value="Begin with **`/daily`**, then follow the trial steps on **`/profile`**.",
-            inline=False,
-        )
-        embed.add_field(name="Your first steps", value=get_start_next_steps(), inline=False)
-        attach_guidance(embed, "start", player, session, cfg, now)
-        await interaction.followup.send(embed=embed, ephemeral=False)
     finally:
         session.close()
 
@@ -2139,7 +2515,7 @@ async def profile_cmd(interaction: discord.Interaction):
         combat = compute_combat_stats(player, session, mod)
 
         rng = rng_for(guild_id, discord_id)
-        view = CultivateView(owner_discord_id=discord_id, cfg=cfg, rng=rng)
+        view = build_profile_view(owner_discord_id=discord_id, cfg=cfg, rng=rng, player=player)
 
         guild_label = interaction.guild.name if interaction.guild else "Wandering Realm"
         display_name = interaction.user.display_name or interaction.user.name
@@ -2916,7 +3292,10 @@ async def cultivate_cmd(interaction: discord.Interaction):
         if "qi_gathering" in mod.active_effects:
             consume_effect_charge(session, player.id, "qi_gathering")
         consume_haste_for_activity(session, player.id, "cultivate")
-        player.last_cultivate_at = now
+        from .story_mode import should_apply_trial_activity_cooldown
+
+        if should_apply_trial_activity_cooldown(player, "cultivate"):
+            player.last_cultivate_at = now
         schedule_player_reminders(session, player, cfg, "cultivate", now=now)
 
         session.add(player)
@@ -2944,6 +3323,13 @@ async def cultivate_cmd(interaction: discord.Interaction):
         )
         attach_guidance(embed, "cultivate", player, session, cfg, now)
         await interaction.response.send_message(embed=embed, ephemeral=False)
+        await maybe_sync_elder_story(
+            interaction,
+            session,
+            player,
+            on_player_update=_story_continue_after_creation,
+        )
+        session.commit()
     finally:
         session.close()
 
@@ -3038,8 +3424,6 @@ async def daily_cmd(interaction: discord.Interaction):
         )
         player.spirit_stones += stones
         player.qi += qi
-        player.last_daily_at = now
-        player.last_active_at = now
         trial_msgs = on_daily_claimed(player)
         schedule_player_reminders(session, player, cfg, "daily", now=now)
 
@@ -3047,6 +3431,12 @@ async def daily_cmd(interaction: discord.Interaction):
 
         temper_res = apply_lesser_body_temper(player, rng=rng_for(guild_id, discord_id))
         temper_line = f"\n\n{temper_res.message}" if temper_res.success else ""
+
+        from .story_mode import should_apply_trial_activity_cooldown
+
+        if should_apply_trial_activity_cooldown(player, "daily"):
+            player.last_daily_at = now
+        player.last_active_at = now
 
         session.add(player)
         session.commit()
@@ -3064,6 +3454,13 @@ async def daily_cmd(interaction: discord.Interaction):
         embed.add_field(name="Daily Streak", value=str(player.daily_streak), inline=True)
         attach_guidance(embed, "daily", player, session, cfg, now)
         await interaction.response.send_message(embed=embed, ephemeral=False)
+        await maybe_sync_elder_story(
+            interaction,
+            session,
+            player,
+            on_player_update=_story_continue_after_creation,
+        )
+        session.commit()
     finally:
         session.close()
 
@@ -3420,6 +3817,23 @@ async def adventure_cmd(interaction: discord.Interaction):
             return
 
         now = utcnow()
+        from .adventure import get_active_adventure
+        from .novice_trial import heal_premature_trial_adventure, heal_stuck_novice_adventure, requires_sage_trial
+        from .story_mode import check_elder_trial_command, elder_trial_active
+
+        if heal_stuck_novice_adventure(player):
+            session.add(player)
+        if heal_premature_trial_adventure(session, player):
+            session.add(player)
+            session.commit()
+
+        if elder_trial_active(player):
+            active = get_active_adventure(session, player.id)
+            gate_msg = check_elder_trial_command(player, "adventure")
+            if gate_msg and active is None:
+                await interaction.response.send_message(gate_msg, ephemeral=False)
+                return
+
         remaining = activity_cooldown_remaining(
             session,
             player,
@@ -3436,11 +3850,6 @@ async def adventure_cmd(interaction: discord.Interaction):
                 ephemeral=False,
             )
             return
-
-        from .novice_trial import heal_stuck_novice_adventure, requires_sage_trial
-
-        if heal_stuck_novice_adventure(player):
-            session.add(player)
 
         area_id = adventure_area_for_player(player)
         rng = rng_for(guild_id, discord_id)
@@ -3508,11 +3917,20 @@ async def adventure_continue_cmd(interaction: discord.Interaction):
             await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
             return
 
-        from .novice_trial import heal_stuck_novice_adventure, requires_sage_trial
+        from .novice_trial import heal_premature_trial_adventure, heal_stuck_novice_adventure, requires_sage_trial
+        from .story_mode import check_elder_trial_command, elder_trial_active
 
         if heal_stuck_novice_adventure(player):
             session.add(player)
+        if heal_premature_trial_adventure(session, player):
+            session.add(player)
             session.commit()
+
+        if elder_trial_active(player):
+            gate_msg = check_elder_trial_command(player, "adventure")
+            if gate_msg:
+                await interaction.response.send_message(gate_msg, ephemeral=False)
+                return
 
         pending, err = resume_adventure_session(session, player)
         if err:
@@ -3610,7 +4028,7 @@ async def recipes_cmd(
 
         cat = category.value if category is not None else None
         recipe_type = None if cat in (None, "all") else cat
-        embed = build_recipes_embed(recipe_type=recipe_type)
+        embed = build_recipes_embed(recipe_type=recipe_type, realm_index=player.realm_index)
         if player is not None:
             attach_guidance(embed, "recipes", player, session, cfg, utcnow())
         await interaction.response.send_message(embed=embed, ephemeral=False)

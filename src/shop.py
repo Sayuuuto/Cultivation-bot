@@ -146,10 +146,10 @@ def buy_from_shop(
 
     if listing.listing_type == "equipment":
         assert listing.slot and listing.item_id and listing.stats is not None
-        from .equipment_tiers import resolve_equipment_tier
+        from .equipment_tiers import resolve_gear_entry
         from .gear_stash import create_gear_item_from_shop
 
-        entry = resolve_equipment_tier(player.realm_index, listing.slot, "external")
+        entry = resolve_gear_entry(player.realm_index, listing.slot, "external", "common")
         if entry is not None:
             scaled_stats = {
                 stat: (rng[0] + rng[1]) // 2
@@ -168,6 +168,7 @@ def buy_from_shop(
             realm_index=player.realm_index,
             grade="external",
             technique_tag=technique_tag,
+            rarity="common",
         )
         player.spirit_stones -= total_cost
         session.add(player)

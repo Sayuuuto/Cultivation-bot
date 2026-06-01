@@ -576,6 +576,12 @@ def buy_from_sect_shop(
 
 
 def join_eligibility(session: Session, player: Player, sect_id: str) -> tuple[bool, str]:
+    from .story_mode import story_allows_sect_join
+
+    allowed, story_msg = story_allows_sect_join(player)
+    if not allowed:
+        return False, story_msg
+
     sect = get_sect_def(sect_id)
     if sect is None:
         return False, "That martial sect is not known in this realm."

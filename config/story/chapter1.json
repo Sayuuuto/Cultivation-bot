@@ -1,0 +1,284 @@
+{
+  "start_node": "awakening",
+  "nodes": {
+    "awakening": {
+      "speaker": "Elder Yunjian",
+      "text": "Cold stone presses your back. Your mind is empty — no name, no past, only the ache of forgotten days.\n\nA figure in azure robes kneels beside you, qi swirling like mist around his palm.\n\n*\"You yet breathe. That is enough for now.\"*",
+      "choices": [
+        {"id": "gasp", "label": "Gasp and clutch your head", "next": "awakening_pain"},
+        {"id": "stare", "label": "Stare silently at the elder", "next": "awakening_stare"},
+        {"id": "speak", "label": "Try to speak — words fail", "next": "awakening_mute"}
+      ]
+    },
+    "awakening_pain": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Easy. The memories are gone — torn away or buried too deep. Do not force them yet.\"*\n\nHe steadies you with a hand that feels like iron wrapped in silk.",
+      "next": "cultivator_asks_name"
+    },
+    "awakening_stare": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Good. Panic serves no one here. You have eyes that still see — that is a start.\"*",
+      "next": "cultivator_asks_name"
+    },
+    "awakening_mute": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Your voice will return. First, tell me who you wish to be called in this world.\"*",
+      "next": "cultivator_asks_name"
+    },
+    "cultivator_asks_name": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"What name shall the cultivation world remember? Grasp a fragment from the fog of memory — or speak your own.\"*",
+      "input": "modal_name",
+      "next": "name_confirmed"
+    },
+    "name_confirmed": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"**{dao_name}**... yes. The word settles in the air like a seal.\"*",
+      "next": "cultivator_asks_gender"
+    },
+    "cultivator_asks_gender": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"And how shall I address you — as a man, a woman, or simply as you are?\"*",
+      "input": "gender",
+      "next": "memory_flavor"
+    },
+    "memory_flavor": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Your past is a sealed scroll. If you wish to read it again, you must walk the path of cultivation. Mortals forget; cultivators *remember*.\"*",
+      "choices": [
+        {"id": "why", "label": "Why did you save me?", "next": "memory_why"},
+        {"id": "where", "label": "Where am I?", "next": "memory_where"},
+        {"id": "accept", "label": "I will walk this path", "next": "memory_accept"}
+      ]
+    },
+    "memory_why": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"The heavens drop no coin without reason. You may yet matter to this age — or I am a fool. We shall see.\"*",
+      "next": "world_intro"
+    },
+    "memory_where": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Heaven-Seeking Peak — my seclusion. Below us lie sects, groves, and beasts that hunger for qi. You stand at the edge of that world.\"*",
+      "next": "world_intro"
+    },
+    "memory_accept": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Spoken like one who still has a spine. Good — the path will test it.\"*",
+      "next": "world_intro"
+    },
+    "world_intro": {
+      "speaker": "Elder Yunjian",
+      "text": "He gestures toward the horizon.\n\n*\"Cultivators gather qi, break through realms, and carve their dao in blood and enlightenment. Sects, manuals, spirit beasts — all await below. But first, you must choose the *flavor* of your journey.\"*",
+      "choices": [
+        {"id": "dao", "label": "What is a dao?", "next": "world_dao"},
+        {"id": "sects", "label": "Tell me of the sects", "next": "world_sects"},
+        {"id": "ready", "label": "I am ready to choose", "next": "path_intro"}
+      ]
+    },
+    "world_dao": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Your dao is the way you meet the world — blade, lotus, starlight, or hidden ledger. It shapes how fortune finds you.\"*",
+      "next": "path_intro"
+    },
+    "world_sects": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Sects take disciples when they are ready — not before. Prove yourself as a cultivator first; I will speak of them again when your qi refines.\"*",
+      "next": "path_intro"
+    },
+    "path_intro": {
+      "speaker": "Elder Yunjian",
+       "text": "*\"Four paths lie before you. Each grants a blessing suited to its dao. Choose — and know that your story will follow this road.\n\n The **Path of the Unbroken Blade** — steel will and decisive strikes, the dao of the sword.\n The **Path of the Still Lotus** — rooted qi and patient defense, the dao of the shield.\n The **Path of the Wandering Star** — starlight and long breaths, the dao of steady cultivation.\n The **Path of the Hidden Ledger** — secrets, karma, and winding roads, the dao of the wanderer.\"*\n\nBlade path: +5% hunt and adventure success.\nLotus path: +3 starting qi and a qi-gathering pill.\nStar path: +8% cultivate qi for your first sessions.\nLedger path: +spirit stones and a technique fragment.",
+       "input": "path",
+        "next": "spirit_reveal"
+    },
+    "spirit_reveal": {
+      "speaker": "Elder Yunjian",
+      "text": "As your path settles, fragments of a forgotten past surface. Your **spirit root** manifests — a gift from a life you cannot recall.\n\n*\"Interesting. The heavens left you tools even without your memories. Accept them, and begin.\"*",
+      "next": "trial_intro"
+    },
+    "trial_intro": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"I will guide your first steps. Follow my counsel — claim your stipend, gather qi, and prove you can survive Mortal Grove. When you are ready, return to me at Qi Refining for what comes next.\"*",
+      "choices": [
+        {"id": "stipend", "label": "What stipend?", "next": "trial_stipend"},
+        {"id": "grove", "label": "What is Mortal Grove?", "next": "trial_grove"},
+        {"id": "begin", "label": "I understand — let us begin", "next": "wait_daily"}
+      ]
+    },
+    "trial_stipend": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Sects and elders grant daily spirit stones and qi to disciples who report in. Use **`/daily`** to claim yours.\"*",
+      "next": "wait_daily"
+    },
+    "trial_grove": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"A hunting ground for mortals and fledgling cultivators. Spirit beasts roam there — you will visit soon enough.\"*",
+      "next": "wait_daily"
+    },
+    "wait_daily": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"First, claim your daily stipend. The path cannot be walked on an empty purse.\"*\n\n▸ Use **`/daily`** now.",
+      "await_command": "daily",
+      "next": "after_daily"
+    },
+    "after_daily": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Good. Spirit stones and qi flow to those who keep rhythm. Now feel your meridians — draw qi inward.\"*",
+      "choices": [
+        {"id": "how", "label": "How do I cultivate?", "next": "after_daily_how"},
+        {"id": "hurt", "label": "My meridians ache", "next": "after_daily_ache"},
+        {"id": "ready", "label": "I will try now", "next": "wait_cultivate"}
+      ]
+    },
+    "after_daily_how": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Sit in stillness and call the qi. **`/cultivate`** — or the **Cultivate** button on **`/profile`**.\"*",
+      "next": "wait_cultivate"
+    },
+    "after_daily_ache": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Pain means the channels are waking. Breathe through it — then **`/cultivate`**.\"*",
+      "next": "wait_cultivate"
+    },
+    "wait_cultivate": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Gather qi once. Let the meridian awakening run its course.\"*\n\n▸ Use **`/cultivate`** or the profile button.",
+      "await_command": "cultivate",
+      "next": "after_cultivate"
+    },
+    "after_cultivate": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Your dantian stirs. A cultivator must also test steel — hunt a spirit beast in Mortal Grove.\"*",
+      "choices": [
+        {"id": "fear", "label": "Spirit beasts frighten me", "next": "after_cultivate_fear"},
+        {"id": "where", "label": "How do I reach the grove?", "next": "after_cultivate_grove"},
+        {"id": "hunt", "label": "I will hunt now", "next": "wait_hunt"}
+      ]
+    },
+    "after_cultivate_fear": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Fear is honest. Courage is hunting anyway. Win your first fight with **`/hunt`**.\"*",
+      "next": "wait_hunt"
+    },
+    "after_cultivate_grove": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Mortal Grove is your realm's hunting ground. Call **`/hunt`** when your timer allows.\"*",
+      "next": "wait_hunt"
+    },
+    "wait_hunt": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Win a hunt in Mortal Grove. Bring back proof that you can survive.\"*\n\n▸ Use **`/hunt`** and claim victory.",
+      "await_command": "hunt",
+      "next": "after_hunt"
+    },
+    "after_hunt": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"You live — and blood on your hands means little when the beast would have taken yours. Study the manual that fate left you.\"*",
+      "choices": [
+        {"id": "manual", "label": "What manual?", "next": "after_hunt_manual"},
+        {"id": "techniques", "label": "Where are my techniques?", "next": "after_hunt_techniques"},
+        {"id": "study", "label": "I will study now", "next": "wait_learn"}
+      ]
+    },
+    "after_hunt_manual": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"A cultivation art sleeps in your storage ring. Open **`/techniques`** and **Unlock Skill** from your manual.\"*",
+      "next": "wait_learn"
+    },
+    "after_hunt_techniques": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Your martial ledger lives in **`/techniques`**. Learn your origin art first — you will equip it next.\"*",
+      "next": "wait_learn"
+    },
+    "wait_learn": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Unlock your manual in **`/techniques`** → **Unlock Skill**. Study it before you carry it into battle.\"*\n\n▸ Complete this now.",
+      "await_command": "learn",
+      "next": "after_learn"
+    },
+    "after_learn": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"The art lives in your memory — but memory alone does not strike. Fix it to your loadout.\"*",
+      "choices": [
+        {"id": "how", "label": "How do I equip it?", "next": "after_learn_how"},
+        {"id": "slots", "label": "Which slot?", "next": "after_learn_slots"},
+        {"id": "ready", "label": "I will equip now", "next": "wait_equip"}
+      ]
+    },
+    "after_learn_how": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Open **`/techniques`** → **Equip Skill**, choose your art, then pick slot **1** or **passive**.\"*",
+      "next": "wait_equip"
+    },
+    "after_learn_slots": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Active arts fill slots **1–4**; one passive breathes behind all of them. Either serves for this lesson.\"*",
+      "next": "wait_equip"
+    },
+    "wait_equip": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Equip the art you just studied — **`/techniques`** → **Equip Skill**.\"*\n\n▸ Do this before the sage's trial.",
+      "await_command": "equip",
+      "next": "after_equip"
+    },
+    "after_equip": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Your art is ready. Walk the bamboo trail — a sage will test your heart. I have arranged this.\"*",
+      "choices": [
+        {"id": "sage", "label": "Who is the sage?", "next": "after_equip_sage"},
+        {"id": "heart", "label": "Test my heart?", "next": "after_equip_heart"},
+        {"id": "go", "label": "I will walk the trail", "next": "wait_adventure"}
+      ]
+    },
+    "after_equip_sage": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"An old friend who reads karma in a bow or a glare. Begin **`/adventure`** when you are ready.\"*",
+      "next": "wait_adventure"
+    },
+    "after_equip_heart": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Choices reveal dao. Answer the sage honestly — or cleverly. **`/adventure`** awaits.\"*",
+      "next": "wait_adventure"
+    },
+    "wait_adventure": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Complete your first adventure — the sage's trial on the bamboo path.\"*\n\n▸ Use **`/adventure`**.",
+      "await_command": "adventure",
+      "next": "after_adventure"
+    },
+    "after_adventure": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"The sage's judgment is recorded. Fill your qi to the brim and attempt breakthrough — leave Mortal early behind.\"*",
+      "choices": [
+        {"id": "qi", "label": "How do I fill my qi?", "next": "after_adventure_qi"},
+        {"id": "break", "label": "What is breakthrough?", "next": "after_adventure_break"},
+        {"id": "attempt", "label": "I will breakthrough now", "next": "wait_breakthrough"}
+      ]
+    },
+    "after_adventure_qi": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Cultivate until your qi cap is full. Check **`/profile`** for your progress.\"*",
+      "next": "wait_breakthrough"
+    },
+    "after_adventure_break": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"When qi overflows its vessel, you shatter the shell of your current substage. Use **`/breakthrough`**.\"*",
+      "next": "wait_breakthrough"
+    },
+    "wait_breakthrough": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Attempt **`/breakthrough`** when your qi is full. Cross Mortal early — the sect watches.\"*",
+      "await_command": "breakthrough",
+      "next": "chapter1_complete"
+    },
+    "chapter1_complete": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Well done. You have passed my first test. Keep cultivating — when you reach **Qi Refining**, return with **`/story`**. Then we speak of sects and the next chapter of your memory.\"*",
+      "next": "complete"
+    },
+    "complete": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Walk your path. I will be here when your qi refines.\"*"
+    }
+  }
+}

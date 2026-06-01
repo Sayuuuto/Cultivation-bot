@@ -67,6 +67,7 @@ def realm_breakthrough_base_success(realm_index: int, substage: int) -> float:
     """Base breakthrough odds before karma, pills, and gear — high in Mortal, lower in late realms."""
     cfg = get_breakthrough_config()
     start = float(cfg.get("start_success", 0.90))
+    if realm_index == 0 & substage == 0: start = 1.00 # Mortal early is 100% success
     per_realm = float(cfg.get("penalty_per_realm", 0.055))
     per_sub = float(cfg.get("penalty_per_substage", 0.008))
     minimum = float(cfg.get("min_base_success", 0.30))

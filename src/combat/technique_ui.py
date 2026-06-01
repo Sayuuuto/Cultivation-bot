@@ -538,6 +538,10 @@ class EquipSlotSelect(discord.ui.Select):
                 return
             session.commit()
             await _hub_toast(interaction, str(interaction.user.id), player, message)
+            from ..story_delivery import maybe_sync_elder_story
+
+            await maybe_sync_elder_story(interaction, session, player)
+            session.commit()
         finally:
             session.close()
 
@@ -599,7 +603,12 @@ class UnlockManualSelect(discord.ui.Select):
             if player is None:
                 await interaction.response.send_message(message, ephemeral=True)
                 return
+            session.commit()
             await _hub_toast(interaction, str(interaction.user.id), player, message)
+            from ..story_delivery import maybe_sync_elder_story
+
+            await maybe_sync_elder_story(interaction, session, player)
+            session.commit()
         finally:
             session.close()
 

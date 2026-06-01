@@ -89,8 +89,12 @@ def _add_chunked_fields(embed: discord.Embed, base_name: str, lines: list[str]) 
         embed.add_field(name=name, value=chunk[:DISCORD_FIELD_CHAR_LIMIT], inline=False)
 
 
-def build_recipes_embed(recipe_type: str | None = None) -> discord.Embed:
+def build_recipes_embed(recipe_type: str | None = None, *, realm_index: int = 0) -> discord.Embed:
+    from .realms import get_realm_name
+
     recipes = get_recipes()
+    realm_index = max(0, min(int(realm_index), 9))
+    realm_name = get_realm_name(realm_index)
     if recipe_type is not None:
         filtered = [r for r in recipes.values() if r.recipe_type == recipe_type]
         title = f"Recipes — {recipe_type.title()}"
@@ -112,32 +116,33 @@ def build_recipes_embed(recipe_type: str | None = None) -> discord.Embed:
     )
 
     if pills:
-        _add_chunked_fields(embed, "Pills", [_format_recipe_line(r) for r in pills])
+        _add_chunked_fields(embed, "Pills", [_format_recipe_line(r, realm_index=realm_index) for r in pills])
     if keys:
-        _add_chunked_fields(embed, "Keys", [_format_recipe_line(r) for r in keys])
+        _add_chunked_fields(embed, "Keys", [_format_recipe_line(r, realm_index=realm_index) for r in keys])
     if other:
-        _add_chunked_fields(embed, "Other", [_format_recipe_line(r) for r in other])
+        _add_chunked_fields(embed, "Other", [_format_recipe_line(r, realm_index=realm_index) for r in other])
 
     if recipe_type in (None, "forge"):
-        from .equipment_tiers import GEAR_PATHS, path_label, resolve_equipment_tier
+        from .equipment_tiers import GEAR_PATHS, path_label, resolve_gear_entry
         from .models import EQUIPMENT_SLOTS
 
         forge_lines: list[str] = []
-        sample_realm = 0
         for slot in EQUIPMENT_SLOTS:
             for path in GEAR_PATHS:
-                entry = resolve_equipment_tier(sample_realm, slot, path)
+                entry = resolve_gear_entry(realm_index, slot, path, "common")
                 if entry is None:
                     continue
                 inputs = _format_inputs(entry.inputs)
                 ranges = entry.stat_ranges
                 range_text = ", ".join(f"{k} {v[0]}–{v[1]}" for k, v in ranges.items())
                 forge_lines.append(
-                    f"**{entry.name}** ({slot}, {path_label(path)})\nIn: {inputs}\nStats scale with your realm — Mortal sample: {range_text}"
+                    f"**{entry.name}** ({slot}, {path_label(path)})\n"
+                    f"In: {inputs}\n"
+                    f"{realm_name} common ranges: {range_text} · rarity rolls on forge"
                 )
         _add_chunked_fields(
             embed,
-            "Equipment forging (`/forge`) — stats scale to your realm",
+            f"Equipment forging (`/forge`) — {realm_name} common preview",
             forge_lines,
         )
 

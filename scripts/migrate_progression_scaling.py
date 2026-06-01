@@ -11,7 +11,8 @@ from pathlib import Path
 LEGACY_GRADE_TO_PATH = {
     "common": "internal",
     "fine": "external",
-    "exalted": "crit",
+    "exalted": "hp",
+    "crit": "hp",
 }
 
 

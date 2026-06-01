@@ -178,22 +178,27 @@ def build_profile_embed(
     )
 
     from .novice_trial import format_trial_progress
+    from .story_mode import elder_trial_active, get_elder_name
+
+    trial_active = elder_trial_active(player)
 
     trial_line = format_trial_progress(player)
     if trial_line:
-        embed.add_field(name="Outer Disciple Trial", value=trial_line, inline=False)
+        field_name = "Elder's instruction" if trial_active else "Outer Disciple Trial"
+        embed.add_field(name=field_name, value=trial_line, inline=False)
 
-    embed.add_field(
-        name="Activity lanes",
-        value=format_activity_lanes(player, cfg, now, remaining_fn, session),
-        inline=False,
-    )
+    if not trial_active:
+        embed.add_field(
+            name="Activity lanes",
+            value=format_activity_lanes(player, cfg, now, remaining_fn, session),
+            inline=False,
+        )
 
-    embed.add_field(
-        name="Martial dao",
-        value=format_martial_dao_summary(session, player),
-        inline=False,
-    )
+        embed.add_field(
+            name="Martial dao",
+            value=format_martial_dao_summary(session, player),
+            inline=False,
+        )
 
     embed.add_field(
         name="Combat",
@@ -240,7 +245,10 @@ def build_profile_embed(
             inline=False,
         )
 
-    embed.set_footer(text="Use the buttons below to cultivate · /techniques for your martial build")
+    if trial_active:
+        embed.set_footer(text=f"Follow {get_elder_name()} in your abode — /story")
+    else:
+        embed.set_footer(text="Use the buttons below to cultivate · /techniques for your martial build")
     return embed
 
 

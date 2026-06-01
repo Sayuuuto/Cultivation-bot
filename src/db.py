@@ -152,10 +152,16 @@ def _migrate_player_columns(engine) -> None:
             "body_temper_charges": "INTEGER DEFAULT 0",
             "passive_qi_bank": "INTEGER DEFAULT 0",
             "passive_accrual_at": "DATETIME",
+            "gender": "VARCHAR(16) DEFAULT ''",
+            "story_path": "VARCHAR(32) DEFAULT ''",
+            "story_chapter": "INTEGER DEFAULT 1",
+            "story_step": "VARCHAR(64) DEFAULT ''",
+            "story_message_id": "VARCHAR(32)",
         },
     )
     _migrate_passive_qi_backfill(engine)
     _migrate_novice_trial_existing_players(engine)
+    _migrate_story_existing_players(engine)
 
 
 def _migrate_passive_qi_backfill(engine) -> None:
@@ -183,6 +189,133 @@ def _migrate_passive_qi_backfill(engine) -> None:
         conn.commit()
 
 
+def _migrate_story_existing_players(engine) -> None:
+    """Seed story progress for players created before the story system."""
+    with engine.connect() as conn:
+        rows = conn.execute(text("PRAGMA table_info(players)")).fetchall()
+        if not rows:
+            return
+        columns = {row[1] for row in rows}
+        if "story_step" not in columns:
+            return
+
+        has_realm = "realm_index" in columns
+        has_trial = "novice_trial_step" in columns
+
+        if has_realm and has_trial:
+            conn.execute(
+                text(
+                    """
+                    UPDATE players
+                    SET story_chapter = 2, story_step = 'complete'
+                    WHERE (story_step IS NULL OR story_step = '')
+                      AND novice_trial_step >= 7
+                      AND realm_index >= 1
+                    """
+                )
+            )
+            conn.execute(
+                text(
+                    """
+                    UPDATE players
+                    SET story_chapter = 1, story_step = 'complete'
+                    WHERE (story_step IS NULL OR story_step = '')
+                      AND novice_trial_step >= 7
+                      AND realm_index = 0
+                    """
+                )
+            )
+
+        if has_trial:
+            conn.execute(
+                text(
+                    """
+                    UPDATE players
+                    SET story_step = 'wait_learn'
+                    WHERE story_step = 'wait_techniques'
+                    """
+                )
+            )
+            conn.execute(
+                text(
+                    """
+                    UPDATE players
+                    SET story_step = 'after_learn'
+                    WHERE story_step = 'after_techniques'
+                    """
+                )
+            )
+            conn.execute(
+                text(
+                    """
+                    UPDATE players
+                    SET story_step = 'after_equip_sage'
+                    WHERE story_step = 'after_techniques_sage'
+                    """
+                )
+            )
+            conn.execute(
+                text(
+                    """
+                    UPDATE players
+                    SET story_step = 'after_equip_heart'
+                    WHERE story_step = 'after_techniques_heart'
+                    """
+                )
+            )
+            conn.execute(
+                text(
+                    """
+                    UPDATE players
+                    SET novice_trial_step = 7
+                    WHERE novice_trial_step >= 6
+                    """
+                )
+            )
+            conn.execute(
+                text(
+                    """
+                    UPDATE players
+                    SET novice_trial_step = novice_trial_step + 1
+                    WHERE novice_trial_step >= 4 AND novice_trial_step < 6
+                    """
+                )
+            )
+            trial_nodes = {
+                0: "wait_daily",
+                1: "wait_cultivate",
+                2: "wait_hunt",
+                3: "wait_learn",
+                4: "wait_equip",
+                5: "wait_adventure",
+                6: "wait_breakthrough",
+            }
+            for step, node_id in trial_nodes.items():
+                conn.execute(
+                    text(
+                        """
+                        UPDATE players
+                        SET story_chapter = 1, story_step = :node_id
+                        WHERE (story_step IS NULL OR story_step = '')
+                          AND novice_trial_step = :step
+                        """
+                    ),
+                    {"node_id": node_id, "step": step},
+                )
+
+        conn.execute(
+            text(
+                """
+                UPDATE players
+                SET story_chapter = COALESCE(story_chapter, 1),
+                    story_step = COALESCE(NULLIF(story_step, ''), 'wait_daily')
+                WHERE story_step IS NULL OR story_step = ''
+                """
+            )
+        )
+        conn.commit()
+
+
 def _migrate_novice_trial_existing_players(engine) -> None:
     with engine.connect() as conn:
         rows = conn.execute(text("PRAGMA table_info(players)")).fetchall()
@@ -199,7 +332,7 @@ def _migrate_novice_trial_existing_players(engine) -> None:
             text(
                 f"""
                 UPDATE players
-                SET novice_trial_step = 6
+                SET novice_trial_step = 7
                 WHERE {where}
                 """
             )
@@ -288,6 +421,48 @@ def _migrate_gear_stash(engine) -> None:
                 text("UPDATE player_equipment SET gear_item_id = :gear_item_id WHERE id = :eq_id"),
                 {"gear_item_id": gear_item_id, "eq_id": eq_id},
             )
+        conn.commit()
+
+
+def _migrate_gear_rarity_columns(engine) -> None:
+    _migrate_table_columns(
+        engine,
+        "player_gear_items",
+        {
+            "stat_hp": "INTEGER DEFAULT 0",
+            "gear_rarity": "VARCHAR(16) DEFAULT 'common'",
+        },
+    )
+    with engine.connect() as conn:
+        if not _table_exists(conn, "player_gear_items"):
+            return
+        conn.execute(
+            text(
+                """
+                UPDATE player_gear_items
+                SET gear_rarity = 'common'
+                WHERE gear_rarity IS NULL OR gear_rarity = ''
+                """
+            )
+        )
+        conn.execute(
+            text(
+                """
+                UPDATE player_gear_items
+                SET gear_grade = 'hp'
+                WHERE gear_grade = 'crit'
+                """
+            )
+        )
+        conn.execute(
+            text(
+                """
+                UPDATE player_equipment
+                SET gear_grade = 'hp'
+                WHERE gear_grade = 'crit'
+                """
+            )
+        )
         conn.commit()
 
 
@@ -449,6 +624,7 @@ def init_db() -> None:
     _migrate_player_columns(engine)
     _migrate_equipment_columns(engine)
     _migrate_gear_stash(engine)
+    _migrate_gear_rarity_columns(engine)
     _migrate_effect_columns(engine)
     _migrate_player_technique_columns(engine)
     _migrate_game_sect_columns(engine)

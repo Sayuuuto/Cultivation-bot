@@ -1,0 +1,52 @@
+{
+  "start_node": "chapter2_opening",
+  "nodes": {
+    "chapter2_opening": {
+      "speaker": "Elder Yunjian",
+      "text": "You stand before the elder once more — qi refined, meridians opened wider than mortal flesh allows.\n\n*\"You remember my promise. The sects stir below; disciples walk in armor and scripture. Your path has led you here.\"*",
+      "choices": [
+        {"id": "memory", "label": "Do you know my past now?", "next": "chapter2_memory"},
+        {"id": "sects", "label": "Tell me of the sects", "next": "chapter2_sects"},
+        {"id": "ready", "label": "I am ready to choose a sect", "next": "chapter2_sect_path"}
+      ]
+    },
+    "chapter2_memory": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Fragments only — enough to know you matter. Walk among the sects; their records may hold what I cannot.\"*",
+      "next": "chapter2_sect_path"
+    },
+    "chapter2_sects": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Wudang, Shaolin, Mount Hua, Tang, Blood Lotus — and others hidden from the uninvited. Karma and realm decide who welcomes you.\"*",
+      "next": "chapter2_sect_path"
+    },
+    "chapter2_sect_path": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Study the sects with **`/sect-list`**. When your heart settles on one, I release you to petition them.\"*",
+      "choices": [
+        {"id": "righteous", "label": "I seek righteous dao", "next": "chapter2_righteous"},
+        {"id": "neutral", "label": "I walk a balanced path", "next": "chapter2_neutral"},
+        {"id": "release", "label": "Release me to join", "next": "sect_unlock"}
+      ]
+    },
+    "chapter2_righteous": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Then let your karma stay bright on **`/adventure`**. The righteous sects will notice.\"*",
+      "next": "sect_unlock"
+    },
+    "chapter2_neutral": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Balance is its own strength. Many sects accept neutral hearts — choose wisely.\"*",
+      "next": "sect_unlock"
+    },
+    "sect_unlock": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"Go. **`/sect-join`** when you find your home among the martial world. Your story continues from here.\"*",
+      "next": "complete"
+    },
+    "complete": {
+      "speaker": "Elder Yunjian",
+      "text": "*\"The scroll is unwritten ahead. Walk your dao.\"*"
+    }
+  }
+}

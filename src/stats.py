@@ -34,6 +34,8 @@ class EquipmentStats:
 
     insight: int = 0
 
+    hp: int = 0
+
 
 
     def as_dict(self) -> dict[str, int]:
@@ -47,6 +49,8 @@ class EquipmentStats:
             "fortune": self.fortune,
 
             "insight": self.insight,
+
+            "hp": self.hp,
 
         }
 
@@ -69,6 +73,8 @@ def stats_from_gear_view(view, *, active: bool = True) -> EquipmentStats:
         fortune=view.stat_fortune,
 
         insight=view.stat_insight,
+
+        hp=int(getattr(view, "stat_hp", 0) or 0),
 
     )
 
@@ -156,6 +162,8 @@ def get_total_equipment_stats(session: Session, player_id: int, *, player_realm_
 
         total.insight += row.insight
 
+        total.hp += row.hp
+
     return total
 
 
@@ -214,6 +222,47 @@ def equipment_stats_to_modifiers(stats: EquipmentStats) -> dict[str, float]:
 
 
 
+def _path_power_label(path: str) -> str:
+    from .equipment_tiers import normalize_gear_path
+
+    normalized = normalize_gear_path(path)
+    if normalized == "external":
+        return "External Power"
+    if normalized == "internal":
+        return "Internal Power"
+    return "HP"
+
+
+def _gear_stat_display_bits(view, *, active: bool = True) -> list[str]:
+    from .equipment_tiers import normalize_gear_path
+
+    path = normalize_gear_path(getattr(view, "gear_grade", None) or "external")
+    stat_bits: list[str] = []
+    power = int(getattr(view, "stat_power", 0) or 0)
+    defense = int(getattr(view, "stat_defense", 0) or 0)
+    fortune = int(getattr(view, "stat_fortune", 0) or 0)
+    insight = int(getattr(view, "stat_insight", 0) or 0)
+    hp = int(getattr(view, "stat_hp", 0) or 0)
+
+    if path == "hp":
+        if hp:
+            stat_bits.append(f"HP {hp}")
+    elif power:
+        stat_bits.append(f"{_path_power_label(path)} {power}")
+    if defense:
+        stat_bits.append(f"Defense {defense}")
+    if fortune:
+        stat_bits.append(f"Fortune {fortune}")
+    if insight:
+        stat_bits.append(f"Insight {insight}")
+    if not active and not stat_bits:
+        return []
+    return stat_bits
+
+
+
+
+
 def format_stat_line(label: str, value: int) -> str:
 
     if value <= 0:
@@ -238,7 +287,7 @@ def format_equipment_slot_line(
 
 ) -> str:
 
-    from .equipment_tiers import gear_status_label, path_label
+    from .equipment_tiers import gear_status_label, path_label, rarity_label
 
     from .gear_stash import gear_view_is_active, resolve_equipped_gear
 
@@ -256,59 +305,27 @@ def format_equipment_slot_line(
 
     active = player_realm_index is None or gear_view_is_active(view, player_realm_index)
 
-    stats = stats_from_gear_view(view, active=active)
-
-    stat_bits = []
-
-    if stats.power:
-
-        stat_bits.append(f"Power {stats.power}")
-
-    if stats.defense:
-
-        stat_bits.append(f"Defense {stats.defense}")
-
-    if stats.fortune:
-
-        stat_bits.append(f"Fortune {stats.fortune}")
-
-    if stats.insight:
-
-        stat_bits.append(f"Insight {stats.insight}")
-
     if not active:
 
-        inactive_bits = []
+        stat_bits = _gear_stat_display_bits(view, active=True)
 
-        if view.stat_power:
-
-            inactive_bits.append(f"Power {view.stat_power}")
-
-        if view.stat_defense:
-
-            inactive_bits.append(f"Defense {view.stat_defense}")
-
-        if view.stat_fortune:
-
-            inactive_bits.append(f"Fortune {view.stat_fortune}")
-
-        if view.stat_insight:
-
-            inactive_bits.append(f"Insight {view.stat_insight}")
-
-        stat_text = " · ".join(inactive_bits) if inactive_bits else "no rolled stats"
+        stat_text = " · ".join(stat_bits) if stat_bits else "no rolled stats"
 
         stat_text = f"{stat_text} — inactive"
 
     else:
 
+        stat_bits = _gear_stat_display_bits(view, active=True)
+
         stat_text = " · ".join(stat_bits) if stat_bits else "no rolled stats"
 
     grade = path_label(view.gear_grade or "external")
 
+    rarity = rarity_label(str(getattr(view, "gear_rarity", None) or "common"))
+
     status = gear_status_label(view, player_realm_index) if player_realm_index is not None else None
 
-    grade_text = f" · {grade}" if active else ""
+    grade_text = f" · {rarity} {grade}" if active else ""
 
     status_text = f" · _{status}_" if status and not active else ""
 
@@ -322,7 +339,7 @@ def format_equipment_slot_line(
 
 def format_gear_item_line(item, *, player_realm_index: int | None = None) -> str:
 
-    from .equipment_tiers import gear_status_label, path_label
+    from .equipment_tiers import gear_status_label, path_label, rarity_label
 
     from .gear_stash import gear_view_is_active
 
@@ -334,27 +351,13 @@ def format_gear_item_line(item, *, player_realm_index: int | None = None) -> str
 
     active = player_realm_index is None or gear_view_is_active(view, player_realm_index)
 
-    stat_bits = []
-
-    if item.stat_power:
-
-        stat_bits.append(f"Power {item.stat_power}")
-
-    if item.stat_defense:
-
-        stat_bits.append(f"Defense {item.stat_defense}")
-
-    if item.stat_fortune:
-
-        stat_bits.append(f"Fortune {item.stat_fortune}")
-
-    if item.stat_insight:
-
-        stat_bits.append(f"Insight {item.stat_insight}")
+    stat_bits = _gear_stat_display_bits(view, active=active)
 
     stat_text = " · ".join(stat_bits) if stat_bits else "modest qi"
 
     grade = path_label(item.gear_grade or "external")
+
+    rarity = rarity_label(str(getattr(item, "gear_rarity", None) or "common"))
 
     status = gear_status_label(item, player_realm_index) if player_realm_index is not None and not active else None
 
@@ -362,7 +365,7 @@ def format_gear_item_line(item, *, player_realm_index: int | None = None) -> str
 
     affix_text = f" · Affix: {item.affix_id}" if item.affix_id else ""
 
-    return f"**#{item.id}** · {name} · {grade} ({stat_text}){status_text}{affix_text}"
+    return f"**#{item.id}** · {rarity} {name} · {grade} ({stat_text}){status_text}{affix_text}"
 
 
 
@@ -372,9 +375,13 @@ def format_stats_summary(session: Session, player_id: int, player=None, mod=None
 
     from .character import get_character_modifiers
 
-    from .combat_stats import STAT_KEYS, _load_realm_stats, _stat_from_realm, compute_combat_stats
+    from .combat_stats import STAT_KEYS, _load_realm_stats, _stat_from_realm, compute_combat_stats, gear_combat_contribution
+
+    from .equipment_tiers import normalize_gear_path
 
     from .foundation import apply_foundation_bonuses
+
+    from .gear_stash import resolve_equipped_gear
 
     from .models import Player
 
@@ -412,27 +419,29 @@ def format_stats_summary(session: Session, player_id: int, player=None, mod=None
 
     apply_foundation_bonuses(player, trained_stats)
 
-    mapping = cfg["gear_mapping"]
+    gear_breakdown = {key: 0 for key in STAT_KEYS}
 
-    gear_breakdown = {
+    for eq in _get_player_equipment(session, player_id):
 
-        "hp": 0,
+        if not equipment_row_is_active(session, eq, realm_index):
 
-        "defense": int(total.defense * mapping["defense_per_point"]),
+            continue
 
-        "internal_strength": int(total.power * mapping["power_internal_ratio"]),
+        view = resolve_equipped_gear(session, eq)
 
-        "external_strength": int(total.power * mapping["power_external_ratio"]),
+        if view is None:
 
-        "agility": 0,
+            continue
 
-        "spiritual_sense": int(total.insight * mapping["insight_spiritual_sense_ratio"]),
+        gear = stats_from_gear_view(view, active=True)
 
-        "comprehension": int(total.insight * mapping["insight_comprehension_ratio"]),
+        path = normalize_gear_path(view.gear_grade)
 
-        "luck": int(total.fortune * mapping["fortune_luck_ratio"]),
+        contrib = gear_combat_contribution(gear, path, cfg)
 
-    }
+        for key in STAT_KEYS:
+
+            gear_breakdown[key] += contrib[key]
 
     combat = compute_combat_stats(player, session, mod)
 
@@ -502,7 +511,9 @@ def format_stats_summary(session: Session, player_id: int, player=None, mod=None
 
             "**Gear totals**",
 
-            format_stat_line("Power", total.power),
+            format_stat_line("External Power", total.power),
+
+            format_stat_line("HP (Lifebound)", total.hp),
 
             format_stat_line("Defense", total.defense),
 
@@ -593,7 +604,9 @@ def format_gear_summary(session: Session, player_id: int, *, player_realm_index:
 
             "**Active totals**",
 
-            format_stat_line("Power", total.power),
+            format_stat_line("External/Internal Power", total.power),
+
+            format_stat_line("HP (Lifebound)", total.hp),
 
             format_stat_line("Defense", total.defense),
 
