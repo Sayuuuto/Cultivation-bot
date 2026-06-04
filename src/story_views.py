@@ -279,7 +279,7 @@ class StoryView(discord.ui.View):
             self.pending.story_path = path_id
             nxt = resolve_next_node(node) or "spirit_reveal"
             advance_pending(self.pending, nxt)
-            if self.on_finalize:
+            if self.on_finalize and nxt == "spirit_reveal":
                 await self.on_finalize(interaction, self.pending)
             elif self.on_pending_update:
                 await self.on_pending_update(interaction, self.pending)

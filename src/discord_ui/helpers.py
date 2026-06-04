@@ -606,6 +606,8 @@ async def _story_finalize_creation(interaction: discord.Interaction, pending) ->
             )
             return
 
+        await interaction.response.defer()
+
         now = utcnow()
         root = random.choice(SPIRIT_ROOTS)
         origin = random.choice(ORIGINS)
@@ -645,20 +647,14 @@ async def _story_finalize_creation(interaction: discord.Interaction, pending) ->
         session.add(player)
         session.flush()
 
-        apply_origin_starter_gifts(session, player, cfg, rng=random.Random(), now=now)
+        apply_origin_starter_gifts(session, player)
 
-        path_name_str = str(path_def.get("name", "")) if path_def else pending.dao_name or ""
-        if interaction.guild is not None and isinstance(interaction.user, discord.Member):
-            _, role_err = await provision_new_cultivator(
-                interaction.guild, interaction.user, player, cfg, path_name_str,
-            )
         session.add(player)
         session.commit()
 
         await send_story_node_for_player(
             interaction, session, player, edit=False,
             on_player_update=_story_player_node_update,
-            on_finalize=None,
         )
         await maybe_sync_elder_story(
             interaction, session, player,

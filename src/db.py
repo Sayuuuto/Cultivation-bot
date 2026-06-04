@@ -394,11 +394,11 @@ def _migrate_gear_stash(engine) -> None:
                 text(
                     """
                     INSERT INTO player_gear_items
-                    (player_id, slot, item_id, stat_power, stat_defense, stat_fortune, stat_insight,
-                     affix_id, technique_tag, gear_realm, gear_grade, equipped_in_slot)
+                    (player_id, slot, item_id, stat_power, stat_defense, stat_fortune, stat_insight, stat_hp,
+                     affix_id, technique_tag, gear_realm, gear_grade, gear_rarity, equipped_in_slot)
                     VALUES
-                    (:player_id, :slot, :item_id, :stat_power, :stat_defense, :stat_fortune, :stat_insight,
-                     :affix_id, :technique_tag, :gear_realm, :gear_grade, :equipped_in_slot)
+                    (:player_id, :slot, :item_id, :stat_power, :stat_defense, :stat_fortune, :stat_insight, :stat_hp,
+                     :affix_id, :technique_tag, :gear_realm, :gear_grade, :gear_rarity, :equipped_in_slot)
                     """
                 ),
                 {
@@ -409,6 +409,8 @@ def _migrate_gear_stash(engine) -> None:
                     "stat_defense": stat_defense or 0,
                     "stat_fortune": stat_fortune or 0,
                     "stat_insight": stat_insight or 0,
+                    "stat_hp": 0,
+                    "gear_rarity": "common",
                     "affix_id": affix_id,
                     "technique_tag": technique_tag,
                     "gear_realm": gear_realm or 0,
