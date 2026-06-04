@@ -567,7 +567,9 @@ class MiscCog(commands.Cog):
             embed = build_help_embed()
             if player is not None:
                 attach_guidance(embed, "help", player, session, cfg, utcnow())
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            from ...discord_ui.views.help_view import HelpView
+
+            await interaction.response.send_message(embed=embed, view=HelpView(), ephemeral=False)
         finally:
             session.close()
 

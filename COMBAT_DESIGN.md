@@ -1,196 +1,130 @@
 # Combat, Techniques, And Karma Design
 
-Combat is data-driven, turn based, and shared by hunts, adventures, dungeons,
-and PvP duels. The system should grow by adding JSON definitions and generic
-effect handlers, not by adding one-off branches for individual martial arts.
+Data-driven turn-based combat shared by hunts, adventures, dungeons, and PvP. The system grows by adding JSON definitions and generic effect handlers, not one-off branches for individual arts.
 
-For lower-level implementation rules, see `docs/COMBAT_PROGRESSION.md`.
+For the lower-level maintainer contract see `docs/COMBAT_PROGRESSION.md`.
 
-## Activity Lanes
+## Activity Lanes And Rewards
 
-- Cultivation: `/cultivate` and `/breakthrough` drive qi and realm progress.
-- Resources: `/gather` and `/hunt` provide herbs, ore, cores, beast parts, and manuals.
-- Story: `/adventure` and `/dungeon` provide choices, moral shifts, bosses, and rarer drops.
-- Builds: `/techniques`, `/technique`, `/learn`, and `/equip-technique` manage manuals and loadout.
-- PvP: `/duel` runs turn-based arena combat after loadout legality checks.
+| Lane | Primary Rewards |
+|------|----------------|
+| `/cultivate`, `/breakthrough` | Qi, realm progress |
+| `/gather`, `/hunt` | Herbs, ore, cores, beast parts, manuals |
+| `/adventure`, `/dungeon` | Moral shifts, bosses, rare drops |
+| `/techniques`, `/learn`, `/equip-technique` | Build management |
+| `/duel` | Arena combat (loadout legality checked first) |
 
-Each lane has distinct primary rewards so short cooldown loops do not dominate
-all progression.
+Each lane has distinct primary rewards so short cooldown loops don't dominate all progression.
 
-## Stats
+## Combat Stats
 
-Primary combat stats come from realm, root, cultivation progress, equipment,
-active effects, and modifiers:
+From realm, root, cultivation, equipment, effects, and modifiers (`config/realm_stats.json`):
 
-- HP and max HP for survival.
-- Internal strength for qi-based techniques.
-- External strength for physical strikes.
-- Agility for speed and dodge.
-- Spiritual sense for crit and detection.
-- Defense for damage reduction.
-- Comprehension for gathering and learning support.
-- Luck for rare drops and crit support.
+HP, internal strength (qi techniques), external strength (physical), agility (speed/dodge), spiritual sense (crit/detection), defense (DR), comprehension (gathering/learning), luck (rare drops/crit).
 
-Realm growth is defined in `config/realm_stats.json`. Realm names, qi caps, load
-budgets, and rank caps are defined in `config/realms.json`.
+Realm names, qi caps, load budgets, rank caps: `config/realms.json`.
 
 ## Technique Runtime
 
-Techniques declare active `effects` and passive `passive_triggers` in
-`config/techniques.json`. `src/combat/catalog.py` parses those definitions into
-`TechniqueDef`, while `src/combat/effect_defs.py` defines the small runtime
-objects used by combat resolution.
+`config/techniques.json` → `src/combat/catalog.py` → `TechniqueDef` dataclass.
 
-Supported event families include:
+Active effects: `effects[]` — objects with `trigger`, `type`, and type-specific params.
+Passive triggers: `passive_triggers[]` — objects with `event`, `type`, and type-specific params.
 
-- `on_use`: active technique resolution.
-- `on_hit`: after damage lands.
-- `on_crit`: after a critical strike.
-- `on_status_applied`: after a status is applied.
-- `on_turn_start` and `on_turn_end`: per-combatant turn hooks.
-- `on_hp_threshold`: threshold passives such as emergency healing.
-- `on_cc_received`: control counterplay.
-- `on_fatal`: survival passives.
+Runtime effect objects: `src/combat/effect_defs.py`.
 
-Supported effect families include damage, multi-hit, status application, heal,
-lifesteal, shield, cleanse, dodge, execute, reflect, cooldown adjustment, and
-conditional bonuses.
+### Event Families
 
-Catalog fallbacks still parse older passive fields into trigger definitions so
-existing content keeps working while entries are normalized.
+`on_use`, `on_hit`, `on_crit`, `on_status_applied`, `on_turn_start`, `on_turn_end`, `on_hp_threshold`, `on_cc_received`, `on_fatal`.
 
-## Status Rules
+### Effect Families
 
-Status metadata lives in `config/combat_rules.json` and is loaded by
-`src/combat/rules.py`.
+Damage, multi-hit, status application, heal, lifesteal, shield, cleanse, dodge, execute, reflect, cooldown adjustment, conditional bonuses.
 
-Current status roles:
+**Catalog fallbacks** (`src/combat/catalog.py`) still parse older passive fields (e.g., `passive_crit_bonus`) into trigger definitions for backward compatibility. Use `passive_triggers` for all new content.
 
-- `bleed`: stackable physical damage over time; enables lifesteal and bleed payoffs.
-- `burn`: damage over time with spread and fire payoff hooks.
-- `poison`: longer attrition and anti-heal support.
-- `stun`: hard turn cancel.
-- `seal`: damage reduction/control pressure.
-- `fear`: chance to skip turns.
+## Status Effects
 
-Status entries can carry tags such as `dot`, `control`, `cleanseable`, and
-`anti_heal`. Control statuses also define diminishing-return metadata.
+Metadata: `config/combat_rules.json`, loaded by `src/combat/rules.py`.
 
-## Loadout And PvP Rules
+| Status | Role |
+|--------|------|
+| bleed | Stackable physical DoT; lifesteal/bleed payoffs |
+| burn | DoT with spread and fire payoff hooks |
+| poison | Long attrition, anti-heal |
+| stun | Hard turn cancel |
+| seal | DR/control pressure |
+| fear | Chance to skip turns |
 
-Players equip four active techniques and one passive technique. Slot count stays
-stable while load budgets limit total build weight by realm.
+Tags: `dot`, `control`, `cleanseable`, `anti_heal`. Control statuses define diminishing-return metadata.
 
-`src/combat/loadout.py` owns:
+## Loadout And PvP
 
-- learned technique lookup
-- starter technique grants
-- equip validation
-- realm load budget checks
-- PvP legality checks
-- technique rank lookup
+Four active + one passive slot. Load budgets limit build weight by realm (`config/realms.json`).
 
-PvP legality checks currently cap legendary techniques, control tools, shield
-tools, healing tools, and survival passives. Tuning values live in
-`config/combat_rules.json`.
+Key module: `src/combat/loadout.py` — learned technique lookup, starter grants, equip validation, realm budget, PvP legality, rank lookup.
 
-## Technique Rarity And Sources
+PvP caps (`config/combat_rules.json`): legendary=1, control=2, shield=2, healing=2, survival_passive=1.
 
-Technique rarity affects active damage and acquisition exclusivity:
+## Technique Rarity
 
-- `common`: baseline arts from early shops, common pools, and craft routes.
-- `uncommon`: stronger arts from gambles, moral pools, sect routes, and upgraded craft routes.
-- `rare`: higher-impact arts from breakthroughs, rare events, dungeon rewards, and elite hunts.
-- `legendary`: high-impact arts reserved for strict reward paths.
+| Rarity | Acquisition |
+|--------|-------------|
+| common | Early shops, common pools, craft |
+| uncommon | Gambles, moral pools, sects, upgraded craft |
+| rare | Breakthroughs, rare events, dungeons, elite hunts |
+| legendary | Strict reward paths |
 
-Source-specific rarity caps live in `src/combat/rarity.py`. Manual drop pools
-live in `config/manual_pools.json`; shop and sect routes live in `config/shop.json`
-and `config/sect_shops.json`.
+Rarity caps per source: `src/combat/rarity.py`. Manual pools: `config/manual_pools.json`. Shop/sect routes: `config/shop.json`, `config/sect_shops.json`.
 
 ## Build Archetypes
 
-The current roster supports discoverable build lanes:
+- Sword/bleed: apply bleed → sustain/finishers
+- Fire/burn: apply burn → amplify → cash out
+- Body/control: shield, stun, seal, Basic Strike pressure
+- Soul/attrition: poison, soul techniques, long fights
+- Utility/cleanse: remove statuses, dodge, shield, survive burst
+- Critical tempo: stack crit, reflect, consecutive-hit payoffs
 
-- Sword and bleed: apply bleed, then convert it into sustain or finishers.
-- Fire and burn: apply burn, amplify fire damage, then cash out with a finisher.
-- Body and control: use shield, stun, seal, and Basic Strike pressure.
-- Soul and attrition: poison and soul techniques pressure long fights.
-- Utility and cleanse: remove statuses, dodge, shield, and survive burst windows.
-- Critical tempo: stack crit, reflect, and consecutive-hit payoffs.
-
-Use `synergy_hint`, `role`, `category`, `tags`, and effect primitives to make
-these identities visible in `/techniques` and maintainable in config.
+Use `synergy_hint`, `role`, `category`, `tags`, and effect primitives to make identities visible in `/techniques` and maintainable in config.
 
 ## Combat Flow
 
-```mermaid
-flowchart TD
-  engage[Engage combat]
-  view[Discord combat buttons]
-  player[Player action]
-  resolve[Resolve effects and passive triggers]
-  foe[Opponent action and status ticks]
-  finish{Finished?}
-  reward[Grant rewards or record result]
-  engage --> view --> player --> resolve --> foe --> finish
-  finish -->|No| view
-  finish -->|Yes| reward
+```
+Engage → Discord combat buttons → Player action → Resolve effects/triggers
+→ Opponent action + status ticks → Check finished? → Loop or reward
 ```
 
-Combat sessions persist until victory, defeat, flee, finish, expiry, or duel
-completion. Discord views show HP bars, statuses, technique cooldowns, Basic
-Strike, flee, and finish actions.
+Combat sessions persist until victory, defeat, flee, finish, expiry, or duel completion. Views show HP bars, statuses, technique cooldowns, Basic Strike, flee, finish.
 
 ## Karma
 
-Karma ranges from `-100` to `+100` and begins neutral. Adventure choices shift
-karma through `karma_delta` values in `config/adventure_encounters.json`.
+Range `-100` to `+100`, starts neutral. Adventure choices shift via `karma_delta` in `config/adventure_encounters.json`.
 
-Karma affects:
+Affects: breakthrough odds, cultivation flavor, manual pool weights (`manual_weight_multiplier()` in `src/karma.py`), profile tier.
 
-- breakthrough odds and setback tuning
-- cultivation flavor
-- manual pool weights
-- profile tier display
+## Manual Acquisition (spread across activities)
 
-Manual pool weighting is handled by `pick_manual_from_pool()` in
-`src/manuals.py`, using `manual_weight_multiplier()` from `src/karma.py`.
+- Cultivate/breakthrough rewards
+- Adventure moral pools and rare events
+- Hunt/dungeon drops
+- Shop listings and manual gambles
+- Craft/manual fragment routes
+- Sect shops and progression
 
-## Manuals
-
-Manual acquisition is intentionally spread across activities:
-
-- cultivate and breakthrough rewards
-- adventure moral pools and rare events
-- hunt and dungeon drops
-- shop listings and manual gambles
-- craft/manual fragment routes
-- sect shops and sect progression
-
-Duplicate known manuals convert into technique fragments. Manuals above the
-player's realm become sealed when the `sealed_manuals` flag is enabled and open
-when the player reaches the required realm.
+Duplicate known manuals → technique fragments. Manuals above player's realm → sealed (when `sealed_manuals` flag enabled); open when realm requirement met.
 
 ## Skill Ideas
 
-`scripts/extract_skill_ideas.py` converts draft skill ideas into
-`config/skill_idea_mapping.json` for review. The generated file maps source
-codes, sect aliases, categories, roles, rarity, realm requirements, manual IDs,
-and backlog reasons.
-
-Promote an idea into runtime by adding or updating entries in the repo-owned
-config files. Keep external schemas out of combat runtime code.
+`scripts/extract_skill_ideas.py` converts draft ideas (`allskills.json`) → `config/skill_idea_mapping.json` for review. Output is a review artifact — don't import draft schema into runtime.
 
 ## Tests
 
-Focused combat checks:
-
-```powershell
-py -m pytest tests/test_combat_engine.py -v
-py -m pytest tests/test_combat_triggers_and_karma.py -v
-py -m pytest tests/test_pvp_combat.py -v
-py -m pytest tests/test_manual_acquisition.py -v
+```sh
+python -m pytest tests/test_combat_engine.py -v
+python -m pytest tests/test_combat_triggers_and_karma.py -v
+python -m pytest tests/test_pvp_combat.py -v
+python -m pytest tests/test_manual_acquisition.py -v
 ```
 
-Add test coverage when changing effect order, status behavior, manual weights,
-sealed manual behavior, load budgets, or PvP caps.
+Add coverage when changing: effect order, status behavior, manual weights, sealed manual behavior, load budgets, PvP caps.

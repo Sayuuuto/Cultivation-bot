@@ -66,73 +66,121 @@ def get_abode_welcome_intro(dao_name: str) -> str:
 
 
 def get_help_sections() -> list[tuple[str, str]]:
-    return [
-        (
-            "Getting started",
-            "`/start` — awaken with Elder Yunjian (your story continues in your **abode**)\n"
-            "`/story` — reopen the Elder's tale in your abode\n"
-            "`/profile` — cultivation dashboard with activity timers and martial summary\n"
-            "`/roots` — spirit root tier list & stat bonuses\n"
-            "`/help` — this guide\n"
-            "`/cooldown` — see what is ready and what is waiting\n"
-            "`/remind` — opt-in DM when cultivate, gather, hunt, adventure, dungeon, duel, or daily is ready",
-        ),
-        (
-            "Core loop (~15 min/day)",
-            "`/daily` — daily stipend (UTC reset)\n"
-            "`/cultivate` — gather qi (15 min cooldown; rare dao events may surge qi or drop manuals)\n"
-            "`/breakthrough` — advance when qi is full\n"
-            "`/reroll_root` — change spirit root (1 free, then stones + 7-day wait)",
-        ),
-        (
-            "Three activity lanes",
-            "**Cultivation** — `/cultivate` · `/breakthrough`\n"
-            "**Resource** — `/gather` · `/hunt` (5 min, button combat on hunt)\n"
-            "**Story** — `/adventure` · `/dungeon` party runs (2 hr cooldown, 2–5 daoists)\n"
-            "**Foundation** — `/temper` (hunt mats) · `/meridian` (cultivate points)",
-        ),
-        (
-            "Martial techniques",
-            "`/techniques` — equipped loadout, skill library, unlock manuals, equip, upgrade\n"
-            "`/item` — full item card; manuals show art type and combat effect\n"
-            "Manuals from **hunt**, **adventure**, **cultivate**, **breakthrough**, **dungeon**, **shop**, **`/craft manual`**",
-        ),
-        (
-            "Exploration & crafting",
-            "`/gather` — herbs, scroll ink, inscription materials (5 min)\n"
-            "`/hunt` — button combat; cooldown applies when the fight ends\n"
-            "`/adventure` — choices, combat segments, karma shifts\n"
-            "`/adventure-continue` · `/adventure-abandon` — resume or quit a run\n"
-            "`/areas` — compare zones, loot tables, and realm requirements\n"
-            "`/recipes` — pill, key, and forge recipes\n"
-            "`/inventory` — item names by category · `/item` — full item card\n"
-            "`/shop` — browse or buy with spirit stones (autocomplete)\n"
-            "`/craft pill` — any recipe; shortages show where to farm · `/craft key` · `/craft manual`\n"
-            "`/use` — consume pills (autocomplete from your bag)",
-        ),
-        (
-            "Dungeons & gear",
-            "`/dungeon` — realm dungeon alone, or tag up to **3** allies who **Accept**\n"
-            "`/forge` — craft gear into your stash · `/equip` · `/recycle` · `/affix`\n"
-            "`/loadout` · `/stats` — foundation, gear, and combat stat breakdown\n"
-            "`/temper` — permanent body stats from beast cores and herbs\n"
-            "`/meridian` — spend meridian points from cultivate and gather\n"
-            "`/dungeon` — solo or with up to 3 tagged allies (they Accept to join)",
-        ),
-        (
-            "Social",
-            "`/duel` — challenge a player; Accept opens a private arena with hunt-style technique combat\n"
-            "`/leaderboard` — top cultivators in this server\n"
-            "`/clan-create` · `/clan-join` · `/clan-leave` · `/clan` · `/clan-invite` · `/clan-invites` — player clans\n"
-            "`/sect-list` · `/sect` · `/sect-join` · `/sect-leave` · `/sect-task` · `/sect-shop` · `/sect-buy` — martial sects",
-        ),
-        (
-            "Other",
-            "`/reset` — erase your character (`confirm=true`), then **`/start`** again\n\n"
-            "**Tips:** **Karma** (earned in adventures) shifts breakthrough risk and manual drops. "
-            "Origin and spirit root passively shape your dao.",
-        ),
-    ]
+    """Flattened sections for the original all-in-one embed."""
+    return [(title, body) for _, title, body in HELP_BY_CATEGORY]
+
+
+HELP_OVERVIEW = (
+    "A serious xianxia journey at a casual pace. Most sessions take ~15 minutes: "
+    "daily stipend, cultivate, explore, craft.\n\n"
+    "Select a category below to learn more.\n\n"
+    "**Quick links:** `/cooldown` shows what's ready right now · "
+    "`/profile` shows your realm and stats · `/techniques` manages your build"
+)
+
+HELP_BY_CATEGORY: list[tuple[str, str, str]] = [
+    (
+        "getting_started",
+        "Getting Started",
+        "`/start` — awaken with Elder Yunjian (your story continues in your **abode**)\n"
+        "`/story` — reopen the Elder's tale in your abode\n"
+        "`/profile` — cultivation dashboard with activity timers and martial summary\n"
+        "`/roots` — spirit root tier list & stat bonuses\n"
+        "`/help` — this guide\n"
+        "`/cooldown` — see what is ready and what is waiting\n"
+        "`/remind` — opt-in DM when cultivate, gather, hunt, adventure, dungeon, duel, or daily is ready\n"
+        "`/reset` — erase your character (`confirm=true`), then **`/start`** again",
+    ),
+    (
+        "cultivation",
+        "Cultivation",
+        "`/daily` — daily qi stipend (UTC midnight reset)\n"
+        "`/cultivate` — gather qi (15 min cooldown; rare dao events may surge qi or drop manuals)\n"
+        "`/breakthrough` — advance to the next realm when qi is full\n"
+        "`/reroll_root` — change spirit root (1 free, then spirit stones + 7-day wait)\n\n"
+        "Qi is the fuel of cultivation. Fill your dantian, then breakthrough to expand your capacity "
+        "and unlock new techniques, areas, and equipment.",
+    ),
+    (
+        "exploration",
+        "Exploration",
+        "`/gather` — herbs, scroll ink, inscription materials (5 min cooldown)\n"
+        "`/hunt` — spirit beast combat with buttons; cooldown starts when the fight ends\n"
+        "`/adventure` — choices, combat segments, and karma-shifting moral dilemmas\n"
+        "`/adventure-continue` — resume a paused adventure run\n"
+        "`/adventure-abandon` — quit an active adventure\n"
+        "`/areas` — compare zones, loot tables, and realm requirements\n\n"
+        "Exploration routes feed materials, manuals, and karma. "
+        "Each lane has distinct rewards — gathering for herbs, hunting for beast parts, "
+        "adventures for rare events and moral choices.",
+    ),
+    (
+        "dungeons_gear",
+        "Dungeons & Gear",
+        "`/dungeon` — realm dungeon solo or tag up to **3** allies (they `/accept` to join)\n"
+        "`/forge` — craft equipment into your stash\n"
+        "`/equip` — equip forged gear\n"
+        "`/recycle` — reclaim materials from old gear\n"
+        "`/affix` — apply affix bonuses to equipment\n"
+        "`/loadout` • `/stats` — foundation, gear, and combat stat breakdown\n"
+        "`/temper` — permanent body stat upgrades from beast cores and herbs\n"
+        "`/meridian` — spend meridian points earned from cultivate and gather\n\n"
+        "Dungeons require a key (crafted via `/craft key`). Cooperative runs scale rewards "
+        "with party size.",
+    ),
+    (
+        "techniques",
+        "Martial Techniques",
+        "`/techniques` — equipped loadout, skill library, unlock manuals, equip, and upgrade\n"
+        "`/item` — inspect any item; manuals show art type and combat effects\n"
+        "`/learn` — learn a technique from a manual in your bag\n"
+        "`/equip-technique` — assign learned techniques to your loadout slots\n"
+        "`/upgrade-technique` — raise a technique's rank with materials + fragments\n"
+        "`/craft manual` — bind technique fragments into a manual\n\n"
+        "Techniques have active effects (used in combat) and passive triggers (always active). "
+        "Load budget limits how many techniques you can equip based on your realm. "
+        "Manuals drop from hunt, adventure, cultivate, breakthrough, dungeon, shop, and `/craft manual`.",
+    ),
+    (
+        "economy",
+        "Economy & Crafting",
+        "`/inventory` — browse items grouped by category\n"
+        "`/item` — full item card with effects, uses, and drop sources\n"
+        "`/shop` — browse or buy with spirit stones (autocomplete)\n"
+        "`/recipes` — browse available recipes by category\n"
+        "`/craft pill` — brew consumables (shortages tell you where to farm)\n"
+        "`/craft key` — craft dungeon keys\n"
+        "`/craft manual` — bind technique fragments into a manual\n"
+        "`/use` — consume pills or items (autocomplete from your bag)\n\n"
+        "Spirit stones are the currency. Farming routes: gather, hunt, adventure, dungeon. "
+        "Crafting paths: pills, keys, manuals, equipment.",
+    ),
+    (
+        "social_pvp",
+        "Social & PvP",
+        "`/duel` — challenge another cultivator; Accept opens a private arena match\n"
+        "`/leaderboard` — top cultivators in this server\n"
+        "`/clan-create` • `/clan-join` • `/clan-leave` • `/clan` • `/clan-invite` • `/clan-invites` — player-run clans\n"
+        "`/sect-list` • `/sect` • `/sect-join` • `/sect-leave` • `/sect-task` • `/sect-shop` • `/sect-buy` — martial sects\n\n"
+        "Clans are player-created, server-scoped. Sects are fixed in-world orders with "
+        "karma gates, realm requirements, daily tasks, and merit shops. "
+        "Duel loadouts must pass PvP legality checks (caps on legendary, control, shield, healing, survival).",
+    ),
+]
+
+HELP_CATEGORY_LABELS = {k: v for k, v, _ in HELP_BY_CATEGORY}
+HELP_CATEGORY_BODIES = {k: body for k, _, body in HELP_BY_CATEGORY}
+HELP_CATEGORY_IDS = [k for k, _, _ in HELP_BY_CATEGORY]
+
+
+def build_category_embed(category_id: str) -> "discord.Embed":
+    import discord
+
+    title = HELP_CATEGORY_LABELS.get(category_id, "Help")
+    body = HELP_CATEGORY_BODIES.get(category_id, "")
+    embed = discord.Embed(title=title, description=body, color=discord.Color.blurple())
+    embed.set_footer(text="Use `/help` for the overview · `/cooldown` to see timers")
+    return embed
 
 
 COOLDOWN_COMMANDS: list[tuple[str, str, str]] = [
@@ -449,21 +497,28 @@ def format_guidance_content(
     return f"**What happens next**\n{next_steps}\n_{GUIDANCE_FOOTER}_"
 
 
-def build_help_embed() -> "discord.Embed":
+def build_help_embed(category_id: str | None = None) -> "discord.Embed":
     import discord
+
+    if category_id:
+        title = HELP_CATEGORY_LABELS.get(category_id, "Help")
+        body = HELP_CATEGORY_BODIES.get(category_id, "")
+        embed = discord.Embed(title=title, description=body, color=discord.Color.blurple())
+        embed.set_footer(text="Select another category below · `/cooldown` to see timers")
+        return embed
 
     embed = discord.Embed(
         title="Cultivation Guide",
-        description=(
-            "A serious xianxia journey at a casual pace. "
-            "Most sessions take ~15 minutes: daily stipend, cultivate, explore, craft."
-        ),
+        description=HELP_OVERVIEW,
         color=discord.Color.blurple(),
     )
-    for title, body in get_help_sections():
-        embed.add_field(name=title, value=body, inline=False)
     embed.set_footer(text=GUIDANCE_FOOTER)
     return embed
+
+
+def build_category_embed(category_id: str) -> "discord.Embed":
+    """Alias — preferred when the caller knows the category."""
+    return build_help_embed(category_id)
 
 
 def build_cooldown_embed(

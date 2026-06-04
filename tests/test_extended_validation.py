@@ -135,7 +135,7 @@ def test_cooldown_lines_include_gather_and_hunt(player, cfg):
 
 def test_help_mentions_gather_and_hunt():
     sections = dict(get_help_sections())
-    exploration = sections["Exploration & crafting"]
+    exploration = sections["Exploration"]
     assert "/gather" in exploration
     assert "/hunt" in exploration
 

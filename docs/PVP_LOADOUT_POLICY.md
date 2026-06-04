@@ -1,24 +1,28 @@
-# PvP loadout policy
+# PvP Loadout Policy
+
+Enforcement rules, caps, edge cases, and implementation locations for PvP loadout validation.
 
 ## Defaults
 
 - **Challenge creation:** validate challenger loadout; reject `/duel` with explicit violation list.
 - **Acceptance:** validate **both** loadouts at accept time; if opponent is illegal, accept fails with violations named.
-- **Mid-match:** no loadout changes; desyncs forfeit the offending player (existing match expiry).
+- **Mid-match:** no loadout changes; desyncs forfeit the offending player (existing match expiry handles it).
 
-## Limits (from `config/combat_rules.json`)
+## Limits
 
-| Code | Cap |
-|------|-----|
+Defined in `config/combat_rules.json`:
+
+| Tag | Cap |
+|-----|-----|
 | `legendary` | 1 |
 | `control` | 2 |
 | `shield` | 2 |
 | `healing` | 2 |
 | `survival_passive` | 1 |
 
-Load budget per realm comes from `config/realms.json` (`technique_load_budget`).
+Load budget per realm: `config/realms.json` → `technique_load_budget`.
 
-## Edge cases
+## Edge Cases
 
 | Case | Behavior |
 |------|----------|
@@ -28,9 +32,9 @@ Load budget per realm comes from `config/realms.json` (`technique_load_budget`).
 | Passive over survival cap | Offending technique names included in error |
 | Sealed technique equipped | Blocked at equip; treated as not learned |
 
-## Implementation
+## Implementation Locations
 
 - `list_pvp_loadout_violations()` — `src/combat/loadout.py`
 - `create_duel_challenge()` — challenger pre-check
 - `accept_duel_challenge()` — both players before `begin_pvp_match()`
-- Player copy — `config/player_guides/combat_progression.json` → `pvp_legality`
+- Player-facing copy: `config/player_guides/combat_progression.json` → `pvp_legality`
