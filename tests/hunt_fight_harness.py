@@ -70,7 +70,6 @@ def install_fixed_hunt_rng(monkeypatch: Any, *, seed: int = 42) -> None:
 
 def install_combat_state_probe(monkeypatch: Any) -> None:
     """Capture the latest CombatState returned from process_combat_action (incl. final turn)."""
-    import src.bot as bot_module
     import src.combat.session as combat_session
 
     orig = combat_session.process_combat_action
@@ -83,7 +82,6 @@ def install_combat_state_probe(monkeypatch: Any) -> None:
         return result, err
 
     monkeypatch.setattr(combat_session, "process_combat_action", _wrapped)
-    monkeypatch.setattr(bot_module, "process_combat_action", _wrapped)
 
 
 def load_hunt_combat_state(db: Session, player_id: int) -> CombatState | None:

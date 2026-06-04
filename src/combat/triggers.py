@@ -36,7 +36,6 @@ def _is_bleed_immune(traits: list[str]) -> bool:
 def _crit_chance(stats: PlayerCombatStats, passive: TechniqueDef | None) -> float:
     bonus = 0.0
     if passive:
-        bonus += passive.passive_crit_bonus
         for trig in passive.passive_triggers:
             if trig.type == "crit_bonus":
                 bonus += float(trig.params.get("bonus", 0.0))
@@ -93,8 +92,6 @@ def _compute_base_damage(
                 raw *= 1.0 + float(trig.params.get("bonus", 0.0))
             if trig.type == "poison_damage_bonus" and tech.status_id == "poison":
                 raw *= 1.0 + float(trig.params.get("bonus", 0.0))
-        if passive.passive_burn_bonus and tech.status_id == "burn":
-            raw *= 1.0 + passive.passive_burn_bonus
     if crit:
         raw *= 1.5
     mitigation = opponent_defense * 0.45
@@ -122,8 +119,6 @@ def _strike_power_for_dot(
                 raw *= 1.0 + float(trig.params.get("bonus", 0.0))
             if trig.type == "poison_damage_bonus" and status_id == "poison":
                 raw *= 1.0 + float(trig.params.get("bonus", 0.0))
-        if passive.passive_burn_bonus and status_id == "burn":
-            raw *= 1.0 + passive.passive_burn_bonus
     return max(1.0, raw)
 
 
@@ -527,15 +522,6 @@ def process_passive_turn_end(state, passive: TechniqueDef | None) -> None:
                     state.log.append(f"**{passive.name}** restores **{format_compact_number(gained)}** HP from bleeding prey.")
         elif trig.type == "consecutive_hit_bonus" and state.consecutive_hits == 0:
             state.consecutive_bonus_per_hit = float(trig.params.get("bonus_per_hit", 0.05))
-    if passive.passive_on_bleed and has_status(state.opponent, "bleed"):
-        heal_pct = float(passive.passive_on_bleed.get("heal_pct", 0.0))
-        if heal_pct > 0:
-            heal = max(1, int(state.player.max_hp * heal_pct))
-            before = state.player.hp
-            state.player.hp = min(state.player.max_hp, state.player.hp + heal)
-            gained = state.player.hp - before
-            if gained > 0:
-                state.log.append(f"**{passive.name}** restores **{format_compact_number(gained)}** HP from bleeding prey.")
 
 
 def process_passive_on_cc(state, passive: TechniqueDef | None, status_id: str) -> None:

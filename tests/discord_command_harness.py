@@ -275,6 +275,23 @@ def install_bot_db_patch(session: Session, monkeypatch: Any) -> None:
     monkeypatch.setattr("src.dungeon_discord.get_session", _test_session)
     monkeypatch.setattr("src.autocomplete_cache.get_session", _test_session)
     monkeypatch.setattr("src.combat.technique_ui.get_session", _test_session)
+    # Patch get_session in all Cog module namespaces (they import at module load time).
+    for _mod in (
+        "src.discord_ui.commands.misc_cog",
+        "src.discord_ui.commands.combat_cog",
+        "src.discord_ui.commands.craft_cog",
+        "src.discord_ui.commands.cultivation_cog",
+        "src.discord_ui.commands.gear_cog",
+        "src.discord_ui.commands.shop_cog",
+        "src.discord_ui.commands.techniques_cog",
+        "src.discord_ui.commands.clan_cog",
+        "src.discord_ui.commands.sect_cog",
+        "src.discord_ui.commands.duel_cog",
+    ):
+        try:
+            monkeypatch.setattr(f"{_mod}.get_session", _test_session)
+        except AttributeError:
+            pass  # module not yet imported – not a problem
 
 
 def install_discord_stubs(monkeypatch: Any) -> None:
@@ -408,14 +425,14 @@ async def invoke_slash(
     bound_kwargs = _coerce_slash_kwargs(cmd, kwargs)
     sig = inspect.signature(cmd.callback)
     for name, param in sig.parameters.items():
-        if name in bound_kwargs or name == "interaction":
+        if name in bound_kwargs or name in ("interaction", "self"):
             continue
         if param.default is not inspect.Parameter.empty:
             continue
         if param.kind == inspect.Parameter.VAR_KEYWORD:
             continue
         raise TypeError(f"Missing required parameter {name!r} for /{qualified_name}")
-    await cmd.callback(interaction, **bound_kwargs)
+    await cmd._do_call(interaction, bound_kwargs)
     return interaction._captured  # type: ignore[attr-defined]
 
 

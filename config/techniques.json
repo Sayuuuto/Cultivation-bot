@@ -17,7 +17,13 @@
     "description": "The simplest blow every disciple learns. Weak, but still works when your meridians are sealed.",
     "synergy_hint": "Fallback when sealed — your other arts won't respond.",
     "manual_item_id": null,
-    "rarity": "common"
+    "rarity": "common",
+    "effects": [
+      {
+        "trigger": "on_use",
+        "type": "damage"
+      }
+    ]
   },
   "swift_slash": {
     "name": "Swift Slash",
@@ -520,9 +526,6 @@
     "description": "Heal slightly when the foe bleeds.",
     "synergy_hint": "Bleed sustain — Blood Predator core.",
     "manual_item_id": "manual_blood_feast",
-    "passive_on_bleed": {
-      "heal_pct": 0.05
-    },
     "passive_triggers": [
       {
         "event": "on_turn_end",
@@ -546,7 +549,6 @@
     "cooldown": 0,
     "status_id": null,
     "status_chance": 0.0,
-    "passive_burn_bonus": 0.15,
     "alignment": "neutral",
     "role": "payoff",
     "description": "Burn techniques deal stronger initial hits.",
@@ -574,7 +576,6 @@
     "cooldown": 0,
     "status_id": null,
     "status_chance": 0.0,
-    "passive_crit_bonus": 0.05,
     "alignment": "neutral",
     "role": "payoff",
     "description": "Sharpened focus improves critical strikes.",

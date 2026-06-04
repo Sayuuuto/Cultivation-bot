@@ -33,9 +33,6 @@ class TechniqueDef:
     alignment: str = "neutral"
     role: str = "finisher"
     heal_ratio: float = 0.0
-    passive_on_bleed: dict | None = None
-    passive_burn_bonus: float = 0.0
-    passive_crit_bonus: float = 0.0
     effects: tuple[EffectDef, ...] = ()
     passive_triggers: tuple[PassiveTriggerDef, ...] = ()
     synergy_hint: str = ""
@@ -75,25 +72,6 @@ def _parse_passive_triggers(raw: list[dict] | None) -> tuple[PassiveTriggerDef, 
     return tuple(parse_passive_trigger(entry) for entry in raw)
 
 
-def _legacy_passive_triggers(data: dict[str, Any]) -> tuple[PassiveTriggerDef, ...]:
-    triggers: list[PassiveTriggerDef] = []
-    if data.get("passive_crit_bonus"):
-        triggers.append(PassiveTriggerDef("passive", "crit_bonus", {"bonus": float(data["passive_crit_bonus"])}))
-    if data.get("passive_burn_bonus"):
-        triggers.append(
-            PassiveTriggerDef("on_use", "burn_damage_bonus", {"bonus": float(data["passive_burn_bonus"])})
-        )
-    if data.get("passive_on_bleed"):
-        triggers.append(
-            PassiveTriggerDef(
-                "on_turn_end",
-                "heal_if_foe_status",
-                {"status": "bleed", "heal_pct": float(data["passive_on_bleed"].get("heal_pct", 0.05))},
-            )
-        )
-    return tuple(triggers)
-
-
 @lru_cache(maxsize=1)
 def load_technique_catalog() -> dict[str, TechniqueDef]:
     with CONFIG_PATH.open(encoding="utf-8") as f:
@@ -102,8 +80,6 @@ def load_technique_catalog() -> dict[str, TechniqueDef]:
     for technique_id, data in raw.items():
         effects = _parse_effects(data.get("effects"))
         passive_triggers = _parse_passive_triggers(data.get("passive_triggers"))
-        if not passive_triggers:
-            passive_triggers = _legacy_passive_triggers(data)
         rarity = normalize_rarity(data.get("rarity"))
         catalog[technique_id] = TechniqueDef(
             technique_id=technique_id,
@@ -125,9 +101,6 @@ def load_technique_catalog() -> dict[str, TechniqueDef]:
             alignment=str(data.get("alignment", "neutral")),
             role=str(data.get("role", "finisher")),
             heal_ratio=float(data.get("heal_ratio", 0.0)),
-            passive_on_bleed=data.get("passive_on_bleed"),
-            passive_burn_bonus=float(data.get("passive_burn_bonus", 0.0)),
-            passive_crit_bonus=float(data.get("passive_crit_bonus", 0.0)),
             effects=effects,
             passive_triggers=passive_triggers,
             synergy_hint=str(data.get("synergy_hint", "")),
