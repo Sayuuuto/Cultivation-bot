@@ -1,0 +1,902 @@
+{
+  "mistwood_village_outskirts": [
+    {
+      "id": "mistwood_fox_cave",
+      "type": "treasure",
+      "title": "Hidden Cave of the Silver-Tailed Fox",
+      "text": "You find a moss-covered cave beneath an ancient cedar. Inside, a silver-tailed fox sleeps beside a jade chest.",
+      "choices": [
+        {"id": "fight_fox", "label": "Fight the Fox", "type": "combat", "enemy": {"name": "Silver-Tailed Fox", "hp_mult": 1.0, "atk_mult": 0.9, "def_mult": 0.8, "spd_mult": 1.2, "traits": ["beast", "agile"]}, "risk": 4, "success_rewards": ["treasure_roll_high", "manual_roll_low"]},
+        {"id": "sneak_fox", "label": "Sneak Inside", "type": "stat_check", "stats": ["spiritual_sense", "speed"], "dc": 65, "success_rewards": ["treasure_roll_medium", "pill_roll_low"], "fail_damage_pct": 0.18},
+        {"id": "ignore_cave", "label": "Ignore the Cave", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "bandit_roadblock",
+      "type": "combat",
+      "title": "Bandit Roadblock",
+      "text": "Three ragged cultivators block the path, demanding spirit stones for passage.",
+      "choices": [
+        {"id": "fight_bandits", "label": "Fight Through", "type": "combat", "enemy": {"name": "Road Bandits", "hp_mult": 1.1, "atk_mult": 0.85, "def_mult": 0.7, "spd_mult": 1.0, "traits": ["human", "bandit"]}, "risk": 3, "success_rewards": ["treasure_roll_low", "stones_roll_medium"]},
+        {"id": "pay_toll", "label": "Pay 20 Spirit Stones", "type": "pay_stones", "amount": 20, "risk": 1, "success_rewards": ["safe_skip"]},
+        {"id": "sneak_past", "label": "Sneak Past", "type": "stat_check", "stats": ["agility", "spiritual_sense"], "dc": 50, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.10}
+      ]
+    },
+    {
+      "id": "herb_garden",
+      "type": "treasure",
+      "title": "Hidden Herb Garden",
+      "text": "A small clearing bathed in moonlight grows spirit herbs. Some are ready to harvest.",
+      "choices": [
+        {"id": "careful_harvest", "label": "Harvest Carefully", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 45, "success_rewards": ["herb_roll_high", "pill_roll_low"], "fail_damage_pct": 0.05},
+        {"id": "rush_harvest", "label": "Rush the Harvest", "type": "risk_reward", "risk": 3, "success_rewards": ["herb_roll_high", "pill_roll_medium"], "fail_damage_pct": 0.15},
+        {"id": "leave_garden", "label": "Leave It Be", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "mistwood_rest_shrine",
+      "type": "rest",
+      "title": "Abandoned Shrine",
+      "text": "A small shrine to a forgotten earth spirit offers a moment of peace. Qi flows gently here.",
+      "choices": [
+        {"id": "meditate", "label": "Meditate (Heal 30%)", "type": "rest", "heal_pct": 0.30, "risk": 0, "success_rewards": ["safe_skip"]},
+        {"id": "search_shrine", "label": "Search the Shrine", "type": "treasure", "risk": 2, "success_rewards": ["treasure_roll_low", "qi_burst_low"]},
+        {"id": "move_on", "label": "Press On", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "wounded_traveler",
+      "type": "moral",
+      "title": "Wounded Traveler",
+      "text": "A young cultivator lies injured on the path, their leg caught in a beast trap. They beg for help.",
+      "choices": [
+        {"id": "help_traveler", "label": "Heal and Help", "type": "moral", "moral": "righteous", "risk": 1, "success_rewards": ["reputation", "stones_roll_low"]},
+        {"id": "rob_traveler", "label": "Take Their Belongings", "type": "moral", "moral": "demonic", "risk": 2, "success_rewards": ["treasure_roll_medium", "karma_loss"]},
+        {"id": "ignore_traveler", "label": "Walk Past", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "fox_spirit_trick",
+      "type": "stat_check",
+      "title": "Fox Spirit's Illusion",
+      "text": "The path ahead shimmers. A fox spirit weaves illusion mist, trying to lead you into a bog.",
+      "choices": [
+        {"id": "see_through", "label": "See Through the Illusion", "type": "stat_check", "stats": ["spiritual_sense", "comprehension"], "dc": 55, "success_rewards": ["pill_roll_low", "qi_burst_low"], "fail_damage_pct": 0.12},
+        {"id": "charge_through", "label": "Charge Through Blindly", "type": "risk_reward", "risk": 3, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.20},
+        {"id": "find_another_path", "label": "Find Another Way Around", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "ancient_trap",
+      "type": "trap",
+      "title": "Ancient Hunting Trap",
+      "text": "You step on a hidden formation disk. Ropes of light spring up, attempting to bind your limbs.",
+      "choices": [
+        {"id": "break_free", "label": "Break Free by Force", "type": "stat_check", "stats": ["external_strength", "internal_strength"], "dc": 50, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.15},
+        {"id": "disarm_runes", "label": "Disarm the Formation Runes", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 60, "success_rewards": ["treasure_roll_low", "stones_roll_low"], "fail_damage_pct": 0.10},
+        {"id": "wait_for_help", "label": "Wait Patiently", "type": "rest", "heal_pct": 0.10, "risk": 1, "success_rewards": ["safe_skip"]}
+      ]
+    },
+    {
+      "id": "mistwood_dao_mark",
+      "type": "dao_event",
+      "title": "Echo of the First Breath",
+      "text": "A breeze carries the faint sound of a single note — the first breath of a cultivator who passed through a century ago. The dao lingers.",
+      "choices": [
+        {"id": "attune_dao", "label": "Attune to the Echo", "type": "dao_event", "risk": 0, "success_rewards": ["qi_burst_high", "insight"]},
+        {"id": "trace_the_source", "label": "Trace the Source", "type": "stat_check", "stats": ["spiritual_sense", "comprehension"], "dc": 70, "success_rewards": ["manual_roll_medium", "qi_burst_high"], "fail_damage_pct": 0.08},
+        {"id": "continue_path", "label": "Let It Pass", "type": "safe_skip", "risk": 0}
+      ]
+    }
+  ],
+  "bamboo_grove": [
+    {
+      "id": "bamboo_serpent_ambush",
+      "type": "combat",
+      "title": "Bamboo Serpent Ambush",
+      "text": "A massive emerald serpent drops from the canopy, its scales humming with wood qi.",
+      "choices": [
+        {"id": "fight_serpent", "label": "Fight the Serpent", "type": "combat", "enemy": {"name": "Bamboo Serpent", "hp_mult": 1.1, "atk_mult": 1.0, "def_mult": 1.1, "spd_mult": 0.9, "traits": ["beast", "wood"]}, "risk": 4, "success_rewards": ["beast_core", "manual_roll_low"]},
+        {"id": "dodge_serpent", "label": "Dodge and Escape", "type": "stat_check", "stats": ["agility", "speed"], "dc": 55, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.20},
+        {"id": "calm_the_serpent", "label": "Calm It with Qi", "type": "stat_check", "stats": ["spiritual_sense", "internal_strength"], "dc": 70, "success_rewards": ["beast_core", "pill_roll_low"], "fail_damage_pct": 0.12}
+      ]
+    },
+    {
+      "id": "sword_scarred_bamboo",
+      "type": "dao_event",
+      "title": "Sword-Scarred Bamboo",
+      "text": "A grove of bamboo stalks bears deep cuts — sword intent frozen in the grain after a duel decades past.",
+      "choices": [
+        {"id": "study_scars", "label": "Study the Sword Intent", "type": "stat_check", "stats": ["comprehension", "external_strength"], "dc": 60, "success_rewards": ["manual_roll_medium", "insight"], "fail_damage_pct": 0.05},
+        {"id": "match_the_blade", "label": "Match Your Blade to the Scar", "type": "dao_event", "risk": 2, "success_rewards": ["qi_burst_high", "manual_roll_high"]},
+        {"id": "move_along", "label": "Leave the Grove", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "bamboo_spirit_glade",
+      "type": "rest",
+      "title": "Bamboo Spirit Glade",
+      "text": "The bamboo parts to reveal a glade where motes of green qi drift lazily. A spirit of the grove regards you.",
+      "choices": [
+        {"id": "sit_with_spirit", "label": "Sit and Meditate (Heal 35%)", "type": "rest", "heal_pct": 0.35, "risk": 0, "success_rewards": ["qi_burst_low"]},
+        {"id": "ask_for_blessing", "label": "Ask for the Grove's Blessing", "type": "stat_check", "stats": ["spiritual_sense", "karma"], "dc": 65, "success_rewards": ["pill_roll_medium", "qi_burst_medium"], "fail_damage_pct": 0.08},
+        {"id": "respectfully_leave", "label": "Bow and Leave", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "wind_whipped_bridge",
+      "type": "stat_check",
+      "title": "Wind-Whipped Rope Bridge",
+      "text": "A fraying rope bridge stretches across a deep ravine. Wind howls through the gorge below.",
+      "choices": [
+        {"id": "cross_carefully", "label": "Cross Carefully", "type": "stat_check", "stats": ["agility", "speed"], "dc": 50, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.22},
+        {"id": "dash_across", "label": "Dash Across Quickly", "type": "risk_reward", "risk": 4, "success_rewards": ["safe_skip", "stones_roll_low"], "fail_damage_pct": 0.30},
+        {"id": "climb_down", "label": "Climb Down and Cross Below", "type": "stat_check", "stats": ["external_strength", "internal_strength"], "dc": 60, "success_rewards": ["treasure_roll_low"], "fail_damage_pct": 0.15}
+      ]
+    },
+    {
+      "id": "ancient_sword_hilt",
+      "type": "treasure",
+      "title": "Ancient Sword Hilt",
+      "text": "Half-buried in bamboo roots, a sword hilt carved with cloud patterns catches your eye.",
+      "choices": [
+        {"id": "pull_it_free", "label": "Pull It Free", "type": "stat_check", "stats": ["external_strength", "luck"], "dc": 50, "success_rewards": ["treasure_roll_medium", "manual_roll_low"], "fail_damage_pct": 0.08},
+        {"id": "careful_excavation", "label": "Excavate Carefully", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 65, "success_rewards": ["treasure_roll_high", "manual_roll_medium"], "fail_damage_pct": 0.05},
+        {"id": "leave_buried", "label": "Leave It Buried", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "merchant_in_the_grove",
+      "type": "moral",
+      "title": "Wandering Merchant",
+      "text": "A merchant cultivator sits by the path, their cart overturned. Spirit beasts circle nearby.",
+      "choices": [
+        {"id": "help_merchant", "label": "Fend Off the Beasts", "type": "combat", "enemy": {"name": "Grove Beasts", "hp_mult": 0.9, "atk_mult": 0.8, "def_mult": 0.7, "spd_mult": 1.0, "traits": ["beast", "pack"]}, "risk": 3, "success_rewards": ["stones_roll_medium", "reputation", "discount"]},
+        {"id": "steal_from_cart", "label": "Steal While They're Busy", "type": "risk_reward", "risk": 3, "success_rewards": ["treasure_roll_medium", "karma_loss"], "fail_damage_pct": 0.10},
+        {"id": "ignore_merchant", "label": "Walk Past", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "bamboo_trap_formation",
+      "type": "trap",
+      "title": "Bamboo Formation Trap",
+      "text": "The bamboo shifts around you — someone set a trapping formation. Sharpened stakes spring from the earth.",
+      "choices": [
+        {"id": "break_formation", "label": "Smash the Formation Core", "type": "combat", "enemy": {"name": "Bamboo Formation", "hp_mult": 0.8, "atk_mult": 1.2, "def_mult": 1.3, "spd_mult": 0.5, "traits": ["construct", "formation"]}, "risk": 3, "success_rewards": ["treasure_roll_low"]},
+        {"id": "weave_through", "label": "Weave Through the Stakes", "type": "stat_check", "stats": ["agility", "speed"], "dc": 60, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.18},
+        {"id": "bide_time", "label": "Wait for the Qi to Settle", "type": "rest", "heal_pct": 0.10, "risk": 1, "success_rewards": ["safe_skip"]}
+      ]
+    },
+    {
+      "id": "moonlight_pond",
+      "type": "rest",
+      "title": "Moonlight Pond",
+      "text": "A still pond reflects the moon. The water hums with ambient qi, gentle and inviting.",
+      "choices": [
+        {"id": "bathe_in_pond", "label": "Bathe in the Pond (Heal 40%)", "type": "rest", "heal_pct": 0.40, "risk": 0, "success_rewards": ["qi_burst_low"]},
+        {"id": "gather_pond_water", "label": "Gather the Spirit Water", "type": "treasure", "risk": 1, "success_rewards": ["pill_roll_medium", "herb_roll_low"]},
+        {"id": "disturb_not", "label": "Leave It Untouched", "type": "safe_skip", "risk": 0}
+      ]
+    }
+  ],
+  "ashen_cliff": [
+    {
+      "id": "volcanic_herb_ledge",
+      "type": "treasure",
+      "title": "Volcanic Herb Ledge",
+      "text": "On a precarious ledge above molten rock, fire-adapted herbs glow with inner heat.",
+      "choices": [
+        {"id": "careful_reach", "label": "Reach Carefully", "type": "stat_check", "stats": ["agility", "external_strength"], "dc": 55, "success_rewards": ["herb_roll_high", "pill_roll_medium"], "fail_damage_pct": 0.15},
+        {"id": "use_qi_grasp", "label": "Grasp with Qi", "type": "stat_check", "stats": ["internal_strength", "spiritual_sense"], "dc": 60, "success_rewards": ["herb_roll_medium", "pill_roll_low"], "fail_damage_pct": 0.10},
+        {"id": "leave_herbs", "label": "Too Dangerous, Leave", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "fire_beast_lair",
+      "type": "combat",
+      "title": "Fire Beast Lair",
+      "text": "A cave mouth glows orange. Inside, a beast wreathed in embers gnaws on spirit ore.",
+      "choices": [
+        {"id": "challenge_beast", "label": "Challenge the Beast", "type": "combat", "enemy": {"name": "Ember Maw Beast", "hp_mult": 1.2, "atk_mult": 1.1, "def_mult": 1.0, "spd_mult": 0.8, "traits": ["beast", "fire"]}, "risk": 5, "success_rewards": ["beast_core", "treasure_roll_high", "manual_roll_low"]},
+        {"id": "lure_it_out", "label": "Lure It Out and Sneak In", "type": "stat_check", "stats": ["spiritual_sense", "speed"], "dc": 65, "success_rewards": ["treasure_roll_medium"], "fail_damage_pct": 0.15},
+        {"id": "avoid_lair", "label": "Back Away Quietly", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "raiders_outpost",
+      "type": "combat",
+      "title": "Raiders' Outpost",
+      "text": "A crude outpost blocks the cliff pass. Fire path raiders have claimed this territory.",
+      "choices": [
+        {"id": "storm_outpost", "label": "Storm the Outpost", "type": "combat", "enemy": {"name": "Cliff Raiders", "hp_mult": 1.1, "atk_mult": 1.0, "def_mult": 0.8, "spd_mult": 1.1, "traits": ["human", "fire"]}, "risk": 4, "success_rewards": ["stones_roll_high", "treasure_roll_medium"]},
+        {"id": "negotiate_passage", "label": "Negotiate Passage", "type": "stat_check", "stats": ["comprehension", "karma"], "dc": 60, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.05},
+        {"id": "scale_around", "label": "Scale the Cliff Around", "type": "stat_check", "stats": ["agility", "external_strength"], "dc": 70, "success_rewards": ["safe_skip", "stones_roll_low"], "fail_damage_pct": 0.20}
+      ]
+    },
+    {
+      "id": "ash_spring",
+      "type": "rest",
+      "title": "Ash Spring",
+      "text": "A hot spring steams amid black stone. The mineral-rich water carries fire qi.",
+      "choices": [
+        {"id": "soak_in_spring", "label": "Soak in the Spring (Heal 35%)", "type": "rest", "heal_pct": 0.35, "risk": 0, "success_rewards": ["qi_burst_low"]},
+        {"id": "collect_ash_salt", "label": "Collect Ash Salt", "type": "treasure", "risk": 1, "success_rewards": ["pill_roll_medium", "herb_roll_low"]},
+        {"id": "stay_wary", "label": "Stay Wary and Move On", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "falling_boulders",
+      "type": "trap",
+      "title": "Falling Boulders",
+      "text": "The cliff path trembles. Loose boulders tumble from above, kicked loose by something larger.",
+      "choices": [
+        {"id": "dodge_boulders", "label": "Dodge Through the Fall", "type": "stat_check", "stats": ["agility", "speed"], "dc": 55, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.20},
+        {"id": "shatter_boulders", "label": "Shatter Them with Force", "type": "stat_check", "stats": ["external_strength", "internal_strength"], "dc": 65, "success_rewards": ["safe_skip", "stones_roll_low"], "fail_damage_pct": 0.12},
+        {"id": "take_cover", "label": "Take Cover and Wait", "type": "rest", "heal_pct": 0.10, "risk": 1, "success_rewards": ["safe_skip"]}
+      ]
+    },
+    {
+      "id": "rogue_cultivator_ambush",
+      "type": "combat",
+      "title": "Rogue Cultivator Ambush",
+      "text": "A rogue cultivator steps from behind a pillar of ash, blade drawn. 'Your qi feels rich. Share it.'",
+      "choices": [
+        {"id": "duel_rogue", "label": "Accept the Duel", "type": "combat", "enemy": {"name": "Rogue Cultivator", "hp_mult": 1.0, "atk_mult": 1.1, "def_mult": 0.9, "spd_mult": 1.0, "traits": ["human", "rogue"]}, "risk": 4, "success_rewards": ["manual_roll_medium", "stones_roll_medium"]},
+        {"id": "pay_them_off", "label": "Pay 30 Spirit Stones", "type": "pay_stones", "amount": 30, "risk": 1, "success_rewards": ["safe_skip"]},
+        {"id": "intimidate", "label": "Intimidate with Aura", "type": "stat_check", "stats": ["internal_strength", "karma"], "dc": 65, "success_rewards": ["safe_skip", "stones_roll_low"], "fail_damage_pct": 0.10}
+      ]
+    },
+    {
+      "id": "ancient_fire_formation",
+      "type": "dao_event",
+      "title": "Ancient Fire Formation",
+      "text": "You step into a circle of black stone. Ember runes ignite — a meditation formation from a fire path elder long passed.",
+      "choices": [
+        {"id": "activate_formation", "label": "Sit in the Formation", "type": "dao_event", "risk": 1, "success_rewards": ["qi_burst_high", "manual_roll_medium"]},
+        {"id": "study_the_runes", "label": "Study the Rune Pattern", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 65, "success_rewards": ["insight", "pill_roll_medium"], "fail_damage_pct": 0.08},
+        {"id": "step_out", "label": "Step Out Carefully", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "ash_phantom",
+      "type": "stat_check",
+      "title": "Ash Phantom",
+      "text": "Ash swirls into a humanoid shape — the remnant of a cultivator who died here. It reaches for you.",
+      "choices": [
+        {"id": "dispel_with_qi", "label": "Dispel with Pure Qi", "type": "stat_check", "stats": ["internal_strength", "spiritual_sense"], "dc": 60, "success_rewards": ["safe_skip", "qi_burst_low"], "fail_damage_pct": 0.15},
+        {"id": "commune_with_phantom", "label": "Attempt to Commune", "type": "stat_check", "stats": ["spiritual_sense", "comprehension"], "dc": 70, "success_rewards": ["manual_roll_medium", "insight"], "fail_damage_pct": 0.12},
+        {"id": "flee_ash", "label": "Flee the Area", "type": "safe_skip", "risk": 0}
+      ]
+    }
+  ],
+  "moonwell_ruins": [
+    {
+      "id": "reflecting_pool",
+      "type": "dao_event",
+      "title": "Moonwell Reflecting Pool",
+      "text": "A basin of silver water reflects not your face, but a version of you from another life — one who chose differently.",
+      "choices": [
+        {"id": "gaze_deeply", "label": "Gaze Into the Pool", "type": "dao_event", "risk": 1, "success_rewards": ["qi_burst_high", "insight"]},
+        {"id": "drink_the_water", "label": "Drink the Moonwater", "type": "stat_check", "stats": ["internal_strength", "spiritual_sense"], "dc": 65, "success_rewards": ["pill_roll_high", "qi_burst_medium"], "fail_damage_pct": 0.18},
+        {"id": "turn_away", "label": "Turn Away", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "ghost_sentry",
+      "type": "combat",
+      "title": "Ghost Sentry",
+      "text": "A translucent armored figure bars the entrance to a collapsed hall. It speaks: 'State your purpose.'",
+      "choices": [
+        {"id": "fight_sentry", "label": "Fight Through", "type": "combat", "enemy": {"name": "Ghost Sentry", "hp_mult": 1.2, "atk_mult": 1.0, "def_mult": 1.2, "spd_mult": 0.7, "traits": ["undead", "spirit", "armored"]}, "risk": 5, "success_rewards": ["treasure_roll_high", "manual_roll_low"]},
+        {"id": "speak_passphrase", "label": "Recite a Respectful Greeting", "type": "stat_check", "stats": ["comprehension", "karma"], "dc": 60, "success_rewards": ["safe_skip", "treasure_roll_medium"], "fail_damage_pct": 0.08},
+        {"id": "sneak_around", "label": "Find Another Entrance", "type": "stat_check", "stats": ["agility", "spiritual_sense"], "dc": 70, "success_rewards": ["treasure_roll_low"], "fail_damage_pct": 0.10}
+      ]
+    },
+    {
+      "id": "soul_treasure_chamber",
+      "type": "treasure",
+      "title": "Soul Treasure Chamber",
+      "text": "A sealed chamber hums with yin qi. Inside, jade slips and soul pearls rest on an altar.",
+      "choices": [
+        {"id": "claim_treasure", "label": "Claim the Treasure", "type": "stat_check", "stats": ["spiritual_sense", "luck"], "dc": 55, "success_rewards": ["treasure_roll_high", "manual_roll_medium"], "fail_damage_pct": 0.12},
+        {"id": "offer_reverence", "label": "Offer Reverence First", "type": "stat_check", "stats": ["karma", "comprehension"], "dc": 60, "success_rewards": ["treasure_roll_high", "qi_burst_medium"], "fail_damage_pct": 0.05},
+        {"id": "seal_the_door", "label": "Leave It Sealed", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "crumbling_hallway",
+      "type": "trap",
+      "title": "Crumbling Hallway",
+      "text": "The stone floor groans. Pressure plates from an ancient security system activate beneath your feet.",
+      "choices": [
+        {"id": "run_through", "label": "Run Through Quickly", "type": "stat_check", "stats": ["agility", "speed"], "dc": 60, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.20},
+        {"id": "dismantle_pressure_plates", "label": "Dismantle the Plates", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 70, "success_rewards": ["treasure_roll_low", "stones_roll_low"], "fail_damage_pct": 0.10},
+        {"id": "go_back", "label": "Go Back and Find Another Path", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "moonwell_rest_courtyard",
+      "type": "rest",
+      "title": "Moonlit Courtyard",
+      "text": "Moonlight pools in a ruined courtyard. The yin qi here is thick and soothing.",
+      "choices": [
+        {"id": "absorb_moonlight", "label": "Absorb Moonlight (Heal 30%)", "type": "rest", "heal_pct": 0.30, "risk": 0, "success_rewards": ["qi_burst_low"]},
+        {"id": "meditate_on_ruins", "label": "Meditate on the Ruins", "type": "dao_event", "risk": 1, "success_rewards": ["insight", "pill_roll_medium"]},
+        {"id": "explore_courtyard", "label": "Search the Courtyard", "type": "treasure", "risk": 2, "success_rewards": ["treasure_roll_low", "stones_roll_low"]}
+      ]
+    },
+    {
+      "id": "ghost_child",
+      "type": "moral",
+      "title": "Ghost Child",
+      "text": "A translucent child sits on a broken pillar, weeping. They were a disciple here, long ago.",
+      "choices": [
+        {"id": "comfort_child", "label": "Comfort the Spirit", "type": "moral", "moral": "righteous", "risk": 1, "success_rewards": ["reputation", "qi_burst_low", "treasure_roll_low"]},
+        {"id": "demand_knowledge", "label": "Demand to Know the Ruins' Secrets", "type": "risk_reward", "risk": 3, "success_rewards": ["manual_roll_medium", "karma_loss"], "fail_damage_pct": 0.12},
+        {"id": "pass_through", "label": "Walk Past Silently", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "yin_spring",
+      "type": "treasure",
+      "title": "Yin Spring Vein",
+      "text": "A crack in the earth leaks concentrated yin qi, condensed into droplets of liquid moonlight.",
+      "choices": [
+        {"id": "collect_drops", "label": "Collect the Drops", "type": "stat_check", "stats": ["spiritual_sense", "internal_strength"], "dc": 60, "success_rewards": ["pill_roll_high", "qi_burst_medium"], "fail_damage_pct": 0.10},
+        {"id": "bathe_in_spring", "label": "Bathe in the Vein (Heal 30%)", "type": "rest", "heal_pct": 0.30, "risk": 1, "success_rewards": ["qi_burst_low"]},
+        {"id": "seal_the_crack", "label": "Seal the Crack — Too Dangerous", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "formation_puzzle",
+      "type": "stat_check",
+      "title": "Formation Puzzle",
+      "text": "A circular formation of nine tiles blocks the path. Each tile bears a different moon phase.",
+      "choices": [
+        {"id": "solve_puzzle", "label": "Solve the Moon Phase Puzzle", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 60, "success_rewards": ["treasure_roll_high", "insight"], "fail_damage_pct": 0.08},
+        {"id": "force_the_door", "label": "Smash the Formation", "type": "stat_check", "stats": ["external_strength", "internal_strength"], "dc": 70, "success_rewards": ["treasure_roll_medium"], "fail_damage_pct": 0.18},
+        {"id": "study_and_leave", "label": "Study and Leave", "type": "safe_skip", "risk": 0}
+      ]
+    }
+  ],
+  "verdant_depths": [
+    {
+      "id": "ancient_tree_guardian",
+      "type": "combat",
+      "title": "Ancient Tree Guardian",
+      "text": "A massive ancient tree stirs. Its roots snake toward you as a face forms in the bark.",
+      "choices": [
+        {"id": "fight_tree", "label": "Face the Guardian", "type": "combat", "enemy": {"name": "Ancient Tree Guardian", "hp_mult": 1.3, "atk_mult": 0.9, "def_mult": 1.4, "spd_mult": 0.4, "traits": ["plant", "wood", "armored"]}, "risk": 5, "success_rewards": ["treasure_roll_high", "herb_roll_high"]},
+        {"id": "offer_qi", "label": "Offer It Your Qi", "type": "stat_check", "stats": ["internal_strength", "spiritual_sense"], "dc": 60, "success_rewards": ["safe_skip", "qi_burst_medium"], "fail_damage_pct": 0.15},
+        {"id": "go_around", "label": "Circle Around It", "type": "stat_check", "stats": ["agility", "speed"], "dc": 50, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.08}
+      ]
+    },
+    {
+      "id": "sunken_herb_garden",
+      "type": "treasure",
+      "title": "Sunken Herb Garden",
+      "text": "A collapsed section of the forest floor reveals a garden of rare shade-grown herbs.",
+      "choices": [
+        {"id": "descend_carefully", "label": "Descend Carefully", "type": "stat_check", "stats": ["agility", "spiritual_sense"], "dc": 50, "success_rewards": ["herb_roll_high", "pill_roll_medium"], "fail_damage_pct": 0.08},
+        {"id": "lower_on_rope", "label": "Lower Yourself on a Vine", "type": "safe_skip", "risk": 0, "success_rewards": ["herb_roll_medium"]},
+        {"id": "leave_garden_be", "label": "Don't Risk It", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "deep_forest_shrine",
+      "type": "rest",
+      "title": "Deep Forest Shrine",
+      "text": "A moss-covered shrine to the spirit of the deep woods offers shelter. The air is calm and safe.",
+      "choices": [
+        {"id": "rest_at_shrine", "label": "Rest at the Shrine (Heal 40%)", "type": "rest", "heal_pct": 0.40, "risk": 0, "success_rewards": ["qi_burst_low"]},
+        {"id": "leave_offering", "label": "Leave an Offering", "type": "moral", "moral": "righteous", "risk": 1, "success_rewards": ["reputation", "pill_roll_medium"]},
+        {"id": "search_shrine_grounds", "label": "Search the Shrine Grounds", "type": "treasure", "risk": 2, "success_rewards": ["treasure_roll_low", "herb_roll_low"]}
+      ]
+    },
+    {
+      "id": "spider_ambush",
+      "type": "combat",
+      "title": "Silkweb Spider Ambush",
+      "text": "Sticky silk strands fall from the canopy. A massive spider descends, mandibles dripping with venom.",
+      "choices": [
+        {"id": "fight_spider", "label": "Fight the Spider", "type": "combat", "enemy": {"name": "Silkweb Spider", "hp_mult": 1.0, "atk_mult": 1.1, "def_mult": 0.7, "spd_mult": 1.2, "traits": ["beast", "venom", "agile"]}, "risk": 4, "success_rewards": ["beast_core", "pill_roll_low"]},
+        {"id": "burn_the_web", "label": "Burn the Web", "type": "stat_check", "stats": ["external_strength", "internal_strength"], "dc": 55, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.12},
+        {"id": "cut_yourself_free", "label": "Cut Yourself Free", "type": "risk_reward", "risk": 3, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.15}
+      ]
+    },
+    {
+      "id": "spirit_beast_tracks",
+      "type": "stat_check",
+      "title": "Spirit Beast Tracks",
+      "text": "Fresh tracks in the mud — a large spirit beast passed through recently. The trail leads to a thicket.",
+      "choices": [
+        {"id": "follow_tracks", "label": "Follow the Tracks", "type": "stat_check", "stats": ["spiritual_sense", "speed"], "dc": 55, "success_rewards": ["beast_core", "treasure_roll_medium"], "fail_damage_pct": 0.15},
+        {"id": "set_a_trap", "label": "Set a Trap", "type": "stat_check", "stats": ["comprehension", "external_strength"], "dc": 65, "success_rewards": ["beast_core", "manual_roll_low"], "fail_damage_pct": 0.10},
+        {"id": "avoid_thicket", "label": "Avoid the Area", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "poison_fog_valley",
+      "type": "trap",
+      "title": "Poison Fog Valley",
+      "text": "A valley below is filled with pale green mist. Even from here, your lungs burn.",
+      "choices": [
+        {"id": "hold_breath_and_run", "label": "Hold Your Breath and Dash", "type": "stat_check", "stats": ["speed", "external_strength"], "dc": 60, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.18},
+        {"id": "purify_with_qi", "label": "Purify the Air with Qi", "type": "stat_check", "stats": ["internal_strength", "spiritual_sense"], "dc": 70, "success_rewards": ["safe_skip", "pill_roll_medium"], "fail_damage_pct": 0.10},
+        {"id": "wait_for_wind", "label": "Wait for the Wind to Shift", "type": "rest", "heal_pct": 0.15, "risk": 1, "success_rewards": ["safe_skip"]}
+      ]
+    },
+    {
+      "id": "verdant_dao_resonance",
+      "type": "dao_event",
+      "title": "Verdant Dao Resonance",
+      "text": "The forest hums. Every leaf trembles in harmony. A moment of profound connection to the wood dao.",
+      "choices": [
+        {"id": "open_your_heart", "label": "Open Your Heart to the Forest", "type": "dao_event", "risk": 0, "success_rewards": ["qi_burst_high", "insight"]},
+        {"id": "ask_the_forest", "label": "Ask the Forest for Guidance", "type": "stat_check", "stats": ["spiritual_sense", "comprehension"], "dc": 65, "success_rewards": ["manual_roll_high", "qi_burst_medium"], "fail_damage_pct": 0.05},
+        {"id": "stay_grounded", "label": "Stay Grounded, Move On", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "hollow_tree_treasure",
+      "type": "treasure",
+      "title": "Hollow Tree Cache",
+      "text": "A colossal hollow tree contains a hidden cache — someone's long-abandoned storage.",
+      "choices": [
+        {"id": "search_carefully", "label": "Search the Cache", "type": "stat_check", "stats": ["spiritual_sense", "luck"], "dc": 55, "success_rewards": ["treasure_roll_high", "manual_roll_medium"], "fail_damage_pct": 0.08},
+        {"id": "take_everything", "label": "Take Everything Quickly", "type": "risk_reward", "risk": 3, "success_rewards": ["treasure_roll_medium", "stones_roll_medium"], "fail_damage_pct": 0.15},
+        {"id": "close_the_hollow", "label": "Leave It Hidden", "type": "safe_skip", "risk": 0}
+      ]
+    }
+  ],
+  "cursed_swamp": [
+    {
+      "id": "corpse_leech_pool",
+      "type": "combat",
+      "title": "Corpse Leech Pool",
+      "text": "A stagnant pool writhes with corpse leeches, drawn by the heat of living qi.",
+      "choices": [
+        {"id": "fight_leeches", "label": "Burn Them Out", "type": "combat", "enemy": {"name": "Corpse Leeches", "hp_mult": 0.9, "atk_mult": 1.0, "def_mult": 0.5, "spd_mult": 1.3, "traits": ["beast", "undead", "swarm"]}, "risk": 4, "success_rewards": ["pill_roll_medium", "treasure_roll_low"]},
+        {"id": "cross_quietly", "label": "Cross Without Ripples", "type": "stat_check", "stats": ["agility", "spiritual_sense"], "dc": 65, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.20},
+        {"id": "go_around", "label": "Go Around the Pool", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "will_o_wisp",
+      "type": "stat_check",
+      "title": "Will-o'-Wisp",
+      "text": "A blue flame dances ahead, leading deeper into the swamp. Following it may lead to treasure — or a bog grave.",
+      "choices": [
+        {"id": "follow_wisp", "label": "Follow the Wisp", "type": "stat_check", "stats": ["spiritual_sense", "luck"], "dc": 55, "success_rewards": ["treasure_roll_high", "qi_burst_low"], "fail_damage_pct": 0.20},
+        {"id": "catch_it", "label": "Try to Capture the Wisp", "type": "stat_check", "stats": ["speed", "internal_strength"], "dc": 70, "success_rewards": ["pill_roll_high", "treasure_roll_medium"], "fail_damage_pct": 0.15},
+        {"id": "ignore_wisp", "label": "Stay on the Path", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "flooded_ruin",
+      "type": "treasure",
+      "title": "Flooded Ruin",
+      "text": "Half-submerged stone walls mark a forgotten shrine. Something glints beneath the dark water.",
+      "choices": [
+        {"id": "dive_for_treasure", "label": "Dive Into the Water", "type": "stat_check", "stats": ["external_strength", "luck"], "dc": 60, "success_rewards": ["treasure_roll_high", "manual_roll_low"], "fail_damage_pct": 0.18},
+        {"id": "fish_with_qi", "label": "Fish for It with Qi", "type": "stat_check", "stats": ["spiritual_sense", "internal_strength"], "dc": 55, "success_rewards": ["treasure_roll_medium", "pill_roll_low"], "fail_damage_pct": 0.08},
+        {"id": "leave_submerged", "label": "Too Risky, Move On", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "swamp_gas_bog",
+      "type": "trap",
+      "title": "Swamp Gas Bog",
+      "text": "Bubbles rise from the mud. The air is thick with flammable swamp gas — one wrong spark could end you.",
+      "choices": [
+        {"id": "crawl_low", "label": "Crawl Through the Mud", "type": "stat_check", "stats": ["agility", "external_strength"], "dc": 60, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.12},
+        {"id": "dispel_the_gas", "label": "Dispel the Gas with Wind Qi", "type": "stat_check", "stats": ["internal_strength", "spiritual_sense"], "dc": 70, "success_rewards": ["safe_skip", "pill_roll_low"], "fail_damage_pct": 0.08},
+        {"id": "retrace_steps", "label": "Go Back and Find Another Route", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "cursed_altar",
+      "type": "moral",
+      "title": "Cursed Altar",
+      "text": "A bloodstained altar pulses with demonic qi. A sealed manual lies on it — but touching it will curse you.",
+      "choices": [
+        {"id": "take_the_manual", "label": "Take the Forbidden Manual", "type": "moral", "moral": "demonic", "risk": 4, "success_rewards": ["manual_roll_high", "karma_loss", "curse"]},
+        {"id": "purify_the_altar", "label": "Purify the Altar", "type": "moral", "moral": "righteous", "risk": 3, "success_rewards": ["reputation", "pill_roll_high", "qi_burst_medium"]},
+        {"id": "leave_quickly", "label": "Leave Before the Curse Takes Hold", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "bog_beast_lair",
+      "type": "combat",
+      "title": "Bog Beast Lair",
+      "text": "A mound of mud and reeds shifts. A bog beast rises, caked in centuries of swamp sediment.",
+      "choices": [
+        {"id": "fight_bog_beast", "label": "Fight the Bog Beast", "type": "combat", "enemy": {"name": "Bog Beast", "hp_mult": 1.3, "atk_mult": 1.0, "def_mult": 1.3, "spd_mult": 0.5, "traits": ["beast", "earth", "armored"]}, "risk": 5, "success_rewards": ["beast_core", "treasure_roll_high"]},
+        {"id": "lure_it_away", "label": "Lure It Away", "type": "stat_check", "stats": ["speed", "agility"], "dc": 60, "success_rewards": ["treasure_roll_low"], "fail_damage_pct": 0.12},
+        {"id": "circle_wide", "label": "Circle Wide Around", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "swamp_rest_mound",
+      "type": "rest",
+      "title": "Dry Mound Refuge",
+      "text": "A rare patch of dry earth rises from the bog. A few stunted trees provide shade.",
+      "choices": [
+        {"id": "rest_on_mound", "label": "Rest on the Mound (Heal 25%)", "type": "rest", "heal_pct": 0.25, "risk": 0, "success_rewards": ["safe_skip"]},
+        {"id": "dig_for_water", "label": "Dig for Fresh Water", "type": "treasure", "risk": 1, "success_rewards": ["pill_roll_low", "herb_roll_low"]},
+        {"id": "push_on", "label": "Press On Through the Swamp", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "swamp_dao_echo",
+      "type": "dao_event",
+      "title": "Swamp Dao Echo",
+      "text": "A moment of stillness. The swamp's corruption and life force are one — a lesson in balance.",
+      "choices": [
+        {"id": "embrace_duality", "label": "Embrace the Duality", "type": "dao_event", "risk": 1, "success_rewards": ["qi_burst_high", "insight"]},
+        {"id": "reject_corruption", "label": "Reject the Corruption", "type": "stat_check", "stats": ["internal_strength", "karma"], "dc": 60, "success_rewards": ["pill_roll_medium", "qi_burst_medium"], "fail_damage_pct": 0.10},
+        {"id": "stay_neutral", "label": "Observe and Move On", "type": "safe_skip", "risk": 0}
+      ]
+    }
+  ],
+  "sword_tomb": [
+    {
+      "id": "sword_guardian_spirit",
+      "type": "combat",
+      "title": "Sword Guardian Spirit",
+      "text": "A spirit clad in rusted armor rises, gripping a broken blade. It challenges all who enter.",
+      "choices": [
+        {"id": "face_guardian", "label": "Face the Guardian in Duel", "type": "combat", "enemy": {"name": "Sword Guardian", "hp_mult": 1.2, "atk_mult": 1.2, "def_mult": 1.1, "spd_mult": 0.9, "traits": ["spirit", "undead", "sword"]}, "risk": 5, "success_rewards": ["manual_roll_high", "treasure_roll_medium"]},
+        {"id": "bow_and_present_blade", "label": "Bow and Present Your Blade", "type": "stat_check", "stats": ["comprehension", "karma"], "dc": 55, "success_rewards": ["safe_skip", "treasure_roll_low"], "fail_damage_pct": 0.05},
+        {"id": "slip_past", "label": "Slip Past While It Rises", "type": "stat_check", "stats": ["agility", "speed"], "dc": 65, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.15}
+      ]
+    },
+    {
+      "id": "broken_blade_field",
+      "type": "treasure",
+      "title": "Field of Broken Blades",
+      "text": "Hundreds of shattered swords jut from the earth. Sword intent lingers in each fragment.",
+      "choices": [
+        {"id": "search_for_whole_blade", "label": "Search for an Intact Blade", "type": "stat_check", "stats": ["spiritual_sense", "luck"], "dc": 65, "success_rewards": ["treasure_roll_high", "manual_roll_medium"], "fail_damage_pct": 0.10},
+        {"id": "meditate_among_blades", "label": "Meditate on the Sword Intent", "type": "dao_event", "risk": 1, "success_rewards": ["qi_burst_high", "insight"]},
+        {"id": "walk_through", "label": "Walk Through Carefully", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "sword_tomb_rest_chamber",
+      "type": "rest",
+      "title": "Sword Tomb Rest Chamber",
+      "text": "An intact chamber with a stone bed and a quiet fountain. Ancient duelists once rested here.",
+      "choices": [
+        {"id": "rest_in_chamber", "label": "Rest in the Chamber (Heal 30%)", "type": "rest", "heal_pct": 0.30, "risk": 0, "success_rewards": ["safe_skip"]},
+        {"id": "examine_the_fountain", "label": "Examine the Fountain", "type": "treasure", "risk": 1, "success_rewards": ["pill_roll_medium", "stones_roll_low"]},
+        {"id": "search_for_records", "label": "Search for Cultivation Records", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 60, "success_rewards": ["manual_roll_low", "insight"], "fail_damage_pct": 0.05}
+      ]
+    },
+    {
+      "id": "falling_swords_trap",
+      "type": "trap",
+      "title": "Falling Swords Trap",
+      "text": "You trigger a pressure plate. Ancient mechanisms release a volley of rusted blades from the ceiling.",
+      "choices": [
+        {"id": "deflect_blades", "label": "Deflect the Blades", "type": "stat_check", "stats": ["external_strength", "speed"], "dc": 60, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.18},
+        {"id": "dodge_the_rain", "label": "Dodge the Blade Rain", "type": "stat_check", "stats": ["agility", "spiritual_sense"], "dc": 55, "success_rewards": ["safe_skip", "treasure_roll_low"], "fail_damage_pct": 0.22},
+        {"id": "shield_with_qi", "label": "Shield with Qi", "type": "stat_check", "stats": ["internal_strength", "defense"], "dc": 65, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.10}
+      ]
+    },
+    {
+      "id": "sword_technique_stele",
+      "type": "dao_event",
+      "title": "Sword Technique Stele",
+      "text": "A black stone stele bears the carving of a single sword stance. The intent radiates like heat.",
+      "choices": [
+        {"id": "study_the_stance", "label": "Study the Stance", "type": "stat_check", "stats": ["comprehension", "external_strength"], "dc": 60, "success_rewards": ["manual_roll_high", "insight"], "fail_damage_pct": 0.08},
+        {"id": "copy_the_form", "label": "Copy the Form into Memory", "type": "dao_event", "risk": 1, "success_rewards": ["qi_burst_high", "manual_roll_medium"]},
+        {"id": "pay_respects", "label": "Bow and Leave", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "ghost_duelist",
+      "type": "combat",
+      "title": "Ghost Duelist",
+      "text": "A translucent swordsman blocks your path. They were a tomb guardian in life and still guard their post.",
+      "choices": [
+        {"id": "honor_duel", "label": "Accept the Duel Honorably", "type": "combat", "enemy": {"name": "Ghost Duelist", "hp_mult": 1.1, "atk_mult": 1.1, "def_mult": 0.9, "spd_mult": 1.1, "traits": ["spirit", "sword", "agile"]}, "risk": 5, "success_rewards": ["manual_roll_medium", "treasure_roll_medium"]},
+        {"id": "prove_worth", "label": "Demonstrate Your Sword Intent", "type": "stat_check", "stats": ["external_strength", "comprehension"], "dc": 70, "success_rewards": ["safe_skip", "manual_roll_low"], "fail_damage_pct": 0.08},
+        {"id": "sneak_around_ghost", "label": "Circle Around Quietly", "type": "stat_check", "stats": ["agility", "spiritual_sense"], "dc": 65, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.10}
+      ]
+    },
+    {
+      "id": "sword_tomb_armory",
+      "type": "treasure",
+      "title": "Tomb Armory",
+      "text": "A collapsed armory contains rusted but salvageable weapons and armor.",
+      "choices": [
+        {"id": "dig_through_rubble", "label": "Dig Through the Rubble", "type": "stat_check", "stats": ["external_strength", "luck"], "dc": 55, "success_rewards": ["treasure_roll_high", "stones_roll_medium"], "fail_damage_pct": 0.10},
+        {"id": "search_methodically", "label": "Search Methodically", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 60, "success_rewards": ["manual_roll_medium", "treasure_roll_medium"], "fail_damage_pct": 0.05},
+        {"id": "leave_armory", "label": "Collapse Too Dangerous", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "sword_tomb_corridor",
+      "type": "stat_check",
+      "title": "Sword Intent Corridor",
+      "text": "A long corridor lined with sword marks. Each step intensifies the pressure of lingering sword intent.",
+      "choices": [
+        {"id": "walk_through_pressure", "label": "Walk Through the Pressure", "type": "stat_check", "stats": ["internal_strength", "external_strength"], "dc": 60, "success_rewards": ["safe_skip", "insight"], "fail_damage_pct": 0.12},
+        {"id": "study_the_marks", "label": "Study Each Sword Mark", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 70, "success_rewards": ["manual_roll_medium", "qi_burst_low"], "fail_damage_pct": 0.08},
+        {"id": "turn_back", "label": "Turn Back and Find Another Path", "type": "safe_skip", "risk": 0}
+      ]
+    }
+  ],
+  "spirit_vein_mine": [
+    {
+      "id": "unstable_qi_vein",
+      "type": "trap",
+      "title": "Unstable Qi Vein",
+      "text": "The ground hums with raw qi. A cracked spirit vein pulses erratically — one wrong step could trigger a burst.",
+      "choices": [
+        {"id": "stabilize_vein", "label": "Stabilize the Vein", "type": "stat_check", "stats": ["internal_strength", "spiritual_sense"], "dc": 65, "success_rewards": ["stones_roll_high", "qi_burst_medium"], "fail_damage_pct": 0.15},
+        {"id": "extract_raw_qi", "label": "Extract Raw Qi Quickly", "type": "risk_reward", "risk": 4, "success_rewards": ["stones_roll_high", "pill_roll_low"], "fail_damage_pct": 0.25},
+        {"id": "back_away_slowly", "label": "Back Away Slowly", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "earth_beast_tunnel",
+      "type": "combat",
+      "title": "Earth Beast Tunnel",
+      "text": "A grinding sound echoes from a side tunnel. An earth beast with crystal hide blocks the way.",
+      "choices": [
+        {"id": "fight_earth_beast", "label": "Fight the Earth Beast", "type": "combat", "enemy": {"name": "Crystal Hide Beast", "hp_mult": 1.2, "atk_mult": 0.9, "def_mult": 1.4, "spd_mult": 0.6, "traits": ["beast", "earth", "armored"]}, "risk": 5, "success_rewards": ["beast_core", "stones_roll_high"]},
+        {"id": "mine_around_it", "label": "Mine Around the Tunnel", "type": "stat_check", "stats": ["external_strength", "comprehension"], "dc": 60, "success_rewards": ["stones_roll_medium"], "fail_damage_pct": 0.08},
+        {"id": "find_another_tunnel", "label": "Find Another Tunnel", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "spirit_stone_deposit",
+      "type": "treasure",
+      "title": "Rich Spirit Stone Deposit",
+      "text": "A wall of crystalline spirit stones, pure and dense. A fortune in raw stone.",
+      "choices": [
+        {"id": "mine_carefully", "label": "Mine Carefully", "type": "stat_check", "stats": ["comprehension", "external_strength"], "dc": 50, "success_rewards": ["stones_roll_high", "treasure_roll_low"], "fail_damage_pct": 0.05},
+        {"id": "blast_the_wall", "label": "Blast the Wall with Qi", "type": "risk_reward", "risk": 3, "success_rewards": ["stones_roll_high", "pill_roll_low"], "fail_damage_pct": 0.18},
+        {"id": "mark_and_return", "label": "Mark the Location, Move On", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "mine_cart_chase",
+      "type": "stat_check",
+      "title": "Runaway Mine Cart",
+      "text": "A mine cart loaded with ore breaks loose on the tracks, hurtling toward you.",
+      "choices": [
+        {"id": "stop_the_cart", "label": "Stop the Cart Head-On", "type": "stat_check", "stats": ["external_strength", "internal_strength"], "dc": 65, "success_rewards": ["stones_roll_high", "safe_skip"], "fail_damage_pct": 0.15},
+        {"id": "jump_aside", "label": "Jump Aside", "type": "stat_check", "stats": ["agility", "speed"], "dc": 45, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.08},
+        {"id": "ride_the_cart", "label": "Jump Onto the Cart", "type": "risk_reward", "risk": 3, "success_rewards": ["stones_roll_medium", "treasure_roll_low"], "fail_damage_pct": 0.12}
+      ]
+    },
+    {
+      "id": "collapsed_shaft",
+      "type": "trap",
+      "title": "Collapsed Shaft",
+      "text": "The tunnel ahead has collapsed. The ceiling groans — more may fall.",
+      "choices": [
+        {"id": "clear_the_rubble", "label": "Clear the Rubble", "type": "stat_check", "stats": ["external_strength", "agility"], "dc": 60, "success_rewards": ["stones_roll_medium", "treasure_roll_low"], "fail_damage_pct": 0.10},
+        {"id": "reinforce_ceiling", "label": "Reinforce the Ceiling First", "type": "stat_check", "stats": ["comprehension", "internal_strength"], "dc": 65, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.05},
+        {"id": "dig_new_tunnel", "label": "Dig a New Passage", "type": "risk_reward", "risk": 3, "success_rewards": ["stones_roll_low", "treasure_roll_medium"], "fail_damage_pct": 0.15}
+      ]
+    },
+    {
+      "id": "mine_rest_cavern",
+      "type": "rest",
+      "title": "Hidden Miner's Cavern",
+      "text": "An abandoned miner's break room, still stocked with dried rations and a jug of water.",
+      "choices": [
+        {"id": "rest_in_cavern", "label": "Rest in the Cavern (Heal 35%)", "type": "rest", "heal_pct": 0.35, "risk": 0, "success_rewards": ["safe_skip"]},
+        {"id": "search_the_room", "label": "Search the Miner's Belongings", "type": "treasure", "risk": 1, "success_rewards": ["stones_roll_low", "treasure_roll_low"]},
+        {"id": "refill_supplies", "label": "Take What's Useful and Move On", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "underground_river",
+      "type": "stat_check",
+      "title": "Underground River",
+      "text": "An underground river blocks the deepest tunnel. The current is strong but the water glows with qi.",
+      "choices": [
+        {"id": "swim_across", "label": "Swim Across", "type": "stat_check", "stats": ["external_strength", "internal_strength"], "dc": 60, "success_rewards": ["safe_skip", "qi_burst_low"], "fail_damage_pct": 0.18},
+        {"id": "build_a_bridge", "label": "Build a Stone Bridge", "type": "stat_check", "stats": ["comprehension", "external_strength"], "dc": 65, "success_rewards": ["safe_skip", "stones_roll_low"], "fail_damage_pct": 0.08},
+        {"id": "follow_the_river", "label": "Follow the River Downstream", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "mine_dao_discovery",
+      "type": "dao_event",
+      "title": "Earth Vein Dao Resonance",
+      "text": "Deep in the mine, you feel the pulse of the earth vein itself — the dao of patience and pressure.",
+      "choices": [
+        {"id": "merge_with_vein", "label": "Merge Your Qi with the Vein", "type": "dao_event", "risk": 1, "success_rewards": ["qi_burst_high", "insight", "stones_roll_high"]},
+        {"id": "study_the_pulse", "label": "Study the Vein's Rhythm", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 65, "success_rewards": ["manual_roll_medium", "pill_roll_medium"], "fail_damage_pct": 0.05},
+        {"id": "respect_the_depth", "label": "Acknowledge and Move On", "type": "safe_skip", "risk": 0}
+      ]
+    }
+  ],
+  "crimson_lotus_lake": [
+    {
+      "id": "lotus_spirit_encounter",
+      "type": "combat",
+      "title": "Lotus Spirit",
+      "text": "A lotus spirit rises from the water, its petals sharp as blades. It guards the heart of the lake.",
+      "choices": [
+        {"id": "fight_lotus", "label": "Fight the Lotus Spirit", "type": "combat", "enemy": {"name": "Crimson Lotus Spirit", "hp_mult": 1.2, "atk_mult": 1.1, "def_mult": 1.0, "spd_mult": 0.9, "traits": ["spirit", "plant", "fire"]}, "risk": 5, "success_rewards": ["herb_roll_high", "pill_roll_high", "manual_roll_low"]},
+        {"id": "offer_blood_qi", "label": "Offer a Drop of Blood Qi", "type": "stat_check", "stats": ["internal_strength", "spiritual_sense"], "dc": 60, "success_rewards": ["safe_skip", "qi_burst_medium"], "fail_damage_pct": 0.12},
+        {"id": "circle_the_lake", "label": "Circle Around the Lake", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "illusion_mist_shore",
+      "type": "stat_check",
+      "title": "Illusion Mist Shore",
+      "text": "Pink mist rolls across the shore. Visions of desire and fear flicker within — the lake testing your heart.",
+      "choices": [
+        {"id": "see_through_illusion", "label": "See Through the Illusion", "type": "stat_check", "stats": ["spiritual_sense", "comprehension"], "dc": 60, "success_rewards": ["safe_skip", "insight"], "fail_damage_pct": 0.10},
+        {"id": "embrace_the_vision", "label": "Embrace the Vision", "type": "dao_event", "risk": 2, "success_rewards": ["qi_burst_high", "manual_roll_low"]},
+        {"id": "close_your_eyes", "label": "Close Your Eyes and Walk Blind", "type": "risk_reward", "risk": 3, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.18}
+      ]
+    },
+    {
+      "id": "blood_moon_altar",
+      "type": "dao_event",
+      "title": "Blood Moon Altar",
+      "text": "A stone altar sits on a small island, bathed in crimson moonlight. Ancient symbols pulse with power.",
+      "choices": [
+        {"id": "attune_blood_moon", "label": "Attune to the Blood Moon", "type": "dao_event", "risk": 2, "success_rewards": ["qi_burst_high", "manual_roll_high", "insight"]},
+        {"id": "study_the_symbols", "label": "Study the Ancient Symbols", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 70, "success_rewards": ["manual_roll_medium", "pill_roll_high"], "fail_damage_pct": 0.10},
+        {"id": "avoid_the_island", "label": "Avoid the Altar", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "crimson_herb_garden",
+      "type": "treasure",
+      "title": "Crimson Herb Garden",
+      "text": "Beneath the lake's surface, luminous crimson herbs grow in beds of volcanic sand.",
+      "choices": [
+        {"id": "dive_for_herbs", "label": "Dive to Harvest", "type": "stat_check", "stats": ["external_strength", "spiritual_sense"], "dc": 60, "success_rewards": ["herb_roll_high", "pill_roll_high"], "fail_damage_pct": 0.15},
+        {"id": "use_qi_to_pull", "label": "Pull Them Up with Qi", "type": "stat_check", "stats": ["internal_strength", "luck"], "dc": 65, "success_rewards": ["herb_roll_medium", "pill_roll_medium"], "fail_damage_pct": 0.08},
+        {"id": "leave_herbs_grow", "label": "Let Them Be", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "fire_and_water_geyser",
+      "type": "trap",
+      "title": "Fire and Water Geyser",
+      "text": "A geyser of steam and fire qi erupts periodically. The ground is cracked and unstable.",
+      "choices": [
+        {"id": "time_the_dash", "label": "Time Your Dash Between Eruptions", "type": "stat_check", "stats": ["agility", "speed"], "dc": 65, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.18},
+        {"id": "redirect_the_geyser", "label": "Redirect the Geyser with Qi", "type": "stat_check", "stats": ["internal_strength", "spiritual_sense"], "dc": 70, "success_rewards": ["safe_skip", "pill_roll_low"], "fail_damage_pct": 0.12},
+        {"id": "find_another_route", "label": "Find a Path Around", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "lake_rest_islet",
+      "type": "rest",
+      "title": "Lake Islet",
+      "text": "A small islet rises from the lake, covered in soft moss. The mingled fire and water qi here is surprisingly harmonious.",
+      "choices": [
+        {"id": "meditate_on_islet", "label": "Meditate (Heal 30%)", "type": "rest", "heal_pct": 0.30, "risk": 0, "success_rewards": ["qi_burst_low"]},
+        {"id": "harmonize_qi", "label": "Harmonize Fire and Water Qi", "type": "dao_event", "risk": 1, "success_rewards": ["insight", "pill_roll_medium"]},
+        {"id": "push_onward", "label": "Continue the Expedition", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "drowned_cultivator",
+      "type": "treasure",
+      "title": "Drowned Cultivator's Remains",
+      "text": "The bones of a cultivator rest at the lake bottom, their storage ring still intact.",
+      "choices": [
+        {"id": "recover_the_ring", "label": "Recover the Storage Ring", "type": "stat_check", "stats": ["spiritual_sense", "luck"], "dc": 60, "success_rewards": ["treasure_roll_high", "manual_roll_medium"], "fail_damage_pct": 0.12},
+        {"id": "search_the_bones", "label": "Search the Remains", "type": "risk_reward", "risk": 3, "success_rewards": ["treasure_roll_medium", "stones_roll_medium"], "fail_damage_pct": 0.15},
+        {"id": "respect_the_dead", "label": "Leave Them in Peace", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "lotus_dance",
+      "type": "moral",
+      "title": "Lotus Dance",
+      "text": "A group of lake spirits dance on the water's surface. They beckon you to join — but the dance is a test.",
+      "choices": [
+        {"id": "join_the_dance", "label": "Join the Dance", "type": "stat_check", "stats": ["agility", "spiritual_sense"], "dc": 65, "success_rewards": ["qi_burst_high", "reputation"], "fail_damage_pct": 0.10},
+        {"id": "refuse_politely", "label": "Refuse with Gratitude", "type": "safe_skip", "risk": 0, "success_rewards": ["pill_roll_low"]},
+        {"id": "disrupt_the_dance", "label": "Disrupt Their Ritual", "type": "combat", "enemy": {"name": "Lake Spirits", "hp_mult": 0.9, "atk_mult": 1.0, "def_mult": 0.8, "spd_mult": 1.3, "traits": ["spirit", "water", "agile", "swarm"]}, "risk": 4, "success_rewards": ["treasure_roll_high", "karma_loss"]}
+      ]
+    }
+  ],
+  "heavenfall_peak": [
+    {
+      "id": "lightning_beast",
+      "type": "combat",
+      "title": "Lightning Beast",
+      "text": "A beast crackling with lightning energy prowls the peak. Its eyes glow with heavenly tribulation fire.",
+      "choices": [
+        {"id": "face_lightning", "label": "Face the Lightning Beast", "type": "combat", "enemy": {"name": "Heavenly Lightning Beast", "hp_mult": 1.3, "atk_mult": 1.3, "def_mult": 0.9, "spd_mult": 1.3, "traits": ["beast", "lightning", "elite"]}, "risk": 6, "success_rewards": ["beast_core", "manual_roll_high", "treasure_roll_high"]},
+        {"id": "study_its_pattern", "label": "Study Its Movement Pattern", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 70, "success_rewards": ["safe_skip", "insight"], "fail_damage_pct": 0.15},
+        {"id": "take_shelter", "label": "Take Shelter and Wait", "type": "rest", "heal_pct": 0.15, "risk": 1, "success_rewards": ["safe_skip"]}
+      ]
+    },
+    {
+      "id": "heavenly_pressure_field",
+      "type": "stat_check",
+      "title": "Heavenly Pressure Field",
+      "text": "An invisible pressure crushes down — remnant heavenly tribulation energy. Every step is a battle.",
+      "choices": [
+        {"id": "push_through", "label": "Push Through the Pressure", "type": "stat_check", "stats": ["internal_strength", "external_strength"], "dc": 70, "success_rewards": ["safe_skip", "qi_burst_high"], "fail_damage_pct": 0.18},
+        {"id": "find_the_eye", "label": "Find the Calm Eye of the Field", "type": "stat_check", "stats": ["spiritual_sense", "comprehension"], "dc": 75, "success_rewards": ["safe_skip", "treasure_roll_high"], "fail_damage_pct": 0.10},
+        {"id": "descend_lower", "label": "Descend to Lower Elevation", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "fallen_dao_mark",
+      "type": "dao_event",
+      "title": "Fallen Dao Mark",
+      "text": "A cracked boulder bears the palm print of a cultivator who attempted heavenly tribulation here — and failed. Their dao lingers.",
+      "choices": [
+        {"id": "touch_the_mark", "label": "Touch the Dao Mark", "type": "dao_event", "risk": 3, "success_rewards": ["qi_burst_high", "manual_roll_high", "insight"]},
+        {"id": "meditate_beside_it", "label": "Meditate Beside the Mark", "type": "stat_check", "stats": ["comprehension", "karma"], "dc": 65, "success_rewards": ["qi_burst_medium", "pill_roll_high"], "fail_damage_pct": 0.08},
+        {"id": "respect_the_fallen", "label": "Bow and Walk Away", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "heavenfall_treasure_cache",
+      "type": "treasure",
+      "title": "Heavenfall Cache",
+      "text": "Wedged in a cliff crevice, a sealed chest bears the mark of a heaven-defying cultivator.",
+      "choices": [
+        {"id": "open_the_chest", "label": "Open the Chest", "type": "stat_check", "stats": ["luck", "spiritual_sense"], "dc": 65, "success_rewards": ["treasure_roll_high", "manual_roll_high"], "fail_damage_pct": 0.12},
+        {"id": "examine_the_seal", "label": "Examine the Seal First", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 70, "success_rewards": ["treasure_roll_high", "pill_roll_high"], "fail_damage_pct": 0.05},
+        {"id": "leave_it_sealed", "label": "Too Dangerous, Leave It", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "lightning_storm_shelter",
+      "type": "rest",
+      "title": "Lightning Storm Shelter",
+      "text": "A cave behind a waterfall offers shelter from the lightning storm raging above.",
+      "choices": [
+        {"id": "rest_in_cave", "label": "Rest in the Cave (Heal 30%)", "type": "rest", "heal_pct": 0.30, "risk": 0, "success_rewards": ["safe_skip"]},
+        {"id": "harvest_storm_qi", "label": "Harvest Lightning Qi", "type": "dao_event", "risk": 3, "success_rewards": ["qi_burst_high", "pill_roll_high"]},
+        {"id": "explore_the_cave", "label": "Explore the Cave Depths", "type": "treasure", "risk": 2, "success_rewards": ["treasure_roll_medium", "manual_roll_low"]}
+      ]
+    },
+    {
+      "id": "heavenly_thunder_echo",
+      "type": "dao_event",
+      "title": "Heavenly Thunder Echo",
+      "text": "Thunder rolls across the peak. Each peal carries a fragment of heavenly law — if you can understand it.",
+      "choices": [
+        {"id": "attune_to_thunder", "label": "Attune to the Thunder", "type": "dao_event", "risk": 2, "success_rewards": ["qi_burst_high", "insight", "manual_roll_high"]},
+        {"id": "count_the_peals", "label": "Count the Thunder Peals", "type": "stat_check", "stats": ["comprehension", "spiritual_sense"], "dc": 70, "success_rewards": ["manual_roll_medium", "qi_burst_medium"], "fail_damage_pct": 0.10},
+        {"id": "cover_your_ears", "label": "Block Out the Sound", "type": "safe_skip", "risk": 0}
+      ]
+    },
+    {
+      "id": "cliffside_path",
+      "type": "stat_check",
+      "title": "Cliffside Path",
+      "text": "The only path forward is a narrow ledge along a sheer cliff. Wind howls, threatening to throw you off.",
+      "choices": [
+        {"id": "edge_along_slowly", "label": "Edge Along Slowly", "type": "stat_check", "stats": ["agility", "external_strength"], "dc": 60, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.15},
+        {"id": "leap_from_crag_to_crag", "label": "Leap from Crag to Crag", "type": "risk_reward", "risk": 4, "success_rewards": ["safe_skip", "stones_roll_low"], "fail_damage_pct": 0.25},
+        {"id": "use_qi_to_anchor", "label": "Anchor Yourself with Qi", "type": "stat_check", "stats": ["internal_strength", "spiritual_sense"], "dc": 65, "success_rewards": ["safe_skip"], "fail_damage_pct": 0.08}
+      ]
+    },
+    {
+      "id": "heavenfall_boss_echo",
+      "type": "boss",
+      "title": "Echo of a Heaven-Defier",
+      "text": "A spectral figure stands atop the peak — the echo of a cultivator who reached for immortality and was struck down. It turns to face you.",
+      "choices": [
+        {"id": "face_the_echo", "label": "Face the Heaven-Defier's Echo", "type": "combat", "enemy": {"name": "Echo of the Heaven-Defier", "hp_mult": 1.5, "atk_mult": 1.4, "def_mult": 1.2, "spd_mult": 1.1, "traits": ["spirit", "boss", "lightning", "elite"]}, "risk": 7, "success_rewards": ["manual_roll_high", "treasure_roll_high", "qi_burst_high", "legendary_chance"]},
+        {"id": "offer_tribute", "label": "Offer a Spirit Stone Tribute", "type": "pay_stones", "amount": 50, "risk": 2, "success_rewards": ["safe_skip", "qi_burst_medium"]},
+        {"id": "retreat_from_peak", "label": "Retreat Down the Peak", "type": "safe_skip", "risk": 0}
+      ]
+    }
+  ]
+}

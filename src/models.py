@@ -80,9 +80,13 @@ class Player(Base):
     last_dungeon_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     last_gather_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     last_hunt_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_explore_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     last_active_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     daily_streak: Mapped[int] = mapped_column(Integer, default=0)
+
+    # Explore / HP
+    current_hp: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # PVP
     pvp_wins: Mapped[int] = mapped_column(Integer, default=0)
@@ -308,6 +312,24 @@ class ActiveCombat(Base):
     context: Mapped[str] = mapped_column(String(16), default="hunt")
     context_key: Mapped[str] = mapped_column(String(64), default="")
     state_json: Mapped[str] = mapped_column(String(8192), default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ExploreSession(Base):
+    __tablename__ = "explore_sessions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    guild_id: Mapped[str] = mapped_column(String(32), index=True)
+    discord_id: Mapped[str] = mapped_column(String(32), index=True)
+    area_id: Mapped[str] = mapped_column(String(64))
+    current_step: Mapped[int] = mapped_column(Integer, default=0)
+    total_steps: Mapped[int] = mapped_column(Integer, default=10)
+    state_json: Mapped[str] = mapped_column(String(16384), default="{}")
+    completed: Mapped[bool] = mapped_column(default=False)
+    failed: Mapped[bool] = mapped_column(default=False)
+    retired: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

@@ -9,6 +9,7 @@ from .clan_cog import ClanCog
 from .sect_cog import SectCog
 from .duel_cog import DuelCog
 from .admin_cog import AdminCog
+from .explore_cog import ExploreCog
 
 __all__ = [
     "MiscCog",
@@ -22,6 +23,7 @@ __all__ = [
     "SectCog",
     "DuelCog",
     "AdminCog",
+    "ExploreCog",
 ]
 
 ALL_COGS = [
@@ -36,4 +38,5 @@ ALL_COGS = [
     SectCog,
     DuelCog,
     AdminCog,
+    ExploreCog,
 ]

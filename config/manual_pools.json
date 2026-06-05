@@ -180,6 +180,49 @@
       {"item_id": "manual_rising_tempo", "weight": 6}
     ]
   },
+  "explore_low": {
+    "manuals": [
+      {"item_id": "manual_swift_slash", "weight": 24},
+      {"item_id": "manual_ember_palm", "weight": 24},
+      {"item_id": "manual_soul_needle", "weight": 18},
+      {"item_id": "manual_iron_body", "weight": 16},
+      {"item_id": "manual_qi_barrier", "weight": 14},
+      {"item_id": "manual_ember_heart", "weight": 10},
+      {"item_id": "manual_keen_focus", "weight": 10},
+      {"item_id": "manual_rising_tempo", "weight": 10}
+    ]
+  },
+  "explore_medium": {
+    "manuals": [
+      {"item_id": "manual_mountain_guard", "weight": 18},
+      {"item_id": "manual_mist_step", "weight": 18},
+      {"item_id": "manual_purifying_breath", "weight": 16},
+      {"item_id": "manual_sanguine_drain", "weight": 14},
+      {"item_id": "manual_hemorrhage_art", "weight": 14},
+      {"item_id": "manual_blood_feast", "weight": 12},
+      {"item_id": "manual_venom_weave", "weight": 12},
+      {"item_id": "manual_swift_slash", "weight": 6},
+      {"item_id": "manual_ember_palm", "weight": 6},
+      {"item_id": "manual_iron_body", "weight": 4}
+    ]
+  },
+  "explore_high": {
+    "manuals": [
+      {"item_id": "manual_iron_cleave", "weight": 16},
+      {"item_id": "manual_flame_burst", "weight": 14},
+      {"item_id": "manual_cinder_lance", "weight": 14},
+      {"item_id": "manual_meridian_strike", "weight": 12},
+      {"item_id": "manual_void_pulse", "weight": 12},
+      {"item_id": "manual_rending_flurry", "weight": 10},
+      {"item_id": "manual_soul_siphon", "weight": 10},
+      {"item_id": "manual_mirror_nimbus", "weight": 10},
+      {"item_id": "manual_merciful_edge", "weight": 10},
+      {"item_id": "manual_undying_vow", "weight": 4},
+      {"item_id": "manual_iron_will", "weight": 4},
+      {"item_id": "manual_lotus_revival", "weight": 4},
+      {"item_id": "manual_heavens_cleave", "weight": 4}
+    ]
+  },
   "breakthrough_success": {
     "manuals": [
       {"item_id": "manual_iron_cleave", "weight": 18},

@@ -1,0 +1,102 @@
+{
+  "mistwood_village_outskirts": {
+    "name": "Mistwood Village Outskirts",
+    "theme": "low danger, herbs, bandits, fox spirits",
+    "danger": 0.85,
+    "reward_multiplier": 0.90,
+    "roots": ["wood", "water"],
+    "paths": ["internal", "hp"],
+    "manual_bias": ["utility", "body"],
+    "pill_bias": ["healing", "qi"]
+  },
+  "bamboo_grove": {
+    "name": "Whispering Bamboo Grove",
+    "theme": "serpents, sword scars, bamboo spirits",
+    "danger": 1.00,
+    "reward_multiplier": 1.00,
+    "roots": ["wood", "wind"],
+    "paths": ["external", "internal"],
+    "manual_bias": ["sword", "utility"],
+    "pill_bias": ["agility", "qi"]
+  },
+  "ashen_cliff": {
+    "name": "Ashen Cliff",
+    "theme": "fire beasts, raiders, volcanic herbs",
+    "danger": 1.15,
+    "reward_multiplier": 1.12,
+    "roots": ["fire", "earth"],
+    "paths": ["external"],
+    "manual_bias": ["fire", "sword"],
+    "pill_bias": ["attack", "breakthrough"]
+  },
+  "moonwell_ruins": {
+    "name": "Moonwell Ruins",
+    "theme": "ancient formations, ghosts, soul treasures",
+    "danger": 1.18,
+    "reward_multiplier": 1.15,
+    "roots": ["water", "yin", "moon"],
+    "paths": ["internal"],
+    "manual_bias": ["soul", "utility"],
+    "pill_bias": ["insight", "clarity"]
+  },
+  "verdant_depths": {
+    "name": "Verdant Depths",
+    "theme": "deep forest, ancient trees, spirit beasts",
+    "danger": 1.25,
+    "reward_multiplier": 1.22,
+    "roots": ["wood", "earth"],
+    "paths": ["hp", "internal"],
+    "manual_bias": ["body", "utility"],
+    "pill_bias": ["healing", "longevity"]
+  },
+  "cursed_swamp": {
+    "name": "Cursed Swamp",
+    "theme": "poison, ghosts, corruption, bog beasts",
+    "danger": 1.35,
+    "reward_multiplier": 1.32,
+    "roots": ["water", "poison", "yin"],
+    "paths": ["hp", "internal"],
+    "manual_bias": ["soul", "demonic"],
+    "pill_bias": ["detox", "rare_qi"]
+  },
+  "sword_tomb": {
+    "name": "Forgotten Sword Tomb",
+    "theme": "sword intent, broken blades, ancient duelists",
+    "danger": 1.40,
+    "reward_multiplier": 1.38,
+    "roots": ["metal", "wind"],
+    "paths": ["external"],
+    "manual_bias": ["sword"],
+    "pill_bias": ["strength", "insight"]
+  },
+  "spirit_vein_mine": {
+    "name": "Collapsed Spirit Vein Mine",
+    "theme": "spirit stones, earth beasts, unstable qi",
+    "danger": 1.28,
+    "reward_multiplier": 1.25,
+    "roots": ["earth", "metal"],
+    "paths": ["external", "hp"],
+    "manual_bias": ["body"],
+    "pill_bias": ["qi", "breakthrough"]
+  },
+  "crimson_lotus_lake": {
+    "name": "Crimson Lotus Lake",
+    "theme": "lotus spirits, illusion mist, blood moon qi",
+    "danger": 1.50,
+    "reward_multiplier": 1.48,
+    "roots": ["water", "fire", "yin"],
+    "paths": ["internal"],
+    "manual_bias": ["fire", "soul"],
+    "pill_bias": ["rare_qi", "clarity"]
+  },
+  "heavenfall_peak": {
+    "name": "Heavenfall Peak",
+    "theme": "lightning, heavenly pressure, fallen dao marks",
+    "danger": 1.65,
+    "reward_multiplier": 1.60,
+    "roots": ["lightning", "wind", "metal"],
+    "paths": ["external", "internal"],
+    "manual_bias": ["sword", "legendary"],
+    "pill_bias": ["breakthrough", "insight"]
+  }
+}

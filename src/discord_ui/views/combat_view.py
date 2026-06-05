@@ -199,6 +199,11 @@ class CombatView(discord.ui.View):
                 techniques = get_equipped_active_techniques(session, player.id)
                 if self.context == "hunt":
                     embed = build_combat_embed(f"Hunt — {self.area_name}", state)
+                elif self.context == "explore":
+                    from ...explore import load_explore_areas
+                    areas = load_explore_areas()
+                    area_name = self.area_name
+                    embed = build_combat_embed(f"Explore — {area_name}", state)
                 else:
                     pending = PendingAdventure(
                         active_id=self.active_id or 0,
@@ -244,6 +249,69 @@ class CombatView(discord.ui.View):
                     on_player_update=_story_continue_after_creation,
                 )
                 session.commit()
+                return
+
+            if self.context == "explore":
+                from ...explore import (
+                    ExploreSession as ExploreSessionModel,
+                    build_explore_step_embed as _build_step_embed,
+                    build_explore_result_embed as _build_result_embed,
+                    calculate_affinity as _calc_affinity,
+                    finalize_explore as _finalize_explore,
+                    handle_explore_combat_end as _handle_explore_end,
+                    load_explore_areas as _load_areas,
+                )
+                from .explore_view import ExploreView as ExploreViewCls
+
+                explore_result, explore_err = _handle_explore_end(
+                    session, player, state,
+                )
+                if explore_err:
+                    await interaction.response.send_message(explore_err, ephemeral=False)
+                    return
+                assert explore_result is not None
+
+                explore_row = session.get(ExploreSessionModel, self.active_id)
+                if explore_result.finished:
+                    msgs, has_bonus = _finalize_explore(session, player, explore_row)
+                    embed = _build_result_embed(
+                        self.area_name, explore_result,
+                        json.loads(explore_row.state_json).get("rewards", []),
+                    )
+                    if msgs:
+                        embed.add_field(name="Granted", value="\n".join(msgs[:8]), inline=False)
+                    attach_guidance(embed, "explore", player, session, cfg, now)
+                    session.commit()
+                    await interaction.response.edit_message(embed=embed, view=None)
+                    return
+
+                areas = _load_areas()
+                area_obj = areas.get(explore_row.area_id)
+                state_raw = json.loads(explore_row.state_json)
+                affinity = _calc_affinity(player, area_obj) if area_obj else 1.0
+                enc = explore_result.encounter
+                embed = _build_step_embed(
+                    self.area_name,
+                    explore_result.new_step + 1,
+                    explore_result.total_steps,
+                    enc.title if enc else "",
+                    enc.text if enc else "",
+                    state_raw.get("current_hp", 0),
+                    state_raw.get("max_hp", 1),
+                    affinity=affinity,
+                    danger=area_obj.danger if area_obj else 1.0,
+                )
+                if explore_result.messages:
+                    embed.add_field(name="Outcome", value="\n".join(explore_result.messages[-3:]), inline=False)
+                attach_guidance(embed, "explore", player, session, cfg, now)
+                choices = enc.choices if enc else []
+                view = ExploreViewCls(
+                    self.owner_discord_id, self.guild_id,
+                    explore_row.id, choices,
+                    self.area_name, explore_result.new_step + 1, explore_result.total_steps,
+                )
+                session.commit()
+                await interaction.response.edit_message(embed=embed, view=view)
                 return
 
             assert self.active_id is not None

@@ -56,6 +56,7 @@ class Config:
     dungeon_cooldown_seconds: int = 2 * 60 * 60
     gather_cooldown_seconds: int = 5 * 60
     hunt_cooldown_seconds: int = 5 * 60
+    explore_cooldown_seconds: int = 24 * 60 * 60
 
 
 def get_config() -> Config:

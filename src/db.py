@@ -632,6 +632,18 @@ def init_db() -> None:
     _migrate_game_sect_columns(engine)
     _migrate_clan_invite_columns(engine)
     _migrate_karma_from_moral_path(engine)
+    _migrate_explore_player_columns(engine)
+
+
+def _migrate_explore_player_columns(engine) -> None:
+    _migrate_table_columns(
+        engine,
+        "players",
+        {
+            "current_hp": "INTEGER",
+            "last_explore_at": "DATETIME",
+        },
+    )
 
 
 def _migrate_karma_from_moral_path(engine) -> None:
