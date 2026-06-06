@@ -78,7 +78,7 @@ def build_hunt_combat_embed(start, state: CombatState | None = None) -> discord.
             color=discord.Color.gold() if is_elite else discord.Color.dark_green(),
         )
         embed.add_field(
-            name="❤️ Your HP",
+            name="❤️ Vitality",
             value=format_hp_block("You", start.player_hp, start.player_max_hp, include_header=False),
             inline=True,
         )

@@ -485,7 +485,7 @@ def roll_party_rewards(
             mod = get_character_modifiers(session, player)
             stats = compute_combat_stats(player, session, mod)
             luck_vals.append(stats.luck)
-            drop_luck_vals.append(mod.drop_luck)
+            drop_luck_vals.append(mod.dropBonus)
             realm_index = max(realm_index, player.realm_index)
         if luck_vals:
             luck = sum(luck_vals) / len(luck_vals)

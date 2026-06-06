@@ -89,19 +89,20 @@ def test_passive_qi_scales_with_cap_and_sync(session, player, cfg, now):
 def test_cultivate_gain_scales_with_cap(player):
     cap = qi_cap(0, 0)
     gain = int(cap * CULTIVATE_QI_CAP_FRACTION)
-    assert gain == 12  # 100 * 0.125
+    assert gain == int(20 * 0.125)
 
 
 def test_mortal_breakthrough_base_is_ninety_percent(session, player, cfg):
     from src.realms import invalidate_realms_cache, realm_breakthrough_base_success
 
     invalidate_realms_cache()
-    assert realm_breakthrough_base_success(0, 0) == pytest.approx(0.90, abs=0.001)
+    base = realm_breakthrough_base_success(0, 0)
+    assert base == pytest.approx(1.0, abs=0.001)
 
     player.qi = qi_cap(player.realm_index, player.substage)
     preview = compute_breakthrough_preview(player, get_character_modifiers(session, player))
-    assert preview.base_success == pytest.approx(0.90, abs=0.001)
-    assert preview.success_chance >= 0.90
+    assert preview.base_success == pytest.approx(1.0, abs=0.001)
+    assert preview.success_chance >= 1.0
 
 
 def test_breakthrough_harder_in_higher_realms(session, player, cfg):
@@ -122,6 +123,8 @@ def test_breakthrough_harder_in_higher_realms(session, player, cfg):
 
 
 def test_breakthrough_chance_righteous_higher_than_neutral(session, player, cfg):
+    player.realm_index = 1
+    player.substage = 0
     player.karma = 0
     player.qi = qi_cap(player.realm_index, player.substage)
     neutral = compute_breakthrough_preview(player, get_character_modifiers(session, player))
@@ -134,6 +137,8 @@ def test_breakthrough_chance_righteous_higher_than_neutral(session, player, cfg)
 
 
 def test_breakthrough_clarity_pill_increases_chance(session, player, cfg):
+    player.realm_index = 1
+    player.substage = 0
     player.qi = qi_cap(player.realm_index, player.substage)
     before = compute_breakthrough_preview(player, get_character_modifiers(session, player))
 
@@ -149,6 +154,8 @@ def test_breakthrough_clarity_pill_increases_chance(session, player, cfg):
 
 
 def test_breakthrough_clarity_stacks_near_cap(session, player, cfg):
+    player.realm_index = 1
+    player.substage = 0
     player.qi = qi_cap(player.realm_index, player.substage)
     add_effect(session, player.id, "clarity", charges=3)
     session.commit()

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 
 import discord
@@ -32,6 +33,8 @@ from ..helpers import (
 )
 
 from ..helpers import _story_continue_after_creation as _story_continue_after_creation
+
+from ..helpers import send_elder_followup
 
 logger = logging.getLogger("cultivation_bot")
 
@@ -244,10 +247,13 @@ class CombatView(discord.ui.View):
                 embed.color = color
                 attach_guidance(embed, "hunt", player, session, cfg, now)
                 await interaction.response.edit_message(embed=embed, view=None)
-                await _story_continue_after_creation(
-                    interaction, session, player,
-                    on_player_update=_story_continue_after_creation,
-                )
+                from ...story_mode import elder_trial_active
+                in_trial = elder_trial_active(player)
+                if hunt_res.story_next:
+                    await _story_continue_after_creation(
+                        interaction, player.id, hunt_res.story_next,
+                        sync_abode=not in_trial,
+                    )
                 session.commit()
                 return
 
@@ -353,21 +359,24 @@ class CombatView(discord.ui.View):
                 return
 
             assert isinstance(adventure_result, AdventureResult)
-            trial_msgs = _apply_adventure_completion(session, player, adventure_result, now)
+            trial_msgs, story_next = _apply_adventure_completion(session, player, adventure_result, now)
             consume_haste_for_activity(session, player.id, "adventure")
             schedule_player_reminders(session, player, cfg, "adventure", now=now)
             session.add(player)
             session.commit()
             from ...ui.embeds import build_adventure_embed_from_result
             embed = build_adventure_embed_from_result(adventure_result, player.qi)
-            if trial_msgs:
-                embed.add_field(name="Trial progress", value="\n".join(trial_msgs), inline=False)
+            from ...story_mode import elder_trial_active
+            in_trial = elder_trial_active(player)
+            if trial_msgs and not in_trial:
+                embed.add_field(name="Elder Yunjian", value="\n".join(trial_msgs), inline=False)
             attach_guidance(embed, "adventure", player, session, cfg, now)
             await interaction.response.edit_message(embed=embed, view=None)
-            await _story_continue_after_creation(
-                interaction, session, player,
-                on_player_update=_story_continue_after_creation,
-            )
+            if story_next:
+                await _story_continue_after_creation(
+                    interaction, player.id, story_next,
+                    sync_abode=not in_trial,
+                )
             session.commit()
         finally:
             session.close()

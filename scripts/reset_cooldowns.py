@@ -1,5 +1,10 @@
 """Reset all player activity cooldowns in the local database."""
 
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 from sqlalchemy import text
 
 from src.db import get_engine
@@ -20,6 +25,7 @@ def main() -> None:
                     last_dungeon_at = NULL,
                     last_gather_at = NULL,
                     last_hunt_at = NULL,
+                    last_explore_at = NULL,
                     spirit_root_last_reroll_at = NULL,
                     sect_leave_cooldown_until = NULL
                 """

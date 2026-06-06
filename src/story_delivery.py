@@ -336,3 +336,37 @@ async def maybe_sync_elder_story(
         on_player_update=on_player_update,
         repost=repost,
     )
+
+
+async def send_elder_followup(
+    interaction: discord.Interaction,
+    session: Session,
+    player: Player,
+    *,
+    on_player_update: Callable[[discord.Interaction, int, str], Awaitable[None]] | None = None,
+) -> None:
+    """Send the Elder's current story node to the interaction channel as a follow-up."""
+    if on_player_update is None:
+        from . import bot as bot_module
+
+        on_player_update = bot_module._story_continue_after_creation
+
+    # Refresh the player from DB in case story_step was updated by another session.
+    session.refresh(player)
+
+    embed = build_player_story_embed(player)
+    if embed is None:
+        return
+
+    view = _player_story_view(player, on_player_update=on_player_update)
+    try:
+        kwargs: dict = {"embed": embed}
+        if view is not None:
+            kwargs["view"] = view
+        await interaction.followup.send(**kwargs)
+    except discord.HTTPException:
+        logger.debug(
+            "Failed to send elder follow-up player=%s channel=%s",
+            player.id,
+            interaction.channel_id,
+        )

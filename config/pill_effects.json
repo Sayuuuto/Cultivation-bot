@@ -5,23 +5,23 @@
   },
   "tempering": {
     "label": "Tempering",
-    "description": "+12% adventure defense (1 run)"
+    "description": "+12% damage reduction (1 run)"
   },
   "clarity": {
     "label": "Clarity",
-    "description": "+14% breakthrough stability per charge (stacks; consumed on attempt)"
+    "description": "+14% breakthrough luck per charge (stacks; consumed on attempt)"
   },
   "swiftwind": {
     "label": "Swiftwind",
-    "description": "+10% adventure success (1 run)"
+    "description": "+10% adventure luck (1 run)"
   },
   "blood_ember": {
     "label": "Blood Ember",
-    "description": "+15% dungeon damage (1 run)"
+    "description": "+15% damage bonus (1 run)"
   },
   "moonwell_tonic": {
     "label": "Moonwell attunement",
-    "description": "+35% rare event chance (1 run)"
+    "description": "+35% drop bonus (1 run)"
   },
   "flow_pill": {
     "label": "Flow Meridian",

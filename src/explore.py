@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import random
 from dataclasses import dataclass, field
@@ -68,6 +69,7 @@ class ExploreChoice:
     fail_damage_pct: float = 0.0
     amount: int = 0
     moral: str = ""
+    flag_sets: str = ""
 
 
 @dataclass
@@ -77,6 +79,7 @@ class ExploreEncounter:
     title: str
     text: str
     choices: list[ExploreChoice]
+    flag_requires: str = ""
 
 
 @dataclass
@@ -158,6 +161,7 @@ def load_explore_encounters(area_id: str) -> list[ExploreEncounter]:
                 fail_damage_pct=float(c.get("fail_damage_pct", 0.0)),
                 amount=int(c.get("amount", 0)),
                 moral=c.get("moral", ""),
+                flag_sets=c.get("flag_sets", ""),
             )
             for c in raw.get("choices", [])
         ]
@@ -167,6 +171,7 @@ def load_explore_encounters(area_id: str) -> list[ExploreEncounter]:
             title=raw.get("title", ""),
             text=raw.get("text", ""),
             choices=choices,
+            flag_requires=raw.get("flag_requires", ""),
         ))
     return result
 
@@ -242,10 +247,19 @@ def generate_encounter_sequence(
     dao_used = False
     has_rest = False
 
+    boss_encounter = next((e for e in pool if e.type == "boss"), None)
+
     for step in range(total_steps):
+        if step == total_steps - 1 and boss_encounter and boss_encounter.id not in used_ids:
+            selected.append(boss_encounter)
+            used_ids.add(boss_encounter.id)
+            continue
+
         eligible = []
         for e in pool:
             if e.id in used_ids:
+                continue
+            if e.type == "boss":
                 continue
             if e.type == "combat" and combat_streak >= 2:
                 continue
@@ -253,12 +267,12 @@ def generate_encounter_sequence(
                 continue
             if e.type == "rest" and has_rest and step < total_steps - 1:
                 continue
-            if step == total_steps - 1 and e.type not in ("combat", "boss", "treasure"):
+            if step == total_steps - 1 and e.type not in ("combat", "treasure"):
                 continue
             eligible.append(e)
 
         if not eligible:
-            eligible = [e for e in pool if e.id not in used_ids]
+            eligible = [e for e in pool if e.id not in used_ids and e.type != "boss"]
         if not eligible:
             break
 
@@ -373,14 +387,15 @@ def roll_completion_rewards(
     rng: random.Random,
 ) -> list[RewardEntry]:
     results: list[RewardEntry] = []
-    progress_ratio = steps_cleared / max(total_steps, 1)
+    actual_cleared = min(steps_cleared, total_steps)
+    progress_ratio = actual_cleared / max(total_steps, 1)
     if progress_ratio < 0.5:
         return results
-    bonus_stones = int(20 * area.reward_multiplier * affinity) if area else 20
+    bonus_stones = int(20 * area.reward_multiplier * affinity * progress_ratio) if area else 20
     results.append(RewardEntry(item_id="spirit_stones", quantity=bonus_stones, tier="common"))
-    if rng.random() < 0.3 * affinity:
+    if progress_ratio >= 0.8 and rng.random() < 0.3 * affinity:
         results.append(RewardEntry(item_id="qi_gathering_pill", quantity=1, tier="uncommon"))
-    if rng.random() < 0.15 * affinity:
+    if progress_ratio >= 1.0 and rng.random() < 0.15 * affinity:
         roll_manual_pool_reward(session, player.id, "explore_high", rng, {"manual_drop": 1})
         results.append(RewardEntry(item_id="manual_drop", quantity=1, tier="rare"))
     return results
@@ -531,6 +546,30 @@ def resolve_choice(
         return None, "Expedition already complete."
 
     encounter = sequence[step_idx]
+
+    if encounter.flag_requires and encounter.flag_requires not in state.flags:
+        state.steps_cleared += 1
+        new_step = step_idx + 1
+        next_encounter = sequence[new_step] if new_step < len(sequence) else None
+        finished = new_step >= explore_session.total_steps or next_encounter is None
+        explore_session.current_step = new_step
+        explore_session.state_json = _serialize_state(state)
+        explore_session.completed = finished
+        db_session.add(explore_session)
+        player.current_hp = state.current_hp
+        db_session.add(player)
+        return StepResult(
+            new_step=new_step,
+            total_steps=explore_session.total_steps,
+            encounter=next_encounter,
+            finished=finished,
+            failed=False,
+            retired=False,
+            messages=["The path shifts — this encounter is beyond your reach for now."],
+            hp_delta=0,
+            rewards_this_step=[],
+        ), ""
+
     choice = next((c for c in encounter.choices if c.id == choice_id), None)
     if choice is None:
         return None, f"Unknown choice: {choice_id}"
@@ -539,7 +578,9 @@ def resolve_choice(
     rewards_this_step: list[RewardEntry] = []
     hp_delta = 0
     combat_id = None
-    rng = random.Random()
+    seed_str = f"{player.id}_{explore_session.id}_{step_idx}_{choice_id}"
+    seed = int(hashlib.md5(seed_str.encode()).hexdigest()[:8], 16)
+    rng = random.Random(seed)
 
     affinity = calculate_affinity(player, area) if area else 1.0
 
@@ -564,7 +605,7 @@ def resolve_choice(
             dmg = int(state.max_hp * choice.fail_damage_pct)
             state.current_hp = max(1, state.current_hp - dmg)
             hp_delta = -dmg
-            messages.append(f"Stat check failed. (roll: {roll_total} vs DC {choice.dc}) — Lost {dmg} HP.")
+            messages.append(f"Stat check failed. (roll: {roll_total} vs DC {choice.dc}) — Lost {dmg} vitality.")
 
     elif choice.type == "treasure":
         rewards_this_step = roll_step_rewards(
@@ -577,7 +618,7 @@ def resolve_choice(
         old_hp = state.current_hp
         state.current_hp = min(state.max_hp, state.current_hp + heal)
         hp_delta = state.current_hp - old_hp
-        messages.append(f"You rest and recover **{hp_delta}** HP.")
+        messages.append(f"You rest and recover **{hp_delta}** vitality.")
 
     elif choice.type == "dao_event":
         qi_gain = roll_qi_burst(affinity, rng)
@@ -620,11 +661,11 @@ def resolve_choice(
             dmg = int(state.max_hp * choice.fail_damage_pct) if choice.fail_damage_pct > 0 else int(state.max_hp * 0.15)
             state.current_hp = max(1, state.current_hp - dmg)
             hp_delta = -dmg
-            messages.append(f"The risk backfired. Lost **{dmg}** HP.")
+            messages.append(f"The risk backfired. Lost **{dmg}** vitality.")
 
     elif choice.type == "trap":
         success, roll_total = resolve_stat_check(
-            player, db_session, state, choice.stats or ["agility"],
+            player, db_session, state, choice.stats or ["speed"],
             choice.dc or 55, area=area,
         )
         if success:
@@ -633,7 +674,7 @@ def resolve_choice(
             dmg = int(state.max_hp * choice.fail_damage_pct)
             state.current_hp = max(1, state.current_hp - dmg)
             hp_delta = -dmg
-            messages.append(f"Triggered the trap! Lost **{dmg}** HP. (roll: {roll_total})")
+            messages.append(f"Triggered the trap! Lost **{dmg}** vitality. (roll: {roll_total})")
         rewards_this_step = roll_step_rewards(
             choice.success_rewards, db_session, player, area, rng, affinity,
         )
@@ -655,9 +696,13 @@ def resolve_choice(
             "msg": reward.msg,
         })
 
+    if choice.flag_sets:
+        state.flags[choice.flag_sets] = True
+
     state.steps_cleared += 1
     new_step = step_idx + 1
-    finished = new_step >= explore_session.total_steps or state.current_hp <= 0
+    next_encounter = sequence[new_step] if new_step < len(sequence) else None
+    finished = new_step >= explore_session.total_steps or state.current_hp <= 0 or next_encounter is None
     failed = state.current_hp <= 0
     retired = False
 
@@ -668,8 +713,6 @@ def resolve_choice(
     db_session.add(explore_session)
     player.current_hp = state.current_hp
     db_session.add(player)
-
-    next_encounter = sequence[new_step] if new_step < len(sequence) else None
 
     return StepResult(
         new_step=new_step,
@@ -960,7 +1003,7 @@ def build_explore_step_embed(
     )
     hp_line = build_hp_bar(current_hp, max_hp)
     if hp_line:
-        emb.add_field(name="HP", value=hp_line, inline=False)
+        emb.add_field(name="Vitality", value=hp_line, inline=False)
 
     danger_label = "Low"
     if danger >= 1.4:
@@ -974,6 +1017,12 @@ def build_explore_step_embed(
     if affinity != 1.0:
         bonus = int((affinity - 1.0) * 100)
         emb.add_field(name="Affinity", value=f"+{bonus}%", inline=True)
+
+    bar_length = 12
+    ratio = step / max(total_steps, 1)
+    filled = int(ratio * bar_length)
+    bar = "\u2b1b" * filled + "\u2b1c" * (bar_length - filled)
+    emb.set_footer(text=f"{bar}  {step}/{total_steps}")
 
     return emb
 
@@ -995,6 +1044,13 @@ def build_explore_result_embed(
     summary = build_explore_reward_summary(rewards)
     if summary:
         emb.add_field(name="Rewards", value=summary, inline=False)
+
+    bar_length = 12
+    progress = result.new_step / max(result.total_steps, 1)
+    filled = int(progress * bar_length)
+    bar = "\u2b1b" * filled + "\u2b1c" * (bar_length - filled)
+    emb.set_footer(text=f"{bar}  {result.new_step}/{result.total_steps}")
+
     return emb
 
 

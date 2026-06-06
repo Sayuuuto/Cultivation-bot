@@ -28,7 +28,7 @@ def test_forge_equipment_rolls_stats(session, player):
     session.commit()
     assert res.success is True
     stats = get_total_equipment_stats(session, player.id, player_realm_index=player.realm_index)
-    assert stats.power > 0
+    assert stats.might > 0
 
 
 def test_flow_pill_grants_adventure_haste(session, player):

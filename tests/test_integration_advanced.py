@@ -192,10 +192,10 @@ def test_forge_replaces_slot_and_aggregates_four_piece_stats(session, player):
 
     session.commit()
     totals = get_total_equipment_stats(session, player.id, player_realm_index=player.realm_index)
-    assert totals.power > 0
-    assert totals.defense > 0
+    assert totals.might > 0
+    assert totals.warding > 0
     assert totals.fortune > 0
-    assert totals.insight > 0
+    assert totals.finesse > 0
     assert len(get_player_equipment(session, player.id)) == 4
 
 
@@ -237,9 +237,9 @@ def test_forged_stats_increase_character_modifiers(session, player):
     totals = get_total_equipment_stats(session, player.id, player_realm_index=player.realm_index)
     expected = equipment_stats_to_modifiers(totals)
 
-    assert geared.adventure_success > baseline.adventure_success
-    assert geared.adventure_success >= baseline.adventure_success + expected["adventure_success"] * 0.9
-    assert geared.rare_event_mult >= baseline.rare_event_mult
+    assert geared.adventure_luck > baseline.adventure_luck
+    assert geared.adventure_luck >= baseline.adventure_luck + expected["adventure_luck"] * 0.9
+    assert geared.dropBonus >= baseline.dropBonus
 
 
 def test_meridian_surge_haste_consumes_charges_independently(session, player):
@@ -323,9 +323,11 @@ def test_run_adventure_auto_path_allows_underleveled_entry(session, player):
     assert any("beasts here could end you" in m.lower() for m in res.messages)
 
 
-def test_high_insight_gear_increases_rare_event_multiplier(session, player):
+def test_high_insight_gear_increases_adventure_luck(session, player):
     row = get_or_create_slot(session, player.id, "talisman")
     row.item_id = "moonwell_pendant"
+    row.gear_realm = player.realm_index
+    row.gear_grade = "external"
     row.stat_insight = 10
     row.stat_power = 0
     row.stat_defense = 0
@@ -334,7 +336,7 @@ def test_high_insight_gear_increases_rare_event_multiplier(session, player):
     session.commit()
 
     mod = get_character_modifiers(session, player)
-    assert mod.rare_event_mult >= 1.2
+    assert mod.adventure_luck >= 0.05
 
 
 def test_gatebreaker_dust_grants_dungeon_haste(session, player):
@@ -370,8 +372,8 @@ def test_full_gear_affix_loadout_pipeline(session, player):
 
     assert ok is True and affix_id is not None
     geared = get_character_modifiers(session, player)
-    assert geared.adventure_success > baseline.adventure_success
-    assert geared.pvp_power >= baseline.pvp_power
+    assert geared.adventure_luck > baseline.adventure_luck
+    assert geared.damageBonus >= baseline.damageBonus
 
 
 def test_partial_adventure_keeps_first_segment_loot_on_second_segment_setback(session, player):

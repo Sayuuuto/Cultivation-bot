@@ -129,21 +129,17 @@ def _stats_for_realm(realm_index: int) -> PlayerCombatStats:
     cfg = _load_realm_stats()
     base = realm_baseline_stats(realm_index, 1, cfg)
     derived = cfg["derived"]
-    crit = (
-        base["spiritual_sense"] * derived["crit_per_spiritual_sense"]
-        + base["luck"] * derived["crit_per_luck"]
-    )
-    dodge = base["agility"] * derived["dodge_per_agility"]
+    crit = base["perception"] * derived["crit_per_perception"]
+    dodge = base["speed"] * derived["dodge_per_speed"]
     return PlayerCombatStats(
         hp=base["hp"],
         max_hp=base["hp"],
-        internal_strength=base["internal_strength"],
-        external_strength=base["external_strength"],
-        agility=base["agility"],
-        spiritual_sense=base["spiritual_sense"],
-        defense=base["defense"],
-        comprehension=base["comprehension"],
-        luck=base["luck"],
+        qi_power=base["qi_power"],
+        might=base["might"],
+        speed=base["speed"],
+        perception=base["perception"],
+        armor=base["armor"],
+        resolve=base["resolve"],
         crit_chance=max(0.0, min(0.45, crit)),
         dodge=max(0.0, min(0.40, dodge)),
     )

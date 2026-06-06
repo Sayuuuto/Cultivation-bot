@@ -102,9 +102,7 @@ def run_dungeon(
     segments_cleared = 0
     drops: dict[str, int] = {}
     for segment in range(1, dungeon.segments + 1):
-        chance = dungeon.base_success + mod.dungeon_damage * 0.5 + mod.adventure_success * 0.3
-        chance += mod.dungeon_luck
-        chance -= mod.dungeon_risk
+        chance = dungeon.base_success + mod.damageBonus * 0.5 + mod.adventure_luck * 0.3
         chance = max(0.15, min(0.90, chance))
 
         if rng.random() <= chance:
@@ -115,8 +113,7 @@ def run_dungeon(
                 f"Encounter {segment}: you take a heavy blow — your formation holds your qi intact."
             )
 
-    boss_chance = dungeon.boss_success + mod.dungeon_damage * 0.4 + mod.dungeon_luck * 0.5
-    boss_chance -= mod.dungeon_risk
+    boss_chance = dungeon.boss_success + mod.damageBonus * 0.4 + mod.adventure_luck * 0.5
     boss_chance = max(0.10, min(0.85, boss_chance))
     boss_win = rng.random() <= boss_chance
     weekly_manual_id: str | None = None
@@ -136,7 +133,7 @@ def run_dungeon(
             rng,
             combat_tier="boss",
             luck=stats.luck,
-            drop_luck=mod.drop_luck + mod.dungeon_luck,
+            drop_luck=mod.dropBonus,
             player_realm_index=player.realm_index,
             area_min_realm=dungeon.min_realm,
             skip_manuals=False,
@@ -147,7 +144,7 @@ def run_dungeon(
                 rng,
                 drop,
                 stats.luck,
-                mod.drop_luck + mod.dungeon_luck,
+                mod.dropBonus,
                 player_realm_index=player.realm_index,
                 area_min_realm=dungeon.min_realm,
             )

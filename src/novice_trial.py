@@ -228,7 +228,7 @@ def format_trial_progress(player: Player) -> str | None:
     step = int(getattr(player, "novice_trial_step", 0))
     total = len(TRIAL_STEPS)
     current = trial_step_label(player) or "Continue your dao"
-    return f"**Outer Disciple Trial** — step **{min(step + 1, total)}/{total}**\n▸ {current}"
+    return f"**{current}**" if current else None
 
 
 def apply_origin_starter_gifts(session: Session, player: Player) -> list[str]:
@@ -286,105 +286,91 @@ def apply_first_hunt_bonus(session: Session, player: Player, drops: dict[str, in
     return "Trial reward — a **Technique Fragment** shakes loose from the beast."
 
 
-def on_daily_claimed(player: Player) -> list[str]:
+def on_daily_claimed(player: Player) -> tuple[list[str], str | None]:
     if trial_complete(player) or int(getattr(player, "novice_trial_step", 0)) != 0:
-        return []
+        return [], None
     player.novice_trial_step = 1
     player.spirit_stones += 5
-    msgs = [
-        "🎋 **Outer Disciple Trial — Step 1 complete.** "
-        "The sect records your stipend (+5 bonus spirit stones)."
-    ]
+    msgs = ["💎 **+5 bonus spirit stones** from the sect vault."]
     from .story_mode import on_story_command_completed
 
-    msgs.extend(on_story_command_completed(player, "daily"))
-    return msgs
+    _msgs, next_node = on_story_command_completed(player, "daily")
+    return msgs, next_node
 
 
-def on_cultivated(player: Player) -> list[str]:
+def on_cultivated(player: Player) -> tuple[list[str], str | None]:
     player.novice_cultivates = int(getattr(player, "novice_cultivates", 0)) + 1
     if trial_complete(player) or int(getattr(player, "novice_trial_step", 0)) != 1:
-        return []
+        return [], None
     player.novice_trial_step = 2
-    msgs = [
-        "🎋 **Outer Disciple Trial — Step 2 complete.** "
-        "Your meridians stir — try **`/hunt`** in Mortal Grove."
-    ]
+    msgs: list[str] = []
     from .story_mode import on_story_command_completed
 
-    msgs.extend(on_story_command_completed(player, "cultivate"))
-    return msgs
+    _msgs, next_node = on_story_command_completed(player, "cultivate")
+    return msgs, next_node
 
 
-def on_hunt_victory(player: Player) -> list[str]:
+def on_hunt_victory(player: Player) -> tuple[list[str], str | None]:
     if trial_complete(player) or int(getattr(player, "novice_trial_step", 0)) != 2:
-        return []
+        return [], None
     player.novice_trial_step = 3
-    msgs = [
-        "🎋 **Outer Disciple Trial — Step 3 complete.** "
-        "Study your origin manual in **`/techniques`** → **Unlock Skill**."
-    ]
+    msgs: list[str] = []
     from .story_mode import on_story_command_completed
 
-    msgs.extend(on_story_command_completed(player, "hunt"))
-    return msgs
+    _msgs, next_node = on_story_command_completed(player, "hunt")
+    return msgs, next_node
 
 
-def on_technique_learned(session: Session, player: Player, technique_id: str) -> list[str]:
+def on_technique_learned(session: Session, player: Player, technique_id: str) -> tuple[list[str], str | None]:
     if trial_complete(player) or technique_id == "basic_strike":
-        return []
+        return [], None
     step = int(getattr(player, "novice_trial_step", 0))
     if step != 3:
-        return []
+        return [], None
     from .combat.loadout import get_learned_technique_ids
 
     learned = get_learned_technique_ids(session, player.id)
     if len(learned) < 2:
-        return []
+        return [], None
     player.novice_trial_step = 4
-    msgs = [
-        "🎋 **Outer Disciple Trial — Step 4 complete.** "
-        "Equip your art in **`/techniques`** → **Equip Skill**."
-    ]
+    msgs: list[str] = []
     from .story_mode import on_story_command_completed
 
-    msgs.extend(on_story_command_completed(player, "learn"))
-    return msgs
+    _msgs, next_node = on_story_command_completed(player, "learn")
+    return msgs, next_node
 
 
 def on_technique_equipped(
     session: Session,
     player: Player,
     technique_id: str,
-) -> list[str]:
+) -> tuple[list[str], str | None]:
     if trial_complete(player) or technique_id == "basic_strike":
-        return []
+        return [], None
     if int(getattr(player, "novice_trial_step", 0)) != 4:
-        return []
+        return [], None
     from .combat.loadout import get_learned_technique_ids, get_loadout
 
     if len(get_learned_technique_ids(session, player.id)) < 2:
-        return []
+        return [], None
     loadout = get_loadout(session, player.id)
     if not any(tid and tid != "basic_strike" for tid in loadout.values()):
-        return []
+        return [], None
     player.novice_trial_step = 5
-    msgs = [
-        "🎋 **Outer Disciple Trial — Step 5 complete.** "
-        "Your art is set — begin your **`/adventure`** (the sage awaits)."
-    ]
+    msgs: list[str] = []
     from .story_mode import on_story_command_completed
 
-    msgs.extend(on_story_command_completed(player, "equip"))
-    return msgs
+    _msgs, next_node = on_story_command_completed(player, "equip")
+    return msgs, next_node
 
 
-def on_adventure_completed(session: Session, player: Player, *, segments_cleared: int) -> tuple[list[str], bool]:
-    """Returns messages and whether to waive adventure cooldown."""
+def on_adventure_completed(session: Session, player: Player, *, segments_cleared: int) -> tuple[list[str], bool, str | None]:
+    """Returns (messages, waive_cd, next_node)."""
     from .adventure import SEGMENTS_PER_RUN
 
     messages: list[str] = []
     waive_cd = False
+    next_node: str | None = None
     was_first = int(getattr(player, "adventures_completed", 0) or 0) == 0
     finished_run = segments_cleared >= SEGMENTS_PER_RUN
 
@@ -399,28 +385,25 @@ def on_adventure_completed(session: Session, player: Player, *, segments_cleared
         )
         if not trial_complete(player) and _trial_step(player) == 5:
             player.novice_trial_step = 6
-            messages.append(
-                "🎋 **Outer Disciple Trial — Step 6 complete.** "
-                "Fill your qi and attempt **`/breakthrough`**."
-            )
             from .story_mode import on_story_command_completed
 
-            messages.extend(on_story_command_completed(player, "adventure"))
+            _msgs, next_node = on_story_command_completed(player, "adventure")
     elif was_first and segments_cleared > 0:
         messages.append(
             "_Your first journey is unfinished — the sage's trial still awaits. "
             "Use **`/adventure continue`** or start fresh with **`/adventure`**._"
         )
-    return messages, waive_cd
+    return messages, waive_cd, next_node
 
 
-def on_breakthrough_success(session: Session, player: Player, rng: random.Random) -> list[str]:
+def on_breakthrough_success(session: Session, player: Player, rng: random.Random) -> tuple[list[str], str | None]:
     msgs: list[str] = []
+    next_node: str | None = None
     if not trial_complete(player) and int(getattr(player, "novice_trial_step", 0)) == 6:
         player.novice_trial_step = TRIAL_COMPLETE_STEP
         drops: dict[str, int] = {}
         msgs.extend([
-            "🎋 **Outer Disciple Trial complete!** "
+            "🎋 **The Elder's trial is complete.** "
             "You leave mortality's first gate — the sect acknowledges your dao.",
         ])
         player.spirit_stones += 15
@@ -442,8 +425,8 @@ def on_breakthrough_success(session: Session, player: Player, rng: random.Random
             msgs.append("📜 **2 Technique Fragments** are awarded for your dedication.")
         from .story_mode import on_story_command_completed
 
-        msgs.extend(on_story_command_completed(player, "breakthrough"))
-    return msgs
+        _msgs, next_node = on_story_command_completed(player, "breakthrough")
+    return msgs, next_node
 
 
 def pick_novice_encounter(segment: int) -> AdventureEncounter | None:

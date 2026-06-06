@@ -387,7 +387,7 @@ class MiscCog(commands.Cog):
                 player.substage,
             )
             mod = get_character_modifiers(session, player)
-            offline_qi = collect_passive_qi(player, now, cap_mult=mod.offline_cap_mult)
+            offline_qi = collect_passive_qi(player, now, cap_mult=mod.offline_efficiency)
             player.last_active_at = now
             session.add(player)
             session.commit()

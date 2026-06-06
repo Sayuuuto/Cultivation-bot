@@ -29,6 +29,7 @@ from ..helpers import (
     realm_display,
     rng_for,
 )
+from ..views.confirm_view import ConfirmActionView
 
 logger = logging.getLogger("cultivation_bot")
 
@@ -194,25 +195,53 @@ class ClanCog(commands.Cog):
                 return
 
             clan = session.get(Clan, player.clan_id)
-            if clan is not None:
-                clan.member_count = max(0, clan.member_count - 1)
-                session.add(clan)
+            clan_name = clan.name if clan else "your clan"
 
-            player.clan_id = None
-            player.clan_role = "member"
-            player.clan_contribution_qi_total = 0
+            async def confirm_leave(interaction: discord.Interaction):
+                session2 = get_session()
+                try:
+                    player2 = ensure_player(session2, guild_id, discord_id)
+                    if player2 is None:
+                        await interaction.followup.send(NOT_STARTED_HINT, ephemeral=False)
+                        return
 
-            session.add(player)
-            session.commit()
-            logger.info("Clan left guild=%s user=%s", guild_id, discord_id)
+                    clan2 = session2.get(Clan, player2.clan_id)
+                    if clan2 is not None:
+                        clan2.member_count = max(0, clan2.member_count - 1)
+                        session2.add(clan2)
 
+                    player2.clan_id = None
+                    player2.clan_role = "member"
+                    player2.clan_contribution_qi_total = 0
+
+                    session2.add(player2)
+                    session2.commit()
+                    logger.info("Clan left guild=%s user=%s", guild_id, discord_id)
+
+                    embed = discord.Embed(
+                        title="You Leave the Clan",
+                        description="You lower the banner. The path ahead is yours alone.",
+                        color=discord.Color.orange(),
+                    )
+                    attach_guidance(embed, "clan-leave", player2, session2, cfg, utcnow())
+                    await interaction.followup.send(embed=embed, ephemeral=False)
+                finally:
+                    session2.close()
+
+            view = ConfirmActionView(
+                discord_id,
+                title="Leave Clan",
+                description=f"Are you sure you want to leave **{clan_name}**?",
+                confirm_label="Leave Clan",
+                on_confirm=confirm_leave,
+            )
             embed = discord.Embed(
-                title="You Leave the Clan",
-                description="You lower the banner. The path ahead is yours alone.",
+                title="Leave Clan?",
+                description=f"Are you sure you want to leave **{clan_name}**? This action cannot be undone.",
                 color=discord.Color.orange(),
             )
-            attach_guidance(embed, "clan-leave", player, session, cfg, utcnow())
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            msg = await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+            view.message = msg
         finally:
             session.close()
 

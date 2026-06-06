@@ -113,8 +113,8 @@ def test_external_forge_applies_one_to_one_power(session, player):
 
     gear = stats_from_gear_view(item)
     contrib = gear_combat_contribution(gear, "external")
-    assert contrib["external_strength"] == item.stat_power
-    assert contrib["internal_strength"] == 0
+    assert contrib["might"] == item.stat_power
+    assert contrib["qi_power"] == 0
 
 
 def test_outgrown_gear_does_not_apply_to_combat(session, player):
@@ -130,12 +130,12 @@ def test_outgrown_gear_does_not_apply_to_combat(session, player):
     session.commit()
 
     active_stats = get_total_equipment_stats(session, player.id, player_realm_index=0)
-    assert active_stats.power > 0
+    assert active_stats.might > 0
 
     player.realm_index = 2
     session.commit()
     inactive_stats = get_total_equipment_stats(session, player.id, player_realm_index=2)
-    assert inactive_stats.power == 0
+    assert inactive_stats.might == 0
     rows = {eq.slot: eq for eq in get_player_equipment(session, player.id)}
     assert rows["weapon"].gear_realm == 0
 
@@ -149,8 +149,8 @@ def test_gear_is_active_only_at_matching_realm():
 @pytest.mark.parametrize("realm_index", [0, 1, 4, 9])
 def test_foundation_stack_values_scale(realm_index):
     load_all_content()
-    low = body_stack_value("external_strength", 0)
-    high = body_stack_value("external_strength", realm_index)
+    low = body_stack_value("might", 0)
+    high = body_stack_value("might", realm_index)
     if realm_index == 0:
         assert high == low
     else:
@@ -160,7 +160,7 @@ def test_foundation_stack_values_scale(realm_index):
 def test_foundation_hp_stacks(session, player):
     load_all_content()
     player.foundation_body_json = '{"hp": 2}'
-    stats = {"hp": 100, "internal_strength": 10, "external_strength": 10}
+    stats = {"hp": 100, "qi_power": 10, "might": 10}
     apply_foundation_bonuses(player, stats)
     per = body_stack_value("hp", player.realm_index)
     assert stats["hp"] == 100 + 2 * per
@@ -195,7 +195,7 @@ def test_hp_path_gear_adds_max_hp(session, player):
 
     mod = get_character_modifiers(session, player)
     stats = compute_combat_stats(player, session, mod)
-    gear = EquipmentStats(hp=item.stat_hp, defense=item.stat_defense, fortune=item.stat_fortune, insight=item.stat_insight)
+    gear = EquipmentStats(vitality=item.stat_hp, warding=item.stat_defense, fortune=item.stat_fortune, finesse=item.stat_insight)
     contrib = gear_combat_contribution(gear, "hp")
     assert contrib["hp"] == item.stat_hp
     assert stats.max_hp >= 220 + item.stat_hp

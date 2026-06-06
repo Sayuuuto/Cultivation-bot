@@ -1,126 +1,126 @@
 {
   "body_stack_rates": {
-    "external_strength": 0.005,
-    "defense": 0.006,
-    "agility": 0.004,
+    "might": 0.005,
+    "armor": 0.006,
+    "speed": 0.004,
     "hp": 0.008
   },
   "meridian_stack_rates": {
-    "internal_strength": 0.006,
-    "spiritual_sense": 0.005,
-    "comprehension": 0.004,
+    "qi_power": 0.006,
+    "perception": 0.005,
+    "resolve": 0.004,
     "hp": 0.007
   },
   "body_stats": {
-    "external_strength": {"label": "External Strength"},
-    "defense": {"label": "Defense"},
-    "agility": {"label": "Agility"},
+    "might": {"label": "Might"},
+    "armor": {"label": "Armor"},
+    "speed": {"label": "Speed"},
     "hp": {"label": "Vitality"}
   },
   "body_caps_base": {
-    "external_strength": 5,
-    "defense": 3,
-    "agility": 2,
+    "might": 5,
+    "armor": 3,
+    "speed": 2,
     "hp": 4
   },
   "body_cap_per_realm": {
-    "external_strength": 2,
-    "defense": 1,
-    "agility": 1,
+    "might": 2,
+    "armor": 1,
+    "speed": 1,
     "hp": 2
   },
   "body_input_tiers": [
     {
       "min_realm": 0,
-      "external_strength": {"minor_beast_core": 1, "green_dew_herb": 2},
-      "defense": {"minor_beast_core": 1, "bamboo_resin": 1},
-      "agility": {"minor_beast_core": 1, "green_dew_herb": 1},
+      "might": {"minor_beast_core": 1, "green_dew_herb": 2},
+      "armor": {"minor_beast_core": 1, "bamboo_resin": 1},
+      "speed": {"minor_beast_core": 1, "green_dew_herb": 1},
       "hp": {"minor_beast_core": 2, "bamboo_resin": 1}
     },
     {
       "min_realm": 1,
-      "external_strength": {"refined_beast_core": 1, "spirit_iron_shard": 2},
-      "defense": {"refined_beast_core": 1, "spirit_iron_shard": 1},
-      "agility": {"refined_beast_core": 1, "ember_moss": 1},
+      "might": {"refined_beast_core": 1, "spirit_iron_shard": 2},
+      "armor": {"refined_beast_core": 1, "spirit_iron_shard": 1},
+      "speed": {"refined_beast_core": 1, "ember_moss": 1},
       "hp": {"refined_beast_core": 2, "spirit_iron_shard": 1}
     },
     {
       "min_realm": 2,
-      "external_strength": {"refined_beast_core": 1, "ancient_dust": 2},
-      "defense": {"refined_beast_core": 1, "moonlotus": 1},
-      "agility": {"refined_beast_core": 1, "script_shard": 1},
+      "might": {"refined_beast_core": 1, "ancient_dust": 2},
+      "armor": {"refined_beast_core": 1, "moonlotus": 1},
+      "speed": {"refined_beast_core": 1, "script_shard": 1},
       "hp": {"refined_beast_core": 2, "ancient_dust": 1}
     },
     {
       "min_realm": 3,
-      "external_strength": {"hollow_pearl": 1, "bog_iron": 2},
-      "defense": {"hollow_pearl": 1, "swamp_moss": 2},
-      "agility": {"hollow_pearl": 1, "bog_iron": 1},
+      "might": {"hollow_pearl": 1, "bog_iron": 2},
+      "armor": {"hollow_pearl": 1, "swamp_moss": 2},
+      "speed": {"hollow_pearl": 1, "bog_iron": 1},
       "hp": {"hollow_pearl": 2, "swamp_moss": 1}
     },
     {
       "min_realm": 4,
-      "external_strength": {"nascent_soul_core": 1, "souljade_leaf": 2},
-      "defense": {"nascent_soul_core": 1, "souljade_leaf": 1},
-      "agility": {"nascent_soul_core": 1, "script_shard": 1},
+      "might": {"nascent_soul_core": 1, "souljade_leaf": 2},
+      "armor": {"nascent_soul_core": 1, "souljade_leaf": 1},
+      "speed": {"nascent_soul_core": 1, "script_shard": 1},
       "hp": {"nascent_soul_core": 2, "souljade_leaf": 1}
     },
     {
       "min_realm": 5,
-      "external_strength": {"abyssal_bone": 1, "severing_silk": 2},
-      "defense": {"abyssal_bone": 1, "severing_silk": 1},
-      "agility": {"abyssal_bone": 1, "refined_beast_core": 1},
+      "might": {"abyssal_bone": 1, "severing_silk": 2},
+      "armor": {"abyssal_bone": 1, "severing_silk": 1},
+      "speed": {"abyssal_bone": 1, "refined_beast_core": 1},
       "hp": {"abyssal_bone": 2, "severing_silk": 1}
     },
     {
       "min_realm": 6,
-      "external_strength": {"void_crystal": 1, "void_dust": 2},
-      "defense": {"void_crystal": 1, "void_dust": 1},
-      "agility": {"void_crystal": 1, "ancient_dust": 1},
+      "might": {"void_crystal": 1, "void_dust": 2},
+      "armor": {"void_crystal": 1, "void_dust": 1},
+      "speed": {"void_crystal": 1, "ancient_dust": 1},
       "hp": {"void_crystal": 2, "void_dust": 1}
     },
     {
       "min_realm": 7,
-      "external_strength": {"ascendant_ichor": 1, "immortal_jade": 2},
-      "defense": {"ascendant_ichor": 1, "immortal_jade": 1},
-      "agility": {"ascendant_ichor": 1, "void_crystal": 1},
+      "might": {"ascendant_ichor": 1, "immortal_jade": 2},
+      "armor": {"ascendant_ichor": 1, "immortal_jade": 1},
+      "speed": {"ascendant_ichor": 1, "void_crystal": 1},
       "hp": {"ascendant_ichor": 2, "immortal_jade": 1}
     },
     {
       "min_realm": 8,
-      "external_strength": {"transcendence_pearl": 1, "heavenly_silk": 2},
-      "defense": {"transcendence_pearl": 1, "heavenly_silk": 1},
-      "agility": {"transcendence_pearl": 1, "ascendant_ichor": 1},
+      "might": {"transcendence_pearl": 1, "heavenly_silk": 2},
+      "armor": {"transcendence_pearl": 1, "heavenly_silk": 1},
+      "speed": {"transcendence_pearl": 1, "ascendant_ichor": 1},
       "hp": {"transcendence_pearl": 2, "heavenly_silk": 1}
     },
     {
       "min_realm": 9,
-      "external_strength": {"imperial_beast_core": 1, "monarch_jade": 2},
-      "defense": {"imperial_beast_core": 1, "monarch_jade": 1},
-      "agility": {"imperial_beast_core": 1, "transcendence_pearl": 1},
+      "might": {"imperial_beast_core": 1, "monarch_jade": 2},
+      "armor": {"imperial_beast_core": 1, "monarch_jade": 1},
+      "speed": {"imperial_beast_core": 1, "transcendence_pearl": 1},
       "hp": {"imperial_beast_core": 2, "monarch_jade": 1}
     }
   ],
   "meridian_stats": {
-    "internal_strength": {"label": "Internal Strength", "cost": 2},
-    "spiritual_sense": {"label": "Spirit Sense", "cost": 2},
+    "qi_power": {"label": "Qi Power", "cost": 2},
+    "perception": {"label": "Perception", "cost": 2},
     "hp": {"label": "Vitality", "cost": 1},
-    "comprehension": {"label": "Comprehension", "cost": 3}
+    "resolve": {"label": "Resolve", "cost": 3}
   },
   "meridian_caps_base": {
-    "internal_strength": 3,
-    "spiritual_sense": 3,
+    "qi_power": 3,
+    "perception": 3,
     "hp": 4,
-    "comprehension": 2
+    "resolve": 2
   },
   "meridian_cap_per_realm": {
-    "internal_strength": 1,
-    "spiritual_sense": 1,
+    "qi_power": 1,
+    "perception": 1,
     "hp": 1,
-    "comprehension": 1
+    "resolve": 1
   },
-  "lesser_temper_priority": ["external_strength", "defense", "hp", "agility"],
+  "lesser_temper_priority": ["might", "armor", "hp", "speed"],
   "gather_meridian_base_chance": 0.07,
-  "gather_meridian_per_comprehension": 0.0015,
+  "gather_meridian_per_perception": 0.0015,
   "cultivate_meridian_chance": 0.04
 }

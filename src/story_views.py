@@ -279,6 +279,15 @@ class StoryView(discord.ui.View):
             self.pending.story_path = path_id
             nxt = resolve_next_node(node) or "spirit_reveal"
             advance_pending(self.pending, nxt)
+            # Defer first so on_finalize can send followups; then disable buttons.
+            await interaction.response.defer()
+            for child in self.children:
+                if isinstance(child, discord.ui.Button):
+                    child.disabled = True
+            try:
+                await interaction.edit_original_response(view=self)
+            except discord.HTTPException:
+                pass
             if self.on_finalize and nxt == "spirit_reveal":
                 await self.on_finalize(interaction, self.pending)
             elif self.on_pending_update:
@@ -296,6 +305,7 @@ class StoryView(discord.ui.View):
                 handler = self.on_pending_update or self._default_pending_update
                 await handler(interaction, self.pending)
             elif self.player_id is not None and self.on_player_update:
+                await interaction.response.defer()
                 await self.on_player_update(interaction, self.player_id, next_node)
 
         return callback
@@ -317,6 +327,7 @@ class StoryView(discord.ui.View):
     def _make_player_continue_callback(self, next_node: str):
         async def callback(interaction: discord.Interaction) -> None:
             if self.on_player_update and self.player_id is not None:
+                await interaction.response.defer()
                 await self.on_player_update(interaction, self.player_id, next_node)
 
         return callback
@@ -455,5 +466,10 @@ async def send_story_node_for_player(
         await interaction.response.edit_message(embed=embed, view=view)
     elif edit:
         await interaction.edit_original_response(embed=embed, view=view)
+    elif interaction.response.is_done():
+        await interaction.edit_original_response(embed=embed, view=view)
     else:
-        await interaction.followup.send(embed=embed, view=view)
+        kwargs = {"embed": embed}
+        if view is not None:
+            kwargs["view"] = view
+        await interaction.followup.send(**kwargs)

@@ -26,9 +26,9 @@ from src.models import Player
 
 
 def test_qi_cap_scales_with_substage():
-    assert qi_cap(0, 0) == 100
-    assert qi_cap(0, 1) == 150
-    assert qi_cap(0, 2) == 220
+    assert qi_cap(0, 0) == 20
+    assert qi_cap(0, 1) == 40
+    assert qi_cap(0, 2) == 60
 
 
 def test_to_utc_handles_naive_and_aware():
@@ -67,7 +67,8 @@ def test_cultivate_increases_qi(player: Player, cfg: Config):
 
 
 def test_breakthrough_requires_full_qi(player: Player, cfg: Config):
-    player.qi = 50
+    cap = qi_cap(player.realm_index, player.substage)
+    player.qi = cap - 1
     res = breakthrough(player, cfg, rng=random.Random(1))
     assert res.success is False
     assert "not sufficient" in res.message.lower()
@@ -93,6 +94,8 @@ def test_breakthrough_success_advances_substage(player: Player, cfg: Config):
 
 
 def test_breakthrough_failure_reduces_qi(player: Player, cfg: Config):
+    player.realm_index = 1
+    player.substage = 0
     cap = qi_cap(player.realm_index, player.substage)
     player.qi = cap
     before = player.qi
@@ -113,9 +116,11 @@ def test_breakthrough_chance_is_fraction_not_percent(player: Player, cfg: Config
     """96% display means success_chance=0.96; roll 0.95 should succeed, 0.97 should fail."""
     from src.modifiers import CharacterModifiers
 
+    player.realm_index = 1
+    player.substage = 0
     cap = qi_cap(player.realm_index, player.substage, player)
     player.qi = cap
-    mod = CharacterModifiers(breakthrough_stability=0.06)
+    mod = CharacterModifiers(breakthrough_luck=0.115)
     preview = compute_breakthrough_preview(player, mod)
     assert preview.success_chance == pytest.approx(0.96, abs=0.001)
     res = breakthrough(player, cfg, rng=FixedRoll(0.95), mod=mod)

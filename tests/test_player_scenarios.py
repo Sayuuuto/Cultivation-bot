@@ -73,7 +73,7 @@ def ready_player(session, integration_env):
             origin="Mountain Rises",
             spirit_root="Pure Jade Root",
             moral_path="neutral",
-            novice_trial_step=6,
+            novice_trial_step=7,
             adventures_completed=1,
             realm_index=0,
             substage=0,

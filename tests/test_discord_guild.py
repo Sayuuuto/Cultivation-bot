@@ -102,5 +102,5 @@ def test_abode_welcome_intro_is_in_world():
     assert "cloud walker" in text
     for phrase in ("mvp", "scaffold", "legacy", "not chosen", "not at"):
         assert phrase not in text
-    assert "/daily" in text
-    assert "/profile" in text
+    assert "abode" in text
+    assert "elder" in text

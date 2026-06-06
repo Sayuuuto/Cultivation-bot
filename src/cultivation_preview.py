@@ -53,7 +53,7 @@ def preview_cultivate_qi(
     cfg: Config,
     now,
 ) -> CultivatePreview:
-    qi_mult = mod.cultivate_qi_mult * mod.qi_gathering_mult
+    qi_mult = mod.cultivate_speed
     base = cultivate_base_qi_gain(
         player.realm_index,
         substage=player.substage,
@@ -67,7 +67,7 @@ def preview_cultivate_qi(
         player,
         now,
         cfg.offline_cap_minutes,
-        cap_mult=mod.offline_cap_mult,
+        cap_mult=mod.offline_efficiency,
     )
 
     return CultivatePreview(
@@ -79,7 +79,7 @@ def preview_cultivate_qi(
             player.realm_index,
             substage=player.substage,
             player=player,
-            cap_mult=mod.offline_cap_mult,
+            cap_mult=mod.offline_efficiency,
         ),
         active_qi_min=active_min,
         active_qi_max=active_max,
@@ -130,10 +130,8 @@ def format_passive_qi_line(preview: CultivatePreview) -> str:
 
 def format_active_cultivate_line(preview: CultivatePreview, mod: CharacterModifiers) -> str:
     pill_bits: list[str] = []
-    if mod.qi_gathering_mult > 1.0:
-        pill_bits.append(f"Qi Gathering ×{mod.qi_gathering_mult:.2f}")
-    if mod.cultivate_qi_mult != 1.0:
-        pill_bits.append(f"dao ×{mod.cultivate_qi_mult:.2f}")
+    if mod.cultivate_speed > 1.0:
+        pill_bits.append(f"Cultivation Speed ×{mod.cultivate_speed:.2f}")
     bonus = f" ({' · '.join(pill_bits)})" if pill_bits else ""
     return (
         f"**`/cultivate`**: **{preview.active_qi_min}–{preview.active_qi_max} Qi** per use "

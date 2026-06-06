@@ -50,19 +50,16 @@ class ExploreView(discord.ui.View):
         self.total_steps = total_steps
 
         for choice in choices[:4]:
-            label = choice.label[:80]
+            label = self._format_choice_label(choice)
             style = discord.ButtonStyle.primary
             if choice.type == "combat":
-                label = f"\u2694\ufe0f {label}"
                 style = discord.ButtonStyle.danger
             elif choice.type in ("rest",):
-                label = f"\U0001f49a {label}"
                 style = discord.ButtonStyle.success
             elif choice.type == "dao_event":
-                label = f"\u2728 {label}"
                 style = discord.ButtonStyle.success
             button = discord.ui.Button(
-                label=label,
+                label=label[:80],
                 style=style,
                 custom_id=f"explr:{explore_session_id}:{choice.id}",
             )
@@ -86,6 +83,44 @@ class ExploreView(discord.ui.View):
             return False
         return True
 
+    @staticmethod
+    def _format_choice_label(choice) -> str:
+        base = choice.label
+        t = getattr(choice, "type", "safe_skip")
+        if t == "combat":
+            return f"\u2694\ufe0f {base}"
+        if t == "rest":
+            heal = getattr(choice, "heal_pct", 0)
+            pct = int(heal * 100) if heal > 0 else 30
+            return f"\U0001f49a {base} (Heal {pct}%)"
+        if t == "dao_event":
+            return f"\u2728 {base}"
+        if t == "pay_stones":
+            amt = getattr(choice, "amount", 0)
+            return f"\U0001f48e {base} ({amt} stones)"
+        if t in ("stat_check", "trap"):
+            icon = "\U0001f6e1\ufe0f" if t == "stat_check" else "\u26a0\ufe0f"
+            stats = getattr(choice, "stats", [])
+            stat_labels = {
+                "might": "ATK",
+                "qi_power": "DEF",
+                "perception": "Spirit",
+                "resolve": "Int",
+                "speed": "Speed",
+                "armor": "Armor",
+                "karma": "Karma",
+                "luck": "Luck",
+            }
+            hints = "+".join(stat_labels.get(s, s) for s in stats[:3])
+            if hints:
+                return f"{icon} {base} ({hints})"
+            return f"{icon} {base}"
+        if t == "risk_reward":
+            fail = getattr(choice, "fail_damage_pct", 0)
+            fail_pct = int(fail * 100) if fail > 0 else 15
+            return f"\U0001f3b2 {base} ({fail_pct}% fail)"
+        return base
+
     def _make_choice_callback(self, choice_id: str):
         async def callback(interaction: discord.Interaction):
             await self._handle_choice(interaction, choice_id)
@@ -98,33 +133,33 @@ class ExploreView(discord.ui.View):
     ) -> None:
         from ...explore import resolve_choice
 
+        await interaction.response.defer()
         session = get_session()
         try:
             cfg = get_config()
             discord_id = get_discord_id(interaction.user)
             player = ensure_player(session, self.guild_id, discord_id)
             if player is None:
-                await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
+                await interaction.followup.send(NOT_STARTED_HINT, ephemeral=False)
                 return
 
             explore_row = session.get(ExploreSession, self.explore_session_id)
             if explore_row is None:
-                await interaction.response.send_message("Expedition session not found.", ephemeral=False)
+                await interaction.followup.send("Expedition session not found.", ephemeral=False)
                 return
 
             result, err = resolve_choice(
                 session, player, explore_row, choice_id,
             )
             if err:
-                await interaction.response.send_message(err, ephemeral=False)
+                await interaction.followup.send(err, ephemeral=False)
                 return
             assert result is not None
 
             if result.combat_id:
-                from ...combat.loadout import ensure_starter_techniques, get_equipped_active_techniques
+                from ...combat.loadout import get_equipped_active_techniques
                 from ...combat.session import get_active_combat, load_combat_state
 
-                ensure_starter_techniques(session, player.id)
                 techniques = get_equipped_active_techniques(session, player.id)
                 active_combat = get_active_combat(session, player.id)
                 combat_state = load_combat_state(active_combat) if active_combat else None
@@ -151,7 +186,7 @@ class ExploreView(discord.ui.View):
                     player_sealed=combat_state.player.sealed if combat_state else False,
                 )
                 session.commit()
-                await interaction.response.edit_message(embed=embed, view=view)
+                await interaction.edit_original_response(embed=embed, view=view)
                 return
 
             state_raw = json.loads(explore_row.state_json) if isinstance(explore_row.state_json, str) else {}
@@ -167,7 +202,7 @@ class ExploreView(discord.ui.View):
                     embed.add_field(name="Granted", value="\n".join(msgs[:8]), inline=False)
                 attach_guidance(embed, "explore", player, session, cfg, utcnow())
                 session.commit()
-                await interaction.response.edit_message(embed=embed, view=None)
+                await interaction.edit_original_response(embed=embed, view=None)
                 return
 
             areas = load_explore_areas()
@@ -195,23 +230,31 @@ class ExploreView(discord.ui.View):
                 self.area_name, result.new_step + 1, result.total_steps,
             )
             session.commit()
-            await interaction.response.edit_message(embed=embed, view=view)
+            await interaction.edit_original_response(embed=embed, view=view)
+        except Exception:
+            logger.exception("Error in explore choice callback (choice_id=%s)", choice_id)
+            try:
+                if not interaction.response.is_done():
+                    await interaction.followup.send("Something went wrong processing your choice.", ephemeral=True)
+            except Exception:
+                pass
         finally:
             session.close()
 
     async def _retreat_callback(self, interaction: discord.Interaction) -> None:
+        await interaction.response.defer()
         session = get_session()
         try:
             cfg = get_config()
             discord_id = get_discord_id(interaction.user)
             player = ensure_player(session, self.guild_id, discord_id)
             if player is None:
-                await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
+                await interaction.followup.send(NOT_STARTED_HINT, ephemeral=False)
                 return
 
             explore_row = session.get(ExploreSession, self.explore_session_id)
             if explore_row is None:
-                await interaction.response.send_message("Expedition not found.", ephemeral=False)
+                await interaction.followup.send("Expedition not found.", ephemeral=False)
                 return
 
             result = retreat(session, player, explore_row)
@@ -224,7 +267,14 @@ class ExploreView(discord.ui.View):
                 embed.add_field(name="Granted", value="\n".join(msgs[:8]), inline=False)
             attach_guidance(embed, "explore", player, session, cfg, utcnow())
             session.commit()
-            await interaction.response.edit_message(embed=embed, view=None)
+            await interaction.edit_original_response(embed=embed, view=None)
+        except Exception:
+            logger.exception("Error in explore retreat callback")
+            try:
+                if not interaction.response.is_done():
+                    await interaction.followup.send("Something went wrong during retreat.", ephemeral=True)
+            except Exception:
+                pass
         finally:
             session.close()
 

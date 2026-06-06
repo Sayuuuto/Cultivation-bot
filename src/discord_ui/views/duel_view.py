@@ -48,7 +48,7 @@ class DuelCombatView(discord.ui.View):
         technique_cooldowns: dict[str, int] | None = None,
         player_sealed: bool = False,
     ):
-        super().__init__(timeout=900)
+        super().__init__()
         self.match_id = match_id
         self.guild_id = guild_id
         self.participant_ids = participant_ids
@@ -207,14 +207,6 @@ class DuelCombatView(discord.ui.View):
             await interaction.followup.send("That action could not be resolved.", ephemeral=False)
         finally:
             session.close()
-
-    async def on_timeout(self) -> None:
-        self._disable_buttons()
-        if self.message is not None:
-            try:
-                await self.message.edit(view=self)
-            except discord.HTTPException:
-                pass
 
 
 class PvpCombatView(DuelCombatView):

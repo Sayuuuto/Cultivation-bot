@@ -34,7 +34,7 @@ def get_character_modifiers(session: Session, player: Player) -> CharacterModifi
         _apply_additive(mod, root.values)
 
     _, setback_mult = karma_breakthrough_modifiers(player.karma)
-    mod.breakthrough_setback_mult *= setback_mult
+    mod.setback_resistance *= setback_mult
 
     affix_vals = get_player_affix_modifiers(session, player.id)
     _apply_additive(mod, affix_vals)
@@ -49,9 +49,9 @@ def get_character_modifiers(session: Session, player: Player) -> CharacterModifi
 
 def compute_adventure_power(mod: CharacterModifiers, player: Player) -> float:
     base = player.realm_index * 10 + player.substage * 3 + player.qi / 100
-    base *= 1.0 + mod.adventure_success + mod.dungeon_damage * 0.5 + mod.pvp_power * 0.3
+    base *= 1.0 + mod.adventure_luck + mod.damageBonus * 0.3
     return base
 
 
 def compute_adventure_defense(mod: CharacterModifiers) -> float:
-    return 1.0 + mod.adventure_defense + mod.dungeon_defense
+    return 1.0 + mod.damageReduction

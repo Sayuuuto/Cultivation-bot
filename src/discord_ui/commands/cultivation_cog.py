@@ -40,7 +40,7 @@ from ...game import (
 )
 from ...models import Clan, Player
 from ...novice_trial import on_daily_claimed
-from ...story_delivery import maybe_sync_elder_story
+from ...story_delivery import maybe_sync_elder_story, send_elder_followup
 from ...ui.embeds import build_cultivate_embed
 
 logger = logging.getLogger("cultivation_bot")
@@ -79,8 +79,10 @@ class CultivationCog(commands.Cog):
                     remaining,
                     player.last_cultivate_at,
                 )
+                haste = get_haste_reduction_seconds(session, player.id, "cultivate")
+                extra = f" (pill haste: −{format_seconds(haste)})" if haste > 0 else ""
                 await interaction.response.send_message(
-                    f"You are not ready to cultivate yet. Wait {format_seconds(remaining)}.",
+                    f"Your qi pool still settles. Wait {format_seconds(remaining)}.{extra}",
                     ephemeral=False,
                 )
                 return
@@ -138,12 +140,21 @@ class CultivationCog(commands.Cog):
             )
             attach_guidance(embed, "cultivate", player, session, cfg, now)
             await interaction.response.send_message(embed=embed, ephemeral=False)
-            await maybe_sync_elder_story(
-                interaction,
-                session,
-                player,
-                on_player_update=_story_continue_after_creation,
-            )
+            from ...story_mode import elder_trial_active
+            if elder_trial_active(player):
+                await send_elder_followup(
+                    interaction,
+                    session,
+                    player,
+                    on_player_update=_story_continue_after_creation,
+                )
+            else:
+                await maybe_sync_elder_story(
+                    interaction,
+                    session,
+                    player,
+                    on_player_update=_story_continue_after_creation,
+                )
             session.commit()
         finally:
             session.close()
@@ -201,7 +212,7 @@ class CultivationCog(commands.Cog):
 
             now = utcnow()
             mod = get_character_modifiers(session, player)
-            collect_passive_qi(player, now, cap_mult=mod.offline_cap_mult)
+            collect_passive_qi(player, now, cap_mult=mod.offline_efficiency)
             player.last_active_at = now
 
             daily_remaining = activity_cooldown_remaining(
@@ -237,7 +248,7 @@ class CultivationCog(commands.Cog):
             )
             player.spirit_stones += stones
             player.qi += qi
-            trial_msgs = on_daily_claimed(player)
+            trial_msgs, story_next = on_daily_claimed(player)
             schedule_player_reminders(session, player, cfg, "daily", now=now)
 
             from ...foundation import apply_lesser_body_temper
@@ -254,25 +265,35 @@ class CultivationCog(commands.Cog):
             session.add(player)
             session.commit()
 
+            from ...story_mode import elder_trial_active
+            in_trial = elder_trial_active(player)
             embed = discord.Embed(
                 title="Daily Stipend",
                 description=(
                     f"You accept the day's offerings.\n"
                     f"+{stones} spirit stones, +{qi} qi."
                     + temper_line
-                    + (f"\n\n" + "\n".join(trial_msgs) if trial_msgs else "")
+                    + (f"\n\n" + "\n".join(trial_msgs) if trial_msgs and not in_trial else "")
                 ),
                 color=discord.Color.purple(),
             )
             embed.add_field(name="Daily Streak", value=str(player.daily_streak), inline=True)
             attach_guidance(embed, "daily", player, session, cfg, now)
             await interaction.response.send_message(embed=embed, ephemeral=False)
-            await maybe_sync_elder_story(
-                interaction,
-                session,
-                player,
-                on_player_update=_story_continue_after_creation,
-            )
+            if in_trial:
+                await send_elder_followup(
+                    interaction,
+                    session,
+                    player,
+                    on_player_update=_story_continue_after_creation,
+                )
+            else:
+                await maybe_sync_elder_story(
+                    interaction,
+                    session,
+                    player,
+                    on_player_update=_story_continue_after_creation,
+                )
             session.commit()
         finally:
             session.close()

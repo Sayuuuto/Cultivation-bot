@@ -445,29 +445,33 @@ def advance_player_node(player: Player, node_id: str) -> None:
     player.story_step = node_id
 
 
-def on_story_command_completed(player: Player, command: str) -> list[str]:
-    """Advance story when a awaited game command completes."""
+def on_story_command_completed(player: Player, command: str) -> tuple[list[str], str | None]:
+    """Advance story when an awaited game command completes.
+
+    Returns (messages, next_node) — next_node is the story node the story
+    advanced to, or None if no advancement occurred.
+    """
     if story_complete(player) and player_story_chapter(player) == 1:
-        return []
+        return [], None
     chapter = player_story_chapter(player)
     if chapter != 1:
-        return []
+        return [], None
 
     step = player_story_step(player)
     node = get_node(1, step)
     if node is None:
-        return []
+        return [], None
 
     awaited = node_await_command(node)
     if awaited != command:
-        return []
+        return [], None
 
     next_id = resolve_next_node(node)
     if not next_id:
-        return []
+        return [], None
 
     player.story_step = next_id
-    return []
+    return [], next_id
 
 
 def on_chapter2_node_reached(player: Player, node_id: str) -> None:

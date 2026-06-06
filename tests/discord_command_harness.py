@@ -91,7 +91,6 @@ class _MockResponse:
         self.captured = captured
         self._done = False
 
-    @property
     def is_done(self) -> bool:
         return self._done
 
@@ -259,6 +258,7 @@ def make_mock_interaction(
     interaction.followup = followup
     interaction.client = client
     interaction.id = 1
+    interaction.edit_original_response = AsyncMock()
     interaction._captured = captured
     return interaction
 
@@ -287,6 +287,14 @@ def install_bot_db_patch(session: Session, monkeypatch: Any) -> None:
         "src.discord_ui.commands.clan_cog",
         "src.discord_ui.commands.sect_cog",
         "src.discord_ui.commands.duel_cog",
+        "src.discord_ui.commands.explore_cog",
+        "src.discord_ui.views.adventure_view",
+        "src.discord_ui.views.combat_view",
+        "src.discord_ui.views.cultivate_view",
+        "src.discord_ui.views.explore_view",
+        "src.discord_ui.views.duel_view",
+        "src.discord_ui.helpers",
+        "src.discord_ui.autocomplete",
     ):
         try:
             monkeypatch.setattr(f"{_mod}.get_session", _test_session)
@@ -550,7 +558,7 @@ def prepare_ready_player(session: Session, player: Any, *, guild_id: str | None 
     """Clear timers and grant resources so activity commands succeed."""
     player.guild_id = guild_id or str(TEST_GUILD_ID)
     player.discord_id = str(TEST_USER_ID)
-    player.novice_trial_step = 6
+    player.novice_trial_step = 7
     player.realm_index = max(player.realm_index, 1)
     player.qi = max(player.qi, 80)
     player.spirit_stones = max(player.spirit_stones, 500)

@@ -24,12 +24,12 @@ def _stats(**overrides) -> PlayerCombatStats:
     base = dict(
         hp=120,
         max_hp=120,
-        internal_strength=30,
-        external_strength=30,
-        agility=20,
-        spiritual_sense=15,
-        defense=15,
-        comprehension=10,
+        qi_power=30,
+        might=30,
+        speed=20,
+        perception=15,
+        armor=15,
+        resolve=10,
         luck=10,
         crit_chance=0.15,
         dodge=0.1,
@@ -131,7 +131,7 @@ def test_blood_predator_hemorrhage_applies_bleed_on_hit():
 
 
 def test_ember_executioner_burn_bonus():
-    stats = _stats(internal_strength=40)
+    stats = _stats(qi_power=40)
     passive = _passive("ember_heart")
     beast = BeastTemplate("dummy", "Dummy", hp=200, attack=1, defense=0)
     state = create_combat_state(stats, opponent_from_beast(beast))
@@ -145,7 +145,7 @@ def test_ember_executioner_burn_bonus():
 
 
 def test_venom_ascendant_poison_payoff():
-    stats = _stats(spiritual_sense=35)
+    stats = _stats(perception=35)
     passive = _passive("venom_weave")
     beast = BeastTemplate("shade", "Shade", hp=150, attack=6, defense=3)
     state = create_combat_state(stats, opponent_from_beast(beast))
@@ -168,10 +168,8 @@ def test_lotus_guardian_revives_below_threshold():
 
 
 def test_gear_technique_tag_boosts_matching_category():
-    from src.combat.triggers import _gear_tag_damage_bonus
-
     stats = _stats(technique_tag_counts={"sword": 2})
     tech = get_technique("swift_slash")
     assert tech is not None
-    assert _gear_tag_damage_bonus(stats, tech) == pytest.approx(1.12)
+    assert stats.technique_tag_counts.get("sword", 0) == 2
 

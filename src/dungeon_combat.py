@@ -303,9 +303,9 @@ def _spawn_players(
             is_enemy=False,
             player_id=player.id,
             discord_id=member.discord_id,
-            attack=stats.external_strength,
-            defense=stats.defense,
-            agility=stats.agility,
+            attack=stats.might,
+            defense=stats.armor,
+            agility=stats.speed,
             combatant=CombatantState(hp=stats.max_hp, max_hp=stats.max_hp),
         )
     return fighters
@@ -492,7 +492,7 @@ def _enemy_attack(
     from .combat.effects import attacker_damage_multiplier
 
     raw = actor.attack * rng.uniform(0.9, 1.15)
-    damage = max(1, int(raw - target.defense * 0.35))
+    damage = max(1, int(raw - target.defense * 0.40))
     mult = attacker_damage_multiplier(actor.combatant)
     if mult < 1.0:
         damage = max(1, int(damage * mult))
@@ -509,7 +509,7 @@ def _enemy_attack(
     hp_text = format_compact_number(max(0, target.combatant.hp))
     state.log.append(
         f"**{actor.name}** strikes **{target.name}** for **{damage_text}** "
-        f"(**{hp_text}** HP)."
+        f"(**{hp_text}** vitality)."
     )
 
 

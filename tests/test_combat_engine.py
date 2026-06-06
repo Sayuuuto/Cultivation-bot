@@ -59,12 +59,12 @@ def _stats(**overrides) -> PlayerCombatStats:
     base = dict(
         hp=120,
         max_hp=120,
-        internal_strength=30,
-        external_strength=30,
-        agility=20,
-        spiritual_sense=15,
-        defense=15,
-        comprehension=10,
+        qi_power=30,
+        might=30,
+        speed=20,
+        perception=15,
+        armor=15,
+        resolve=10,
         luck=10,
         crit_chance=0.15,
         dodge=0.1,
@@ -120,12 +120,12 @@ def test_compute_dot_potency_tracks_strength():
     low = PlayerCombatStats(
         hp=200,
         max_hp=200,
-        internal_strength=40,
-        external_strength=40,
-        agility=25,
-        spiritual_sense=20,
-        defense=12,
-        comprehension=10,
+        qi_power=40,
+        might=40,
+        speed=25,
+        perception=20,
+        armor=12,
+        resolve=10,
         luck=10,
         crit_chance=0.05,
         dodge=0.05,
@@ -133,12 +133,12 @@ def test_compute_dot_potency_tracks_strength():
     high = PlayerCombatStats(
         hp=200,
         max_hp=200,
-        internal_strength=450,
-        external_strength=450,
-        agility=160,
-        spiritual_sense=120,
-        defense=120,
-        comprehension=45,
+        qi_power=450,
+        might=450,
+        speed=160,
+        perception=120,
+        armor=120,
+        resolve=45,
         luck=45,
         crit_chance=0.05,
         dodge=0.05,
@@ -181,7 +181,7 @@ def test_execute_turn_deals_damage(session, player):
 
 
 def test_basic_strike_weaker_than_starter_arts():
-    stats = _stats(internal_strength=20, external_strength=20)
+    stats = _stats(qi_power=20, might=20)
     basic = get_technique("basic_strike")
     ember = get_technique("ember_palm")
     swift = get_technique("swift_slash")

@@ -70,7 +70,7 @@ def ready_traveler(session, adventure_env):
             origin="Mountain Rises",
             spirit_root="Pure Jade Root",
             moral_path="neutral",
-            novice_trial_step=6,
+            novice_trial_step=7,
             adventures_completed=2,
             realm_index=1,
             substage=0,
@@ -207,6 +207,7 @@ def test_deep_forest_raid_opens_guardian_combat(
         return rng
 
     monkeypatch.setattr("src.bot.rng_for", _rng_for)
+    monkeypatch.setattr("src.discord_ui.views.adventure_view.rng_for", _rng_for)
     install_weak_adventure_monster(monkeypatch)
     install_combat_state_probe(monkeypatch)
     clear_combat_state_probe()

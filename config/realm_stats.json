@@ -2,103 +2,93 @@
   "realm_baselines": [
     {
       "hp": 220,
-      "internal_strength": 40,
-      "external_strength": 40,
-      "agility": 24,
-      "spiritual_sense": 18,
-      "defense": 12,
-      "comprehension": 12,
-      "luck": 12
+      "qi_power": 40,
+      "might": 40,
+      "speed": 24,
+      "perception": 30,
+      "armor": 12,
+      "resolve": 3
     },
     {
       "hp": 2500,
-      "internal_strength": 450,
-      "external_strength": 450,
-      "agility": 160,
-      "spiritual_sense": 120,
-      "defense": 120,
-      "comprehension": 45,
-      "luck": 45
+      "qi_power": 450,
+      "might": 450,
+      "speed": 160,
+      "perception": 165,
+      "armor": 120,
+      "resolve": 16
     },
     {
       "hp": 25000,
-      "internal_strength": 4500,
-      "external_strength": 4500,
-      "agility": 1200,
-      "spiritual_sense": 900,
-      "defense": 1200,
-      "comprehension": 160,
-      "luck": 160
+      "qi_power": 4500,
+      "might": 4500,
+      "speed": 1200,
+      "perception": 1060,
+      "armor": 1200,
+      "resolve": 106
     },
     {
       "hp": 250000,
-      "internal_strength": 45000,
-      "external_strength": 45000,
-      "agility": 9000,
-      "spiritual_sense": 7000,
-      "defense": 12000,
-      "comprehension": 550,
-      "luck": 550
+      "qi_power": 45000,
+      "might": 45000,
+      "speed": 9000,
+      "perception": 7550,
+      "armor": 12000,
+      "resolve": 755
     },
     {
       "hp": 2500000,
-      "internal_strength": 450000,
-      "external_strength": 450000,
-      "agility": 70000,
-      "spiritual_sense": 55000,
-      "defense": 120000,
-      "comprehension": 1800,
-      "luck": 1800
+      "qi_power": 450000,
+      "might": 450000,
+      "speed": 70000,
+      "perception": 56800,
+      "armor": 120000,
+      "resolve": 5680
     },
     {
       "hp": 25000000,
-      "internal_strength": 4500000,
-      "external_strength": 4500000,
-      "agility": 550000,
-      "spiritual_sense": 430000,
-      "defense": 1200000,
-      "comprehension": 6000,
-      "luck": 6000
+      "qi_power": 4500000,
+      "might": 4500000,
+      "speed": 550000,
+      "perception": 436000,
+      "armor": 1200000,
+      "resolve": 43600
     },
     {
       "hp": 250000000,
-      "internal_strength": 45000000,
-      "external_strength": 45000000,
-      "agility": 4300000,
-      "spiritual_sense": 3400000,
-      "defense": 12000000,
-      "comprehension": 20000,
-      "luck": 20000
+      "qi_power": 45000000,
+      "might": 45000000,
+      "speed": 4300000,
+      "perception": 3420000,
+      "armor": 12000000,
+      "resolve": 342000
     },
     {
       "hp": 1200000000,
-      "internal_strength": 216000000,
-      "external_strength": 216000000,
-      "agility": 18000000,
-      "spiritual_sense": 14000000,
-      "defense": 58000000,
-      "comprehension": 60000,
-      "luck": 60000
+      "qi_power": 216000000,
+      "might": 216000000,
+      "speed": 18000000,
+      "perception": 14060000,
+      "armor": 58000000,
+      "resolve": 1406000
     },
     {
       "hp": 5000000000,
-      "internal_strength": 900000000,
-      "external_strength": 900000000,
-      "agility": 70000000,
-      "spiritual_sense": 55000000,
-      "defense": 240000000,
-      "comprehension": 180000,
-      "luck": 180000
+      "qi_power": 900000000,
+      "might": 900000000,
+      "speed": 70000000,
+      "perception": 55180000,
+      "armor": 240000000,
+      "resolve": 5518000
     },
     {
       "hp": 20000000000,
-      "internal_strength": 3600000000,
-      "external_strength": 3600000000,
-      "agility": 260000000,
-      "spiritual_sense": 200000000,
-      "defense": 960000000,
-      "comprehension": 500000,
-      "luck": 500000
+      "qi_power": 3600000000,
+      "might": 3600000000,
+      "speed": 260000000,
+      "perception": 200500000,
+      "armor": 960000000,
+      "resolve": 20050000
     }
   ],
   "substage_multipliers": [1.0, 1.25, 1.55],
@@ -111,18 +101,14 @@
     }
   },
   "gear_mapping": {
-    "power_internal_ratio": 0.5,
-    "power_external_ratio": 0.5,
-    "defense_per_point": 1,
-    "fortune_luck_ratio": 1,
-    "insight_spiritual_sense_ratio": 0.6,
-    "insight_comprehension_ratio": 0.4
+    "might_per_point": 1,
+    "warding_per_point": 1,
+    "vitality_per_point": 1,
+    "finesse_perception_ratio": 1.0,
+    "finesse_fortune_ratio": 1.0
   },
   "derived": {
-    "crit_per_spiritual_sense": 0.0002,
-    "crit_per_luck": 0.0001,
-    "dodge_per_agility": 0.0003,
-    "comprehension_gather_bonus_per_10": 0.05,
-    "luck_rare_bonus_per_10": 0.01
+    "crit_per_perception": 0.0004,
+    "dodge_per_speed": 0.0004
   }
 }

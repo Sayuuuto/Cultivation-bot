@@ -149,7 +149,7 @@ def run_gather(
     area_min_realm = area.min_realm if area is not None else 0
     mod = get_character_modifiers(session, player)
     stats = compute_combat_stats(player, session, mod)
-    qty_mult = gather_quantity_bonus(stats.comprehension)
+    qty_mult = gather_quantity_bonus(stats.perception)
     drop_cfg = load_drop_rarity_config()
 
     node = _pick_weighted(gather_def.nodes, rng)
@@ -181,14 +181,14 @@ def run_gather(
             for n in gather_def.nodes
         ]
     )
-    bonus_chance = drop_cfg.gather_bonus_roll_chance + gather_rare_bonus(stats.luck, mod.drop_luck)
+    bonus_chance = drop_cfg.gather_bonus_roll_chance + gather_rare_bonus(stats.luck)
     if node_table and rng.random() < bonus_chance:
         bonus = roll_bonus_loot(
             node_table,
             rng,
             rolls=drop_cfg.gather_bonus_roll_count,
             luck=stats.luck,
-            drop_luck=mod.drop_luck,
+            drop_luck=mod.dropBonus,
             player_realm_index=player.realm_index,
             area_min_realm=area_min_realm,
             qty_mult=qty_mult,
@@ -201,7 +201,7 @@ def run_gather(
             messages.append(f"Fortune smiles — extra haul: {extras}.")
 
     rare_message: str | None = None
-    rare_chance = gather_def.rare_node_chance + gather_rare_bonus(stats.luck, mod.drop_luck)
+    rare_chance = gather_def.rare_node_chance + gather_rare_bonus(stats.luck)
     if gather_def.rare_nodes and rng.random() < rare_chance:
         rare_table = parse_loot_table(
             [
@@ -218,7 +218,7 @@ def run_gather(
             rare_table,
             rng,
             luck=stats.luck,
-            drop_luck=mod.drop_luck,
+            drop_luck=mod.dropBonus,
             player_realm_index=player.realm_index,
             area_min_realm=area_min_realm,
             qty_mult=qty_mult * 1.25,
@@ -248,7 +248,7 @@ def run_gather(
 
     from .foundation import roll_gather_meridian_insight
 
-    meridian_msg = roll_gather_meridian_insight(player, stats.comprehension, rng)
+    meridian_msg = roll_gather_meridian_insight(player, stats.perception, rng)
     if meridian_msg:
         messages.append(meridian_msg)
 

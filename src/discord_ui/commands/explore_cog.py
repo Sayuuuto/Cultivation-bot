@@ -12,7 +12,7 @@ from ..helpers import (
     attach_guidance,
     ensure_player,
     get_discord_id,
-    interaction_ctx,
+    get_guild_id,
     rng_for,
 )
 from ..views.explore_view import ExploreView
@@ -78,7 +78,7 @@ class ExploreCog(commands.Cog):
         cfg = get_config()
         session = get_session()
         try:
-            guild_id = interaction_ctx(interaction)
+            guild_id = get_guild_id(interaction)
             discord_id = get_discord_id(interaction.user)
             player = ensure_player(session, guild_id, discord_id)
             if player is None:
@@ -86,6 +86,22 @@ class ExploreCog(commands.Cog):
                 return
 
             now = utcnow()
+            first_explore = player.last_explore_at is None
+
+            if first_explore:
+                guide_embed = discord.Embed(
+                    title="🌲 Expedition Guide",
+                    description=(
+                        "Exploration sends you into dangerous lands for rare rewards.\n\n"
+                        "**Vitality** — shared with your character. If it reaches 0, the expedition fails.\n"
+                        "**Stat checks** — tested against your combat stats vs a DC. Higher stats = better odds.\n"
+                        "**Affinity** — your spirit root and path give bonus rewards if they match the area.\n"
+                        "**Retreat** — you can retreat anytime to keep what you've found.\n"
+                        "**Tip:** Rest encounters heal your vitality. Don't skip them all!"
+                    ),
+                    color=discord.Color.blue(),
+                )
+                await interaction.response.send_message(embed=guide_embed, ephemeral=True)
 
             # Check for existing active expedition
             active = get_active_explore(session, guild_id, discord_id)
@@ -130,7 +146,10 @@ class ExploreCog(commands.Cog):
                     area_name, current_step + 1, active.total_steps,
                 )
                 attach_guidance(embed, "explore", player, session, cfg, now)
-                await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+                if first_explore:
+                    await interaction.followup.send(embed=embed, view=view, ephemeral=False)
+                else:
+                    await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
                 return
 
             # If no area provided, show cooldown/area picker
@@ -152,7 +171,10 @@ class ExploreCog(commands.Cog):
                         value=area_options,
                         inline=False,
                     )
-                    await interaction.response.send_message(embed=embed, ephemeral=False)
+                    if first_explore:
+                        await interaction.followup.send(embed=embed, ephemeral=False)
+                    else:
+                        await interaction.response.send_message(embed=embed, ephemeral=False)
                     return
 
                 embed = discord.Embed(
@@ -169,16 +191,25 @@ class ExploreCog(commands.Cog):
                     for aid, a in list(areas.items())[:10]
                 )
                 embed.add_field(name="Expedition areas", value=area_lines, inline=False)
-                await interaction.response.send_message(embed=embed, ephemeral=False)
+                if first_explore:
+                    await interaction.followup.send(embed=embed, ephemeral=False)
+                else:
+                    await interaction.response.send_message(embed=embed, ephemeral=False)
                 return
 
             # Start a new expedition
             row, err = start_explore(session, player, guild_id, area)
             if err:
-                await interaction.response.send_message(err, ephemeral=False)
+                if first_explore:
+                    await interaction.followup.send(err, ephemeral=False)
+                else:
+                    await interaction.response.send_message(err, ephemeral=False)
                 return
             if row is None:
-                await interaction.response.send_message("Failed to start expedition.", ephemeral=False)
+                if first_explore:
+                    await interaction.followup.send("Failed to start expedition.", ephemeral=False)
+                else:
+                    await interaction.response.send_message("Failed to start expedition.", ephemeral=False)
                 return
 
             areas = load_explore_areas()
@@ -211,7 +242,10 @@ class ExploreCog(commands.Cog):
                 name, 1, row.total_steps,
             )
             session.commit()
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+            if first_explore:
+                await interaction.followup.send(embed=embed, view=view, ephemeral=False)
+            else:
+                await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
         finally:
             session.close()
 

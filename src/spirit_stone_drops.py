@@ -175,7 +175,7 @@ def grant_hunt_spirit_stones(
         combat_tier=combat_tier,
         gap=gap,
         luck=stats.luck,
-        drop_luck=mod.drop_luck,
+        drop_luck=mod.dropBonus,
     )
     if stones <= 0:
         return 0, None
@@ -258,7 +258,7 @@ def grant_coop_room_spill(
             rng,
             dungeon_realm=dungeon.realm_index,
             luck=stats.luck,
-            drop_luck=mod.drop_luck,
+            drop_luck=mod.dropBonus,
         )
         if stones <= 0:
             continue
@@ -286,7 +286,7 @@ def grant_coop_dungeon_clear_stones(
             rng,
             dungeon_realm=dungeon.realm_index,
             luck=stats.luck,
-            drop_luck=mod.drop_luck,
+            drop_luck=mod.dropBonus,
         )
         player.spirit_stones += stones
         session.add(player)
@@ -309,7 +309,7 @@ def grant_solo_dungeon_clear_stones(
         rng,
         dungeon_realm=dungeon_min_realm,
         luck=stats.luck,
-        drop_luck=mod.drop_luck + mod.dungeon_luck,
+        drop_luck=mod.dropBonus,
     )
     stones = max(1, int(stones * cfg.solo_dungeon.clear_ratio_of_coop))
     player.spirit_stones += stones

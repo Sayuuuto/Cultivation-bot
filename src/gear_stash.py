@@ -132,7 +132,7 @@ def _power_stat_label(path: str) -> str:
         return "Ext Pow"
     if normalized == "internal":
         return "Int Pow"
-    return "HP"
+    return "VIT"
 
 
 def _format_gear_stat_bits(item: PlayerGearItem) -> list[str]:
@@ -142,7 +142,7 @@ def _format_gear_stat_bits(item: PlayerGearItem) -> list[str]:
     stat_bits: list[str] = []
     if path == "hp":
         if item.stat_hp:
-            stat_bits.append(f"HP {item.stat_hp}")
+            stat_bits.append(f"VIT {item.stat_hp}")
     elif item.stat_power:
         stat_bits.append(f"{_power_stat_label(path)} {item.stat_power}")
     if item.stat_defense:

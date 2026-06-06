@@ -56,8 +56,8 @@ SLASH_COMMAND_SPECS: list[SlashCommandSpec] = [
     SlashCommandSpec("dungeon-cancel"),
     SlashCommandSpec("use", kwargs={"item": "qi_gathering_pill"}),
     SlashCommandSpec("forge", kwargs={"slot": "weapon"}),
-    SlashCommandSpec("temper", kwargs={"stat": "external_strength"}),
-    SlashCommandSpec("meridian", kwargs={"stat": "external_strength"}),
+    SlashCommandSpec("temper", kwargs={"stat": "might"}),
+    SlashCommandSpec("meridian", kwargs={"stat": "qi_power"}),
     SlashCommandSpec("craft pill", kwargs={"recipe": "qi_gathering_pill", "amount": 1}),
     SlashCommandSpec("craft key", kwargs={"recipe": "blackwind_key"}),
     SlashCommandSpec("craft manual", forbidden_in_text=("materials", "fragments")),
@@ -101,6 +101,7 @@ SLASH_COMMAND_SPECS: list[SlashCommandSpec] = [
     SlashCommandSpec("clan-invite-only", kwargs={"enabled": True}),
     SlashCommandSpec("post-tutorial", skip=True, skip_reason="admin channel post"),
     SlashCommandSpec("post-library", skip=True, skip_reason="admin channel post"),
+    SlashCommandSpec("explore", kwargs={"area": "mortal_grove"}),
 ]
 
 SPECS_BY_NAME: dict[str, SlashCommandSpec] = {spec.name: spec for spec in SLASH_COMMAND_SPECS}

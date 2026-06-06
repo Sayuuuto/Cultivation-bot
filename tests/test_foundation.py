@@ -12,23 +12,23 @@ from src.models import Player
 def test_body_temper_increases_combat_stat(session, player):
     add_item(session, player.id, "minor_beast_core", 2)
     add_item(session, player.id, "green_dew_herb", 3)
-    before = compute_combat_stats(player, session).external_strength
+    before = compute_combat_stats(player, session).might
 
-    res = temper_body(player, "external_strength", session=session, player_id=player.id)
+    res = temper_body(player, "might", session=session, player_id=player.id)
     assert res.success
-    after = compute_combat_stats(player, session).external_strength
-    gain = body_stack_value("external_strength", player.realm_index)
+    after = compute_combat_stats(player, session).might
+    gain = body_stack_value("might", player.realm_index)
     assert after == before + gain
-    assert get_body_bonuses(player)["external_strength"] == 1
+    assert get_body_bonuses(player)["might"] == 1
 
 
 def test_body_temper_respects_realm_cap(session, player):
     player.realm_index = 0
     for _ in range(10):
-        player.foundation_body_json = '{"external_strength": 5}'
+        player.foundation_body_json = '{"might": 5}'
         res = temper_body(
             player,
-            "external_strength",
+            "might",
             session=session,
             player_id=player.id,
             use_charge=True,
@@ -40,7 +40,7 @@ def test_body_temper_respects_realm_cap(session, player):
 
 def test_meridian_spend_costs_points(session, player):
     player.meridian_points = 2
-    res = spend_meridian_point(player, "internal_strength")
+    res = spend_meridian_point(player, "qi_power")
     assert res.success
     assert player.meridian_points == 0
 
@@ -48,7 +48,7 @@ def test_meridian_spend_costs_points(session, player):
 def test_foundation_hp_stacks(session, player):
     load_all_content()
     player.foundation_body_json = '{"hp": 2}'
-    stats = {"hp": 100, "internal_strength": 10, "external_strength": 10}
+    stats = {"hp": 100, "qi_power": 10, "might": 10}
     apply_foundation_bonuses(player, stats)
     per_stack = body_stack_value("hp", player.realm_index)
     assert stats["hp"] == 100 + 2 * per_stack

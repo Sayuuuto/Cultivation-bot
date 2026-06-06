@@ -41,8 +41,8 @@ class FinalizedPvpMatch:
 
 def _stones_reward(winner: Player, winner_mod) -> int:
     base_stones = 10 + winner.realm_index * 2
-    mult = 1.0 if winner_mod is None else getattr(winner_mod, "pvp_stones_mult", 1.0)
-    return int(base_stones * mult)
+    drop_bonus = 0.0 if winner_mod is None else getattr(winner_mod, "dropBonus", 0.0)
+    return int(base_stones * (1.0 + drop_bonus))
 
 
 def get_active_pvp_match_for_player(
@@ -139,7 +139,7 @@ def finalize_pvp_match(
     collect_passive_qi(
         challenger,
         now,
-        cap_mult=get_character_modifiers(session, challenger).offline_cap_mult,
+        cap_mult=get_character_modifiers(session, challenger).offline_efficiency,
     )
     challenger.last_active_at = now
 

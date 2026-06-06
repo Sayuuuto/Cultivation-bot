@@ -16,13 +16,12 @@ if TYPE_CHECKING:
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "realm_stats.json"
 STAT_KEYS = (
     "hp",
-    "internal_strength",
-    "external_strength",
-    "agility",
-    "spiritual_sense",
-    "defense",
-    "comprehension",
-    "luck",
+    "qi_power",
+    "might",
+    "speed",
+    "perception",
+    "armor",
+    "resolve",
 )
 
 _realm_stats: dict | None = None
@@ -36,34 +35,39 @@ def _load_realm_stats() -> dict:
     return _realm_stats
 
 
+def invalidate_realm_stats_cache() -> None:
+    global _realm_stats
+    _realm_stats = None
+
+
 @dataclass(frozen=True)
 class PlayerCombatStats:
     hp: int
     max_hp: int
-    internal_strength: int
-    external_strength: int
-    agility: int
-    spiritual_sense: int
-    defense: int
-    comprehension: int
-    luck: int
+    qi_power: int
+    might: int
+    speed: int
+    perception: int
+    armor: int
+    resolve: int
     crit_chance: float
     dodge: float
+    luck: float = 0.0
     technique_tag_counts: dict[str, int] | None = None
 
     def as_dict(self) -> dict[str, int | float]:
         return {
             "hp": self.hp,
             "max_hp": self.max_hp,
-            "internal_strength": self.internal_strength,
-            "external_strength": self.external_strength,
-            "agility": self.agility,
-            "spiritual_sense": self.spiritual_sense,
-            "defense": self.defense,
-            "comprehension": self.comprehension,
-            "luck": self.luck,
+            "qi_power": self.qi_power,
+            "might": self.might,
+            "speed": self.speed,
+            "perception": self.perception,
+            "armor": self.armor,
+            "resolve": self.resolve,
             "crit_chance": self.crit_chance,
             "dodge": self.dodge,
+            "luck": self.luck,
         }
 
 
@@ -122,38 +126,28 @@ def scale_monster_stats(
         "hp": max(1, int(round(hp * (target["hp"] / mortal["hp"]) * tier_mult))),
         "attack": max(
             1,
-            int(round(attack * (target["external_strength"] / mortal["external_strength"]) * attack_mult * tier_mult)),
+            int(round(attack * (target["might"] / mortal["might"]) * attack_mult * tier_mult)),
         ),
-        "defense": max(1, int(round(defense * (target["defense"] / mortal["defense"]) * tier_mult))),
+        "defense": max(1, int(round(defense * (target["armor"] / mortal["armor"]) * tier_mult))),
     }
-
-
-def _insight_split(cfg: dict) -> tuple[float, float]:
-    mapping = cfg.get("gear_mapping", {})
-    sense = float(mapping.get("insight_spiritual_sense_ratio", 0.6))
-    comp = float(mapping.get("insight_comprehension_ratio", 0.4))
-    return sense, comp
 
 
 def _apply_gear(stats: dict[str, int], gear: EquipmentStats, path: str, cfg: dict) -> None:
     from .equipment_tiers import normalize_gear_path
 
     path = normalize_gear_path(path)
-    sense_ratio, comp_ratio = _insight_split(cfg)
 
-    stats["defense"] += gear.defense
-    stats["luck"] += gear.fortune
+    stats["armor"] += gear.warding
 
     if path == "external":
-        stats["external_strength"] += gear.power
-        stats["spiritual_sense"] += gear.insight
+        stats["might"] += gear.might
+        stats["perception"] += gear.finesse
     elif path == "internal":
-        stats["internal_strength"] += gear.power
-        stats["spiritual_sense"] += int(gear.insight * sense_ratio)
-        stats["comprehension"] += int(gear.insight * comp_ratio)
+        stats["qi_power"] += gear.might
+        stats["perception"] += gear.finesse
     elif path == "hp":
-        stats["hp"] += gear.hp
-        stats["spiritual_sense"] += gear.insight
+        stats["hp"] += gear.vitality
+        stats["perception"] += gear.finesse
 
 
 def gear_combat_contribution(gear: EquipmentStats, path: str, cfg: dict | None = None) -> dict[str, int]:
@@ -212,59 +206,44 @@ def compute_combat_stats(
     tag_counts = get_technique_tag_counts(session, player.id, player_realm_index=realm_index)
 
     if mod is not None:
-        stats["internal_strength"] = int(
-            stats["internal_strength"] * (1.0 + mod.dungeon_damage * 0.4 + mod.pvp_power * 0.2)
-        )
-        stats["external_strength"] = int(
-            stats["external_strength"] * (1.0 + mod.pvp_power * 0.3 + mod.dungeon_damage * 0.2)
-        )
-        stats["defense"] = int(stats["defense"] * (1.0 + mod.adventure_defense + mod.dungeon_defense * 0.5))
-        stats["luck"] = int(stats["luck"] * (1.0 + mod.drop_luck))
-        stats["spiritual_sense"] = int(stats["spiritual_sense"] * mod.rare_event_mult)
+        stats["qi_power"] = int(stats["qi_power"] * (1.0 + mod.damageBonus))
+        stats["might"] = int(stats["might"] * (1.0 + mod.damageBonus))
+        stats["armor"] = int(stats["armor"] * (1.0 + mod.damageReduction))
 
     derived = cfg["derived"]
-    crit = (
-        stats["spiritual_sense"] * derived["crit_per_spiritual_sense"]
-        + stats["luck"] * derived["crit_per_luck"]
-    )
-    dodge = stats["agility"] * derived["dodge_per_agility"]
-    if mod is not None:
-        crit = min(0.45, crit + mod.adventure_success * 0.05)
-        dodge = min(0.40, dodge + mod.adventure_defense * 0.03)
+    crit = stats["perception"] * derived["crit_per_perception"]
+    dodge = stats["speed"] * derived["dodge_per_speed"]
 
     max_hp = max(1, stats["hp"])
     return PlayerCombatStats(
         hp=max_hp,
         max_hp=max_hp,
-        internal_strength=max(1, stats["internal_strength"]),
-        external_strength=max(1, stats["external_strength"]),
-        agility=max(1, stats["agility"]),
-        spiritual_sense=max(1, stats["spiritual_sense"]),
-        defense=max(1, stats["defense"]),
-        comprehension=max(1, stats["comprehension"]),
-        luck=max(1, stats["luck"]),
-        crit_chance=max(0.0, min(0.45, crit)),
+        qi_power=max(1, stats["qi_power"]),
+        might=max(1, stats["might"]),
+        speed=max(1, stats["speed"]),
+        perception=max(1, stats["perception"]),
+        armor=max(1, stats["armor"]),
+        resolve=max(1, stats["resolve"]),
+        crit_chance=max(0.0, min(0.50, crit)),
         dodge=max(0.0, min(0.40, dodge)),
         technique_tag_counts=tag_counts,
     )
 
 
-def gather_quantity_bonus(comprehension: int) -> float:
-    cfg = _load_realm_stats()
-    return 1.0 + (comprehension / 10.0) * cfg["derived"]["comprehension_gather_bonus_per_10"]
+def gather_quantity_bonus(perception: int) -> float:
+    return 1.0 + (perception / 10.0) * 0.005
 
 
-def gather_rare_bonus(luck: int, drop_luck: float = 0.0) -> float:
-    cfg = _load_realm_stats()
-    return (luck / 10.0) * cfg["derived"]["luck_rare_bonus_per_10"] + drop_luck
+def gather_rare_bonus(fortune: float = 0.0) -> float:
+    return fortune * 0.01
 
 
 def format_combat_stats_block(stats: PlayerCombatStats) -> str:
     lines = [
-        f"**HP** {stats.hp}/{stats.max_hp} · **Defense** {stats.defense}",
-        f"**Internal** {stats.internal_strength} · **External** {stats.external_strength}",
-        f"**Agility** {stats.agility} · **Spirit Sense** {stats.spiritual_sense}",
-        f"**Comprehension** {stats.comprehension} · **Luck** {stats.luck}",
+        f"**Vitality** {stats.hp}/{stats.max_hp} · **Armor** {stats.armor}",
+        f"**Might** {stats.might} · **Qi Power** {stats.qi_power}",
+        f"**Speed** {stats.speed} · **Perception** {stats.perception}",
+        f"**Resolve** {stats.resolve}",
         f"**Crit** {stats.crit_chance * 100:.1f}% · **Dodge** {stats.dodge * 100:.1f}%",
     ]
     return "\n".join(lines)

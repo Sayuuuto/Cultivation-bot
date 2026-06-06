@@ -184,7 +184,7 @@ def build_profile_embed(
 
     trial_line = format_trial_progress(player)
     if trial_line:
-        field_name = "Elder's instruction" if trial_active else "Outer Disciple Trial"
+        field_name = "Elder's instruction"
         embed.add_field(name=field_name, value=trial_line, inline=False)
 
     if not trial_active:

@@ -71,7 +71,7 @@ def test_technique_detail_shows_base_power_for_iron_cleave(session, player):
     assert "Base power **20**" in summary
     assert "bleeding" in summary.lower()
     assert format_technique_base_power(tech) == (
-        "Base power **20** · +**0.55** per **External Strength** · **+25% vs bleeding**"
+        "Base power **20** · +**0.55** per **Might** · **+25% vs bleeding**"
     )
 
 

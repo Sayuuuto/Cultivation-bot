@@ -71,12 +71,12 @@ def test_profile_card_cleans_empty_passive_and_warns_skew(session, player, cfg):
     now = datetime.now(timezone.utc)
     from src.character import get_character_modifiers
 
-    for technique_id in ("soul_needle", "iron_body", "mountain_guard", "qi_barrier"):
+    for technique_id in ("swift_slash", "ember_palm", "flame_burst", "qi_barrier"):
         session.add(PlayerTechnique(player_id=player.id, technique_id=technique_id, rank=1))
     for slot, technique_id in {
-        "1": "soul_needle",
-        "2": "iron_body",
-        "3": "mountain_guard",
+        "1": "swift_slash",
+        "2": "ember_palm",
+        "3": "flame_burst",
         "4": "qi_barrier",
     }.items():
         session.add(TechniqueLoadout(player_id=player.id, slot=slot, technique_id=technique_id))
@@ -90,7 +90,7 @@ def test_profile_card_cleans_empty_passive_and_warns_skew(session, player, cfg):
 
     assert data.martial_lines[0] == "Passive — none"
     assert data.martial_hint is not None
-    assert "3 Defense" in data.martial_hint
+    assert "3 Strike" in data.martial_hint
 
 
 def test_profile_card_breakthrough_ready_uses_banner_path(session, player, cfg):
@@ -99,7 +99,7 @@ def test_profile_card_breakthrough_ready_uses_banner_path(session, player, cfg):
     from src.game import qi_cap
 
     player.qi = qi_cap(player.realm_index, player.substage, player)
-    player.novice_trial_step = 6
+    player.novice_trial_step = 7
     session.add(player)
     session.commit()
 

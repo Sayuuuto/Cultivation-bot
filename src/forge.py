@@ -44,7 +44,7 @@ def _format_rolled_stats(path: str, rolled: dict[str, int]) -> str:
     path = normalize_gear_path(path)
     labels = {
         "power": "External Power" if path == "external" else "Internal Power",
-        "hp": "HP",
+        "hp": "Vitality",
         "defense": "Defense",
         "fortune": "Fortune",
         "insight": "Insight",

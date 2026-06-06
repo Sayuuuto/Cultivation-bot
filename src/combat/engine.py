@@ -222,7 +222,7 @@ def create_combat_state(
         context=context,
         context_meta=context_meta or {},
         log=[
-            f"You face **{opponent.name}** (HP {format_compact_number(opponent.hp)}). "
+            f"You face **{opponent.name}** (Vitality {format_compact_number(opponent.hp)}). "
             "Choose your action."
         ],
     )
@@ -270,8 +270,8 @@ def _opponent_damage(
 ) -> int:
     variance = rng.uniform(0.90, 1.10)
     raw = attack * variance
-    defense = stats.defense * (1.0 + (mod.adventure_defense if mod else 0.0))
-    damage = max(1, int(raw - defense * 0.35))
+    mitigation = stats.armor * 0.40
+    damage = max(1, int(raw - mitigation))
     mult = attacker_damage_multiplier(attacker)
     if mult < 1.0:
         damage = max(1, int(damage * mult))
@@ -301,7 +301,7 @@ def _opponent_turn(
         taken_text = format_compact_number(taken)
         hp_text = format_compact_number(max(0, state.player.hp))
         state.log.append(
-            f"**{state.opponent_name}** hits you for **{taken_text}** damage. (**{hp_text}** HP left)"
+            f"**{state.opponent_name}** hits you for **{taken_text}** damage. (**{hp_text}** vitality left)"
         )
     process_passive_hp_threshold(state, passive)
     opponent_trait_turn(state, rng)
@@ -368,7 +368,7 @@ def execute_turn(
 def attempt_flee(state: CombatState, stats: PlayerCombatStats, rng: random.Random | None = None) -> TurnResult:
     rng = rng or random.Random()
     rules = load_combat_rules()
-    flee_chance = rules.flee_base_chance + stats.agility * 0.002
+    flee_chance = rules.flee_base_chance + stats.speed * 0.002
     flee_chance = min(0.85, flee_chance)
     if rng.random() < flee_chance:
         state.finished = True
@@ -401,12 +401,12 @@ def auto_finish_combat(
     remaining_stats = PlayerCombatStats(
         hp=state.player.hp,
         max_hp=state.player.max_hp,
-        internal_strength=stats.internal_strength,
-        external_strength=stats.external_strength,
-        agility=stats.agility,
-        spiritual_sense=stats.spiritual_sense,
-        defense=stats.defense,
-        comprehension=stats.comprehension,
+        qi_power=stats.qi_power,
+        might=stats.might,
+        speed=stats.speed,
+        perception=stats.perception,
+        armor=stats.armor,
+        resolve=stats.resolve,
         luck=stats.luck,
         crit_chance=stats.crit_chance,
         dodge=stats.dodge,
@@ -422,7 +422,7 @@ def auto_finish_combat(
 
 
 def check_pvp_end(state: CombatState) -> None:
-    """End a duel turn when either combatant hits 0 HP."""
+    """End a duel turn when either combatant hits 0 vitality."""
     if state.player.hp <= 0:
         state.finished = True
         state.victory = False
@@ -510,12 +510,12 @@ def auto_finish_pvp_combat(
     remaining_stats = PlayerCombatStats(
         hp=state.player.hp,
         max_hp=state.player.max_hp,
-        internal_strength=stats.internal_strength,
-        external_strength=stats.external_strength,
-        agility=stats.agility,
-        spiritual_sense=stats.spiritual_sense,
-        defense=stats.defense,
-        comprehension=stats.comprehension,
+        qi_power=stats.qi_power,
+        might=stats.might,
+        speed=stats.speed,
+        perception=stats.perception,
+        armor=stats.armor,
+        resolve=stats.resolve,
         luck=stats.luck,
         crit_chance=stats.crit_chance,
         dodge=stats.dodge,

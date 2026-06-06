@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from typing import TYPE_CHECKING
 
 from ..combat_stats import PlayerCombatStats
 from ..ui.formatting import format_compact_number
@@ -17,12 +18,30 @@ from .effects import (
 )
 from .rules import load_combat_rules
 
+if TYPE_CHECKING:
+    from .engine import CombatState
+
 CC_STATUSES = frozenset({"stun", "seal", "fear"})
 DOT_STATUS_IDS = frozenset({"burn", "bleed", "poison"})
 
 
 def _stat_value(stats: PlayerCombatStats, stat_key: str) -> int:
     return int(getattr(stats, stat_key, 0))
+
+
+# Legacy stat name mapping for backward compatibility with old technique configs
+_LEGACY_STAT_MAP = {
+    "external_strength": "might",
+    "internal_strength": "qi_power",
+    "agility": "speed",
+    "spiritual_sense": "perception",
+    "defense": "armor",
+    "comprehension": "perception",
+}
+
+
+def _resolve_stat_key(stat_key: str) -> str:
+    return _LEGACY_STAT_MAP.get(stat_key, stat_key)
 
 
 def _target_has_status(target: CombatantState, status_id: str | None) -> bool:
@@ -42,35 +61,22 @@ def _crit_chance(stats: PlayerCombatStats, passive: TechniqueDef | None) -> floa
     return min(0.55, stats.crit_chance + bonus)
 
 
-def _consecutive_bonus(state) -> float:
+def _consecutive_bonus(state: CombatState) -> float:
     if state.consecutive_hits <= 0:
         return 0.0
     return state.consecutive_hits * state.consecutive_bonus_per_hit
 
 
-def _damage_boost_mult(state) -> float:
+def _damage_boost_mult(state: CombatState) -> float:
     if state.damage_boost_turns > 0 and state.damage_boost_pct > 0:
         return 1.0 + state.damage_boost_pct
     return 1.0
 
 
-def _gear_tag_damage_bonus(stats: PlayerCombatStats, tech: TechniqueDef) -> float:
-    counts = stats.technique_tag_counts or {}
-    if not counts:
-        return 1.0
-    category = tech.category.lower()
-    if category == "passive":
-        return 1.0
-    matches = counts.get(category, 0)
-    if matches <= 0:
-        return 1.0
-    return 1.0 + 0.06 * matches
-
-
 def _compute_base_damage(
     tech: TechniqueDef,
     stats: PlayerCombatStats,
-    opponent_defense: int,
+    opponent_armor: int,
     passive: TechniqueDef | None,
     *,
     crit: bool,
@@ -78,24 +84,21 @@ def _compute_base_damage(
 ) -> int:
     if tech.damage_type == "none":
         return 0
-    stat_val = _stat_value(stats, tech.scaling_stat)
+    resolved_stat = _resolve_stat_key(tech.scaling_stat)
+    stat_val = _stat_value(stats, resolved_stat)
     raw = tech.base_damage + stat_val * tech.scaling_ratio
     raw *= rarity_damage_multiplier(tech.rarity)
-    raw *= _gear_tag_damage_bonus(stats, tech)
-    if tech.damage_type == "physical":
-        raw += stats.external_strength * 0.15
-    elif tech.damage_type == "internal":
-        raw += stats.internal_strength * 0.15
     if burn_bonus and passive:
         for trig in passive.passive_triggers:
             if trig.type == "burn_damage_bonus" and tech.status_id == "burn":
                 raw *= 1.0 + float(trig.params.get("bonus", 0.0))
             if trig.type == "poison_damage_bonus" and tech.status_id == "poison":
                 raw *= 1.0 + float(trig.params.get("bonus", 0.0))
+    mitigation = opponent_armor * 0.40
+    damage = max(1, int(raw - mitigation))
     if crit:
-        raw *= 1.5
-    mitigation = opponent_defense * 0.45
-    return max(1, int(raw - mitigation))
+        damage = int(damage * 1.5)
+    return damage
 
 
 def _strike_power_for_dot(
@@ -105,14 +108,10 @@ def _strike_power_for_dot(
     status_id: str,
 ) -> float:
     """Pre-mitigation strike power used to scale DoT potency."""
-    stat_val = _stat_value(stats, tech.scaling_stat)
+    resolved_stat = _resolve_stat_key(tech.scaling_stat)
+    stat_val = _stat_value(stats, resolved_stat)
     raw = tech.base_damage + stat_val * tech.scaling_ratio
     raw *= rarity_damage_multiplier(tech.rarity)
-    raw *= _gear_tag_damage_bonus(stats, tech)
-    if tech.damage_type == "physical":
-        raw += stats.external_strength * 0.15
-    elif tech.damage_type == "internal":
-        raw += stats.internal_strength * 0.15
     if passive:
         for trig in passive.passive_triggers:
             if trig.type == "burn_damage_bonus" and status_id == "burn":
@@ -152,14 +151,14 @@ def _apply_shield_damage(target_hp: int, shield: int, damage: int) -> tuple[int,
     return target_hp - remaining, shield - absorbed, absorbed
 
 
-def _deal_damage_to_opponent(state, damage: int) -> int:
+def _deal_damage_to_opponent(state: CombatState, damage: int) -> int:
     hp, shield, _ = _apply_shield_damage(state.opponent.hp, state.opponent_shield, damage)
     state.opponent.hp = hp
     state.opponent_shield = shield
     return damage
 
 
-def _deal_damage_to_player(state, damage: int) -> int:
+def _deal_damage_to_player(state: CombatState, damage: int) -> int:
     hp, shield, absorbed = _apply_shield_damage(state.player.hp, state.player_shield, damage)
     state.player.hp = hp
     state.player_shield = shield
@@ -319,7 +318,7 @@ def _resolve_effect(
         state.player.hp = min(state.player.max_hp, state.player.hp + heal)
         gained = state.player.hp - before
         if gained > 0:
-            state.log.append(f"**{tech.name}** restores **{format_compact_number(gained)}** HP.")
+            state.log.append(f"**{tech.name}** restores **{format_compact_number(gained)}** vitality.")
         return 0
 
     if etype == "lifesteal":
@@ -333,7 +332,7 @@ def _resolve_effect(
         if dealt > 0:
             steal = max(1, int(dealt * float(p.get("ratio", 0.25))))
             state.player.hp = min(state.player.max_hp, state.player.hp + steal)
-            state.log.append(f"**{tech.name}** drains **{format_compact_number(steal)}** HP from bleeding prey.")
+            state.log.append(f"**{tech.name}** drains **{format_compact_number(steal)}** vitality from bleeding prey.")
         return dealt
 
     if etype == "shield":
@@ -354,7 +353,7 @@ def _resolve_effect(
         if heal_ratio > 0:
             heal = max(1, int(state.player.max_hp * heal_ratio))
             state.player.hp = min(state.player.max_hp, state.player.hp + heal)
-            state.log.append(f"**{tech.name}** restores **{format_compact_number(heal)}** HP.")
+            state.log.append(f"**{tech.name}** restores **{format_compact_number(heal)}** vitality.")
         return 0
 
     if etype == "adjust_karma":
@@ -519,7 +518,7 @@ def process_passive_turn_end(state, passive: TechniqueDef | None) -> None:
                 state.player.hp = min(state.player.max_hp, state.player.hp + heal)
                 gained = state.player.hp - before
                 if gained > 0:
-                    state.log.append(f"**{passive.name}** restores **{format_compact_number(gained)}** HP from bleeding prey.")
+                    state.log.append(f"**{passive.name}** restores **{format_compact_number(gained)}** vitality from bleeding prey.")
         elif trig.type == "consecutive_hit_bonus" and state.consecutive_hits == 0:
             state.consecutive_bonus_per_hit = float(trig.params.get("bonus_per_hit", 0.05))
 
@@ -562,7 +561,7 @@ def process_passive_hp_threshold(state, passive: TechniqueDef | None) -> None:
         heal_pct = float(trig.params.get("heal_pct", 0.3))
         heal = max(1, int(state.player.max_hp * heal_pct))
         state.player.hp = min(state.player.max_hp, state.player.hp + heal)
-        state.log.append(f"**{passive.name}** blooms — you recover **{heal}** HP!")
+        state.log.append(f"**{passive.name}** blooms — you recover **{heal}** vitality!")
         state.triggered_once.add(cd_key)
         state.passive_cooldowns[cd_key] = int(trig.params.get("cooldown", 10))
 
@@ -583,7 +582,7 @@ def check_fatal_survival(state, passive: TechniqueDef | None) -> bool:
         state.damage_boost_turns = int(trig.params.get("boost_turns", 2))
         state.triggered_once.add(cd_key)
         state.log.append(
-            f"**{passive.name}** denies death! You cling to **1 HP** with surging power!"
+            f"**{passive.name}** denies death! You cling to **1 vitality** with surging power!"
         )
         return True
     return False
@@ -622,6 +621,6 @@ def opponent_trait_turn(state, rng: random.Random) -> None:
         state.log.append(f"**{state.opponent_name}** stuns you with a brutal blow!")
 
 
-def reset_consecutive_if_no_damage(state, damage_dealt: int) -> None:
+def reset_consecutive_if_no_damage(state: CombatState, damage_dealt: int) -> None:
     if damage_dealt <= 0:
         state.consecutive_hits = 0

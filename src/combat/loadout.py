@@ -58,7 +58,7 @@ def learn_technique(session: Session, player_id: int, technique_id: str) -> tupl
     from ..novice_trial import on_technique_learned
 
     player = session.get(Player, player_id)
-    extra = on_technique_learned(session, player, technique_id) if player is not None else []
+    extra, _story_next = on_technique_learned(session, player, technique_id) if player is not None else ([], None)
     msg = f"You learned **{tech.name}**."
     if extra:
         msg += "\n" + "\n".join(extra)
@@ -251,7 +251,7 @@ def equip_technique(
 
     from ..novice_trial import on_technique_equipped
 
-    extra = on_technique_equipped(session, player, technique_id)
+    extra, _story_next = on_technique_equipped(session, player, technique_id)
 
     swap_note = ""
     if replaced_id and replaced_id != technique_id:

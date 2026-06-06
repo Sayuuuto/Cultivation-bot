@@ -175,12 +175,10 @@ class GearCog(commands.Cog):
                 description=summary,
                 color=discord.Color.dark_purple(),
             )
-            embed.add_field(name="Adventure Success", value=f"+{mod.adventure_success:.2f}", inline=True)
-            embed.add_field(name="Adventure Defense", value=f"+{mod.adventure_defense:.2f}", inline=True)
-            embed.add_field(name="Drop Luck", value=f"+{mod.drop_luck:.2f}", inline=True)
-            embed.add_field(name="Rare Events", value=f"×{mod.rare_event_mult:.2f}", inline=True)
-            embed.add_field(name="PvP Power", value=f"+{mod.pvp_power:.2f}", inline=True)
-            embed.add_field(name="Dungeon Damage", value=f"+{mod.dungeon_damage:.2f}", inline=True)
+            embed.add_field(name="Adventure Luck", value=f"+{mod.adventure_luck:.2f}", inline=True)
+            embed.add_field(name="Damage Bonus", value=f"+{mod.damageBonus:.2f}", inline=True)
+            embed.add_field(name="Drop Bonus", value=f"×{mod.dropBonus:.2f}", inline=True)
+            embed.add_field(name="Damage Reduction", value=f"+{mod.damageReduction:.2f}", inline=True)
             attach_guidance(embed, "stats", player, session, get_config(), utcnow())
             await interaction.response.send_message(embed=embed, ephemeral=False)
         finally:
@@ -354,12 +352,12 @@ class GearCog(commands.Cog):
             equipment_text = format_loadout(session, player.id)
 
             embed = discord.Embed(title=f"{player.dao_name} — Loadout", description=equipment_text, color=discord.Color.dark_blue())
-            embed.add_field(name="Cultivate Qi", value=f"×{mod.cultivate_qi_mult:.2f}", inline=True)
-            embed.add_field(name="Breakthrough Stability", value=f"+{mod.breakthrough_stability:.2f}", inline=True)
-            embed.add_field(name="Adventure Success", value=f"+{mod.adventure_success:.2f}", inline=True)
-            embed.add_field(name="Drop Luck", value=f"+{mod.drop_luck:.2f}", inline=True)
-            embed.add_field(name="Dungeon Damage", value=f"+{mod.dungeon_damage:.2f}", inline=True)
-            embed.add_field(name="PvP Power", value=f"+{mod.pvp_power:.2f}", inline=True)
+            embed.add_field(name="Cultivation Speed", value=f"×{mod.cultivate_speed:.2f}", inline=True)
+            embed.add_field(name="Breakthrough Luck", value=f"+{mod.breakthrough_luck:.2f}", inline=True)
+            embed.add_field(name="Adventure Luck", value=f"+{mod.adventure_luck:.2f}", inline=True)
+            embed.add_field(name="Drop Bonus", value=f"×{mod.dropBonus:.2f}", inline=True)
+            embed.add_field(name="Damage Bonus", value=f"+{mod.damageBonus:.2f}", inline=True)
+            embed.add_field(name="Damage Reduction", value=f"+{mod.damageReduction:.2f}", inline=True)
             effects_block = format_active_effects_block(session, player.id)
             if effects_block:
                 embed.add_field(name="Lingering effects", value=effects_block, inline=False)

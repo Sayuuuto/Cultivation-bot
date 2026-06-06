@@ -26,6 +26,7 @@ from ..helpers import (
     get_discord_id,
     get_guild_id,
 )
+from ..views.confirm_view import ConfirmActionView
 
 
 async def game_sect_autocomplete(
@@ -169,19 +170,48 @@ class SectCog(commands.Cog):
                 await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
                 return
 
-            ok, msg, _ = leave_game_sect(session, player)
-            if not ok:
-                await interaction.response.send_message(msg, ephemeral=False)
-                return
+            sect_name = "your sect"
+            if player.sect_name:
+                sect_name = player.sect_name
 
-            session.commit()
+            async def confirm_leave(interaction: discord.Interaction):
+                session2 = get_session()
+                try:
+                    player2 = ensure_player(session2, guild_id, discord_id)
+                    if player2 is None:
+                        await interaction.followup.send(NOT_STARTED_HINT, ephemeral=False)
+                        return
+
+                    ok, msg, _ = leave_game_sect(session2, player2)
+                    if not ok:
+                        await interaction.followup.send(msg, ephemeral=False)
+                        return
+
+                    session2.commit()
+                    embed = discord.Embed(
+                        title="You Leave the Martial Sect",
+                        description=msg,
+                        color=discord.Color.orange(),
+                    )
+                    attach_guidance(embed, "sect-leave", player2, session2, cfg, utcnow())
+                    await interaction.followup.send(embed=embed, ephemeral=False)
+                finally:
+                    session2.close()
+
+            view = ConfirmActionView(
+                discord_id,
+                title="Leave Sect",
+                description=f"Are you sure you want to leave **{sect_name}**?",
+                confirm_label="Leave Sect",
+                on_confirm=confirm_leave,
+            )
             embed = discord.Embed(
-                title="You Leave the Martial Sect",
-                description=msg,
+                title="Leave Sect?",
+                description=f"Are you sure you want to leave **{sect_name}**? This action cannot be undone.",
                 color=discord.Color.orange(),
             )
-            attach_guidance(embed, "sect-leave", player, session, cfg, utcnow())
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            msg = await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+            view.message = msg
         finally:
             session.close()
 

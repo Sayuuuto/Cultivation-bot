@@ -36,7 +36,7 @@ def test_tutorial_covers_core_topics():
         "karma",
         "button combat",
         "post-library",
-        "outer disciple trial",
+        "trials",
         "remind",
         "offline",
         "sage of the bamboo",

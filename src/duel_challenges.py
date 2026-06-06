@@ -231,7 +231,7 @@ def execute_duel(
     now: datetime | None = None,
 ) -> ExecutedDuel:
     now = to_utc(now or utcnow())
-    collect_passive_qi(challenger, now, cap_mult=get_character_modifiers(session, challenger).offline_cap_mult)
+    collect_passive_qi(challenger, now, cap_mult=get_character_modifiers(session, challenger).offline_efficiency)
     challenger.last_active_at = now
 
     mod_a = get_character_modifiers(session, challenger)

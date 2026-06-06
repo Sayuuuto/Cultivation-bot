@@ -20,7 +20,7 @@ def test_realms_loaded_from_config():
 
 
 def test_qi_cap_uses_config():
-    assert qi_cap(0, 0) == 100
-    assert qi_cap(0, 1) == 150
-    assert qi_cap(0, 2) == 220
-    assert qi_cap(1, 0) == 250
+    assert qi_cap(0, 0) == 20
+    assert qi_cap(0, 1) == 40
+    assert qi_cap(0, 2) == 60
+    assert qi_cap(1, 0) == 400

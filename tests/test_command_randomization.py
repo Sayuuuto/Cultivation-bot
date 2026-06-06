@@ -122,8 +122,8 @@ def test_hunt_produces_both_victories_and_defeats_over_many_seeds(session, playe
         from src.combat_stats import PlayerCombatStats
 
         weak = PlayerCombatStats(
-            hp=30, max_hp=30, internal_strength=5, external_strength=5,
-            agility=5, spiritual_sense=5, defense=2, comprehension=5, luck=5,
+            hp=30, max_hp=30, qi_power=5, might=5,
+            speed=5, perception=5, armor=2, resolve=5, luck=5,
             crit_chance=0.0, dodge=0.0,
         )
         beast_stats = {

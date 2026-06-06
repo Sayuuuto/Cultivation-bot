@@ -26,7 +26,6 @@ def get_engine():
 
     cfg = get_config()
     # Optional: set SQLALCHEMY_ECHO=1 in .env to log all SQL queries.
-    import os
     sql_echo = os.getenv("SQLALCHEMY_ECHO", "0") in {"1", "true", "True", "yes", "YES"}
     engine = create_engine(
         f"sqlite:///{cfg.database_path}",

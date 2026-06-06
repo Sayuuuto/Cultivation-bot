@@ -24,7 +24,7 @@ def test_forge_puts_gear_in_stash_not_worn(session, player):
 
     assert stash_count(session, player.id) == 1
     stats = get_total_equipment_stats(session, player.id, player_realm_index=player.realm_index)
-    assert stats.power == 0
+    assert stats.might == 0
 
 
 def test_equip_from_stash_applies_stats(session, player):
@@ -40,7 +40,7 @@ def test_equip_from_stash_applies_stats(session, player):
     session.commit()
 
     stats = get_total_equipment_stats(session, player.id, player_realm_index=player.realm_index)
-    assert stats.power > 0
+    assert stats.might > 0
     assert stash_count(session, player.id) == 0
 
 
@@ -91,4 +91,4 @@ def test_forge_and_equip_helper(session, player):
     res = forge_and_equip(session, player, "weapon", rng=random.Random(1))
     assert res.success
     stats = get_total_equipment_stats(session, player.id, player_realm_index=player.realm_index)
-    assert stats.power > 0
+    assert stats.might > 0

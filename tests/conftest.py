@@ -10,6 +10,22 @@ from src.config import Config
 from src.models import Base, Player, PlayerNotification  # noqa: F401 — register table
 
 
+@pytest.fixture(autouse=True)
+def _clear_caches():
+    """Clear module-level LRU caches between tests to prevent cross-test pollution."""
+    from src.combat.catalog import invalidate_technique_catalog_cache
+    from src.combat.rules import load_combat_rules
+    from src.realms import invalidate_realms_cache
+
+    invalidate_technique_catalog_cache()
+    invalidate_realms_cache()
+    load_combat_rules.cache_clear()
+    yield
+    invalidate_technique_catalog_cache()
+    invalidate_realms_cache()
+    load_combat_rules.cache_clear()
+
+
 @pytest.fixture
 def cfg() -> Config:
     return Config(
@@ -57,7 +73,7 @@ def player(session: Session) -> Player:
         origin="Mountain Rises",
         spirit_root="Pure Jade Root",
         moral_path="neutral",
-        novice_trial_step=6,
+        novice_trial_step=7,
         adventures_completed=1,
         realm_index=0,
         substage=0,

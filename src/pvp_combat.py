@@ -30,8 +30,8 @@ class DuelFighterState:
     player_id: int
     discord_id: str
     dao_name: str
-    defense: int
-    agility: int
+    armor: int
+    speed: int
     combatant: CombatantState
     technique_cooldowns: dict[str, int] = field(default_factory=dict)
     passive_cooldowns: dict[str, int] = field(default_factory=dict)
@@ -51,8 +51,8 @@ class DuelFighterState:
             "player_id": self.player_id,
             "discord_id": self.discord_id,
             "dao_name": self.dao_name,
-            "defense": self.defense,
-            "agility": self.agility,
+            "armor": self.armor,
+            "speed": self.speed,
             "combatant": _combatant_to_dict(self.combatant),
             "technique_cooldowns": self.technique_cooldowns,
             "passive_cooldowns": self.passive_cooldowns,
@@ -74,8 +74,8 @@ class DuelFighterState:
             player_id=int(data["player_id"]),
             discord_id=str(data["discord_id"]),
             dao_name=str(data["dao_name"]),
-            defense=int(data["defense"]),
-            agility=int(data["agility"]),
+            armor=int(data["armor"]),
+            speed=int(data["speed"]),
             combatant=_combatant_from_dict(data["combatant"]),
             technique_cooldowns={str(k): int(v) for k, v in data.get("technique_cooldowns", {}).items()},
             passive_cooldowns={str(k): int(v) for k, v in data.get("passive_cooldowns", {}).items()},
@@ -199,8 +199,8 @@ def _fighter_from_player(session: Session, player: Player) -> DuelFighterState:
         player_id=player.id,
         discord_id=player.discord_id,
         dao_name=player.dao_name,
-        defense=max(1, stats.defense),
-        agility=max(1, stats.agility),
+        armor=max(1, stats.armor),
+        speed=max(1, stats.speed),
         combatant=CombatantState(hp=stats.max_hp, max_hp=stats.max_hp),
     )
 
@@ -210,8 +210,8 @@ def roll_initiative(
     fighter_b: DuelFighterState,
     rng: random.Random,
 ) -> tuple[str, str, dict[str, int]]:
-    roll_a = fighter_a.agility + rng.randint(1, 10)
-    roll_b = fighter_b.agility + rng.randint(1, 10)
+    roll_a = fighter_a.speed + rng.randint(1, 10)
+    roll_b = fighter_b.speed + rng.randint(1, 10)
     rolls = {fighter_a.discord_id: roll_a, fighter_b.discord_id: roll_b}
     if roll_a == roll_b:
         first_id = rng.choice([fighter_a.discord_id, fighter_b.discord_id])
@@ -277,9 +277,9 @@ def _build_combat_slice(
         opponent=_clone_combatant(defender.combatant),
         opponent_id=defender.discord_id,
         opponent_name=defender.dao_name,
-        opponent_attack=max(1, defender.defense),
-        opponent_defense=defender.defense,
-        opponent_speed=defender.agility,
+        opponent_attack=max(1, defender.armor),
+        opponent_defense=defender.armor,
+        opponent_speed=defender.speed,
         technique_cooldowns=dict(actor.technique_cooldowns),
         log=duel.log,
         finished=duel.finished,
@@ -461,7 +461,7 @@ def build_match_summary(state: PvpCombatState) -> str:
         dealt = format_compact_number(fighter.damage_dealt)
         taken = format_compact_number(fighter.damage_taken)
         lines.append(
-            f"**{fighter.dao_name}** — HP **{hp}/{max_hp}** ({hp_pct}%) · "
+            f"**{fighter.dao_name}** — Vitality **{hp}/{max_hp}** ({hp_pct}%) · "
             f"dealt **{dealt}** · took **{taken}** · "
             f"actions **{fighter.actions_taken}**"
         )

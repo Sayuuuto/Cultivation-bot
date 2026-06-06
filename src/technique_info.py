@@ -21,11 +21,12 @@ _ROLE_LABEL = {
 }
 
 _STAT_LABELS = {
-    "external_strength": "External Strength",
-    "internal_strength": "Internal Strength",
-    "spiritual_sense": "Spiritual Sense",
-    "agility": "Agility",
-    "defense": "Defense",
+    "might": "Might",
+    "qi_power": "Qi Power",
+    "perception": "Perception",
+    "speed": "Speed",
+    "armor": "Armor",
+    "resolve": "Resolve",
 }
 
 
@@ -167,7 +168,7 @@ def format_technique_combat_summary(tech: TechniqueDef) -> str:
 
     if tech.heal_ratio > 0:
         pct = int(round(tech.heal_ratio * 100))
-        lines.append(f"Can restore **{pct}%** of damage dealt as HP under the right conditions.")
+        lines.append(f"Can restore **{pct}%** of damage dealt as vitality under the right conditions.")
 
     for trig in tech.passive_triggers:
         if trig.type == "on_hit_bleed_chance":
@@ -183,12 +184,12 @@ def format_technique_combat_summary(tech: TechniqueDef) -> str:
             pct = int(float(trig.params.get("heal_pct", 0)) * 100)
             threshold = int(float(trig.params.get("threshold", 0.3)) * 100)
             lines.append(
-                f"When you fall below **{threshold}%** HP, heal **{pct}%** of your max HP "
+                f"When you fall below **{threshold}%** vitality, heal **{pct}%** of your max vitality "
                 f"(cooldown **{int(trig.params.get('cooldown', 0))}** turns)."
             )
         elif trig.type == "cleanse_stun_shield":
             pct = int(float(trig.params.get("shield_pct", 0)) * 100)
-            lines.append(f"When **Stunned** or **Sealed**, gain a shield worth **{pct}%** of max HP.")
+            lines.append(f"When **Stunned** or **Sealed**, gain a shield worth **{pct}%** of max vitality.")
 
     if len(lines) == 1 and tech.damage_type == "none":
         lines.append("Support or trigger effects — read the description above.")
@@ -214,13 +215,13 @@ def format_technique_effect_plain(tech: TechniqueDef) -> str:
                 pct = int(float(trig.params.get("heal_pct", 0)) * 100)
                 threshold = int(float(trig.params.get("threshold", 0.3)) * 100)
                 trigger_lines.append(
-                    f"When below {threshold}% HP, heal {pct}% max HP "
+                    f"When below {threshold}% vitality, heal {pct}% max vitality "
                     f"(cooldown {int(trig.params.get('cooldown', 0))} turns)."
                 )
             elif trig.type == "cleanse_stun_shield":
                 pct = int(float(trig.params.get("shield_pct", 0)) * 100)
                 trigger_lines.append(
-                    f"When stunned or sealed, gain a shield worth {pct}% of max HP."
+                    f"When stunned or sealed, gain a shield worth {pct}% of max vitality."
                 )
         if trigger_lines:
             return " ".join(trigger_lines)
@@ -242,7 +243,7 @@ def format_technique_effect_plain(tech: TechniqueDef) -> str:
         parts.append(f"{pct}% chance to cause {status}.")
     if tech.heal_ratio > 0:
         pct = int(round(tech.heal_ratio * 100))
-        parts.append(f"Can restore {pct}% of damage dealt as HP.")
+        parts.append(f"Can restore {pct}% of damage dealt as vitality.")
     if parts:
         return " ".join(parts)
     desc = (tech.description or "").strip()

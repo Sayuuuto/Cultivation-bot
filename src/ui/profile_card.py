@@ -692,7 +692,7 @@ def render_profile_card(data: ProfileCardData, avatar: Image.Image | None = None
         _fill_gradient(img, callout, GOLD_PANEL_HI, GOLD_PANEL)
         _draw_rounded_rect(draw, callout, GOLD_PANEL, GOLD_BORDER, radius=12, width=2)
         _fit_text(draw, "QI POOL FULL — attempt /breakthrough now", CARD_W - 2 * MARGIN - 24, font_md, GOLD_BRIGHT, (MARGIN + 14, qi_y + 10))
-        trial = data.trial_line or "Outer Disciple Trial complete"
+        trial = data.trial_line or "Elder Yunjian's trial complete"
         _fit_text(draw, trial, CARD_W - 2 * MARGIN - 24, font_xs, TEXT_DIM, (MARGIN + 14, qi_y + 36))
         y = qi_y + 72
     else:

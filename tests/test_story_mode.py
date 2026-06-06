@@ -88,7 +88,7 @@ def test_on_story_command_completed_advances_daily(session: Session):
     player = _player(story_step="wait_daily", novice_trial_step=0)
     session.add(player)
     session.flush()
-    msgs = on_story_command_completed(player, "daily")
+    msgs, next_step = on_story_command_completed(player, "daily")
     assert player.story_step == "after_daily"
     assert msgs == []
 

@@ -85,16 +85,16 @@ def apply_effects_from_db(session: Session, mod: CharacterModifiers, player_id: 
 
 def _apply_effect(mod: CharacterModifiers, effect_id: str) -> None:
     mapping = {
-        "qi_gathering": lambda m: setattr(m, "qi_gathering_mult", m.qi_gathering_mult * 1.55),
-        "tempering": lambda m: setattr(m, "adventure_defense", m.adventure_defense + 0.12),
-        "swiftwind": lambda m: setattr(m, "adventure_success", m.adventure_success + 0.10),
-        "blood_ember": lambda m: setattr(m, "dungeon_damage", m.dungeon_damage + 0.15),
-        "moonwell_tonic": lambda m: setattr(m, "rare_event_mult", m.rare_event_mult * 1.35),
+        "qi_gathering": lambda m: setattr(m, "cultivate_speed", m.cultivate_speed * 1.55),
+        "tempering": lambda m: setattr(m, "damageReduction", m.damageReduction + 0.12),
+        "swiftwind": lambda m: setattr(m, "adventure_luck", m.adventure_luck + 0.10),
+        "blood_ember": lambda m: setattr(m, "damageBonus", m.damageBonus + 0.15),
+        "moonwell_tonic": lambda m: setattr(m, "adventure_luck", m.adventure_luck + 0.35),
         "shrine_boon": lambda m: (
-            setattr(m, "adventure_success", m.adventure_success + 0.10),
-            setattr(m, "pvp_power", m.pvp_power + 0.10),
+            setattr(m, "adventure_luck", m.adventure_luck + 0.10),
+            setattr(m, "damageBonus", m.damageBonus + 0.10),
         ),
-        "shrine_curse": lambda m: setattr(m, "adventure_success", m.adventure_success - 0.08),
+        "shrine_curse": lambda m: setattr(m, "adventure_luck", m.adventure_luck - 0.08),
     }
     fn = mapping.get(effect_id)
     if fn:

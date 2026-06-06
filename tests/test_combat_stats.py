@@ -15,8 +15,8 @@ def test_combat_stats_scale_with_realm(session, player):
 
     high = compute_combat_stats(player, session, mod)
     assert high.hp > low.hp
-    assert high.internal_strength > low.internal_strength
-    assert high.defense > low.defense
+    assert high.qi_power > low.qi_power
+    assert high.armor > low.armor
 
 
 def test_realm_breakthrough_is_decisive(session, player):
@@ -30,8 +30,8 @@ def test_realm_breakthrough_is_decisive(session, player):
     qi_early = compute_combat_stats(player, session, mod)
 
     assert qi_early.hp > mortal_late.hp * 5
-    assert qi_early.external_strength > mortal_late.external_strength * 5
-    assert qi_early.defense > mortal_late.defense * 5
+    assert qi_early.might > mortal_late.might * 5
+    assert qi_early.armor > mortal_late.armor * 5
 
 
 def test_immortal_monarch_stats_reach_billions(session, player):
@@ -64,7 +64,7 @@ def test_combat_stats_include_gear(session, player):
 
     mod = get_character_modifiers(session, player)
     bare = compute_combat_stats(player, session, mod)
-    assert bare.internal_strength >= 10
+    assert bare.qi_power >= 10
 
 
 def test_stats_summary_shows_realm_and_gear_columns(session, player):
@@ -73,7 +73,7 @@ def test_stats_summary_shows_realm_and_gear_columns(session, player):
     assert "Final" in text
     assert "Realm" in text
     assert "Gear" in text
-    assert "Internal" in text
+    assert "Qi Power" in text
     assert "Crit" in text
 
 

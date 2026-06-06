@@ -27,29 +27,22 @@ from .stats import format_equipment_slot_line
 
 
 AFFIX_FIELD_MAP = {
-
-    "power": "pvp_power",
-
-    "defense": "adventure_defense",
-
+    "might": "damageBonus",
+    "defense": "damageReduction",
+    "fortune": "dropBonus",
+    "warding": "damageReduction",
+    "vitality": "adventure_luck",
+    "finesse": "breakthrough_luck",
+    "perception": "adventure_luck",
+    "speed": "adventure_luck",
 }
 
-
-
 MULT_FIELDS = {
-
-    "rare_event_mult",
-
-    "breakthrough_setback_mult",
-
-    "cultivate_qi_mult",
-
-    "offline_cap_mult",
-
-    "pvp_stones_mult",
-
-    "qi_gathering_mult",
-
+    "breakthrough_luck",
+    "cultivate_speed",
+    "offline_efficiency",
+    "dropBonus",
+    "damageBonus",
 }
 
 

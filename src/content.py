@@ -119,11 +119,11 @@ def load_all_content() -> None:
     if _loaded:
         return
 
+    from .loot import parse_loot_drop, parse_loot_table
+
     areas_raw = _load_json("areas.json")
     areas: dict[str, AreaDef] = {}
     for area_id, data in areas_raw.items():
-        from .loot import parse_loot_table
-
         drops = tuple(
             DropEntry(
                 item_id=e.item_id,
@@ -169,8 +169,6 @@ def load_all_content() -> None:
     dungeons_raw = _load_json("dungeons.json")
     dungeons: dict[str, DungeonDef] = {}
     for dungeon_id, data in dungeons_raw.items():
-        from .loot import parse_loot_drop, parse_loot_table
-
         guaranteed = tuple(
             DropEntry(
                 item_id=e.item_id,

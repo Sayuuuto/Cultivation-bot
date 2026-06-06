@@ -34,7 +34,7 @@ def test_format_technique_effect_plain_active_damage(session, player):
     assert tech is not None
     text = format_technique_effect_plain(tech)
     assert "Base power 4" in text
-    assert "External Strength" in text
+    assert "Might" in text
     assert technique_base_power(tech) == 4
 
 

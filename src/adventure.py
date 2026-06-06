@@ -718,7 +718,7 @@ def _resolve_combat_segment(
                 rng,
                 combat_tier=tier,
                 luck=stats.luck,
-                drop_luck=mod.drop_luck,
+                drop_luck=mod.dropBonus,
                 player_realm_index=player.realm_index,
                 area_min_realm=area.min_realm,
                 qty_mult=drop_mult,
@@ -731,7 +731,7 @@ def _resolve_combat_segment(
                 area.drops,
                 drop_mult,
                 stats.luck,
-                mod.drop_luck,
+            mod.dropBonus,
                 player_realm_index=player.realm_index,
                 area_min_realm=area.min_realm,
             )
@@ -750,7 +750,7 @@ def _resolve_combat_segment(
 
     segments_since_rare = int(state.get("segments_since_rare", 0))
     pity_bonus = _pity_bonus(state)
-    rare_roll = min(0.95, area.rare_event_chance + pity_bonus) * mod.rare_event_mult
+    rare_roll = min(0.95, area.rare_event_chance + pity_bonus) * (1.0 + mod.dropBonus)
     if stance == "reckless":
         rare_roll *= 1.1
     _maybe_pity_hint(state, state["messages"])
@@ -1081,7 +1081,7 @@ def _resolve_segment(
     success_chance = _clamp_chance(
         area.base_success
         + stance_mod["success"]
-        + mod.adventure_success
+        + mod.adventure_luck
         + choice.success_bonus
         + min(0.12, power / 200.0)
         - penalty,
@@ -1106,7 +1106,7 @@ def _resolve_segment(
             area.drops,
             drop_mult,
             stats.luck,
-            mod.drop_luck,
+            mod.dropBonus,
             player_realm_index=player.realm_index,
             area_min_realm=area.min_realm,
         )
@@ -1125,7 +1125,7 @@ def _resolve_segment(
 
     segments_since_rare = int(state.get("segments_since_rare", 0))
     pity_bonus = _pity_bonus(state)
-    rare_roll = min(0.95, area.rare_event_chance + pity_bonus) * mod.rare_event_mult
+    rare_roll = min(0.95, area.rare_event_chance + pity_bonus) * (1.0 + mod.dropBonus)
     if stance == "reckless":
         rare_roll *= 1.1
     _maybe_pity_hint(state, state["messages"])

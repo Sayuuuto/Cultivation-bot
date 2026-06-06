@@ -265,6 +265,7 @@ class CultivateResult:
     event_qi_mult: float = 1.0
     bonus_drops: dict[str, int] | None = None
     meridian_note: str = ""
+    story_next: str | None = None
 
 
 def cultivate(
@@ -282,9 +283,9 @@ def cultivate(
     """
     rng = rng or random.Random()
     now = utcnow()
-    qi_mult = 1.0 if mod is None else getattr(mod, "cultivate_qi_mult", 1.0) * getattr(mod, "qi_gathering_mult", 1.0)
-    offline_mult = 1.0 if mod is None else getattr(mod, "offline_cap_mult", 1.0)
-    clan_mult = 1.0 if mod is None else getattr(mod, "clan_contribution_mult", 1.0)
+    qi_mult = 1.0 if mod is None else getattr(mod, "cultivate_speed", 1.0)
+    offline_mult = 1.0 if mod is None else getattr(mod, "offline_efficiency", 1.0)
+    clan_mult = 1.0 if mod is None else getattr(mod, "cultivate_speed", 1.0)
 
     passive_qi_collected = collect_passive_qi(player, now, cap_mult=offline_mult)
     player.last_active_at = now
@@ -372,7 +373,7 @@ def cultivate(
     if meridian_note:
         msg += f"\n{meridian_note}"
 
-    trial_msgs = on_cultivated(player)
+    trial_msgs, story_next = on_cultivated(player)
     if trial_msgs:
         msg += "\n" + "\n".join(trial_msgs)
 
@@ -400,6 +401,7 @@ def cultivate(
         event_qi_mult=event_qi_mult,
         bonus_drops=bonus_drops or None,
         meridian_note=meridian_note,
+        story_next=story_next,
     )
 
 
@@ -453,8 +455,8 @@ def compute_breakthrough_preview(
     karma_bonus, fail_setback_mult = karma_breakthrough_modifiers(player.karma)
     stability_bonus = 0.0
     if mod is not None:
-        stability_bonus = getattr(mod, "breakthrough_stability", 0.0)
-        fail_setback_mult *= getattr(mod, "breakthrough_setback_mult", 1.0)
+        stability_bonus = getattr(mod, "breakthrough_luck", 0.0)
+        fail_setback_mult *= getattr(mod, "setback_resistance", 1.0)
 
     qi_fill_bonus = 0.0
     if cap > 0 and player.qi >= cap:
@@ -575,7 +577,7 @@ def player_strength_for_pvp(player: Player, mod=None) -> float:
     ratio = 0.0 if cap <= 0 else min(1.0, player.qi / cap)
     power = player.realm_index * 100 + player.substage * 40 + ratio * 100
     if mod is not None:
-        power *= 1.0 + getattr(mod, "pvp_power", 0.0)
+        power *= 1.0 + getattr(mod, "damageBonus", 0.0)
     return power
 
 
@@ -615,10 +617,12 @@ def duel(challenger: Player, opponent: Player, cfg: Config, rng: random.Random |
 
     # Forgiving stakes.
     base_stones = 10 + winner.realm_index * 2
-    winner_mult = 1.0 if challenger_mod is None else getattr(challenger_mod, "pvp_stones_mult", 1.0)
-    if winner is opponent:
-        winner_mult = 1.0 if opponent_mod is None else getattr(opponent_mod, "pvp_stones_mult", 1.0)
-    stones_gain = int(base_stones * winner_mult)
+    drop_bonus = 0.0
+    if winner is challenger and challenger_mod is not None:
+        drop_bonus = getattr(challenger_mod, "dropBonus", 0.0)
+    elif winner is opponent and opponent_mod is not None:
+        drop_bonus = getattr(opponent_mod, "dropBonus", 0.0)
+    stones_gain = int(base_stones * (1.0 + drop_bonus))
 
     winner.spirit_stones += stones_gain
 

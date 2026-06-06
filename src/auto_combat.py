@@ -42,13 +42,14 @@ def _player_attack_damage(
     *,
     crit: bool = False,
 ) -> int:
-    base = (stats.internal_strength + stats.external_strength) * 0.45
+    base = (stats.qi_power + stats.might) * 0.45
     variance = rng.uniform(0.88, 1.12)
     raw = base * variance
+    mitigation = beast_defense * 0.40
+    damage = max(1, int(raw - mitigation))
     if crit:
-        raw *= 1.5
-    mitigation = beast_defense * 0.45
-    return max(1, int(raw - mitigation))
+        damage = int(damage * 1.5)
+    return damage
 
 
 def _beast_attack_damage(
@@ -59,8 +60,8 @@ def _beast_attack_damage(
 ) -> int:
     variance = rng.uniform(0.90, 1.10)
     raw = beast_attack * variance
-    defense = stats.defense * (1.0 + (mod.adventure_defense if mod else 0.0))
-    return max(1, int(raw - defense * 0.35))
+    mitigation = stats.armor * 0.40
+    return max(1, int(raw - mitigation))
 
 
 def resolve_auto_combat(
@@ -105,7 +106,7 @@ def resolve_auto_combat(
             player_hp -= taken
             taken_text = format_compact_number(taken)
             hp_text = format_compact_number(max(0, player_hp))
-            log.append(f"**{beast.name}** hits you for **{taken_text}** damage. (**{hp_text}** HP left)")
+            log.append(f"**{beast.name}** hits you for **{taken_text}** damage. (**{hp_text}** vitality left)")
 
             if player_hp <= 0:
                 log.append("Your vision darkens — you withdraw before the beast finishes you.")

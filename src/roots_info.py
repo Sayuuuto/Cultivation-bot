@@ -12,18 +12,14 @@ FIELD_CHUNK_BUDGET = 980
 
 # Human-readable stat labels and formatting hints.
 STAT_DISPLAY: dict[str, tuple[str, str]] = {
-    "cultivate_qi_mult": ("Cultivate qi", "mult"),
-    "breakthrough_stability": ("Breakthrough stability", "add_pct"),
-    "breakthrough_setback_mult": ("Breakthrough setback on fail", "mult"),
-    "adventure_success": ("Adventure success", "add_pct"),
-    "adventure_defense": ("Adventure defense", "add_pct"),
-    "dungeon_damage": ("Dungeon damage", "add_pct"),
-    "dungeon_defense": ("Dungeon defense", "add_pct"),
-    "drop_luck": ("Drop luck", "add_pct"),
-    "rare_event_mult": ("Rare event chance", "mult"),
-    "pvp_power": ("PvP power", "add_pct"),
-    "pvp_stones_mult": ("Duel stone winnings", "mult"),
-    "clan_contribution_mult": ("Clan qi contribution", "mult"),
+    "cultivate_speed": ("Cultivation speed", "mult"),
+    "breakthrough_luck": ("Breakthrough luck", "add_pct"),
+    "setback_resistance": ("Setback resistance", "mult"),
+    "adventure_luck": ("Adventure luck", "add_pct"),
+    "damageReduction": ("Damage reduction", "add_pct"),
+    "dropBonus": ("Drop bonus", "mult"),
+    "offline_efficiency": ("Offline efficiency", "mult"),
+    "damageBonus": ("Damage bonus", "add_pct"),
 }
 
 

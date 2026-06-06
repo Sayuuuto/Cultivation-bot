@@ -177,7 +177,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "**`/roots`** — tier list and every stat bonus.",
                 ),
                 (
-                    "Outer Disciple Trial (6 steps)",
+                    "Elder Yunjian's Guidance (6 steps)",
                     f"Tracked on **`/profile`** after your first **`/daily`**:\n{_format_trial_steps()}\n\n"
                     f"{quote('First `/adventure` features the Sage of the Bamboo Path — your first karma choice.')}",
                 ),
@@ -198,10 +198,10 @@ def build_tutorial_pages() -> list[discord.Embed]:
                 (
                     "What you see",
                     "**Realm & qi bar** — daily streak, breakthrough-ready hint\n"
-                    "**Outer Disciple Trial** — current onboarding step (until complete)\n"
+                    "**Elder Yunjian's instruction** — current step (until the trial ends)\n"
                     "**Activity lanes** — live timers for cultivate / gather / hunt / adventure / dungeon\n"
                     "**Martial dao** — loadout, learned arts, unread manuals, craft progress\n"
-                    "**Combat stats** — HP, strength, agility, defense (for button fights)\n"
+                    "**Combat stats** — Vitality, might, qi power, armor, speed, perception (for button fights)\n"
                     "**Resources** — spirit stones\n"
                     "**Qi gathering** — **formation bank** (passive **Qi/min** while offline) + **`/cultivate`** preview (pills boost active only)",
                 ),
@@ -261,7 +261,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "Hunt combat",
                     quote(
                         "Engage → technique buttons (cooldowns on buttons) → **Pass Turn** or **Flee**.\n"
-                        "HP bars, status badges, emoji combat logs.\n"
+                        "Vitality bars, status badges, emoji combat logs.\n"
                         "Prepare with `/techniques` — 4 active slots + 1 passive."
                     ),
                 ),
@@ -411,7 +411,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "Stones drop from rare adventure events and dungeons\n"
                     "**`/loadout`** — gear, affixes, active pill effects\n"
                     "**`/stats`** — Power / Defense / Fortune / Insight from forged gear\n\n"
-                    f"{quote('Profile **Combat** stats (HP, STR, AGI) power button fights. `/stats` tracks adventure & PvP modifiers from gear.')}",
+                    f"{quote('Profile **Combat** stats (Vitality, Might, Qi Power) power button fights. `/stats` tracks adventure & PvP modifiers from gear.')}",
                 ),
             ],
             author="Chapter 10 · Forging",
@@ -527,7 +527,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
             "16 · Walk the Path",
             (
                 "You now have the map. **Play in any channel:**\n\n"
-                "1. **`/start`** → **`/daily`** → follow the **Outer Disciple Trial** on **`/profile`**\n"
+                "1. **`/start`** → **`/daily`** → follow **Elder Yunjian's guidance** on **`/profile`**\n"
                 "2. **`/cultivate`** (or profile button) · **`/breakthrough`** when qi is full\n"
                 "3. **`/techniques`** — study origin manual, equip your loadout\n"
                 "4. **`/hunt`** & **`/adventure`** — button combat & karma choices\n"

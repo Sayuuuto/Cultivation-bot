@@ -82,6 +82,13 @@ def install_combat_state_probe(monkeypatch: Any) -> None:
         return result, err
 
     monkeypatch.setattr(combat_session, "process_combat_action", _wrapped)
+    import sys as _sys
+    for mod_name in (
+        "src.discord_ui.views.combat_view",
+    ):
+        mod = _sys.modules.get(mod_name)
+        if mod is not None:
+            monkeypatch.setattr(mod, "process_combat_action", _wrapped)
 
 
 def load_hunt_combat_state(db: Session, player_id: int) -> CombatState | None:

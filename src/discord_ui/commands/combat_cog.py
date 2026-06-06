@@ -39,6 +39,7 @@ from ..helpers import (
     schedule_player_reminders,
 )
 from ..views import AbandonStuckCombatView, AdventureChoiceView, CombatView
+from ..views.confirm_view import ConfirmActionView
 
 
 class CombatCog(commands.Cog):
@@ -71,7 +72,7 @@ class CombatCog(commands.Cog):
                 haste = get_haste_reduction_seconds(session, player.id, "gather")
                 extra = f" (pill haste: −{format_seconds(haste)})" if haste > 0 else ""
                 await interaction.response.send_message(
-                    f"The soil needs time to recover. Wait {format_seconds(remaining)}.{extra}",
+                    f"The land yields nothing so soon. Wait {format_seconds(remaining)}.{extra}",
                     ephemeral=False,
                 )
                 return
@@ -136,7 +137,7 @@ class CombatCog(commands.Cog):
                 haste = get_haste_reduction_seconds(session, player.id, "hunt")
                 extra = f" (pill haste: −{format_seconds(haste)})" if haste > 0 else ""
                 await interaction.response.send_message(
-                    f"You must recover before hunting again. Wait {format_seconds(remaining)}.{extra}",
+                    f"Your body aches from the last hunt. Wait {format_seconds(remaining)}.{extra}",
                     ephemeral=False,
                 )
                 return
@@ -221,7 +222,7 @@ class CombatCog(commands.Cog):
                 haste = get_haste_reduction_seconds(session, player.id, "adventure")
                 extra = f" (pill haste: −{format_seconds(haste)})" if haste > 0 else ""
                 await interaction.response.send_message(
-                    f"You need to recover before another adventure. Wait {format_seconds(remaining)}.{extra}",
+                    f"The path demands patience. Wait {format_seconds(remaining)}.{extra}",
                     ephemeral=False,
                 )
                 return
@@ -367,13 +368,38 @@ class CombatCog(commands.Cog):
                 await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
                 return
 
-            ok, message = abandon_adventure(session, player.id)
-            if not ok:
-                await interaction.response.send_message(message, ephemeral=False)
-                return
+            async def confirm_abandon(interaction: discord.Interaction):
+                session2 = get_session()
+                try:
+                    player2 = ensure_player(session2, guild_id, discord_id)
+                    if player2 is None:
+                        await interaction.followup.send(NOT_STARTED_HINT, ephemeral=False)
+                        return
 
-            session.commit()
-            await interaction.response.send_message(message, ephemeral=False)
+                    ok, message = abandon_adventure(session2, player2.id)
+                    if not ok:
+                        await interaction.followup.send(message, ephemeral=False)
+                        return
+
+                    session2.commit()
+                    await interaction.followup.send(message, ephemeral=False)
+                finally:
+                    session2.close()
+
+            view = ConfirmActionView(
+                discord_id,
+                title="Abandon Adventure",
+                description="Are you sure you want to abandon your adventure? You will lose all progress and rewards.",
+                confirm_label="Abandon",
+                on_confirm=confirm_abandon,
+            )
+            embed = discord.Embed(
+                title="Abandon Adventure?",
+                description="Are you sure you want to abandon your adventure? You will lose all progress and rewards.",
+                color=discord.Color.orange(),
+            )
+            msg = await interaction.response.send_message(embed=embed, view=view, ephemeral=False)
+            view.message = msg
         finally:
             session.close()
 

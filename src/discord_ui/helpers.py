@@ -91,6 +91,7 @@ from ..story_delivery import (
     deliver_pending_story_to_abode,
     maybe_sync_elder_story,
     resolve_abode_channel,
+    send_elder_followup,
     sync_player_story_to_abode,
 )
 from ..story_mode import (
@@ -248,7 +249,7 @@ def get_clan_by_name_lookup(session: Session, guild_id: str, name: str) -> Clan 
 
 
 def ensure_loaded_player(player: Player) -> None:
-    _ = player
+    pass
 
 
 def _apply_adventure_completion(
@@ -256,19 +257,21 @@ def _apply_adventure_completion(
     player: Player,
     result: AdventureResult,
     now: datetime,
-) -> list[str]:
-    trial_msgs, waive_cd = on_adventure_completed(
+) -> tuple[list[str], str | None]:
+    trial_msgs, waive_cd, story_next = on_adventure_completed(
         session, player, segments_cleared=result.segments_cleared
     )
     from ..story_mode import should_apply_trial_activity_cooldown
     if not waive_cd and should_apply_trial_activity_cooldown(player, "adventure"):
         player.last_adventure_at = now
     player.last_active_at = now
-    return trial_msgs
+    return trial_msgs, story_next
 
 
 def rng_for(guild_id: str, user_id: str, *, salt: str = "") -> random.Random:
-    seed = hash((guild_id, user_id, salt, datetime.now(timezone.utc).timestamp())) & 0xFFFFFFFF
+    import hashlib
+    raw = f"{guild_id}:{user_id}:{salt}:{datetime.now(timezone.utc).timestamp()}"
+    seed = int(hashlib.md5(raw.encode()).hexdigest()[:8], 16)
     return random.Random(seed)
 
 
@@ -383,7 +386,7 @@ async def _finalize_pvp_match_discord(
 
 async def _prepare_player_for_breakthrough(session, player, cfg, now) -> None:
     mod = get_character_modifiers(session, player)
-    collect_passive_qi(player, now, cap_mult=mod.offline_cap_mult)
+    collect_passive_qi(player, now, cap_mult=mod.offline_efficiency)
     player.last_active_at = now
 
 
@@ -432,10 +435,13 @@ async def _finish_breakthrough_attempt(
             session, player, random.Random(), success=res.success
         )
         trial_msgs: list[str] = []
+        story_next: str | None = None
         foundation_msgs: list[str] = []
         chapter_msgs: list[str] = []
+        from ..story_mode import elder_trial_active
+        in_trial = elder_trial_active(player)
         if res.success:
-            trial_msgs = on_breakthrough_success(session, player, rng)
+            trial_msgs, story_next = on_breakthrough_success(session, player, rng)
             if player.realm_index >= 1 and old_realm_index < 1:
                 chapter_msgs = unlock_chapter_two(player)
             foundation_msgs.append(grant_body_temper_charges(player, 1))
@@ -460,7 +466,7 @@ async def _finish_breakthrough_attempt(
 
         if enlighten_msg:
             desc += f"\n\n{enlighten_msg}"
-        if trial_msgs:
+        if trial_msgs and not in_trial:
             desc += "\n\n" + "\n".join(trial_msgs)
         if chapter_msgs:
             desc += "\n\n" + "\n".join(chapter_msgs)
@@ -488,12 +494,20 @@ async def _finish_breakthrough_attempt(
         attach_guidance(embed, "breakthrough", player, session, cfg, now)
 
         await interaction.followup.send(embed=embed, ephemeral=False)
-        await maybe_sync_elder_story(
-            interaction,
-            session,
-            player,
-            on_player_update=_story_continue_after_creation,
-        )
+        if in_trial:
+            await send_elder_followup(
+                interaction,
+                session,
+                player,
+                on_player_update=_story_continue_after_creation,
+            )
+        else:
+            await maybe_sync_elder_story(
+                interaction,
+                session,
+                player,
+                on_player_update=_story_continue_after_creation,
+            )
         session.commit()
         if res.success:
             await post_announcement(
@@ -565,6 +579,9 @@ async def _story_continue_after_creation(
     interaction: discord.Interaction,
     player_id: int,
     next_node: str,
+    *,
+    next_node_override: str | None = None,
+    sync_abode: bool = True,
 ) -> None:
     session = get_session()
     try:
@@ -572,10 +589,11 @@ async def _story_continue_after_creation(
         if player is None:
             await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
             return
-        player.story_step = next_node
+        resolved_node = next_node_override or next_node
+        player.story_step = resolved_node
         session.add(player)
         session.commit()
-        if interaction.guild is not None and player.abode_channel_id:
+        if sync_abode and interaction.guild is not None and player.abode_channel_id:
             await sync_player_story_to_abode(
                 interaction.client, interaction.guild, session, player,
                 on_player_update=_story_continue_after_creation,
@@ -583,7 +601,7 @@ async def _story_continue_after_creation(
             session.commit()
         else:
             await send_story_node_for_player(
-                interaction, session, player, edit=True,
+                interaction, session, player, edit=False,
                 on_player_update=_story_continue_after_creation,
             )
     finally:
@@ -606,7 +624,8 @@ async def _story_finalize_creation(interaction: discord.Interaction, pending) ->
             )
             return
 
-        await interaction.response.defer()
+        if not interaction.response.is_done():
+            await interaction.response.defer()
 
         now = utcnow()
         root = random.choice(SPIRIT_ROOTS)

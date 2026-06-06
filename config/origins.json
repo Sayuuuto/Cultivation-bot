@@ -1,38 +1,37 @@
 {
   "Mountain Rises": {
-    "cultivate_qi_mult": 1.05,
-    "breakthrough_stability": 0.02,
-    "adventure_defense": 0.05,
+    "cultivate_speed": 1.05,
+    "breakthrough_luck": 0.02,
+    "damageReduction": 0.05,
     "description": "Your foundation is as unmoving as the peaks."
   },
   "Waterside Vow": {
-    "breakthrough_stability": 0.04,
-    "cultivate_qi_mult": 1.05,
-    "adventure_success": 0.03,
+    "breakthrough_luck": 0.04,
+    "cultivate_speed": 1.05,
+    "adventure_luck": 0.03,
     "description": "Your dao flows like water, adapting without breaking."
   },
   "Ancient Tomb Awakened": {
-    "rare_event_mult": 1.20,
-    "dungeon_luck": 0.05,
-    "breakthrough_setback_mult": 1.10,
+    "dropBonus": 1.20,
+    "breakthrough_luck": 0.05,
     "description": "Old karma clings to you; ruins whisper your name."
   },
   "River Dragon's Gift": {
-    "drop_luck": 0.10,
-    "adventure_success": 0.05,
-    "pvp_stones_mult": 1.10,
+    "dropBonus": 0.10,
+    "adventure_luck": 0.05,
+    "cultivate_speed": 1.10,
     "description": "Fortune follows you as if the river dragon still watches."
   },
   "Starfall Seclusion": {
-    "offline_cap_mult": 1.25,
-    "cultivate_qi_mult": 1.08,
-    "adventure_defense": -0.03,
+    "offline_efficiency": 1.25,
+    "cultivate_speed": 1.08,
+    "damageReduction": -0.03,
     "description": "You cultivated beneath falling stars; solitude strengthened your qi."
   },
   "Wandering Immortal's Footsteps": {
-    "adventure_success": 0.06,
-    "drop_luck": 0.05,
-    "clan_contribution_mult": 1.10,
+    "adventure_luck": 0.06,
+    "dropBonus": 0.05,
+    "cultivate_speed": 1.10,
     "description": "You walk paths many have forgotten."
   }
 }

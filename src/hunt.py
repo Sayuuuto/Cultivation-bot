@@ -127,6 +127,8 @@ class HuntResult:
 
     spirit_stones: int = 0
 
+    story_next: str | None = None
+
 
 
 
@@ -326,7 +328,7 @@ def _roll_hunt_drops(
         rng,
         combat_tier=tier,
         luck=stats.luck,
-        drop_luck=mod.drop_luck,
+        drop_luck=mod.dropBonus,
         player_realm_index=player.realm_index,
         area_min_realm=area_min_realm,
     )
@@ -603,6 +605,7 @@ def finalize_hunt_combat(
 
     drops: dict[str, int] = {}
     stones_gain = 0
+    story_next: str | None = None
 
     if victory:
 
@@ -619,7 +622,7 @@ def finalize_hunt_combat(
         from .spirit_stone_drops import grant_hunt_spirit_stones
 
         trial_drop_msg = apply_first_hunt_bonus(session, player, drops)
-        trial_msgs = on_hunt_victory(player)
+        trial_msgs, story_next = on_hunt_victory(player)
 
         for item_id, qty in drops.items():
 
@@ -676,6 +679,8 @@ def finalize_hunt_combat(
         messages=messages,
 
         spirit_stones=stones_gain if victory else 0,
+
+        story_next=story_next,
 
     )
 
@@ -766,7 +771,7 @@ def run_hunt(
     messages = [hunt_def.flavor]
     if gap > 0:
         messages.append(underleveled_entry_message(area, gap))
-    messages.append(f"You encounter **{beast.name}** (HP {format_compact_number(beast.hp)}).")
+    messages.append(f"You encounter **{beast.name}** (Vitality {format_compact_number(beast.hp)}).")
 
     messages.extend(combat.log_lines)
 
