@@ -165,7 +165,7 @@ class BreakthroughCommitView(discord.ui.View):
             return False
         return True
 
-    @discord.ui.button(label="Commit Breakthrough", style=discord.ButtonStyle.danger)
+    @discord.ui.button(label="Breakthrough", style=discord.ButtonStyle.danger)
     async def commit_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer(ephemeral=False)
         for item in self.children:

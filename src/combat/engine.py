@@ -19,6 +19,7 @@ from .effects import (
     turn_skip_message,
 )
 from .rules import load_combat_rules
+from .rules import get_monster_template
 from .triggers import (
     check_fatal_survival,
     opponent_trait_turn,
@@ -278,6 +279,27 @@ def _opponent_damage(
     return damage
 
 
+def _pick_monster_technique(state: CombatState, rng: random.Random) -> str | None:
+    if not hasattr(rng, "choice"):
+        return None
+    family = str(state.context_meta.get("monster_family", "spirit_beast"))
+    template = get_monster_template(family)
+    techniques = list(template.get("techniques") or [])
+    if not techniques:
+        return None
+    ai = template.get("ai_rules") or {}
+    player_ratio = state.player.hp / max(1, state.player.max_hp)
+    if player_ratio <= 0.30 and ai.get("if_player_hp_below_30") == "use_finisher":
+        finishers = [t for t in techniques if t != "basic_strike"]
+        if finishers:
+            return rng.choice(finishers)
+    if ai.get("if_player_has_status") == "use_payoff" and state.player.statuses:
+        payoff = [t for t in techniques if t != "basic_strike"]
+        if payoff:
+            return rng.choice(payoff)
+    return rng.choice(techniques)
+
+
 def _opponent_turn(
     state: CombatState,
     stats: PlayerCombatStats,
@@ -289,6 +311,37 @@ def _opponent_turn(
     if skip:
         state.log.append(skip)
         return
+
+    monster_tech = _pick_monster_technique(state, rng)
+    if monster_tech and monster_tech != "basic_strike":
+        from .catalog import get_technique
+
+        tech = get_technique(monster_tech)
+        if tech is not None:
+            monster_stats = PlayerCombatStats(
+                hp=state.opponent.hp,
+                max_hp=state.opponent.max_hp,
+                might=state.opponent_attack,
+                qi_power=state.opponent_attack,
+                armor=state.opponent_defense,
+                speed=state.opponent_speed,
+                perception=10,
+                resolve=10,
+                crit_chance=0.05,
+                dodge=0.0,
+                luck=0.0,
+            )
+            swapped_defense = state.opponent_defense
+            state.opponent_defense = stats.armor
+            err = resolve_technique(state, monster_stats, None, monster_tech, rng)
+            state.opponent_defense = swapped_defense
+            if err is None:
+                _check_end(state)
+                if state.finished:
+                    return
+                opponent_trait_turn(state, rng)
+                return
+
     if state.player.dodge_next or rng.random() < stats.dodge:
         state.player.dodge_next = False
         state.log.append(f"**{state.opponent_name}** attacks — you dodge!")
@@ -325,24 +378,43 @@ def execute_turn(
     if state.finished:
         return TurnResult(state=state, messages=["Combat already ended."], error="Combat already ended.")
 
-    player_skip = turn_skip_message(state.player, _actor_label(state), rng)
-    if player_skip:
-        state.log.append(player_skip)
-    elif action == "pass":
-        state.log.append(f"**{_actor_label(state)}** steadies their breath and passes the turn.")
-    elif action == "strike":
-        err = resolve_technique(state, stats, passive, "basic_strike", rng)
-        if err:
-            return TurnResult(state=state, messages=[err], error=err)
-    elif action == "technique" and technique_id:
-        err = resolve_technique(state, stats, passive, technique_id, rng)
-        if err:
-            return TurnResult(state=state, messages=[err], error=err)
-    else:
-        return TurnResult(state=state, messages=["Invalid action."], error="Invalid action.")
+    roll = rng.randint if hasattr(rng, "randint") else random.randint
+    player_init = stats.speed + roll(1, 10)
+    opponent_init = state.opponent_speed + roll(1, 10)
+    opponent_first = opponent_init > player_init
+    if opponent_first:
+        state.log.append(
+            f"**{state.opponent_name}** acts first (initiative {opponent_init} vs {player_init})."
+        )
+
+    if opponent_first and not state.finished and state.opponent.hp > 0 and state.player.hp > 0:
+        _opponent_turn(state, stats, mod, passive, rng)
+        _check_end(state)
+
+    if not state.finished and state.player.hp > 0:
+        player_skip = turn_skip_message(state.player, _actor_label(state), rng)
+        if player_skip:
+            state.log.append(player_skip)
+        elif action == "pass":
+            state.log.append(f"**{_actor_label(state)}** steadies their breath and passes the turn.")
+        elif action == "strike":
+            err = resolve_technique(state, stats, passive, "basic_strike", rng)
+            if err:
+                return TurnResult(state=state, messages=[err], error=err)
+        elif action == "technique" and technique_id:
+            err = resolve_technique(state, stats, passive, technique_id, rng)
+            if err:
+                return TurnResult(state=state, messages=[err], error=err)
+        else:
+            return TurnResult(state=state, messages=["Invalid action."], error="Invalid action.")
 
     _check_end(state)
-    if not state.finished and state.opponent.hp > 0 and state.player.hp > 0:
+    if (
+        not opponent_first
+        and not state.finished
+        and state.opponent.hp > 0
+        and state.player.hp > 0
+    ):
         _opponent_turn(state, stats, mod, passive, rng)
         _check_end(state)
 

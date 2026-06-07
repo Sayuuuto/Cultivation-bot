@@ -482,7 +482,7 @@ def build_tutorial_pages() -> list[discord.Embed]:
                     "**`/help`** — personal guide with contextual next steps\n"
                     "**`/cooldown`** — live timers + pill haste reductions\n"
                     "**`/reset`** — erase your character (`confirm=true`), then **`/start`** again\n\n"
-                    f"{quote('Most commands attach a What happens next hint after you use them.')}",
+                    f"{quote('Use /cooldown for live activity timers after most commands.')}",
                 ),
             ],
             author="Chapter 13 · Tools",

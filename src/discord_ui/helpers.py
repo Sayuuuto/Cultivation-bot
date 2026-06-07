@@ -341,6 +341,15 @@ async def _finalize_pvp_match_discord(
             return
         arena_channel_id = db_match.arena_channel_id
         finalized = finalize_pvp_match(session, db_match, cfg)
+        from ..achievements import check_achievements, format_achievement_unlock_message
+
+        unlocked = check_achievements(
+            session,
+            finalized.winner,
+            "pvp_win",
+            {"wins": finalized.winner.pvp_wins},
+        )
+        ach_msg = format_achievement_unlock_message(unlocked)
         now = utcnow()
         schedule_player_reminders(session, finalized.challenger, cfg, "duel", now=now)
         schedule_player_reminders(session, finalized.opponent, cfg, "duel", now=now)
@@ -349,6 +358,8 @@ async def _finalize_pvp_match_discord(
             f"⚔️ **Arena result** — **{finalized.winner.dao_name}** defeated "
             f"**{finalized.loser.dao_name}** (+{finalized.stones_gain} spirit stones)."
         )
+        if ach_msg:
+            announcement_message += f"\n{ach_msg}"
         session.commit()
     except Exception:
         logger.exception("Failed to finalize PvP match match_id=%s", match.id)
@@ -442,6 +453,17 @@ async def _finish_breakthrough_attempt(
         in_trial = elder_trial_active(player)
         if res.success:
             trial_msgs, story_next = on_breakthrough_success(session, player, rng)
+            from ..achievements import check_achievements, format_achievement_unlock_message
+
+            unlocked = check_achievements(
+                session,
+                player,
+                "breakthrough",
+                {"new_realm": player.realm_index},
+            )
+            ach_msg = format_achievement_unlock_message(unlocked)
+            if ach_msg:
+                trial_msgs = list(trial_msgs or []) + [ach_msg]
             if player.realm_index >= 1 and old_realm_index < 1:
                 chapter_msgs = unlock_chapter_two(player)
             foundation_msgs.append(grant_body_temper_charges(player, 1))
@@ -667,6 +689,7 @@ async def _story_finalize_creation(interaction: discord.Interaction, pending) ->
         session.flush()
 
         apply_origin_starter_gifts(session, player)
+        apply_path_bonuses(session, player)
 
         session.add(player)
         session.commit()

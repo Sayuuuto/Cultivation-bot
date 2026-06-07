@@ -6,6 +6,32 @@ from functools import lru_cache
 from pathlib import Path
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "config" / "combat_rules.json"
+_RAW_COMBAT_RULES_CACHE: dict[str, dict] = {}
+
+
+def load_combat_rules_raw() -> dict:
+    if "data" not in _RAW_COMBAT_RULES_CACHE:
+        with CONFIG_PATH.open(encoding="utf-8") as f:
+            _RAW_COMBAT_RULES_CACHE["data"] = json.load(f)
+    return _RAW_COMBAT_RULES_CACHE["data"]
+
+
+def get_monster_resistances(monster_family: str = "default") -> dict[str, float]:
+    raw = load_combat_rules_raw()
+    table = raw.get("monster_resistances", {})
+    entry = table.get(monster_family) or table.get("default", {})
+    return {str(k): float(v) for k, v in entry.items()}
+
+
+def get_status_interactions() -> list[dict]:
+    raw = load_combat_rules_raw()
+    return list(raw.get("status_interactions", []))
+
+
+def get_monster_template(monster_family: str = "default") -> dict:
+    raw = load_combat_rules_raw()
+    templates = raw.get("monster_templates", {})
+    return dict(templates.get(monster_family) or templates.get("default", {}))
 
 
 @dataclass(frozen=True)
@@ -70,8 +96,7 @@ class CombatRules:
 
 @lru_cache(maxsize=1)
 def load_combat_rules() -> CombatRules:
-    with CONFIG_PATH.open(encoding="utf-8") as f:
-        raw = json.load(f)
+    raw = load_combat_rules_raw()
     statuses: dict[str, StatusRule] = {}
     for status_id, data in raw.get("statuses", {}).items():
         statuses[status_id] = StatusRule(

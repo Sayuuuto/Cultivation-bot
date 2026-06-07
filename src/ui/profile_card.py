@@ -53,6 +53,11 @@ GOLD_PANEL = (48, 40, 16)
 GOLD_PANEL_HI = (62, 52, 22)
 GOLD_BORDER = (215, 175, 60)
 SHADOW = (0, 0, 0)
+RARITY_COLORS = {
+    "common": (148, 158, 178),
+    "rare": (100, 160, 255),
+    "legendary": (255, 200, 80),
+}
 
 EQUIPMENT_ORDER = ("weapon", "armor", "accessory", "talisman")
 ROMAN = ("I", "II", "III", "IV", "V", "VI")
@@ -70,6 +75,7 @@ class EquipmentSlotView:
     title: str
     subtitle: str
     filled: bool
+    rarity: str = "common"
 
 
 @dataclass
@@ -97,15 +103,14 @@ class ProfileCardData:
     clan_name: str | None
     martial_lines: list[str]
     martial_hint: str | None
+    build_archetype: str
     equipment_slots: list[EquipmentSlotView]
-    next_action_line: str
-    activity_line: str
-    trial_complete: bool
-    suppress_dashboard_hints: bool = False
+    achievement_badges: list[str]
+    is_public_view: bool = False
+    qi_label: str = ""
+    trial_complete: bool = False
+    suppress_dashboard_hints: bool = True
     effect_lines: list[str] = field(default_factory=list)
-    trial_line: str | None = None
-    passive_qi_line: str | None = None
-    active_cultivate_line: str | None = None
 
 
 def format_compact_number(value: int) -> str:
@@ -251,16 +256,19 @@ def _technique_profile_entry(session: Session, player_id: int, technique_id: str
     return f"{tech.name} [{tag}{power_bit} · Rank {rank}]", tag
 
 
-def _martial_skew_hint(active_archetypes: list[str]) -> str | None:
-    if len(active_archetypes) < 3:
-        return None
+def _build_archetype_label(active_archetypes: list[str]) -> str:
+    if not active_archetypes:
+        return "Unarmed disciple"
     counts = {tag: active_archetypes.count(tag) for tag in set(active_archetypes)}
     dominant, count = max(counts.items(), key=lambda item: item[1])
-    missing = [tag for tag in ("Control", "Utility", "Passive") if counts.get(tag, 0) == 0]
-    if count >= 3:
-        missing_text = f", 0 {missing[0]}" if missing else ""
-        return f"Kit skewed — {count} {dominant}{missing_text}; open /techniques to adjust"
-    return None
+    if count >= 2:
+        return f"{dominant}-focused build"
+    return f"{dominant} daoist"
+
+
+def _qi_tier_label(qi_pct: int) -> str:
+    rounded = max(0, min(100, (qi_pct // 5) * 5))
+    return f"{rounded}% through realm"
 
 
 def build_profile_card_data(
@@ -272,24 +280,15 @@ def build_profile_card_data(
     *,
     guild_label: str,
     display_name: str,
+    is_public_view: bool = False,
 ) -> ProfileCardData:
-    from ..character import get_character_modifiers
-    from ..cultivation_preview import (
-        format_active_cultivate_line,
-        format_passive_qi_rate_line,
-        preview_cultivate_qi,
-    )
+    from ..achievements import build_profile_achievement_badges
     from ..game_sects import get_sect_def
     from ..models import Clan
-    from ..novice_trial import format_trial_progress
-    from ..story_mode import elder_trial_active
-
-    suppress_hints = elder_trial_active(player)
 
     ensure_starter_techniques(session, player.id)
     cap = qi_cap(player.realm_index, player.substage, player)
     qi_pct = 0 if cap <= 0 else int(min(100, player.qi / cap * 100))
-    mod = get_character_modifiers(session, player)
 
     substage_name = SUBSTAGES[min(max(player.substage, 0), len(SUBSTAGES) - 1)].title()
     realm_detail = f"{get_realm_name(player.realm_index)} · {substage_name}"
@@ -317,7 +316,7 @@ def build_profile_card_data(
         martial_lines.extend(f"Active — {name}" for name in active_names[:4])
     else:
         martial_lines.append("Actives — —")
-    martial_hint = _martial_skew_hint(active_archetypes)
+    build_archetype = _build_archetype_label(active_archetypes)
 
     eq_rows = {eq.slot: eq for eq in get_player_equipment(session, player.id)}
     from ..gear_stash import resolve_equipped_gear
@@ -356,12 +355,14 @@ def build_profile_card_data(
         else:
             status = gear_status_label(view, player.realm_index) or "Outgrown"
             subtitle = status
+        rarity = str(getattr(view, "gear_rarity", None) or "common").lower()
         equipment_views.append(
             EquipmentSlotView(
                 slot_name=slot.title(),
                 title=name[:24],
                 subtitle=subtitle,
                 filled=True,
+                rarity=rarity,
             )
         )
 
@@ -384,18 +385,12 @@ def build_profile_card_data(
         if clan is not None:
             clan_name = clan.name
 
-    cult_preview = preview_cultivate_qi(player, mod, cfg, now)
-    passive_qi_line = plain_card_text(format_passive_qi_rate_line(cult_preview).replace("**", ""))
-    active_cultivate_line = plain_card_text(
-        format_active_cultivate_line(cult_preview, mod).replace("**", "").replace("_", "")
-    )
-    cultivate_gain_line = f"+{cult_preview.active_qi_min}-{cult_preview.active_qi_max} Qi"
-    if suppress_hints:
-        next_action_line = ""
-        activity_line = ""
+    if is_public_view:
+        qi_label = _qi_tier_label(qi_pct)
     else:
-        next_action_line = _next_action_line(player, cfg, now, cap, cultivate_gain_line)
-        activity_line = _activity_status_line(player, cfg, now)
+        qi_label = f"{player.qi:,} / {cap:,}"
+
+    achievement_badges = build_profile_achievement_badges(session, player.id, public=is_public_view)
 
     pvp_total = player.pvp_wins + player.pvp_losses
     pvp_record = f"{player.pvp_wins}W / {player.pvp_losses}L" if pvp_total else "No duels yet"
@@ -423,16 +418,15 @@ def build_profile_card_data(
         sect_name=sect_name,
         clan_name=clan_name,
         martial_lines=[plain_card_text(line)[:130] for line in martial_lines],
-        martial_hint=plain_card_text(martial_hint)[:140] if martial_hint else None,
+        martial_hint=None,
+        build_archetype=plain_card_text(build_archetype)[:80],
         equipment_slots=equipment_views,
-        next_action_line=plain_card_text(next_action_line)[:150],
-        activity_line=plain_card_text(activity_line)[:150],
+        achievement_badges=achievement_badges,
+        is_public_view=is_public_view,
+        qi_label=qi_label,
         trial_complete=player.novice_trial_step >= 7,
-        suppress_dashboard_hints=suppress_hints,
-        effect_lines=effect_lines,
-        trial_line=plain_card_text(trial) if (trial := format_trial_progress(player)) else None,
-        passive_qi_line=passive_qi_line[:140] if passive_qi_line else None,
-        active_cultivate_line=active_cultivate_line[:140] if active_cultivate_line else None,
+        suppress_dashboard_hints=True,
+        effect_lines=effect_lines if not is_public_view else [],
     )
 
 
@@ -576,7 +570,7 @@ def _draw_resources_footer(
     _fill_gradient(img, (MARGIN, fy, CARD_W - MARGIN, fy + FOOTER_H), (18, 24, 38), BG_BOTTOM)
     _draw_rounded_rect(draw, (MARGIN, fy, CARD_W - MARGIN, fy + FOOTER_H), PANEL, PANEL_BORDER, radius=14, width=1)
     _draw_gem_icon(draw, MARGIN + 42, fy + FOOTER_H // 2, 22)
-    footer = f"{data.spirit_stones_display} spirit stones  ·  /stats  ·  /tech  ·  /gear"
+    footer = f"{data.spirit_stones_display} spirit stones  ·  {data.reputation_label}"
     _fit_text(draw, footer, CARD_W - 2 * MARGIN - 82, font_value, GOLD_BRIGHT, (MARGIN + 68, fy + 16))
 
 
@@ -596,19 +590,12 @@ def _has_forged_gear(data: ProfileCardData) -> bool:
 
 
 def _estimate_card_height(data: ProfileCardData) -> int:
-    h = 108 + 102 + 72  # header, identity, qi bar
-    if not data.suppress_dashboard_hints:
-        h += 22 + 74 + 12  # next action
-        martial_h = max(48, len(data.martial_lines) * 26 + 18)
-        if data.martial_hint:
-            martial_h += 30
-        h += 22 + martial_h + 10  # martial dao
-    elif data.trial_line:
-        h += 22 + 68  # elder instruction
-    if _has_forged_gear(data):
-        h += 22 + 42 + 14  # forged gear summary
-    if data.trial_line and not (data.breakthrough_ready and data.trial_complete) and not data.suppress_dashboard_hints:
-        h += 38
+    h = 108 + 102 + 56  # header, identity, qi bar
+    martial_h = max(56, len(data.martial_lines) * 26 + 36)
+    h += 22 + martial_h + 10
+    h += 22 + 88 + 10  # forged gear grid
+    if data.achievement_badges:
+        h += 22 + 40 + 10
     if data.effect_lines:
         h += 48
     return h + FOOTER_H + 20
@@ -638,7 +625,8 @@ def render_profile_card(data: ProfileCardData, avatar: Image.Image | None = None
     _fill_gradient(img, (0, 0, CARD_W, header_h), (22, 32, 52), BG_TOP)
     draw.line((_scale(MARGIN), _scale(header_h - 1), _scale(CARD_W - MARGIN), _scale(header_h - 1)), fill=PANEL_BORDER, width=_scale(1))
 
-    draw.text((_scale(x_inner), _scale(18)), "CULTIVATION PROFILE", font=font_section, fill=TEXT_MUTED)
+    header_label = "CULTIVATION TROPHY" if data.is_public_view else "CULTIVATION PROFILE"
+    draw.text((_scale(x_inner), _scale(18)), header_label, font=font_section, fill=TEXT_MUTED)
     rd_w = draw.textlength(data.realm_detail, font=font_sm)
     draw.text((_scale(CARD_W - MARGIN) - rd_w, _scale(18)), data.realm_detail, font=font_sm, fill=CYAN_BRIGHT)
 
@@ -684,72 +672,61 @@ def render_profile_card(data: ProfileCardData, avatar: Image.Image | None = None
     if data.clan_name:
         _fit_text(draw, f"Clan {data.clan_name}", 155, font_xs, TEXT_DIM, (badge_x, id_y + 78))
 
-    # Qi bar
+    # Qi bar (compact)
     qi_y = id_y + id_h + 14
-    breakthrough_banner = data.breakthrough_ready and data.trial_complete
-    if breakthrough_banner:
-        callout = (MARGIN, qi_y, CARD_W - MARGIN, qi_y + 58)
-        _fill_gradient(img, callout, GOLD_PANEL_HI, GOLD_PANEL)
-        _draw_rounded_rect(draw, callout, GOLD_PANEL, GOLD_BORDER, radius=12, width=2)
-        _fit_text(draw, "QI POOL FULL — attempt /breakthrough now", CARD_W - 2 * MARGIN - 24, font_md, GOLD_BRIGHT, (MARGIN + 14, qi_y + 10))
-        trial = data.trial_line or "Elder Yunjian's trial complete"
-        _fit_text(draw, trial, CARD_W - 2 * MARGIN - 24, font_xs, TEXT_DIM, (MARGIN + 14, qi_y + 36))
-        y = qi_y + 72
-    else:
-        draw.text((_scale(x_inner), _scale(qi_y)), "QI POOL", font=font_section, fill=TEXT_MUTED)
-        qi_vals = f"{data.qi:,}  /  {data.qi_cap:,}"
-        draw.text((_scale(CARD_W - MARGIN) - draw.textlength(qi_vals, font=font_md), _scale(qi_y)), qi_vals, font=font_md, fill=TEXT)
+    draw.text((_scale(x_inner), _scale(qi_y)), "QI POOL", font=font_section, fill=TEXT_MUTED)
+    draw.text(
+        (_scale(CARD_W - MARGIN) - draw.textlength(data.qi_label, font=font_md), _scale(qi_y)),
+        data.qi_label,
+        font=font_md,
+        fill=TEXT,
+    )
+    bar_y = qi_y + 22
+    bar_box = (MARGIN, bar_y, CARD_W - MARGIN, bar_y + 24)
+    _draw_rounded_rect(draw, bar_box, (14, 20, 34), radius=12)
+    inner_w = (bar_box[2] - bar_box[0]) - 4
+    fill_w = max(12, int(inner_w * data.qi_pct / 100))
+    if fill_w > 0:
+        fill_box = (bar_box[0] + 2, bar_y + 2, bar_box[0] + 2 + fill_w, bar_y + 20)
+        _fill_gradient(img, fill_box, CYAN_BAR_HI, CYAN_BAR)
+        _draw_rounded_rect(draw, fill_box, CYAN_BAR, radius=10)
+    bar_label = f"{data.qi_pct}% toward breakthrough" if not data.is_public_view else _qi_tier_label(data.qi_pct)
+    _center_text(draw, bar_label, bar_box, font_xs, TEXT_DIM)
+    y = bar_y + 32
 
-        bar_y = qi_y + 22
-        bar_box = (MARGIN, bar_y, CARD_W - MARGIN, bar_y + 28)
-        _draw_rounded_rect(draw, bar_box, (14, 20, 34), radius=14)
-        inner_w = (bar_box[2] - bar_box[0]) - 4
-        fill_w = max(12, int(inner_w * data.qi_pct / 100))
-        if fill_w > 0:
-            fill_box = (bar_box[0] + 2, bar_y + 2, bar_box[0] + 2 + fill_w, bar_y + 26)
-            _fill_gradient(img, fill_box, CYAN_BAR_HI, CYAN_BAR)
-            _draw_rounded_rect(draw, fill_box, CYAN_BAR, radius=12)
-        bar_label = f"{data.qi_pct}% toward breakthrough"
-        _center_text(draw, bar_label, bar_box, font_sm, TEXT)
-        y = bar_y + 40
+    # Martial dao
+    y = _section_title(draw, "MARTIAL DAO", y, font_section, font_xs)
+    martial_h = max(56, len(data.martial_lines) * 26 + 36)
+    _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + martial_h), PANEL_ALT, PANEL_BORDER, radius=10)
+    _fit_text(draw, data.build_archetype, CARD_W - 2 * MARGIN - 24, font_xs, GOLD_BRIGHT, (MARGIN + 14, y + 10))
+    for idx, line in enumerate(data.martial_lines):
+        prefix = "○ " if idx == 0 else "◆ "
+        _fit_text(draw, prefix + line, CARD_W - 2 * MARGIN - 24, font_sm, TEXT, (MARGIN + 14, y + 30 + idx * 26))
+    y += martial_h + 10
 
-    if not data.suppress_dashboard_hints:
-        # Next action — the card should answer what to do now before showing stats.
-        y = _section_title(draw, "NEXT ACTION", y, font_section, font_xs)
-        _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + 72), (18, 36, 46), CYAN, radius=10, width=2)
-        _fit_text(draw, data.next_action_line, CARD_W - 2 * MARGIN - 24, font_md, CYAN_BRIGHT, (MARGIN + 14, y + 12))
-        _fit_text(draw, data.activity_line, CARD_W - 2 * MARGIN - 24, font_xs, TEXT_DIM, (MARGIN + 14, y + 42))
-        y += 84
+    # Forged gear — 4-slot grid with rarity colors
+    y = _section_title(draw, "FORGED GEAR", y, font_section, font_xs)
+    gear_h = 88
+    _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + gear_h), PANEL, PANEL_BORDER, radius=10)
+    slot_w = (CARD_W - 2 * MARGIN - 36) // 4
+    for idx, slot in enumerate(data.equipment_slots[:4]):
+        sx = MARGIN + 14 + idx * (slot_w + 6)
+        sy = y + 12
+        color = RARITY_COLORS.get(slot.rarity, TEXT_DIM) if slot.filled else TEXT_MUTED
+        _draw_rounded_rect(draw, (sx, sy, sx + slot_w, sy + 64), PANEL_ALT, color, radius=8, width=2 if slot.filled else 1)
+        _fit_text(draw, slot.slot_name, slot_w - 8, font_xs, TEXT_MUTED, (sx + 6, sy + 6))
+        title = slot.title if slot.filled else "Empty"
+        _fit_text(draw, title, slot_w - 8, font_sm, color if slot.filled else TEXT_DIM, (sx + 6, sy + 24))
+        if slot.filled:
+            _fit_text(draw, slot.subtitle[:28], slot_w - 8, font_xs, TEXT_DIM, (sx + 6, sy + 44))
+    y += gear_h + 10
 
-        # Martial dao
-        y = _section_title(draw, "MARTIAL DAO", y, font_section, font_xs)
-        martial_h = max(48, len(data.martial_lines) * 26 + 18)
-        if data.martial_hint:
-            martial_h += 30
-        _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + martial_h), PANEL_ALT, PANEL_BORDER, radius=10)
-        for idx, line in enumerate(data.martial_lines):
-            prefix = "○ " if idx == 0 else "◆ "
-            _fit_text(draw, prefix + line, CARD_W - 2 * MARGIN - 24, font_sm, TEXT, (MARGIN + 14, y + 12 + idx * 26))
-        if data.martial_hint:
-            hint_y = y + 12 + len(data.martial_lines) * 26
-            _fit_text(draw, "⚠ " + data.martial_hint, CARD_W - 2 * MARGIN - 24, font_xs, GOLD_BRIGHT, (MARGIN + 14, hint_y))
-        y += martial_h + 10
-    elif data.trial_line:
-        y = _section_title(draw, "ELDER'S INSTRUCTION", y, font_section, font_xs)
-        _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + 56), (18, 36, 46), CYAN, radius=10, width=2)
-        _fit_text(draw, data.trial_line, CARD_W - 2 * MARGIN - 24, font_sm, CYAN_BRIGHT, (MARGIN + 14, y + 12))
-        y += 68
-
-    if _has_forged_gear(data) and not data.suppress_dashboard_hints:
-        y = _section_title(draw, "FORGED GEAR", y, font_section, font_xs)
-        _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + 40), PANEL, PANEL_BORDER, radius=10)
-        _fit_text(draw, _gear_summary(data.equipment_slots), CARD_W - 2 * MARGIN - 24, font_sm, TEXT_DIM, (MARGIN + 14, y + 11))
-        y += 54
-
-    if data.trial_line and not breakthrough_banner and not data.suppress_dashboard_hints:
-        _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + 32), (30, 36, 56), CYAN, radius=8)
-        _fit_text(draw, data.trial_line, CARD_W - 2 * MARGIN - 24, font_sm, CYAN, (MARGIN + 12, y + 8))
-        y += 38
+    if data.achievement_badges:
+        y = _section_title(draw, "ACHIEVEMENTS", y, font_section, font_xs)
+        _draw_rounded_rect(draw, (MARGIN, y, CARD_W - MARGIN, y + 40), GOLD_PANEL, GOLD_BORDER, radius=10, width=1)
+        badge_text = "   ·   ".join(data.achievement_badges[:8])
+        _fit_text(draw, badge_text, CARD_W - 2 * MARGIN - 24, font_sm, GOLD_BRIGHT, (MARGIN + 14, y + 12))
+        y += 50
 
     if data.effect_lines:
         y = _section_title(draw, "LINGERING EFFECTS", y, font_section, font_xs)

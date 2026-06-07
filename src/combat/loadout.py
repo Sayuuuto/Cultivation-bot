@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..models import Player, PlayerTechnique, TechniqueLoadout
 from ..player_guides import guide_text
-from ..realms import get_technique_load_budget
+from ..realms import get_technique_load_budget, passive_slot_names
 from .catalog import TechniqueDef, get_technique, load_technique_catalog
 from .rules import load_combat_rules
 
@@ -58,8 +58,21 @@ def learn_technique(session: Session, player_id: int, technique_id: str) -> tupl
     from ..novice_trial import on_technique_learned
 
     player = session.get(Player, player_id)
+    if player is not None:
+        from ..achievements import check_achievements, format_achievement_unlock_message
+
+        unlocked = check_achievements(session, player, "technique_learned", {})
+        ach_msg = format_achievement_unlock_message(unlocked)
+        if ach_msg:
+            extra_ach = [ach_msg]
+        else:
+            extra_ach = []
+    else:
+        extra_ach = []
     extra, _story_next = on_technique_learned(session, player, technique_id) if player is not None else ([], None)
     msg = f"You learned **{tech.name}**."
+    if extra_ach:
+        extra = list(extra or []) + extra_ach
     if extra:
         msg += "\n" + "\n".join(extra)
     return True, msg
@@ -214,8 +227,9 @@ def equip_technique(
     slot = slot.lower()
     if slot == "passive":
         slot = PASSIVE_SLOT
-    if slot not in ACTIVE_SLOTS and slot != PASSIVE_SLOT:
-        return False, "Slot must be 1–4 or passive."
+    allowed_passives = passive_slot_names(player.realm_index)
+    if slot not in ACTIVE_SLOTS and slot not in allowed_passives:
+        return False, "Slot must be 1–4 or a passive slot unlocked at your realm."
 
     tech = get_technique(technique_id)
     if tech is None:
@@ -224,8 +238,8 @@ def equip_technique(
         return False, f"You have not learned **{tech.name}** yet."
     if player.realm_index < tech.min_realm:
         return False, f"**{tech.name}** requires a higher realm."
-    if slot == PASSIVE_SLOT and tech.slot_type != "passive":
-        return False, f"**{tech.name}** is an **active** art — equip it to slots **1–4**, not the passive slot."
+    if slot in allowed_passives and tech.slot_type != "passive":
+        return False, f"**{tech.name}** is an **active** art — equip it to slots **1–4**, not a passive slot."
     if slot in ACTIVE_SLOTS and tech.slot_type != "active":
         return False, f"**{tech.name}** is a **passive** art — equip it to the **passive** slot only."
     ok, msg = validate_loadout_budget(
@@ -259,8 +273,8 @@ def equip_technique(
         if old is not None:
             swap_note = f" **{old.name}** is unequipped but still in **My Skills**."
 
-    if slot == PASSIVE_SLOT:
-        msg = f"Equipped **{tech.name}** as your **passive**.{swap_note}"
+    if slot in allowed_passives:
+        msg = f"Equipped **{tech.name}** as **{slot}**.{swap_note}"
     else:
         msg = f"Equipped **{tech.name}** in **slot {slot}**.{swap_note}"
     if extra:
@@ -269,11 +283,15 @@ def equip_technique(
 
 
 def unequip_slot(session: Session, player_id: int, slot: str) -> tuple[bool, str]:
+    player = session.get(Player, player_id)
+    if player is None:
+        return False, "Cultivator not found."
     slot = slot.lower()
     if slot == "passive":
         slot = PASSIVE_SLOT
-    if slot not in ACTIVE_SLOTS and slot != PASSIVE_SLOT:
-        return False, "Slot must be 1–4 or passive."
+    allowed_passives = passive_slot_names(player.realm_index)
+    if slot not in ACTIVE_SLOTS and slot not in allowed_passives:
+        return False, "Slot must be 1–4 or a passive slot unlocked at your realm."
 
     stmt = select(TechniqueLoadout).where(
         TechniqueLoadout.player_id == player_id,

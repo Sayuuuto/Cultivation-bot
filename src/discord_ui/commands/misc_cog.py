@@ -364,49 +364,64 @@ class MiscCog(commands.Cog):
         finally:
             session.close()
 
-    @app_commands.command(name="profile", description="View your cultivation profile.")
-    async def profile_cmd(self, interaction: discord.Interaction) -> None:
+    @app_commands.command(name="profile", description="View a cultivation trophy — yours or another daoist's.")
+    @app_commands.describe(player="Another cultivator to view (optional).")
+    async def profile_cmd(
+        self,
+        interaction: discord.Interaction,
+        player: discord.Member | None = None,
+    ) -> None:
         cfg = get_config()
         session = get_session()
         try:
             logger.info("CMD /profile begin %s", interaction_ctx(interaction))
             guild_id = get_guild_id(interaction)
-            discord_id = get_discord_id(interaction.user)
-            player = ensure_player(session, guild_id, discord_id)
-            if player is None:
-                await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
+            viewer_discord_id = get_discord_id(interaction.user)
+            target_member = player or interaction.user
+            target_discord_id = get_discord_id(target_member)
+            is_public_view = target_discord_id != viewer_discord_id
+
+            target_player = ensure_player(session, guild_id, target_discord_id)
+            if target_player is None:
+                if is_public_view:
+                    await interaction.response.send_message(
+                        f"**{target_member.display_name}** has not begun cultivation yet.",
+                        ephemeral=False,
+                    )
+                else:
+                    await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
                 return
 
             now = utcnow()
-            logger.debug(
-                "Profile pre qi=%s stones=%s last_active_at=%s realm=%s/%s",
-                player.qi,
-                player.spirit_stones,
-                player.last_active_at,
-                player.realm_index,
-                player.substage,
-            )
-            mod = get_character_modifiers(session, player)
-            offline_qi = collect_passive_qi(player, now, cap_mult=mod.offline_efficiency)
-            player.last_active_at = now
-            session.add(player)
-            session.commit()
-            mod = get_character_modifiers(session, player)
-            combat = compute_combat_stats(player, session, mod)
+            offline_qi = 0
+            if not is_public_view:
+                mod = get_character_modifiers(session, target_player)
+                offline_qi = collect_passive_qi(target_player, now, cap_mult=mod.offline_efficiency)
+                target_player.last_active_at = now
+                session.add(target_player)
+                session.commit()
 
-            rng = rng_for(guild_id, discord_id)
-            view = build_profile_view(owner_discord_id=discord_id, cfg=cfg, rng=rng, player=player)
+            mod = get_character_modifiers(session, target_player)
+            combat = compute_combat_stats(target_player, session, mod)
+
+            view = None
+            if not is_public_view:
+                rng = rng_for(guild_id, viewer_discord_id)
+                view = build_profile_view(
+                    owner_discord_id=viewer_discord_id, cfg=cfg, rng=rng, player=target_player
+                )
 
             guild_label = interaction.guild.name if interaction.guild else "Wandering Realm"
-            display_name = interaction.user.display_name or interaction.user.name
+            display_name = target_member.display_name or target_member.name
             card_data = build_profile_card_data(
                 session,
-                player,
+                target_player,
                 combat,
                 cfg,
                 now,
                 guild_label=guild_label,
                 display_name=display_name,
+                is_public_view=is_public_view,
             )
 
             avatar_image = None
@@ -415,10 +430,10 @@ class MiscCog(commands.Cog):
 
                 from PIL import Image
 
-                avatar_bytes = await interaction.user.display_avatar.read()
+                avatar_bytes = await target_member.display_avatar.read()
                 avatar_image = Image.open(BytesIO(avatar_bytes))
             except Exception:
-                logger.debug("Profile avatar fetch skipped for %s", discord_id, exc_info=True)
+                logger.debug("Profile avatar fetch skipped for %s", target_discord_id, exc_info=True)
 
             content_parts: list[str] = []
             if offline_qi > 0:
@@ -436,35 +451,60 @@ class MiscCog(commands.Cog):
 
                     file = discord.File(BytesIO(png_bytes), filename="profile.png")
                 except Exception:
-                    logger.exception("Profile card render failed for %s", discord_id)
+                    logger.exception("Profile card render failed for %s", target_discord_id)
 
             if file is not None:
-                hint = format_guidance_content(
-                    "profile", player, session, cfg, now, cooldown_remaining
-                )
-                if hint:
-                    content_parts.append(hint)
-                reply: dict = {"file": file, "view": view, "ephemeral": False}
+                if not is_public_view:
+                    hint = format_guidance_content(
+                        "profile", target_player, session, cfg, now, cooldown_remaining
+                    )
+                    if hint:
+                        content_parts.append(hint)
+                reply: dict = {"file": file, "ephemeral": False}
+                if view is not None:
+                    reply["view"] = view
                 if content_parts:
                     reply["content"] = "\n\n".join(content_parts)
                 await interaction.response.send_message(**reply)
                 return
 
             embed = build_profile_embed(
-                player,
+                target_player,
                 session,
                 cfg,
                 now,
                 offline_qi=offline_qi,
                 combat=combat,
-                realm_display=realm_display(player.realm_index, player.substage),
+                realm_display=realm_display(target_player.realm_index, target_player.substage),
                 remaining_fn=cooldown_remaining,
+                is_public_view=is_public_view,
             )
-            attach_guidance(embed, "profile", player, session, cfg, now)
-            reply = {"embed": embed, "view": view, "ephemeral": False}
+            if not is_public_view:
+                attach_guidance(embed, "profile", target_player, session, cfg, now)
+            reply: dict = {"embed": embed, "ephemeral": False}
+            if view is not None:
+                reply["view"] = view
             if content_parts:
                 reply["content"] = "\n".join(content_parts)
             await interaction.response.send_message(**reply)
+        finally:
+            session.close()
+
+    @app_commands.command(name="achievements", description="View cultivation milestones earned and locked.")
+    async def achievements_cmd(self, interaction: discord.Interaction) -> None:
+        session = get_session()
+        try:
+            guild_id = get_guild_id(interaction)
+            discord_id = get_discord_id(interaction.user)
+            player = ensure_player(session, guild_id, discord_id)
+            if player is None:
+                await interaction.response.send_message(NOT_STARTED_HINT, ephemeral=False)
+                return
+            from ...achievements import build_achievements_embed
+
+            embed = build_achievements_embed(session, player)
+            attach_guidance(embed, "achievements", player, session, get_config(), utcnow())
+            await interaction.response.send_message(embed=embed, ephemeral=False)
         finally:
             session.close()
 

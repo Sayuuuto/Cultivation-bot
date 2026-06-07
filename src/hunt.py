@@ -438,7 +438,11 @@ def list_hunt_beasts_for_sect_tag(tag: str) -> list[tuple[str, str, str]]:
     return matches
 
 
+def _player_technique_ranks(session: Session, player_id: int) -> dict[str, int]:
+    from .combat.loadout import get_loadout, get_technique_rank
 
+    loadout = get_loadout(session, player_id)
+    return {tid: get_technique_rank(session, player_id, tid) for tid in set(loadout.values()) if tid}
 
 
 def start_hunt_combat(
@@ -502,7 +506,12 @@ def start_hunt_combat(
 
         context="hunt",
 
-        context_meta={"area_id": area_id, "beast_id": beast_def.beast_id},
+        context_meta={
+            "area_id": area_id,
+            "beast_id": beast_def.beast_id,
+            "monster_family": "spirit_beast",
+            "technique_ranks": _player_technique_ranks(session, player.id),
+        },
 
     )
 
@@ -608,6 +617,13 @@ def finalize_hunt_combat(
     story_next: str | None = None
 
     if victory:
+        player.hunts_won = int(getattr(player, "hunts_won", 0) or 0) + 1
+        from .achievements import check_achievements, format_achievement_unlock_message
+
+        unlocked = check_achievements(
+            session, player, "hunt_complete", {"hunt_count": player.hunts_won}
+        )
+        ach_msg = format_achievement_unlock_message(unlocked)
 
         drops = _roll_hunt_drops(
             session, player, beast_def, rng, area_id=area_id, area_min_realm=area.min_realm
@@ -638,6 +654,8 @@ def finalize_hunt_combat(
         )
 
         messages.append(f"You defeated **{beast_def.name}**.")
+        if ach_msg:
+            messages.append(ach_msg)
         if stone_msg:
             messages.append(stone_msg)
         if trial_drop_msg:
@@ -781,6 +799,15 @@ def run_hunt(
     stones_gain = 0
 
     if combat.victory:
+        player.hunts_won = int(getattr(player, "hunts_won", 0) or 0) + 1
+        from .achievements import check_achievements, format_achievement_unlock_message
+
+        unlocked = check_achievements(
+            session, player, "hunt_complete", {"hunt_count": player.hunts_won}
+        )
+        ach_msg = format_achievement_unlock_message(unlocked)
+        if ach_msg:
+            messages.append(ach_msg)
 
         drops = _roll_hunt_drops(
             session, player, beast_def, rng, area_id=area_id, area_min_realm=area.min_realm

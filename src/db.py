@@ -144,6 +144,7 @@ def _migrate_player_columns(engine) -> None:
             "novice_trial_step": "INTEGER DEFAULT 6",
             "novice_cultivates": "INTEGER DEFAULT 0",
             "adventures_completed": "INTEGER DEFAULT 0",
+            "hunts_won": "INTEGER DEFAULT 0",
             "abode_channel_id": "VARCHAR(32)",
             "foundation_body_json": "VARCHAR(512) DEFAULT '{}'",
             "foundation_meridian_json": "VARCHAR(512) DEFAULT '{}'",

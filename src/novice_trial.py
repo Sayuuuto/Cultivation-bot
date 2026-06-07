@@ -376,6 +376,12 @@ def on_adventure_completed(session: Session, player: Player, *, segments_cleared
 
     if finished_run:
         player.adventures_completed = int(getattr(player, "adventures_completed", 0) or 0) + 1
+        from .achievements import check_achievements, format_achievement_unlock_message
+
+        unlocked = check_achievements(session, player, "adventure_complete", {})
+        ach_msg = format_achievement_unlock_message(unlocked)
+        if ach_msg:
+            messages.append(ach_msg)
 
     if was_first and finished_run:
         waive_cd = True

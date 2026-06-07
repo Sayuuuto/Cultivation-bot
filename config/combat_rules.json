@@ -48,5 +48,34 @@
     "stun": {"duration": 1, "max_stacks": 3, "cancels_turn": true, "control": true, "dr_window": 3, "dr_multiplier": 0.5, "tags": ["control", "cleanseable"]},
     "fear": {"duration": 2, "max_stacks": 2, "skip_turn_chance": 0.45, "control": true, "dr_window": 3, "dr_multiplier": 0.6, "tags": ["control", "cleanseable"]},
     "seal": {"duration": 2, "damage_mult": 0.85, "max_stacks": 2, "control": true, "dr_window": 3, "dr_multiplier": 0.7, "tags": ["control", "cleanseable"]}
+  },
+  "monster_resistances": {
+    "spirit_beast": {"physical": 0.0, "internal": 0.1},
+    "demon": {"physical": 0.1, "internal": 0.0},
+    "undead": {"physical": 0.2, "internal": -0.1},
+    "default": {"physical": 0.0, "internal": 0.0}
+  },
+  "status_interactions": [
+    {"trigger": ["burn", "bleed"], "effect": "consume_both_for_burst", "bonus_damage": 1.5},
+    {"trigger": ["poison"], "target_has_technique_tag": "soul", "bonus_damage": 1.2},
+    {"trigger": ["seal", "fear"], "effect": "guaranteed_fear"}
+  ],
+  "monster_templates": {
+    "spirit_beast": {
+      "techniques": ["basic_strike", "swift_slash"],
+      "ai_rules": {
+        "if_player_hp_below_30": "use_finisher",
+        "if_player_has_status": "use_payoff",
+        "otherwise": "random"
+      }
+    },
+    "demon": {
+      "techniques": ["basic_strike", "iron_cleave"],
+      "ai_rules": {"otherwise": "random"}
+    },
+    "default": {
+      "techniques": ["basic_strike"],
+      "ai_rules": {"otherwise": "random"}
+    }
   }
 }

@@ -1,0 +1,61 @@
+{
+  "achievements": [
+    {
+      "id": "first_blood",
+      "name": "First Blood",
+      "description": "Win your first PvP duel",
+      "category": "combat",
+      "hint": "Challenge a daoist with /duel"
+    },
+    {
+      "id": "pack_hunter",
+      "name": "Pack Hunter",
+      "description": "Complete 100 hunts",
+      "category": "combat",
+      "hint": "Spirit beasts fall to /hunt"
+    },
+    {
+      "id": "qi_acolyte",
+      "name": "Qi Acolyte",
+      "description": "Achieve your first breakthrough",
+      "category": "cultivation",
+      "hint": "Fill your qi pool and /breakthrough"
+    },
+    {
+      "id": "scholar",
+      "name": "Scholar",
+      "description": "Learn 10 techniques",
+      "category": "collection",
+      "hint": "Study manuals in /techniques"
+    },
+    {
+      "id": "trailblazer",
+      "name": "Trailblazer",
+      "description": "Complete 25 adventures",
+      "category": "exploration",
+      "hint": "Walk the paths on /adventure"
+    },
+    {
+      "id": "duel_veteran",
+      "name": "Duel Veteran",
+      "name_short": "Veteran",
+      "description": "Win 10 PvP duels",
+      "category": "combat",
+      "hint": "Prove yourself in the arena"
+    },
+    {
+      "id": "expeditionary",
+      "name": "Expeditionary",
+      "description": "Complete your first /explore expedition",
+      "category": "exploration",
+      "hint": "March deep into the wilds"
+    },
+    {
+      "id": "realm_walker",
+      "name": "Realm Walker",
+      "description": "Reach Foundation Establishment",
+      "category": "cultivation",
+      "hint": "Break through to higher realms"
+    }
+  ]
+}

@@ -181,7 +181,7 @@ def load_explore_encounters(area_id: str) -> list[ExploreEncounter]:
 def calculate_affinity(player: Player, area: ExploreArea) -> float:
     affinity = 1.0
     root = (player.spirit_root or "").lower()
-    path = (player.moral_path or "").lower()
+    path = (getattr(player, "story_path", "") or "").lower()
     for r in area.roots:
         if r in root:
             affinity += 0.15
@@ -463,9 +463,16 @@ def check_explore_cooldown(player: Player) -> tuple[bool, str]:
     remaining = timedelta(hours=EXPLORE_COOLDOWN_HOURS) - elapsed
     if remaining.total_seconds() <= 0:
         return False, ""
-    hours = int(remaining.total_seconds() // 3600)
-    minutes = int((remaining.total_seconds() % 3600) // 60)
-    return True, f"Cooldown: {hours}h {minutes}m remaining."
+    total = int(remaining.total_seconds())
+    hours = total // 3600
+    minutes = (total % 3600) // 60
+    if hours > 0:
+        time_str = f"{hours}h {minutes}m"
+    elif minutes > 0:
+        time_str = f"{minutes}m"
+    else:
+        time_str = f"{total}s"
+    return True, f"The wilds need time to recover. Wait {time_str}."
 
 
 def start_explore(
@@ -962,6 +969,13 @@ def finalize_explore(
 
     explore_row_id = explore_session.id
     msgs = grant_explore_rewards(db_session, player, explore_session, state)
+    if explore_session.completed and not explore_session.failed and not explore_session.retired:
+        from .achievements import check_achievements, format_achievement_unlock_message
+
+        unlocked = check_achievements(db_session, player, "explore_complete", {})
+        ach_msg = format_achievement_unlock_message(unlocked)
+        if ach_msg:
+            msgs.append(ach_msg)
     db_session.add(player)
     db_session.flush()
 

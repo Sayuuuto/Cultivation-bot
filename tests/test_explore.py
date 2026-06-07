@@ -111,7 +111,7 @@ def test_check_explore_cooldown_active(player):
     player.last_explore_at = datetime.now(timezone.utc) - timedelta(hours=1)
     on_cooldown, msg = check_explore_cooldown(player)
     assert on_cooldown is True
-    assert "Cooldown" in msg
+    assert "recover" in msg.lower()
 
 
 def test_check_explore_cooldown_expired(player):

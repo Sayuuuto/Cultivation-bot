@@ -87,7 +87,7 @@
     },
     "path_intro": {
       "speaker": "Elder Yunjian",
-       "text": "*\"Four paths lie before you. Each grants a blessing suited to its dao. Choose — and know that your story will follow this road.\n\n The **Path of the Unbroken Blade** — steel will and decisive strikes, the dao of the sword.\n The **Path of the Still Lotus** — rooted qi and patient defense, the dao of the shield.\n The **Path of the Wandering Star** — starlight and long breaths, the dao of steady cultivation.\n The **Path of the Hidden Ledger** — secrets, karma, and winding roads, the dao of the wanderer.\"*\n\nBlade path: +5% hunt and adventure success.\nLotus path: +3 starting qi and a qi-gathering pill.\nStar path: +8% cultivate qi for your first sessions.\nLedger path: +spirit stones and a technique fragment.",
+       "text": "*\"Four paths lie before you. Each grants a starter pack suited to its dao. Choose — and know that your story will follow this road.\"*\n\n**Unbroken Blade** — Ember Palm manual + 2× qi-gathering pills.\n**Still Lotus** — Lotus Revival manual + 3× clarity pills.\n**Wandering Star** — Swift Slash manual + 2× swiftwind pills.\n**Hidden Ledger** — Soul Needle manual + 1× affix stone.",
        "input": "path",
         "next": "spirit_reveal"
     },

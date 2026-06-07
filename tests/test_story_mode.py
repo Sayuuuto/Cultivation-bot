@@ -142,8 +142,10 @@ def test_apply_path_bonuses(session: Session):
     assert path is not None
     assert player.spirit_stones >= int(path["spirit_stones"])
     inv = get_player_inventory(session, player.id)
-    frag_qty = sum(i.quantity for i in inv if i.item_id == "technique_fragment")
-    assert frag_qty >= 1
+    affix_qty = sum(i.quantity for i in inv if i.item_id == "affix_stone")
+    manual_qty = sum(i.quantity for i in inv if i.item_id == "manual_soul_needle")
+    assert affix_qty >= 1
+    assert manual_qty >= 1
     assert msgs
 
 

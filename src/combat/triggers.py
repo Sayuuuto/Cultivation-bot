@@ -16,7 +16,8 @@ from .effects import (
     is_stunned,
     status_application_chance,
 )
-from .rules import load_combat_rules
+from .ranks import technique_rank_multiplier
+from .rules import get_monster_resistances, get_status_interactions, load_combat_rules
 
 if TYPE_CHECKING:
     from .engine import CombatState
@@ -73,6 +74,19 @@ def _damage_boost_mult(state: CombatState) -> float:
     return 1.0
 
 
+def _anti_heal_multiplier(target: CombatantState) -> float:
+    if has_status(target, "poison"):
+        return 0.5
+    return 1.0
+
+
+def _apply_heal(target: CombatantState, amount: int) -> int:
+    adjusted = max(1, int(amount * _anti_heal_multiplier(target)))
+    before = target.hp
+    target.hp = min(target.max_hp, target.hp + adjusted)
+    return target.hp - before
+
+
 def _compute_base_damage(
     tech: TechniqueDef,
     stats: PlayerCombatStats,
@@ -81,6 +95,8 @@ def _compute_base_damage(
     *,
     crit: bool,
     burn_bonus: bool = True,
+    monster_family: str = "default",
+    technique_rank: int = 1,
 ) -> int:
     if tech.damage_type == "none":
         return 0
@@ -88,14 +104,22 @@ def _compute_base_damage(
     stat_val = _stat_value(stats, resolved_stat)
     raw = tech.base_damage + stat_val * tech.scaling_ratio
     raw *= rarity_damage_multiplier(tech.rarity)
+    raw *= technique_rank_multiplier(technique_rank)
     if burn_bonus and passive:
         for trig in passive.passive_triggers:
             if trig.type == "burn_damage_bonus" and tech.status_id == "burn":
                 raw *= 1.0 + float(trig.params.get("bonus", 0.0))
             if trig.type == "poison_damage_bonus" and tech.status_id == "poison":
                 raw *= 1.0 + float(trig.params.get("bonus", 0.0))
-    mitigation = opponent_armor * 0.40
-    damage = max(1, int(raw - mitigation))
+    dtype = tech.damage_type or "physical"
+    if dtype == "internal":
+        mitigation = opponent_armor * 0.25
+    elif dtype == "physical":
+        mitigation = opponent_armor * 0.40
+    else:
+        mitigation = opponent_armor * 0.35
+    resist = float(get_monster_resistances(monster_family).get(dtype, 0.0))
+    damage = max(1, int((raw - mitigation) * (1.0 - resist)))
     if crit:
         damage = int(damage * 1.5)
     return damage
@@ -151,7 +175,28 @@ def _apply_shield_damage(target_hp: int, shield: int, damage: int) -> tuple[int,
     return target_hp - remaining, shield - absorbed, absorbed
 
 
+def _status_interaction_multiplier(state: CombatState) -> float:
+    mult = 1.0
+    for rule in get_status_interactions():
+        triggers = [str(s) for s in rule.get("trigger", [])]
+        if not triggers:
+            continue
+        if not all(has_status(state.opponent, sid) for sid in triggers):
+            continue
+        bonus = float(rule.get("bonus_damage", 1.0))
+        if bonus > 1.0:
+            mult = max(mult, bonus)
+        if rule.get("effect") == "consume_both_for_burst":
+            for sid in triggers:
+                state.opponent.statuses = [
+                    s for s in state.opponent.statuses if s.status_id != sid
+                ]
+            state.log.append("Burn and bleed ignite in a violent burst!")
+    return mult
+
+
 def _deal_damage_to_opponent(state: CombatState, damage: int) -> int:
+    damage = int(damage * _status_interaction_multiplier(state))
     hp, shield, _ = _apply_shield_damage(state.opponent.hp, state.opponent_shield, damage)
     state.opponent.hp = hp
     state.opponent_shield = shield
@@ -256,6 +301,9 @@ def _resolve_effect(
     """Returns damage dealt this effect (for lifesteal etc.)."""
     etype = effect.type
     p = effect.params
+    monster_family = str(state.context_meta.get("monster_family", "default"))
+    technique_rank = int(state.context_meta.get("technique_ranks", {}).get(tech.technique_id, 1))
+    dmg_kw = {"monster_family": monster_family, "technique_rank": technique_rank}
 
     if etype == "damage":
         bonus_ratio = 0.0
@@ -266,7 +314,7 @@ def _resolve_effect(
             bonus_ratio += float(p.get("bonus_ratio", 0.4))
         if p.get("requires_bleeding") and has_status(state.opponent, "bleed"):
             bonus_ratio += float(p.get("bonus_ratio", 0.25))
-        base = _compute_base_damage(tech, stats, state.opponent_defense, passive, crit=crit)
+        base = _compute_base_damage(tech, stats, state.opponent_defense, passive, crit=crit, **dmg_kw)
         if bonus_ratio:
             base = int(base * (1.0 + bonus_ratio))
         base = int(base * damage_mult * _damage_boost_mult(state))
@@ -279,7 +327,7 @@ def _resolve_effect(
         total = 0
         hit_ratio = float(p.get("hit_ratio", 0.55))
         for i in range(hits):
-            hit_dmg = max(1, int(_compute_base_damage(tech, stats, state.opponent_defense, passive, crit=False) * hit_ratio))
+            hit_dmg = max(1, int(_compute_base_damage(tech, stats, state.opponent_defense, passive, crit=False, **dmg_kw) * hit_ratio))
             hit_dmg = int(hit_dmg * damage_mult * _damage_boost_mult(state))
             total += _deal_damage_to_opponent(state, hit_dmg)
             chance = float(p.get("bleed_chance", 0.0))
@@ -314,9 +362,7 @@ def _resolve_effect(
     if etype == "heal":
         ratio = float(p.get("ratio", tech.heal_ratio))
         heal = max(1, int(state.player.max_hp * ratio))
-        before = state.player.hp
-        state.player.hp = min(state.player.max_hp, state.player.hp + heal)
-        gained = state.player.hp - before
+        gained = _apply_heal(state.player, heal)
         if gained > 0:
             state.log.append(f"**{tech.name}** restores **{format_compact_number(gained)}** vitality.")
         return 0
@@ -326,13 +372,14 @@ def _resolve_effect(
         if req and not _target_has_status(state.opponent, str(req)):
             state.log.append(f"**{tech.name}** finds no opening — the foe is not **{req}**.")
             return 0
-        base = _compute_base_damage(tech, stats, state.opponent_defense, passive, crit=crit)
+        base = _compute_base_damage(tech, stats, state.opponent_defense, passive, crit=crit, **dmg_kw)
         base = int(base * damage_mult * _damage_boost_mult(state))
         dealt = _deal_damage_to_opponent(state, base)
         if dealt > 0:
             steal = max(1, int(dealt * float(p.get("ratio", 0.25))))
-            state.player.hp = min(state.player.max_hp, state.player.hp + steal)
-            state.log.append(f"**{tech.name}** drains **{format_compact_number(steal)}** vitality from bleeding prey.")
+            gained = _apply_heal(state.player, steal)
+            if gained > 0:
+                state.log.append(f"**{tech.name}** drains **{format_compact_number(gained)}** vitality from bleeding prey.")
         return dealt
 
     if etype == "shield":
@@ -352,13 +399,12 @@ def _resolve_effect(
         heal_ratio = float(p.get("heal_ratio", 0.0))
         if heal_ratio > 0:
             heal = max(1, int(state.player.max_hp * heal_ratio))
-            state.player.hp = min(state.player.max_hp, state.player.hp + heal)
-            state.log.append(f"**{tech.name}** restores **{format_compact_number(heal)}** vitality.")
+            gained = _apply_heal(state.player, heal)
+            if gained > 0:
+                state.log.append(f"**{tech.name}** restores **{format_compact_number(gained)}** vitality.")
         return 0
 
     if etype == "adjust_karma":
-        from .rules import load_combat_rules
-
         policy = load_combat_rules().karma_policy
         if not policy.techniques_shift_karma_in_combat:
             return 0
@@ -375,7 +421,7 @@ def _resolve_effect(
 
     if etype == "dodge_next":
         state.player.dodge_next = True
-        base = _compute_base_damage(tech, stats, state.opponent_defense, passive, crit=crit)
+        base = _compute_base_damage(tech, stats, state.opponent_defense, passive, crit=crit, **dmg_kw)
         if base > 0:
             base = int(base * damage_mult)
             return _deal_damage_to_opponent(state, base)
@@ -386,7 +432,7 @@ def _resolve_effect(
         if not _target_has_status(state.opponent, req):
             state.log.append(f"**{tech.name}** fails — foe is not **{req}**.")
             return 0
-        base = _compute_base_damage(tech, stats, state.opponent_defense, passive, crit=crit)
+        base = _compute_base_damage(tech, stats, state.opponent_defense, passive, crit=crit, **dmg_kw)
         base = int(base * (1.0 + float(p.get("bonus_ratio", 0.2))))
         dealt = _deal_damage_to_opponent(state, base)
         for status in list(state.opponent.statuses):
@@ -470,6 +516,8 @@ def resolve_technique(
     crit_chance = _crit_chance(stats, passive) + _low_hp_crit_bonus(passive, state.opponent)
     is_crit = rng.random() < crit_chance
     damage_mult = 1.0
+    monster_family = str(state.context_meta.get("monster_family", "default"))
+    technique_rank = int(state.context_meta.get("technique_ranks", {}).get(technique_id, 1))
 
     total_dealt = 0
     effects = get_technique_effects(tech)

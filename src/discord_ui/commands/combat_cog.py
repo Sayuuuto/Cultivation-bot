@@ -82,31 +82,9 @@ class CombatCog(commands.Cog):
                 await interaction.response.send_message("That region is unknown.", ephemeral=False)
                 return
 
-            rng = rng_for(guild_id, discord_id)
-            res = run_gather(session, player, area_id, rng=rng)
-            if not res.success:
-                await interaction.response.send_message(res.messages[0], ephemeral=False)
-                return
+            from ..views.gather_view import start_gather_challenge
 
-            player.last_gather_at = now
-            player.last_active_at = now
-            consume_haste_for_activity(session, player.id, "gather")
-            schedule_player_reminders(session, player, cfg, "gather", now=now)
-            session.add(player)
-            session.commit()
-
-            from ...inventory import get_item_name
-
-            drop_lines = [f"**{get_item_name(item_id)}** ×{qty}" for item_id, qty in res.drops.items()]
-            embed = discord.Embed(
-                title=f"Gather — {res.area_name}",
-                description="\n".join(res.messages),
-                color=discord.Color.green(),
-            )
-            if drop_lines:
-                embed.add_field(name="Collected", value="\n".join(drop_lines), inline=False)
-            attach_guidance(embed, "gather", player, session, cfg, now)
-            await interaction.response.send_message(embed=embed, ephemeral=False)
+            await start_gather_challenge(interaction, area_id)
         finally:
             session.close()
 

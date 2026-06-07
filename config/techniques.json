@@ -23,7 +23,17 @@
         "trigger": "on_use",
         "type": "damage"
       }
-    ]
+    ],
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "swift_slash": {
     "name": "Swift Slash",
@@ -55,7 +65,17 @@
         "chance": 0.35
       }
     ],
-    "rarity": "common"
+    "rarity": "common",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "iron_cleave": {
     "name": "Iron Cleave",
@@ -83,7 +103,17 @@
         "bonus_ratio": 0.25
       }
     ],
-    "rarity": "rare"
+    "rarity": "rare",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "sanguine_drain": {
     "name": "Sanguine Drain",
@@ -111,7 +141,17 @@
         "requires_status": "bleed"
       }
     ],
-    "rarity": "uncommon"
+    "rarity": "uncommon",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "rending_flurry": {
     "name": "Rending Flurry",
@@ -140,7 +180,17 @@
         "bleed_chance": 0.2
       }
     ],
-    "rarity": "rare"
+    "rarity": "rare",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "ember_palm": {
     "name": "Ember Palm",
@@ -172,7 +222,17 @@
         "chance": 0.5
       }
     ],
-    "rarity": "common"
+    "rarity": "common",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "flame_burst": {
     "name": "Flame Burst",
@@ -205,7 +265,17 @@
         "chance": 0.65
       }
     ],
-    "rarity": "rare"
+    "rarity": "rare",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "cinder_lance": {
     "name": "Cinder Lance",
@@ -233,7 +303,17 @@
         "bonus_ratio": 0.4
       }
     ],
-    "rarity": "rare"
+    "rarity": "rare",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "iron_body": {
     "name": "Iron Body Blow",
@@ -265,7 +345,17 @@
         "chance": 0.25
       }
     ],
-    "rarity": "common"
+    "rarity": "common",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "meridian_strike": {
     "name": "Meridian Strike",
@@ -297,7 +387,17 @@
         "chance": 0.3
       }
     ],
-    "rarity": "rare"
+    "rarity": "rare",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "mountain_guard": {
     "name": "Mountain Guard",
@@ -325,7 +425,17 @@
         "turns": 2
       }
     ],
-    "rarity": "uncommon"
+    "rarity": "uncommon",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "soul_needle": {
     "name": "Soul Needle",
@@ -357,7 +467,17 @@
         "chance": 0.4
       }
     ],
-    "rarity": "common"
+    "rarity": "common",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "void_pulse": {
     "name": "Void Pulse",
@@ -389,7 +509,17 @@
         "chance": 0.45
       }
     ],
-    "rarity": "rare"
+    "rarity": "rare",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "soul_siphon": {
     "name": "Soul Siphon",
@@ -417,7 +547,17 @@
         "bonus_ratio": 0.2
       }
     ],
-    "rarity": "rare"
+    "rarity": "rare",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "qi_barrier": {
     "name": "Qi Barrier",
@@ -452,7 +592,17 @@
         "ratio": 0.04
       }
     ],
-    "rarity": "common"
+    "rarity": "common",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "mist_step": {
     "name": "Mist Step",
@@ -478,7 +628,17 @@
         "type": "dodge_next"
       }
     ],
-    "rarity": "uncommon"
+    "rarity": "uncommon",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "purifying_breath": {
     "name": "Purifying Breath",
@@ -506,7 +666,17 @@
         "heal_ratio": 0.04
       }
     ],
-    "rarity": "uncommon"
+    "rarity": "uncommon",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "blood_feast": {
     "name": "Blood Feast",
@@ -534,7 +704,17 @@
         "heal_pct": 0.05
       }
     ],
-    "rarity": "uncommon"
+    "rarity": "uncommon",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "ember_heart": {
     "name": "Ember Heart",
@@ -561,7 +741,17 @@
         "bonus": 0.15
       }
     ],
-    "rarity": "common"
+    "rarity": "common",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "keen_focus": {
     "name": "Keen Focus",
@@ -588,7 +778,17 @@
         "bonus": 0.05
       }
     ],
-    "rarity": "common"
+    "rarity": "common",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "hemorrhage_art": {
     "name": "Hemorrhage Art",
@@ -615,7 +815,17 @@
         "chance": 0.15
       }
     ],
-    "rarity": "uncommon"
+    "rarity": "uncommon",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "mirror_nimbus": {
     "name": "Mirror Nimbus",
@@ -642,7 +852,17 @@
         "ratio": 0.3
       }
     ],
-    "rarity": "rare"
+    "rarity": "rare",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "rising_tempo": {
     "name": "Rising Tempo",
@@ -669,7 +889,17 @@
         "bonus_per_hit": 0.05
       }
     ],
-    "rarity": "common"
+    "rarity": "common",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "merciful_edge": {
     "name": "Merciful Edge",
@@ -687,7 +917,7 @@
     "alignment": "righteous",
     "role": "finisher",
     "description": "Critical chance surges against wounded foes.",
-    "synergy_hint": "Execute low-HP targets after setup.",
+    "synergy_hint": "Execute low-vitality targets after setup.",
     "manual_item_id": "manual_merciful_edge",
     "passive_triggers": [
       {
@@ -697,7 +927,17 @@
         "bonus": 0.12
       }
     ],
-    "rarity": "rare"
+    "rarity": "rare",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "undying_vow": {
     "name": "Undying Vow",
@@ -725,7 +965,17 @@
         "boost_turns": 2
       }
     ],
-    "rarity": "legendary"
+    "rarity": "legendary",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "iron_will": {
     "name": "Iron Will",
@@ -753,7 +1003,17 @@
         "cooldown": 5
       }
     ],
-    "rarity": "legendary"
+    "rarity": "legendary",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "lotus_revival": {
     "name": "Lotus Revival",
@@ -770,7 +1030,7 @@
     "status_chance": 0.0,
     "alignment": "righteous",
     "role": "sustain",
-    "description": "When HP drops below 30%, heal 30% max HP. 10 turn cooldown.",
+    "description": "When Vitality drops below 30%, heal 30% max Vitality. 10 turn cooldown.",
     "synergy_hint": "Emergency heal — Lotus Guardian core.",
     "manual_item_id": "manual_lotus_revival",
     "passive_triggers": [
@@ -782,7 +1042,17 @@
         "cooldown": 10
       }
     ],
-    "rarity": "legendary"
+    "rarity": "legendary",
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "venom_weave": {
     "name": "Venom Weave",
@@ -809,7 +1079,17 @@
         "type": "poison_damage_bonus",
         "bonus": 0.12
       }
-    ]
+    ],
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   },
   "heavens_cleave": {
     "name": "Heaven's Cleave",
@@ -837,6 +1117,16 @@
         "requires_bleeding": true,
         "bonus_ratio": 0.5
       }
-    ]
+    ],
+    "rank_effects": {
+      "5": {
+        "damage_bonus": 0.04,
+        "summary": "the art sharpens"
+      },
+      "10": {
+        "damage_bonus": 0.08,
+        "summary": "the art reaches perfection"
+      }
+    }
   }
 }

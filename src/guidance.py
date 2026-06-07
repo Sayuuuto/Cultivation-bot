@@ -45,7 +45,7 @@ def get_start_next_steps() -> str:
     return (
         "1. Follow **Elder Yunjian** — your story begins with **`/start`**.\n"
         "2. **`/daily`** — claim spirit stones and qi when he bids you.\n"
-        "3. **`/profile`** — dashboard, Elder's trial step, **Cultivate** button.\n"
+        "3. **`/profile`** — your cultivation trophy and martial record.\n"
         "4. **`/cultivate`** once when ready (or use the profile button).\n"
         "5. **`/hunt`** in Mortal Grove — win your first beast fight.\n"
         "6. **`/techniques`** — unlock your manual, equip arts.\n"
@@ -273,6 +273,50 @@ def get_reroll_cooldown_line(player: Player, now: datetime) -> str:
     return f"**/reroll_root** — 50 stones · wait **{_format_seconds(remaining)}**"
 
 
+# Timeless command descriptions — what the command does, not what to run next.
+_COMMAND_HINTS: dict[str, str] = {
+    "help": "Browse categories for command details. **`/cooldown`** shows live activity timers.",
+    "profile": (
+        "Your cultivation trophy — realm, martial dao, forged gear, and public record. "
+        "View others with **`/profile @player`**. **`/cooldown`** shows activity timers."
+    ),
+    "techniques": (
+        "**Equip Skill** fills slots 1–4 (active) and passive slots. "
+        "**Skill Library** lists every art you know. **Unlock Skill** studies manuals from your bag."
+    ),
+    "inventory": "Item names only — **`/item <name>`** shows effects, crafting, and where to farm.",
+    "item": "Manuals show art type and combat details. **`/techniques`** unlocks and equips them.",
+    "craft_manual": "The manual is bound. Open **`/techniques`** → **Unlock Skill** to study it.",
+    "adventure": (
+        "Each segment offers **choices** — safer paths succeed more often; "
+        "bold moves risk failure but can spike loot. Moral choices shift **karma**."
+    ),
+    "gather": "Herb and ore runs — materials feed **`/craft pill`** recipes.",
+    "hunt": "Turn-based combat against spirit beasts. Wins yield cores, fragments, and manual drops.",
+    "roots": "Spirit root tiers and stat bonuses. **`/reroll_root`** once free, then stones + a wait.",
+    "recipes": "Recipe browser — missing materials show where to farm.",
+    "forge": "Forged gear lands in your stash. **`/equip`** to wear it.",
+    "equip": "Worn gear updates **`/stats`** and **`/loadout`** totals.",
+    "recycle": "Spirit stones returned from dismantled gear.",
+    "unequip": "Gear returns to stash.",
+    "gear": "Current worn loadout — swap with **`/equip`**.",
+    "stats": "Foundation, gear, and combat stat breakdown.",
+    "craft_pill": "Brew consumables — shortages list farm locations.",
+    "craft_key": "Dungeon keys for **`/dungeon`** cooperative runs.",
+    "dungeon": "Cooperative room combat — tag allies and they **`/accept`** to join.",
+    "areas": "Zone comparison — loot tables and realm gates.",
+    "shop": "Spirit stone marketplace.",
+    "use": "Consumes pills and items. Lingering effects show on **`/loadout`**.",
+    "affix": "Affix bonuses apply to the selected gear piece.",
+    "loadout": "Equipped gear and technique summary.",
+    "duel": "Arena PvP — loadout must pass legality checks.",
+    "reroll_root": "Spirit root changed — passive bonuses update on **`/loadout`**.",
+    "leaderboard": "Server cultivation rankings.",
+    "explore": "Long expedition runs with vitality tracking and rare findings.",
+    "achievements": "Milestones earned through cultivation, combat, and discovery.",
+}
+
+
 def get_next_steps(
     command: str,
     player: Player | None,
@@ -284,180 +328,52 @@ def get_next_steps(
     if player is None:
         return "You have not started yet. Use **`/start`** to begin, then **`/help`** for the full guide."
 
-    cap = qi_cap(player.realm_index, player.substage, player)
-    qi_pct = 0 if cap <= 0 else int(min(100, player.qi / cap * 100))
-    cult_ready = remaining_fn(now, player.last_cultivate_at, cfg.cultivate_cooldown_seconds) == 0
-    gather_ready = remaining_fn(now, player.last_gather_at, cfg.gather_cooldown_seconds) == 0
-    hunt_ready = remaining_fn(now, player.last_hunt_at, cfg.hunt_cooldown_seconds) == 0
-    adv_ready = remaining_fn(now, player.last_adventure_at, cfg.adventure_cooldown_seconds) == 0
-    daily_ready = remaining_fn(now, player.last_daily_at, cfg.daily_cooldown_seconds) == 0
-
-    hints: list[str] = []
-
     if command == "start":
         return (
-            "You begin with **neutral karma (0)**. Help or harm others on **`/adventure`** to shift it. "
-            "Next: **`/daily`**, then **`/profile`**."
+            "You begin with **neutral karma (0)**. Moral choices on **`/adventure`** shift it. "
+            "Elder Yunjian guides your awakening in your abode."
         )
-
-    if command == "help":
-        return "Run **`/cooldown`** to see what you can do right now, then **`/profile`** to check your realm."
 
     if command == "cooldown":
-        if cult_ready:
-            hints.append("**`/cultivate`** is ready — gather qi now.")
-        if daily_ready:
-            hints.append("**`/daily`** stipend is waiting.")
-        if gather_ready:
-            hints.append("**`/gather`** — quick herb and ore farming.")
-        if hunt_ready:
-            hints.append("**`/hunt`** — spirit beasts for cores and parts.")
-        if adv_ready:
-            hints.append("**`/adventure`** — follow the area matched to your realm.")
+        cap = qi_cap(player.realm_index, player.substage, player)
+        hints: list[str] = []
+        checks = (
+            ("cultivate", "/cultivate", player.last_cultivate_at, cfg.cultivate_cooldown_seconds),
+            ("daily", "/daily", player.last_daily_at, cfg.daily_cooldown_seconds),
+            ("gather", "/gather", player.last_gather_at, cfg.gather_cooldown_seconds),
+            ("hunt", "/hunt", player.last_hunt_at, cfg.hunt_cooldown_seconds),
+            ("adventure", "/adventure", player.last_adventure_at, cfg.adventure_cooldown_seconds),
+        )
+        for _key, label, last_at, cooldown in checks:
+            if remaining_fn(now, last_at, cooldown) == 0:
+                hints.append(f"**`{label}`** — ready")
         if player.qi >= cap:
-            hints.append("Your qi is full — consider **`/breakthrough`**.")
+            hints.append("**Qi pool full** — **`/breakthrough`** available")
         if not hints:
-            hints.append("While timers recover, review **`/inventory`** or plan **`/craft pill`** recipes.")
-        return " ".join(hints)
-
-    if command == "profile":
-        if daily_ready:
-            hints.append("Claim **`/daily`** first if you have not today.")
-        if cult_ready:
-            hints.append("Press **Cultivate** below or use **`/cultivate`**.")
-        elif gather_ready:
-            hints.append("Cultivate is on cooldown — **`/gather`** or **`/hunt`** for materials.")
-        elif hunt_ready:
-            hints.append("Try **`/hunt`** for beast cores and manual drops.")
-        elif adv_ready:
-            hints.append("Cultivate is on cooldown — try **`/adventure`**.")
-        if player.qi >= cap:
-            hints.append(f"Qi is at {qi_pct}% — **`/breakthrough`** when ready.")
-        hints.append("Open **`/techniques`** to study manuals and equip your loadout.")
-        return " ".join(hints) if hints else "Check **`/cooldown`** for your next action."
-
-    if command == "techniques":
-        return (
-            "**Equip Skill** assigns slots 1–4 (active) or the passive slot. "
-            "**Skill Library** shows every art you know — pick one to read full details. "
-            "**Unlock Skill** consumes manuals from your bag. "
-            "Farm manuals via **`/hunt`**, **`/adventure`**, **`/dungeon`**, or **`/shop`**."
-        )
-
-    if command == "inventory":
-        return "Names only here — use **`/item <name>`** for effects, crafting, and farm locations."
-
-    if command == "item":
-        return (
-            "Manuals show **art type** (active vs passive) and combat details here. "
-            "Open **`/techniques`** to unlock and equip them."
-        )
-
-    if command == "craft_manual":
-        return "Bind the manual, then open **`/techniques`** → **Unlock Skill** to study it."
+            return "All timed activities are recovering. Timers above show when each returns."
+        return "Ready now: " + " · ".join(hints)
 
     if command == "cultivate":
-        if player.qi >= cap:
-            return f"Your qi nears its limit ({player.qi}/{cap}). Attempt **`/breakthrough`** when the moment feels right."
-        if adv_ready:
-            return f"Qi: {player.qi}/{cap} ({qi_pct}%). While cultivate cools down, **`/gather`**, **`/hunt`**, or **`/adventure`** gather materials."
-        if gather_ready or hunt_ready:
-            return f"Qi: {player.qi}/{cap} ({qi_pct}%). **`/gather`** and **`/hunt`** are quick 5 min farms."
-        return f"Qi: {player.qi}/{cap} ({qi_pct}%). See **`/cooldown`** for when you can cultivate again."
+        cap = qi_cap(player.realm_index, player.substage, player)
+        qi_pct = 0 if cap <= 0 else int(min(100, player.qi / cap * 100))
+        return f"Qi pool: **{player.qi}/{cap}** ({qi_pct}%)."
 
     if command == "breakthrough":
+        cap = qi_cap(player.realm_index, player.substage, player)
         if player.qi < cap:
-            return f"Breakthrough failed or qi was spent. **`/cultivate`** to rebuild ({player.qi}/{cap} qi)."
-        return "The realm shifts. **`/profile`** to see your new stage, then **`/cultivate`** anew."
+            return f"Qi spent or attempt failed — pool at **{player.qi}/{cap}**."
+        return "Realm breakthrough succeeded — your cap and arts may have expanded."
 
     if command == "daily":
-        if cult_ready:
-            return "Stipend accepted. **`/cultivate`** while your daily luck holds."
-        return "Stipend stored. **`/cooldown`** shows when cultivate returns."
-
-    if command == "adventure":
-        return (
-            "Each segment offers **choices** — safer paths succeed more often; "
-            "bold moves can fail the run or spike loot. Moral choices shift **karma** and manual pools. "
-            "**`/recipes`** for cooldown pills."
-        )
-
-    if command == "gather":
-        return "Quick herb runs — Green Dew Herbs craft **Qi Gathering** pills (`/recipes`). **`/hunt`** for beast cores → Tempering."
-
-    if command == "hunt":
-        return (
-            "Button combat against spirit beasts. Win for cores, fragments, and manual drops. "
-            "**`/techniques`** to equip arts before you hunt."
-        )
-
-    if command == "roots":
-        return "Compare with **`/profile`** and **`/stats`**. Reroll once free via **`/reroll_root`**."
-
-    if command == "recipes":
-        return "Farm materials with **`/adventure`**, then **`/craft pill`**. Cooldown pills stack before a busy session."
-
-    if command == "forge":
-        return (
-            "Your new piece is in your gear stash. **`/equip`** to wear it — "
-            "**`/recycle`** breaks down pieces you no longer need."
-        )
-
-    if command == "equip":
-        return "Check **`/stats`** or **`/gear`** for active totals. **`/affix`** optional on stash or worn gear."
-
-    if command == "recycle":
-        return "Spirit stones returned. Outgrown pieces after breakthrough are good **`/recycle`** targets."
-
-    if command == "unequip":
-        return "Gear moved to stash. **`/equip`** another piece or **`/recycle`** what you do not need."
-
-    if command == "gear":
-        return "Swap loadout with **`/equip`**. Clear old realm gear with **`/recycle`** for spirit stones."
-
-    if command == "stats":
-        return "Higher **Fortune** and **Insight** improve adventure drops and rare events. **`/loadout`** for details."
-
-    if command in ("craft_pill", "craft_key"):
-        return "Pick any pill in **`/craft pill`** — missing mats show where to farm. **`/use`** pills before a busy session."
-
-    if command == "dungeon":
-        return "Rest and recover. **`/cooldown`** tracks dungeon timer · craft another key with **`/craft key`**."
-
-    if command == "inventory":
-        return "Compare farming spots with **`/areas`**. Craft via **`/craft pill`** or **`/craft key`**."
-
-    if command == "areas":
-        return "Ready? **`/adventure`** follows your current realm. Check **`/inventory`** after."
-
-    if command == "shop":
-        return "Use **`/use`** on haste pills before your next run. **`/loadout`** to see purchased gear."
-
-    if command == "use":
-        return "Active effects show on **`/loadout`**. **`/cultivate`** or **`/adventure`** to use them."
-
-    if command == "affix":
-        return "Affix applied. **`/stats`** and **`/loadout`** show your full bonuses."
-
-    if command == "loadout":
-        return "Forge missing slots with **`/forge`**. Venture out with **`/adventure`** or **`/duel`**."
-
-    if command == "duel":
-        return "Honor satisfied. **`/cooldown`** before another duel · **`/cultivate`** to recover."
-
-    if command == "reroll_root":
-        return "Your root changed your passive bonuses. **`/loadout`** to see the difference."
-
-    if command == "leaderboard":
-        return "Climb higher with **`/cultivate`** and **`/breakthrough`**. **`/adventure`** for an edge."
+        return f"Daily stipend claimed. Streak: **{player.daily_streak}**."
 
     if command.startswith("clan"):
-        return "Clan qi grows when you **`/cultivate`**. **`/profile`** shows your clan and sect."
+        return "Clan roster and contribution — **`/clan`** for details."
 
     if command.startswith("sect"):
-        return "Check **`/sect-task`** for today's goal, where to do it, and which beasts or materials count."
+        return "**`/sect-task`** shows today's sect goal and progress."
 
-    return "See **`/help`** for commands or **`/cooldown`** for what is ready."
+    return _COMMAND_HINTS.get(command, "See **`/help`** for commands · **`/cooldown`** for timers.")
 
 
 def add_guidance_to_embed(
@@ -545,6 +461,6 @@ def build_cooldown_embed(
 
     if should_show_command_guidance(player):
         next_steps = get_next_steps("cooldown", player, None, cfg, now, remaining_fn)
-        embed.add_field(name="Suggested next step", value=next_steps, inline=False)
+        embed.add_field(name="Ready now", value=next_steps, inline=False)
     embed.set_footer(text=GUIDANCE_FOOTER)
     return embed

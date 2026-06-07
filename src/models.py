@@ -53,6 +53,7 @@ class Player(Base):
     novice_trial_step: Mapped[int] = mapped_column(Integer, default=0)
     novice_cultivates: Mapped[int] = mapped_column(Integer, default=0)
     adventures_completed: Mapped[int] = mapped_column(Integer, default=0)
+    hunts_won: Mapped[int] = mapped_column(Integer, default=0)
     gender: Mapped[str] = mapped_column(String(16), default="")
     story_path: Mapped[str] = mapped_column(String(32), default="")
     story_chapter: Mapped[int] = mapped_column(Integer, default=1)
@@ -429,5 +430,18 @@ class PlayerSectInvitation(Base):
 
     __table_args__ = (
         UniqueConstraint("player_id", "sect_id", name="uq_player_sect_invitation"),
+    )
+
+
+class PlayerAchievement(Base):
+    __tablename__ = "player_achievements"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    achievement_id: Mapped[str] = mapped_column(String(64))
+    unlocked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    __table_args__ = (
+        UniqueConstraint("player_id", "achievement_id", name="uq_player_achievement"),
     )
 

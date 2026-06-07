@@ -33,6 +33,14 @@ GENDER_OPTIONS: tuple[tuple[str, str], ...] = (
 )
 
 
+_PATH_BUTTON_STYLES: dict[str, discord.ButtonStyle] = {
+    "unbroken_blade": discord.ButtonStyle.danger,
+    "still_lotus": discord.ButtonStyle.success,
+    "wandering_star": discord.ButtonStyle.primary,
+    "hidden_ledger": discord.ButtonStyle.secondary,
+}
+
+
 def build_story_embed(
     node: dict,
     *,
@@ -51,11 +59,21 @@ def build_story_embed(
         path_name=path_name,
     )
     r, g, b = get_embed_color()
+    if str(node.get("input", "")) == "path":
+        r, g, b = 218, 165, 32
     embed = discord.Embed(
         title=str(fields["title"]),
         description=str(fields["description"]),
         color=discord.Color.from_rgb(r, g, b),
     )
+    if str(node.get("input", "")) == "path":
+        for path_id, name, blurb in list_story_paths()[:4]:
+            path_def = get_path_def(path_id) or {}
+            color_val = int(path_def.get("embed_color", 0x5865F2))
+            pack = str(path_def.get("stat_note", blurb))[:200]
+            embed.add_field(name=name, value=pack, inline=True)
+            if path_id == "unbroken_blade":
+                embed.colour = discord.Color(color_val)
     if fields.get("footer"):
         embed.set_footer(text=str(fields["footer"]))
     return embed
@@ -174,9 +192,11 @@ class StoryView(discord.ui.View):
 
         if input_type == "path":
             for path_id, name, _blurb in list_story_paths()[:4]:
+                style = _PATH_BUTTON_STYLES.get(path_id, discord.ButtonStyle.secondary)
+                short = name.replace("Path of the ", "")[:80]
                 btn = discord.ui.Button(
-                    label=name[:80],
-                    style=discord.ButtonStyle.success,
+                    label=short,
+                    style=style,
                 )
                 btn.callback = self._make_path_callback(path_id)
                 self.add_item(btn)

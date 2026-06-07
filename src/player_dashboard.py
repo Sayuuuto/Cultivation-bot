@@ -142,6 +142,7 @@ def build_profile_embed(
     combat: PlayerCombatStats,
     realm_display: str,
     remaining_fn,
+    is_public_view: bool = False,
 ) -> discord.Embed:
     cap = qi_cap(player.realm_index, player.substage, player)
     qi_pct = 0 if cap <= 0 else int(min(100, player.qi / cap * 100))
@@ -161,94 +162,62 @@ def build_profile_embed(
         if sect_def is not None:
             identity_bits.append(f"Sect: {sect_def.name} · {player.sect_merit} merit")
 
+    from .achievements import build_profile_achievement_badges
+
+    pvp_total = player.pvp_wins + player.pvp_losses
+    pvp_record = f"{player.pvp_wins}W / {player.pvp_losses}L" if pvp_total else "No duels yet"
+
+    if is_public_view:
+        qi_line = f"{format_qi_bar(player.qi, cap)} **{qi_pct}%** through realm"
+    else:
+        qi_line = f"{format_qi_bar(player.qi, cap)} **{player.qi}/{cap}** ({qi_pct}%){breakthrough_hint}"
+
     embed = discord.Embed(
-        title=f"{player.dao_name} — Cultivation Profile",
+        title=f"{player.dao_name} — Cultivation Trophy",
         description=" · ".join(identity_bits),
-        color=discord.Color.blue(),
+        color=discord.Color.gold(),
     )
 
     embed.add_field(
         name="🌀 Cultivation",
         value=(
             f"**{realm_display}**\n"
-            f"{format_qi_bar(player.qi, cap)} **{player.qi}/{cap}** ({qi_pct}%){breakthrough_hint}\n"
-            f"🔥 Daily streak **{player.daily_streak}**"
+            f"{qi_line}\n"
+            f"📜 **{player.adventures_completed}** adventures · ⚔️ **{pvp_record}**"
         ),
         inline=False,
     )
 
-    from .novice_trial import format_trial_progress
-    from .story_mode import elder_trial_active, get_elder_name
-
-    trial_active = elder_trial_active(player)
-
-    trial_line = format_trial_progress(player)
-    if trial_line:
-        field_name = "Elder's instruction"
-        embed.add_field(name=field_name, value=trial_line, inline=False)
-
-    if not trial_active:
-        embed.add_field(
-            name="Activity lanes",
-            value=format_activity_lanes(player, cfg, now, remaining_fn, session),
-            inline=False,
-        )
-
-        embed.add_field(
-            name="Martial dao",
-            value=format_martial_dao_summary(session, player),
-            inline=False,
-        )
-
     embed.add_field(
-        name="Combat",
-        value=format_combat_stats_block(combat),
+        name="Martial dao",
+        value=format_martial_dao_summary(session, player),
         inline=False,
     )
 
-    effects_block = format_active_effects_block(session, player.id)
-    if effects_block:
-        embed.add_field(name="Lingering effects", value=effects_block, inline=False)
-    else:
+    if not is_public_view:
         embed.add_field(
-            name="Lingering effects",
-            value="_None — consume pills with **`/use`** before cultivating or adventuring._",
+            name="Combat",
+            value=format_combat_stats_block(combat),
             inline=False,
         )
+        effects_block = format_active_effects_block(session, player.id)
+        if effects_block:
+            embed.add_field(name="Lingering effects", value=effects_block, inline=False)
 
-    resources = f"💎 Spirit stones **{player.spirit_stones}**"
-    embed.add_field(name="Resources", value=resources, inline=True)
+    badges = build_profile_achievement_badges(session, player.id, public=is_public_view)
+    if badges:
+        embed.add_field(name="Achievements", value=" · ".join(badges), inline=False)
 
-    mod = get_character_modifiers(session, player)
-    from .cultivation_preview import (
-        format_active_cultivate_line,
-        format_passive_qi_rate_line,
-        preview_cultivate_qi,
-    )
+    embed.add_field(name="Resources", value=f"💎 Spirit stones **{player.spirit_stones}**", inline=True)
 
-    cult_preview = preview_cultivate_qi(player, mod, cfg, now)
-    embed.add_field(
-        name="🌙 Passive Qi",
-        value=format_passive_qi_rate_line(cult_preview),
-        inline=False,
-    )
-    embed.add_field(
-        name="🧘 /cultivate",
-        value=format_active_cultivate_line(cult_preview, mod),
-        inline=False,
-    )
-
-    if offline_qi > 0:
+    if offline_qi > 0 and not is_public_view:
         embed.add_field(
             name="Formation bank absorbed",
             value=f"**+{offline_qi} Qi** from your formation bank flowed into your cultivation pool.",
             inline=False,
         )
 
-    if trial_active:
-        embed.set_footer(text=f"Follow {get_elder_name()} in your abode — /story")
-    else:
-        embed.set_footer(text="Use the buttons below to cultivate · /techniques for your martial build")
+    embed.set_footer(text="Public cultivation record · /cooldown for activity timers")
     return embed
 
 

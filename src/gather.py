@@ -129,6 +129,8 @@ def run_gather(
     player: Player,
     area_id: str,
     rng: random.Random | None = None,
+    *,
+    yield_multiplier: float = 1.0,
 ) -> GatherResult:
     rng = rng or random.Random()
     area_id = resolve_area_id(area_id) or area_id
@@ -161,7 +163,7 @@ def run_gather(
             messages=["You find nothing worth harvesting."],
         )
 
-    qty = _roll_qty(node, qty_mult, rng)
+    qty = _roll_qty(node, qty_mult * max(0.5, yield_multiplier), rng)
     add_item(session, player.id, node.item_id, qty)
     drops = {node.item_id: qty}
 

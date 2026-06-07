@@ -63,6 +63,24 @@ def get_technique_rank_cap(realm_index: int) -> int:
     return int(get_realm_entry(realm_index).get("technique_rank_cap", min(10, 3 + realm_index)))
 
 
+def get_passive_slot_count(realm_index: int) -> int:
+    entry = get_realm_entry(realm_index)
+    if "passive_slots" in entry:
+        return max(1, int(entry["passive_slots"]))
+    if realm_index >= 4:
+        return 3
+    if realm_index >= 2:
+        return 2
+    return 1
+
+
+def passive_slot_names(realm_index: int) -> tuple[str, ...]:
+    count = get_passive_slot_count(realm_index)
+    if count <= 1:
+        return ("passive",)
+    return tuple(["passive"] + [f"passive_{i}" for i in range(2, count + 1)])
+
+
 def realm_breakthrough_base_success(realm_index: int, substage: int) -> float:
     """Base breakthrough odds before karma, pills, and gear — high in Mortal, lower in late realms."""
     cfg = get_breakthrough_config()

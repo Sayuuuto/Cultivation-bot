@@ -384,6 +384,13 @@ def apply_path_bonuses(session: Session, player: Player) -> list[str]:
     for item_id, qty in (path_def.get("items") or {}).items():
         add_item(session, player.id, item_id, int(qty))
 
+    manual_id = path_def.get("manual_item_id")
+    if manual_id:
+        add_item(session, player.id, str(manual_id), 1)
+        from .inventory import get_item_name
+
+        messages.append(f"📜 **{get_item_name(str(manual_id))}** rests in your storage ring.")
+
     ceremony = path_def.get("ceremony")
     if ceremony:
         messages.append(f"🎋 {ceremony}")
